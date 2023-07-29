@@ -17,6 +17,7 @@
 !LICENSE
 
 # And filetypes
+!*.sh
 !*.yml
 !*.yaml
 !*.json

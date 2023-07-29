@@ -1,0 +1,29 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: dstk
+# build:
+#   artifacts:
+#   - image: postgres
+#     context: postgres
+manifests:
+  rawYaml:
+  - minio/minio.k8s.yml
+  # - postgres/postgres.k8s.yml
+deploy:
+  kubectl: {}
+    # flags:
+    #   global:
+    #   - --namespace=dstk
+  statusCheckDeadlineSeconds: 600
+profiles:
+- name: dstk-dev
+  # patches:
+  # - op: replace
+  #   path: /deploy/kubectl/flags/global/0
+  #   value: --namespace=dstk-dev
+  portForward:
+  - resourceType: service
+    resourceName: minio
+    port: 9000
+    localPort: 9000
