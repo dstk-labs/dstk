@@ -45,4 +45,7 @@ check_binary "skaffold"
 set -e
 
 # Minikube startup
-minikube dev --profile dstk-dev
+minikube start --profile dstk
+
+pushd src
+skaffold dev --port-forward --profile dstk-dev
