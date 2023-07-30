@@ -19,62 +19,27 @@ spec:
         io.kompose.service: minio
         app.kubernetes.io/name: minio
     spec:
-      # initContainers:
-      # - name: install
-      #   image: alpine:latest
-      #   command:
-      #   - mkdir
-      #   - -p
-      #   - /data/dstk-registry
-      #   volumeMounts:
-      #   - name:  minio
-      #     mountPath: "/data"
+      initContainers:
+      - name: install
+        image: alpine:latest
+        command:
+        - mkdir
+        - -p
+        - /data/dstk-registry
       containers:
-        - args:
-            - server
-            - /data
-          env:
-            - name: MINIO_ROOT_USER
-              value: ACCESSKEY
-            - name: MINIO_ROOT_PASSWORD
-              value: SECRETKEY
-          image: minio/minio:latest
-          name: minio
-          ports:
-            - containerPort: 9000
-              name: minio-web
-          # volumeMounts:
-          #   - mountPath: /data
-          #     name: minio
-          resources:
-            limits:
-              cpu: 750m
-              memory: 1024Mi
-            requests:
-              cpu: 250m
-              memory: 256Mi
-
-      restartPolicy: Always
-      # volumes:
-      #   - name: minio
-      #     persistentVolumeClaim:
-      #       claimName: minio
+      - args:
+          - server
+          - /data
+          - --console-address
+          - ":9001"
+        env:
+        - name: MINIO_ROOT_USER
+          value: minioadmin
+        - name: MINIO_ROOT_PASSWORD
+          value: minioadmin
+        image: minio/minio:latest
+        name: minio
 ---
-# apiVersion: v1
-# kind: PersistentVolumeClaim
-# metadata:
-#   labels:
-#     io.kompose.service: minio
-#     app.kubernetes.io/name: minio
-#   name: minio
-# spec:
-#   accessModes:
-#     - ReadWriteOnce
-#   resources:
-#     requests:
-#       storage: 2Gi
-# status: {}
-# ---
 apiVersion: v1
 kind: Service
 metadata:
@@ -82,13 +47,8 @@ metadata:
     io.kompose.service: minio
   name: minio
 spec:
-  type: NodePort
   ports:
-    - name: "9000"
-      port: 9000
-      protocol: TCP
-      targetPort: minio-web
+    - name: "9001"
+      port: 9001
   selector:
     io.kompose.service: minio
-status:
-  loadBalancer: {}
