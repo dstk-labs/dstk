@@ -48,4 +48,4 @@ set -e
 minikube start --profile dstk
 
 pushd src
-skaffold dev --port-forward --profile dstk-dev
+skaffold dev --profile dstk-dev
