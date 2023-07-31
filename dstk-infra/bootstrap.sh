@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+
+
 # Convenience functions
 info () {
   printf "\r[ \033[00;34m..\033[0m ] $1\n"
@@ -26,6 +30,11 @@ check_binary () {
   fi
 }
 
+function cleanup()
+{
+    rm "${SCRIPT_DIR}/src/postgres/postgres.k8s.yml"
+}
+
 
 # Setup checks
 set +e
@@ -48,4 +57,11 @@ set -e
 minikube start --profile dstk
 
 pushd src
+
+# le jank
+sed "s@{{PG_INIT_SCRIPTS}}@${SCRIPT_DIR}/src/postgres/docker-entrypoint-initdb.d@" \
+  ./postgres/postgres.k8s.template.yml > ./postgres/postgres.k8s.yml
+
 skaffold dev --profile dstk-dev
+
+trap cleanup SIGINT SIGTERM EXIT
