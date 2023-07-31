@@ -5,8 +5,18 @@ metadata:
 manifests:
   rawYaml:
   - minio/minio.k8s.yml
+  - postgres/postgres.k8s.yml
 deploy:
   kubectl: {}
   statusCheckDeadlineSeconds: 600
 profiles:
 - name: dstk-dev
+  portForward:
+    - resourceType: service
+      resourceName: postgres
+      port: 5432
+      localPort: 5432
+    - resourceType: service
+      resourceName: minio
+      port: 9001
+      localPort: 9001
