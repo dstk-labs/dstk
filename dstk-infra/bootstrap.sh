@@ -32,7 +32,7 @@ check_binary () {
 
 function cleanup()
 {
-    success Task failed successfully!
+    success "Task failed successfully!"
 }
 
 
