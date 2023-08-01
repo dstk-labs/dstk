@@ -32,7 +32,7 @@ check_binary () {
 
 function cleanup()
 {
-    rm "${SCRIPT_DIR}/src/postgres/postgres.k8s.yml"
+    success Task failed successfully!
 }
 
 
@@ -57,11 +57,6 @@ set -e
 minikube start --profile dstk
 
 pushd src
-
-# le jank
-sed "s@{{PG_INIT_SCRIPTS}}@${SCRIPT_DIR}/src/postgres/docker-entrypoint-initdb.d@" \
-  ./postgres/postgres.k8s.template.yml > ./postgres/postgres.k8s.yml
-
 skaffold dev --profile dstk-dev
 
 trap cleanup SIGINT SIGTERM EXIT

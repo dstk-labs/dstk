@@ -6,6 +6,12 @@ manifests:
   rawYaml:
   - minio/minio.k8s.yml
   - postgres/postgres.k8s.yml
+build:
+  artifacts:
+  - image: dstk-postgres
+    context: postgres
+    docker:
+      dockerfile: Dockerfile
 deploy:
   kubectl: {}
   statusCheckDeadlineSeconds: 600
