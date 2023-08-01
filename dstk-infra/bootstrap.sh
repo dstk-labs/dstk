@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+
+SCRIPT_DIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+
+
 # Convenience functions
 info () {
   printf "\r[ \033[00;34m..\033[0m ] $1\n"
@@ -24,6 +28,11 @@ check_binary () {
     fail "No valid binary for ${1} found in PATH. Please correct your installation"
     exit 1
   fi
+}
+
+function cleanup()
+{
+    success "Task failed successfully!"
 }
 
 
@@ -49,3 +58,5 @@ minikube start --profile dstk
 
 pushd src
 skaffold dev --profile dstk-dev
+
+trap cleanup SIGINT SIGTERM EXIT
