@@ -4,18 +4,19 @@ set -euo pipefail
 
 # Convenience functions
 info () {
-  printf "\r[ \033[00;34m..\033[0m ] $1\n"
+  printf "\r[ \033[00;34m..\033[0m ] ${1:-}\n"
 }
 
 success () {
-  printf "\r\033[2K[ \033[00;32mOK\033[0m ] $1\n"
+  printf "\r\033[2K[ \033[00;32mOK\033[0m ] ${1:-}\n"
 }
 
 fail () {
-  printf "\r\033[2K[\033[0;31mFAIL\033[0m] $1\n"
+  printf "\r\033[2K[\033[0;31mFAIL\033[0m] ${1:-}\n"
 }
 
 check_binary () {
+  set +e
   which $1 > /dev/null 2>&1
   status=$?
   if [ $status -eq 0 ]; then
@@ -24,17 +25,21 @@ check_binary () {
     fail "No valid binary for ${1} found in PATH. Please correct your installation"
     exit 1
   fi
+  set -e
 }
 
-
+query_psql () {
+  PGPASSWORD="${POSTGRES_PWD}" \
+  psql \
+    -h "127.0.0.1" \
+    -p "5432" \
+    -U postgres \
+    -qtA $(echo "${1:-}")
+}
 
 # Setup checks
-set +e
-
 info "Checking for psql binary..."
 check_binary "psql"
-
-set -e
 
 
 # TODOs
@@ -49,12 +54,31 @@ set -e
 #   - get it out of bash
 
 #  Test database connection
-pg_isready -d dstk -h 127.0.0.1 -p 5432 -U postgres -P "${POSTGRES_PWD}"
+info "checking postgres availability"
+pg_isready -d dstk_metadata -h 127.0.0.1 -p 5432 -U postgres &> /dev/null
+success "Connected to postgres!"
 
 # Enumerate patches
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P)
-patches=$(find "${SCRIPT_DIR}../src/postgres/patches" -type f -name '*.sql' | sort)
+patches=$(find "${SCRIPT_DIR}/../src/postgres/patches" -type f -name '*.sql' | sort)
 
 for patch in "${patches[@]}"; do
-  echo "${patch}"
+  base_name=$(basename "${patch}")
+
+  query="SELECT patch, applied FROM patch_status WHERE patch = '${base_name}';"
+  IFS="|" read -r -a res <<< $(echo "${query}" | query_psql "dstk_metadata")
+
+  if [ ${#res[@]} -eq 0 ]; then
+    info "Applying patch ${base_name}"
+    _now=$(date +%s)
+    result=$(query_psql < "${patch}")
+    _later=$(date +%s)
+
+    duration=$((${_later} - ${_now}))
+    query="INSERT INTO patch_status (patch, applied, duration) VALUES ('${base_name}', TRUE, ${duration});"
+    result=$(echo "${query}" | query_psql "dstk_metadata")
+    success "Applied patch ${base_name} in ${duration} seconds"
+  fi
 done
+
+success "Patches successfully applied"
