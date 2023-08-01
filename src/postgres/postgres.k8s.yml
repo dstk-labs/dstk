@@ -1,3 +1,14 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  labels:
+    io.kompose.service: postgres
+    app.kubernetes.io/name: postgres
+data:
+  postgres-user: cG9zdGdyZXM=
+  postgres-password: cG9zdGdyZXM=
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -20,15 +31,20 @@ spec:
         app.kubernetes.io/name: postgres
     spec:
       containers:
-      - env:
-        - name: POSTGRES_PASSWORD
-          value: postgres
-        - name: POSTGRES_USER
-          value: postgres
-        - name: POSTGRES_DB
-          value: dstk
-        image: postgres:15.3
-        name: postgres
+        - name: postgres
+          image: dstk-postgres
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-password
+
 ---
 apiVersion: v1
 kind: Service

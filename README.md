@@ -4,6 +4,7 @@
 - Minikube
 - kubectl
 - Skaffold
+- `psql` command line utility (for now, at least)
 
 ## Development Usage
 
