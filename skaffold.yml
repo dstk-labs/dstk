@@ -4,12 +4,17 @@ metadata:
   name: dstk
 manifests:
   rawYaml:
+  - apollo/apollo.k8s.yml
   - minio/minio.k8s.yml
   - postgres/postgres.k8s.yml
 build:
   artifacts:
   - image: dstk-postgres
     context: postgres
+    docker:
+      dockerfile: Dockerfile
+  - image: dstk-apollo
+    context: apollo
     docker:
       dockerfile: Dockerfile
 deploy:
@@ -19,10 +24,14 @@ profiles:
 - name: dstk-dev
   portForward:
     - resourceType: service
-      resourceName: postgres
-      port: 5432
-      localPort: 5432
+      resourceName: apollo
+      port: 4000
+      localPort: 4000
     - resourceType: service
       resourceName: minio
       port: 9001
       localPort: 9001
+    - resourceType: service
+      resourceName: postgres
+      port: 5432
+      localPort: 5432
