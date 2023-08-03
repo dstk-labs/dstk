@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: apollo
+    app.kubernetes.io/name: apollo
+  name: apollo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: apollo
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: apollo
+        app.kubernetes.io/name: apollo
+    spec:
+      containers:
+        - name: apollo
+          image: dstk-apollo
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: apollo
+  name: apollo
+spec:
+  ports:
+    - name: "4000"
+      port: 4000
+  selector:
+    io.kompose.service: apollo
