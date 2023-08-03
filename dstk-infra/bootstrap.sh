@@ -56,7 +56,6 @@ set -e
 # Minikube startup
 minikube start --profile dstk
 
-pushd src
 skaffold dev --profile dstk-dev
 
 trap cleanup SIGINT SIGTERM EXIT
