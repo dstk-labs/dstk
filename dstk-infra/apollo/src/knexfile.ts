@@ -8,6 +8,7 @@ export const knexConfig = {
       port: 5432,
       user: 'postgres',
       password: 'postgres',
+      database: 'dstk_registry',
     },
     pool: {
       min: 2,
