@@ -60,7 +60,7 @@ success "Connected to postgres!"
 
 # Enumerate patches
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P)
-patches=$(find "${SCRIPT_DIR}/../src/postgres/patches" -type f -name '*.sql' | sort)
+readarray -d '' patches < <(find "${SCRIPT_DIR}/../postgres/patches" -type f -name '*.sql' -print0 | sort)
 
 for patch in "${patches[@]}"; do
   base_name=$(basename "${patch}")
