@@ -4,7 +4,7 @@ export const knexConfig = {
   development: {
     client: 'postgresql',
     connection: {
-      host: '127.0.0.1',
+      host: 'dstk-postgres.svc.cluster.local',
       port: 5432,
       user: 'postgres',
       password: 'postgres',
