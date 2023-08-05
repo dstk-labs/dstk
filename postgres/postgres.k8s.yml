@@ -3,8 +3,8 @@ kind: Secret
 metadata:
   name: postgres-secret
   labels:
-    io.kompose.service: postgres
-    app.kubernetes.io/name: postgres
+    io.kompose.service: dstk-postgres
+    app.kubernetes.io/name: dstk-postgres
 data:
   postgres-user: cG9zdGdyZXM=
   postgres-password: cG9zdGdyZXM=
@@ -14,21 +14,21 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    io.kompose.service: postgres
-    app.kubernetes.io/name: postgres
-  name: postgres
+    io.kompose.service: dstk-postgres
+    app.kubernetes.io/name: dstk-postgres
+  name: dstk-postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: postgres
+      io.kompose.service: dstk-postgres
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        io.kompose.service: postgres
-        app.kubernetes.io/name: postgres
+        io.kompose.service: dstk-postgres
+        app.kubernetes.io/name: dstk-postgres
     spec:
       containers:
         - name: postgres
@@ -50,11 +50,11 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    io.kompose.service: postgres
-  name: postgres
+    io.kompose.service: dstk-postgres
+  name: dstk-postgres
 spec:
   ports:
     - name: "5432"
       port: 5432
   selector:
-    io.kompose.service: postgres
+    io.kompose.service: dstk-postgres

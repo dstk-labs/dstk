@@ -24,14 +24,14 @@ profiles:
 - name: dstk-dev
   portForward:
     - resourceType: service
-      resourceName: apollo
+      resourceName: dstk-apollo
       port: 4000
       localPort: 4000
     - resourceType: service
-      resourceName: minio
+      resourceName: dstk-minio
       port: 9001
       localPort: 9001
     - resourceType: service
-      resourceName: postgres
+      resourceName: dstk-postgres
       port: 5432
       localPort: 5432
