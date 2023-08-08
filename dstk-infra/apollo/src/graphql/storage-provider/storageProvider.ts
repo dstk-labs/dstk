@@ -43,7 +43,7 @@ export class ObjectionStorageProvider extends Model {
             modelClass: ObjectionMLModel,
             join: {
                 from: 'registryStorageProviders.id',
-                to: 'registryModels.id',
+                to: 'registryModels.storageProviderId',
             },
         },
     });
