@@ -27,7 +27,6 @@ export const MLModel = objectType({
 export class ObjectionMLModel extends Model {
     id!: string;
     storageProviderId!: string;
-    storageProvider: ObjectionStorageProvider;
     isArchived!: boolean;
     modelName!: string;
     createdBy!: string;
