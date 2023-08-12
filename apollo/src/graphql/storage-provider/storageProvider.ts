@@ -32,7 +32,7 @@ export class ObjectionStorageProvider extends Model {
     dateCreated!: string;
     dateModified!: string;
 
-    static TableName = 'registryStorageProviders';
+    static tableName = 'registryStorageProviders';
     static get idColumn() {
         return 'providerId';
     }
