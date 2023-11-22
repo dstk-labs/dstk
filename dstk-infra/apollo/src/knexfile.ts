@@ -2,9 +2,9 @@ import { knexSnakeCaseMappers } from "objection"
 
 export const knexConfig = {
   development: {
-    client: 'postgresql',
+    client: 'pg',
     connection: {
-      host: 'dstk-postgres.svc.cluster.local',
+      host: 'dstk-postgres',
       port: 5432,
       user: 'postgres',
       password: 'postgres',
