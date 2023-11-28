@@ -32,7 +32,9 @@
 !*.sql
 !*.graphql
 !.prettierrc
+!*.lintstagedrc
 !Dockerfile
+!pre-commit
 	
 # And certain folders, regardless of content
 !*assets/*

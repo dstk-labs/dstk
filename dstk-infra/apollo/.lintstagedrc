@@ -1,0 +1,6 @@
+{
+    "*.{ts,tsx}": [
+        "eslint --fix --ext .ts",
+        "prettier --write './**/*.ts' --config ./.prettierrc.json"
+    ]
+}

@@ -7,7 +7,8 @@
     "lint": "eslint src/**/*.ts --config ./.eslintrc.json",
     "lint:fix": "eslint src/**/*.ts --fix --config ./.eslintrc.json",
     "format": "prettier src/**/*.ts --write --config ./.prettierrc.json",
-    "format:fix": "prettier src/**/*.ts --write --config ./.prettierrc.json"
+    "format:fix": "prettier src/**/*.ts --write --config ./.prettierrc.json",
+    "prepare": "cd ../../ && husky install ./dstk-infra/apollo/.husky"
   },
   "dependencies": {
     "@apollo/server": "^4.9.0",
@@ -26,6 +27,8 @@
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
     "eslint": "^8.54.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.1.0",
     "prettier": "^3.0.1",
     "source-map-loader": "^4.0.1",
     "ts-loader": "^9.4.4",
