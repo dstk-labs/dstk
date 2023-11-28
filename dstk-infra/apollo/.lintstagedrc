@@ -1,6 +1,6 @@
 {
     "*.{ts,tsx}": [
-        "eslint --fix --ext .ts",
-        "prettier --write './**/*.ts' --config ./.prettierrc.json"
+        "eslint 'src/**/*.ts' --fix --config ./.eslintrc.json",
+        "prettier 'src/**/*.ts' --write --config ./.prettierrc.json"
     ]
 }

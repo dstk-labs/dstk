@@ -4,10 +4,10 @@
   "scripts": {
     "compile": "tsc",
     "start": "pnpm run compile && node ./dist/index.js",
-    "lint": "eslint src/**/*.ts --config ./.eslintrc.json",
-    "lint:fix": "eslint src/**/*.ts --fix --config ./.eslintrc.json",
-    "format": "prettier src/**/*.ts --write --config ./.prettierrc.json",
-    "format:fix": "prettier src/**/*.ts --write --config ./.prettierrc.json",
+    "lint": "eslint 'src/**/*.ts' --config ./.eslintrc.json",
+    "lint:fix": "eslint 'src/**/*.ts' --fix --config ./.eslintrc.json",
+    "format": "prettier 'src/**/*.ts' --write --config ./.prettierrc.json",
+    "format:fix": "prettier 'src/**/*.ts' --write --config ./.prettierrc.json",
     "prepare": "cd ../../ && husky install ./dstk-infra/apollo/.husky"
   },
   "dependencies": {
