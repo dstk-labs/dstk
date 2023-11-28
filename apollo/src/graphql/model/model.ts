@@ -1,6 +1,6 @@
 import { objectType } from 'nexus';
 import { Model } from 'objection';
-import { ObjectionStorageProvider } from '../storage-provider/storageProvider';
+import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 
 export const MLModel = objectType({
     name: 'Model',
