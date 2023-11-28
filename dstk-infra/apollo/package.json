@@ -3,7 +3,11 @@
   "private": true,
   "scripts": {
     "compile": "tsc",
-    "start": "pnpm run compile && node ./dist/index.js"
+    "start": "pnpm run compile && node ./dist/index.js",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier src/**/*.ts",
+    "format:fix": "prettier src/**/*.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.9.0",
