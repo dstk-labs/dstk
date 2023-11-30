@@ -2,7 +2,9 @@
 
 set -euo pipefail
 
-# Convenience functions
+########################################
+#        Convenience functions         #
+########################################
 info () {
   printf "\r[ \033[00;34m..\033[0m ] ${1:-}\n"
 }
@@ -37,48 +39,95 @@ query_psql () {
     -qtA $(echo "${1:-}")
 }
 
-# Setup checks
-info "Checking for psql binary..."
-check_binary "psql"
+########################################
+#        Namespaced Subcommands        #
+########################################
+
+storage__readiness() {
+  # Setup checks
+  info "Checking for psql binary..."
+  check_binary "psql"
+
+  # TODOs
+  #   - command line args:
+  #     - user
+  #     - password
+  #     - hostname
+  #     - force
+  #     - dryrun
+  #     - namespace
+  # 
+  #   - get it out of bash
+
+  #  Test database connection
+  info "checking postgres availability"
+  pg_isready -d dstk_metadata -h 127.0.0.1 -p 5432 -U postgres &> /dev/null
+  success "Connected to postgres!"
+}
 
 
-# TODOs
-#   - command line args:
-#     - user
-#     - password
-#     - hostname
-#     - force
-#     - dryrun
-#     - namespace
-# 
-#   - get it out of bash
+storage__upgrade() {
+  # Enumerate patches
+  SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P)
+  readarray -d '' patches < <(find "${SCRIPT_DIR}/../postgres/patches" -type f -name '*.sql' -print0 | sort)
 
-#  Test database connection
-info "checking postgres availability"
-pg_isready -d dstk_metadata -h 127.0.0.1 -p 5432 -U postgres &> /dev/null
-success "Connected to postgres!"
+  for patch in "${patches[@]}"; do
+    base_name=$(basename "${patch}")
 
-# Enumerate patches
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P)
-readarray -d '' patches < <(find "${SCRIPT_DIR}/../postgres/patches" -type f -name '*.sql' -print0 | sort)
+    # The above `find` command will result in an empty string
+    # for one of the entries. Rather than caring enough to debug why,
+    # I'll just add a check here to skip it whenever we run into it.
+    # 
+    # That feels like responsible programming
+    if [ -z "${base_name}" ]; then
+      continue
+    fi
 
-for patch in "${patches[@]}"; do
-  base_name=$(basename "${patch}")
+    # Check to see if this is a patch that has already been applied or not
+    info "Checking patch ${base_name}"
+    query="SELECT patch, applied FROM patch_status WHERE patch = '${base_name}';"
+    IFS="|" read -r -a res <<< $(echo "${query}" | query_psql "dstk_metadata")
 
-  query="SELECT patch, applied FROM patch_status WHERE patch = '${base_name}';"
-  IFS="|" read -r -a res <<< $(echo "${query}" | query_psql "dstk_metadata")
+    # If the result set is length 0, meaning that the patch doesn't exist
+    # in our `patch_status` table, we will attempt to apply it
+    if [ ${#res[@]} -eq 0 ]; then
+      info "Applying patch ${base_name}"
+      _now=$(date +%s)
+      result=$(query_psql < "${patch}")
+      _later=$(date +%s)
 
-  if [ ${#res[@]} -eq 0 ]; then
-    info "Applying patch ${base_name}"
-    _now=$(date +%s)
-    result=$(query_psql < "${patch}")
-    _later=$(date +%s)
+      duration=$((${_later} - ${_now}))
+      query="INSERT INTO patch_status (patch, applied, duration) VALUES ('${base_name}', TRUE, ${duration});"
 
-    duration=$((${_later} - ${_now}))
-    query="INSERT INTO patch_status (patch, applied, duration) VALUES ('${base_name}', TRUE, ${duration});"
-    result=$(echo "${query}" | query_psql "dstk_metadata")
-    success "Applied patch ${base_name} in ${duration} seconds"
+      # Note that I'm really not doing anything with this result object, like,
+      # I don't know, checking to see if the transaction failed or succeeded.
+      # We're just kind of winging it and assuming things mostly worked out
+      # for the best.
+      result=$(echo "${query}" | query_psql "dstk_metadata")
+      success "Applied patch ${base_name} in ${duration} seconds"
+    else
+      info "Patch ${base_name} already applied, skipping"
+    fi
+  done
+
+  success "Patches successfully applied"
+}
+
+
+########################################
+#          Script Entrypoint           #
+########################################
+
+# This is just a loader command that checks to see
+# whether the user has supplied a valid subcommand or
+# not
+storage() {
+  storage__readiness
+
+  local cmdname=$1; shift
+  if type "storage__$cmdname" >/dev/null 2>&1; then
+    "storage__$cmdname"
   fi
-done
+}
 
-success "Patches successfully applied"
+storage "$@"

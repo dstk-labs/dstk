@@ -18,6 +18,16 @@ Optionally you can monitor the deployed K8s resources with
 minikube dashboard --profile dstk
 ```
 
+## Bootstrapping the database
+
+Although some initial databases are created whenever the Postgres container is built, we do not apply patches by default. To apply these yourself, run
+
+```bash
+./bin/storage upgrade
+```
+
+This will apply any new patches present in `postgres/patches`
+
 ## Available Services
 
 The development cluster will automatically expose the following services and endpoints:
