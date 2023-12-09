@@ -31,7 +31,7 @@ export class ObjectionMLModelVersion extends Model {
     // TODO: metadata: something
     dateCreated!: string;
 
-    static tableName = 'registryModelVersions';
+    static tableName = 'registry.modelVersions';
     static get idColumn() {
         return 'modelVersionId';
     }
