@@ -32,7 +32,7 @@ export class ObjectionStorageProvider extends Model {
     dateCreated!: string;
     dateModified!: string;
 
-    static tableName = 'registryStorageProviders';
+    static tableName = 'registry.storageProviders';
     static get idColumn() {
         return 'providerId';
     }
@@ -42,8 +42,8 @@ export class ObjectionStorageProvider extends Model {
             relation: Model.HasManyRelation,
             modelClass: ObjectionMLModel,
             join: {
-                from: 'registryStorageProviders.id',
-                to: 'registryModels.storageProviderId',
+                from: 'registry.storageProviders.id',
+                to: 'registry.models.storageProviderId',
             },
         },
     });

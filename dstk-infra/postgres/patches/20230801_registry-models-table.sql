@@ -1,8 +1,10 @@
-\connect dstk_registry;
+\connect dstk;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE registry_storage_providers (
+CREATE SCHEMA registry;
+
+CREATE TABLE registry.storage_providers (
     id                SERIAL       NOT NULL PRIMARY KEY,
     provider_id       UUID         NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
     endpoint_url      VARCHAR(512) NOT NULL,
@@ -17,10 +19,10 @@ CREATE TABLE registry_storage_providers (
     date_modified     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE registry_models (
+CREATE TABLE registry.models (
     id                  SERIAL      NOT NULL PRIMARY KEY,
     model_id            UUID        NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
-    storage_provider_id UUID        NOT NULL REFERENCES registry_storage_providers(provider_id),
+    storage_provider_id UUID        NOT NULL REFERENCES registry.storage_providers(provider_id),
     is_archived         BOOLEAN     NOT NULL DEFAULT FALSE,
     model_name          VARCHAR(64) NOT NULL UNIQUE,
     created_by          UUID        NOT NULL,
@@ -31,10 +33,10 @@ CREATE TABLE registry_models (
     date_modified       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE registry_model_versions (
+CREATE TABLE registry.model_versions (
     id               SERIAL  NOT NULL PRIMARY KEY,
     model_version_id UUID    NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
-    model_id         UUID    NOT NULL REFERENCES registry_models(model_id),
+    model_id         UUID    NOT NULL REFERENCES registry.models(model_id),
     is_archived      BOOLEAN NOT NULL DEFAULT FALSE,
     created_by       UUID    NOT NULL,
     numeric_version  INTEGER NOT NULL,

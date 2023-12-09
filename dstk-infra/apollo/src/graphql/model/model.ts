@@ -35,7 +35,7 @@ export class ObjectionMLModel extends Model {
     dateModified!: string;
     description!: string;
 
-    static tableName = 'registryModels';
+    static tableName = 'registry.models';
     static get idColumn() {
         return 'modelId';
     }
