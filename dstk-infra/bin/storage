@@ -61,7 +61,7 @@ storage__readiness() {
 
   #  Test database connection
   info "checking postgres availability"
-  pg_isready -d dstk_metadata -h 127.0.0.1 -p 5432 -U postgres &> /dev/null
+  pg_isready -d dstk -h 127.0.0.1 -p 5432 -U postgres &> /dev/null
   success "Connected to postgres!"
 }
 
@@ -86,7 +86,7 @@ storage__upgrade() {
     # Check to see if this is a patch that has already been applied or not
     info "Checking patch ${base_name}"
     query="SELECT patch, applied FROM patch_status WHERE patch = '${base_name}';"
-    IFS="|" read -r -a res <<< $(echo "${query}" | query_psql "dstk_metadata")
+    IFS="|" read -r -a res <<< $(echo "${query}" | query_psql "dstk")
 
     # If the result set is length 0, meaning that the patch doesn't exist
     # in our `patch_status` table, we will attempt to apply it
@@ -103,7 +103,7 @@ storage__upgrade() {
       # I don't know, checking to see if the transaction failed or succeeded.
       # We're just kind of winging it and assuming things mostly worked out
       # for the best.
-      result=$(echo "${query}" | query_psql "dstk_metadata")
+      result=$(echo "${query}" | query_psql "dstk")
       success "Applied patch ${base_name} in ${duration} seconds"
     else
       info "Patch ${base_name} already applied, skipping"
