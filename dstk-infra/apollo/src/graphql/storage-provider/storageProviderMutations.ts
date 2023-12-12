@@ -77,3 +77,28 @@ export const EditStorageProviderMutation = extendType({
         });
     },
 });
+
+export const DeleteStorageProviderMutation = extendType({
+    type: 'Mutation',
+    definition(t) {
+        t.field('deleteStorageProvider', {
+            type: StorageProvider,
+            args: {
+                providerId: StorageProviderIdInputType,
+            },
+            async resolve(root, args, ctx) {
+                const results = ObjectionStorageProvider.transaction(async (trx) => {
+                    const modifiedDate = Date.now().toString();
+                    const storageProvider = await ObjectionStorageProvider.query(trx).deleteById(
+                        args.providerId.providerId,
+                    );
+
+                    return storageProvider;
+                });
+
+                // Returns the number of rows deleted
+                return results;
+            },
+        });
+    },
+});
