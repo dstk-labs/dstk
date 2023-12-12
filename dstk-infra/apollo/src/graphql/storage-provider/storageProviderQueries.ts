@@ -7,7 +7,7 @@ export const ListStorageProviders = extendType({
         t.nonNull.list.field('listStorageProviders', {
             type: StorageProvider,
             async resolve(root, args, ctx) {
-                let query = ObjectionStorageProvider.query();
+                const query = ObjectionStorageProvider.query();
                 const result = await query.orderBy('dateCreated');
                 return result;
             },
