@@ -85,7 +85,7 @@ storage__upgrade() {
 
     # Check to see if this is a patch that has already been applied or not
     info "Checking patch ${base_name}"
-    query="SELECT patch, applied FROM patch_status WHERE patch = '${base_name}';"
+    query="SELECT patch, applied FROM dstk_metadata.patch_status WHERE patch = '${base_name}';"
     IFS="|" read -r -a res <<< $(echo "${query}" | query_psql "dstk")
 
     # If the result set is length 0, meaning that the patch doesn't exist
@@ -97,7 +97,7 @@ storage__upgrade() {
       _later=$(date +%s)
 
       duration=$((${_later} - ${_now}))
-      query="INSERT INTO patch_status (patch, applied, duration) VALUES ('${base_name}', TRUE, ${duration});"
+      query="INSERT INTO dstk_metadata.patch_status (patch, applied, duration) VALUES ('${base_name}', TRUE, ${duration});"
 
       # Note that I'm really not doing anything with this result object, like,
       # I don't know, checking to see if the transaction failed or succeeded.
