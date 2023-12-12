@@ -27,7 +27,6 @@ export const CreateStorageProviderMutation = extendType({
             args: { data: StorageProviderInputType },
             async resolve(root, args, ctx) {
                 const results = ObjectionStorageProvider.transaction(async (trx) => {
-                    const modifiedDate = Date.now().toString();
                     const storageProvider = await ObjectionStorageProvider.query(trx)
                         .insertAndFetch({
                             endpointUrl: args.data.endpointUrl,
@@ -35,7 +34,6 @@ export const CreateStorageProviderMutation = extendType({
                             bucket: args.data.bucket,
                             accessKeyId: args.data.accessKeyId,
                             secretAccessKey: args.data.secretAccessKey,
-                            dateModified: modifiedDate,
                         })
                         .first();
 
@@ -59,6 +57,7 @@ export const EditStorageProviderMutation = extendType({
             },
             async resolve(root, args, ctx) {
                 const results = ObjectionStorageProvider.transaction(async (trx) => {
+                    const modifiedDate = Date.now().toString();
                     const storageProvider = await ObjectionStorageProvider.query(
                         trx,
                     ).patchAndFetchById(args.providerId.providerId, {
@@ -67,6 +66,7 @@ export const EditStorageProviderMutation = extendType({
                         bucket: args.data.bucket,
                         accessKeyId: args.data.accessKeyId,
                         secretAccessKey: args.data.secretAccessKey,
+                        dateModified: modifiedDate,
                     });
 
                     return storageProvider;
