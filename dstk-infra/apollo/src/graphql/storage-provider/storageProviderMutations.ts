@@ -58,7 +58,6 @@ export const EditStorageProviderMutation = extendType({
             },
             async resolve(root, args, ctx) {
                 const results = ObjectionStorageProvider.transaction(async (trx) => {
-                    const modifiedDate = Date.now().toString();
                     const storageProvider = await ObjectionStorageProvider.query(
                         trx,
                     ).patchAndFetchById(args.providerId.providerId, {

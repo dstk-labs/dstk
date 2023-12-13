@@ -46,6 +46,35 @@ export const CreateModelMutation = extendType({
     },
 });
 
+export const EditModelMutation = extendType({
+    type: 'Mutation',
+    definition(t) {
+        t.field('editModel', {
+            type: MLModel,
+            args: {
+                modelId: ModelIdInputType,
+                data: ModelInputType,
+            },
+            async resolve(root, args, ctx) {
+                const results = ObjectionMLModel.transaction(async (trx) => {
+                    const mlModel = await ObjectionMLModel.query(trx).patchAndFetchById(
+                        args.modelId.modelId,
+                        {
+                            modelName: args.data.modelName,
+                            description: args.data.description,
+                            dateModified: raw('NOW()'),
+                        },
+                    );
+
+                    return mlModel;
+                });
+
+                return results;
+            },
+        });
+    },
+});
+
 export const ArchiveModelMutation = extendType({
     type: 'Mutation',
     definition(t) {
