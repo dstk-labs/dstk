@@ -16,6 +16,7 @@ export const StorageProvider = objectType({
         t.string('owner');
         t.string('dateCreated');
         t.string('dateModified');
+        t.boolean('isArchived');
     },
 });
 
@@ -31,6 +32,7 @@ export class ObjectionStorageProvider extends Model {
     owner!: string;
     dateCreated!: string;
     dateModified!: string;
+    isArchived!: boolean;
 
     static tableName = 'registry.storageProviders';
     static get idColumn() {

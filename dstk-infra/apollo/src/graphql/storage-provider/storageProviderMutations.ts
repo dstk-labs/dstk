@@ -1,5 +1,6 @@
 import { extendType, inputObjectType, nonNull } from 'nexus';
 import { StorageProvider, ObjectionStorageProvider } from './storageProvider.js';
+import { raw } from 'objection';
 
 export const StorageProviderInputType = inputObjectType({
     name: 'StorageProviderInput',
@@ -66,7 +67,7 @@ export const EditStorageProviderMutation = extendType({
                         bucket: args.data.bucket,
                         accessKeyId: args.data.accessKeyId,
                         secretAccessKey: args.data.secretAccessKey,
-                        dateModified: modifiedDate,
+                        dateModified: raw('NOW()'),
                     });
 
                     return storageProvider;
@@ -78,25 +79,27 @@ export const EditStorageProviderMutation = extendType({
     },
 });
 
-export const DeleteStorageProviderMutation = extendType({
+export const ArchiveStorageProviderMutation = extendType({
     type: 'Mutation',
     definition(t) {
-        t.field('deleteStorageProvider', {
+        t.field('archiveStorageProvider', {
             type: StorageProvider,
             args: {
                 providerId: StorageProviderIdInputType,
             },
             async resolve(root, args, ctx) {
                 const results = ObjectionStorageProvider.transaction(async (trx) => {
-                    const modifiedDate = Date.now().toString();
-                    const storageProvider = await ObjectionStorageProvider.query(trx).deleteById(
-                        args.providerId.providerId,
-                    );
-
+                    const storageProvider = await ObjectionStorageProvider.query(
+                        trx,
+                    ).patchAndFetchById(args.providerId.providerId, {
+                        isArchived: raw('NOT is_archived'),
+                        secretAccessKey: '<DELETED>',
+                        accessKeyId: '<DELETED>',
+                        dateModified: raw('NOW()'),
+                    });
                     return storageProvider;
                 });
 
-                // Returns the number of rows deleted
                 return results;
             },
         });
