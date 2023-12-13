@@ -11,6 +11,13 @@ export const ModelInputType = inputObjectType({
     },
 });
 
+export const ModelIdInputType = inputObjectType({
+    name: 'ModelIdInput',
+    definition(t) {
+        t.nonNull.string('modelId');
+    },
+});
+
 export const CreateModelMutation = extendType({
     type: 'Mutation',
     definition(t) {
@@ -30,6 +37,32 @@ export const CreateModelMutation = extendType({
                         })
                         .first();
 
+                    return mlModel;
+                });
+
+                return results;
+            },
+        });
+    },
+});
+
+export const ArchiveModelMutation = extendType({
+    type: 'Mutation',
+    definition(t) {
+        t.field('archiveModel', {
+            type: MLModel,
+            args: {
+                modelId: ModelIdInputType,
+            },
+            async resolve(root, args, ctx) {
+                const results = ObjectionMLModel.transaction(async (trx) => {
+                    const mlModel = await ObjectionMLModel.query(trx).patchAndFetchById(
+                        args.modelId.modelId,
+                        {
+                            isArchived: raw('NOT is_archived'),
+                            dateModified: raw('NOW()'),
+                        },
+                    );
                     return mlModel;
                 });
 
