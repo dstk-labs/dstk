@@ -69,7 +69,7 @@ storage__readiness() {
 storage__upgrade() {
   # Enumerate patches
   SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P)
-  readarray -d '' patches < <(find "${SCRIPT_DIR}/../postgres/patches" -type f -name '*.sql' -print0 | sort)
+  readarray -d '' patches < <(find "${SCRIPT_DIR}/../postgres/patches" -type f -name '*.sql' -print0 | sort -z)
 
   for patch in "${patches[@]}"; do
     base_name=$(basename "${patch}")
