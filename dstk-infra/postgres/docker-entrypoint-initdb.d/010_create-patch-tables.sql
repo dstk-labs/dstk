@@ -1,8 +1,8 @@
-\connect dstk
+\connect dstk;
 
-CREATE SCHEMA metadata;
+CREATE SCHEMA dstk_metadata;
 
-CREATE TABLE metadata.patch_status (
+CREATE TABLE dstk_metadata.patch_status (
     patch    VARCHAR(100) NOT NULL PRIMARY KEY,
     applied  BOOLEAN NOT NULL DEFAULT FALSE,
     duration INTEGER
