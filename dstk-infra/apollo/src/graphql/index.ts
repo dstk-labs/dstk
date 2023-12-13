@@ -1,4 +1,5 @@
 export * from './model/model.js';
+export * from './model/modelQueries.js';
 export * from './model/modelMutations.js';
 
 export * from './storage-provider/storageProvider.js';

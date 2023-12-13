@@ -1,4 +1,4 @@
-import { extendType, inputObjectType, nonNull } from 'nexus';
+import { extendType, inputObjectType, nonNull, stringArg } from 'nexus';
 import { MLModel, ObjectionMLModel } from './model.js';
 import { raw } from 'objection';
 
@@ -8,13 +8,6 @@ export const ModelInputType = inputObjectType({
         t.nonNull.string('storageProviderId');
         t.nonNull.string('modelName');
         t.nonNull.string('description');
-    },
-});
-
-export const ModelIdInputType = inputObjectType({
-    name: 'ModelIdInput',
-    definition(t) {
-        t.nonNull.string('modelId');
     },
 });
 
@@ -52,13 +45,13 @@ export const EditModelMutation = extendType({
         t.field('editModel', {
             type: MLModel,
             args: {
-                modelId: ModelIdInputType,
+                modelId: nonNull(stringArg()),
                 data: ModelInputType,
             },
             async resolve(root, args, ctx) {
                 const results = ObjectionMLModel.transaction(async (trx) => {
                     const mlModel = await ObjectionMLModel.query(trx).patchAndFetchById(
-                        args.modelId.modelId,
+                        args.modelId,
                         {
                             modelName: args.data.modelName,
                             description: args.data.description,
@@ -81,12 +74,12 @@ export const ArchiveModelMutation = extendType({
         t.field('archiveModel', {
             type: MLModel,
             args: {
-                modelId: ModelIdInputType,
+                modelId: nonNull(stringArg()),
             },
             async resolve(root, args, ctx) {
                 const results = ObjectionMLModel.transaction(async (trx) => {
                     const mlModel = await ObjectionMLModel.query(trx).patchAndFetchById(
-                        args.modelId.modelId,
+                        args.modelId,
                         {
                             isArchived: raw('NOT is_archived'),
                             dateModified: raw('NOW()'),
