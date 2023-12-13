@@ -1,4 +1,4 @@
-import { extendType, inputObjectType, nonNull } from 'nexus';
+import { extendType, inputObjectType, nonNull, stringArg } from 'nexus';
 import { StorageProvider, ObjectionStorageProvider } from './storageProvider.js';
 import { raw } from 'objection';
 
@@ -10,13 +10,6 @@ export const StorageProviderInputType = inputObjectType({
         t.nonNull.string('bucket');
         t.nonNull.string('accessKeyId');
         t.nonNull.string('secretAccessKey');
-    },
-});
-
-export const StorageProviderIdInputType = inputObjectType({
-    name: 'StorageProviderId',
-    definition(t) {
-        t.nonNull.string('providerId');
     },
 });
 
@@ -53,14 +46,14 @@ export const EditStorageProviderMutation = extendType({
         t.field('editStorageProvider', {
             type: StorageProvider,
             args: {
-                providerId: StorageProviderIdInputType,
+                providerId: nonNull(stringArg()),
                 data: StorageProviderInputType,
             },
             async resolve(root, args, ctx) {
                 const results = ObjectionStorageProvider.transaction(async (trx) => {
                     const storageProvider = await ObjectionStorageProvider.query(
                         trx,
-                    ).patchAndFetchById(args.providerId.providerId, {
+                    ).patchAndFetchById(args.providerId, {
                         endpointUrl: args.data.endpointUrl,
                         region: args.data.region,
                         bucket: args.data.bucket,
@@ -84,13 +77,13 @@ export const ArchiveStorageProviderMutation = extendType({
         t.field('archiveStorageProvider', {
             type: StorageProvider,
             args: {
-                providerId: StorageProviderIdInputType,
+                providerId: nonNull(stringArg()),
             },
             async resolve(root, args, ctx) {
                 const results = ObjectionStorageProvider.transaction(async (trx) => {
                     const storageProvider = await ObjectionStorageProvider.query(
                         trx,
-                    ).patchAndFetchById(args.providerId.providerId, {
+                    ).patchAndFetchById(args.providerId, {
                         isArchived: raw('NOT is_archived'),
                         secretAccessKey: '<DELETED>',
                         accessKeyId: '<DELETED>',
