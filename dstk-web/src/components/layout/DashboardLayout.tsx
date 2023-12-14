@@ -1,5 +1,5 @@
 import { Disclosure } from '@headlessui/react';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, HomeIcon, SquaresPlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Outlet, useLocation } from 'react-router-dom';
 
 import { cn } from '@/lib/cn';
@@ -8,24 +8,25 @@ const navigation = [
     {
         name: 'Home',
         href: '/dashboard',
-        icon: Bars3Icon,
+        icon: HomeIcon,
     },
     {
         name: 'Model Registry',
         href: '/models',
-        icon: Bars3Icon,
+        icon: SquaresPlusIcon,
     },
 ];
 
 export const DashboardLayout = () => {
     const location = useLocation();
+
     return (
         <div className='flex flex-col min-h-screen'>
             {/* Navbar */}
             <Disclosure as='header' className='bg-gray-800'>
                 {({ open }) => (
                     <>
-                        <div className='mx-auto max-w-7xl px-2 sm:px-6 lg:px-8'>
+                        <div className='mx-auto max-w-7xl px-2 sm:px-8 lg:px-10'>
                             <div className='relative flex h-16 items-center justify-between'>
                                 <div className='absolute inset-y-0 left-0 flex items-center sm:hidden'>
                                     {/* Mobile menu button*/}
@@ -82,13 +83,38 @@ export const DashboardLayout = () => {
             <div className='flex flex-grow'>
                 {/* Sidebar */}
                 <div className='hidden overflow-x-auto border-r border-gray-900/10 py-4 px-2 sm:px-6 lg:px-8 sm:block sm:w-64 sm:flex-none'>
-                    <nav className='flex flex-col'>
-                        <div className='text-sm'>hi</div>
+                    <nav>
+                        <ul className='flex flex-col gap-1'>
+                            {navigation.map((navItem) => (
+                                <li key={navItem.name}>
+                                    <a
+                                        href={navItem.href}
+                                        className={cn(
+                                            'group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold',
+                                            navItem.href === location.pathname
+                                                ? 'bg-gray-50 text-gray-800'
+                                                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50',
+                                        )}
+                                    >
+                                        <navItem.icon
+                                            className={cn(
+                                                'h-6 w-6 shrink-0',
+                                                navItem.href === location.pathname
+                                                    ? 'text-gray-800'
+                                                    : 'text-gray-400 group-hover:text-gray-800',
+                                            )}
+                                            aria-hidden='true'
+                                        />
+                                        {navItem.name}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
                     </nav>
                 </div>
 
                 {/* Main Content */}
-                <main className='flex flex-grow px-4 py-4 sm:px-6 bg-gray-50'>
+                <main className='flex flex-grow bg-gray-50 px-4 py-4 sm:px-6'>
                     <Outlet />
                 </main>
             </div>
