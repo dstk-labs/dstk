@@ -1,9 +1,10 @@
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Outlet } from 'react-router-dom';
 
 const nav = 'Never gonna give you up 🎶';
 
-export const Dashboard = () => {
+export const DashboardLayout = () => {
     return (
         <div className='flex flex-col min-h-screen'>
             {/* Navbar */}
@@ -59,7 +60,9 @@ export const Dashboard = () => {
                 </div>
 
                 {/* Main Content */}
-                <main className='flex flex-grow px-4 py-4 sm:px-6 bg-gray-50'>Content Here</main>
+                <main className='flex flex-grow px-4 py-4 sm:px-6 bg-gray-50'>
+                    <Outlet />
+                </main>
             </div>
         </div>
     );
