@@ -1,5 +1,5 @@
+import { RouterProvider } from "./providers/RouterProvider";
+
 export default function App() {
-  return (
-    <div>Hello dtsk!</div>
-  )
+  return <RouterProvider />
 }
