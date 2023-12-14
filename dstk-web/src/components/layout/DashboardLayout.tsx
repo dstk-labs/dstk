@@ -1,10 +1,24 @@
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
-const nav = 'Never gonna give you up 🎶';
+import { cn } from '@/lib/cn';
+
+const navigation = [
+    {
+        name: 'Home',
+        href: '/dashboard',
+        icon: Bars3Icon,
+    },
+    {
+        name: 'Model Registry',
+        href: '/models',
+        icon: Bars3Icon,
+    },
+];
 
 export const DashboardLayout = () => {
+    const location = useLocation();
     return (
         <div className='flex flex-col min-h-screen'>
             {/* Navbar */}
@@ -44,7 +58,21 @@ export const DashboardLayout = () => {
 
                         <Disclosure.Panel className='sm:hidden'>
                             <div className='flex flex-col gap-1 px-2 pb-3 pt-2'>
-                                <Disclosure.Button className='text-white'>{nav}</Disclosure.Button>
+                                {navigation.map((navItem) => (
+                                    <Disclosure.Button
+                                        key={navItem.name}
+                                        as='a'
+                                        href={navItem.href}
+                                        className={cn(
+                                            'block rounded-md px-3 py-2 text-base font-medium',
+                                            navItem.href === location.pathname
+                                                ? 'bg-gray-900 text-white'
+                                                : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                                        )}
+                                    >
+                                        {navItem.name}
+                                    </Disclosure.Button>
+                                ))}
                             </div>
                         </Disclosure.Panel>
                     </>
@@ -55,7 +83,7 @@ export const DashboardLayout = () => {
                 {/* Sidebar */}
                 <div className='hidden overflow-x-auto border-r border-gray-900/10 py-4 px-2 sm:px-6 lg:px-8 sm:block sm:w-64 sm:flex-none'>
                     <nav className='flex flex-col'>
-                        <div className='text-sm'>{nav}</div>
+                        <div className='text-sm'>hi</div>
                     </nav>
                 </div>
 
