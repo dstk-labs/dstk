@@ -1,0 +1,6 @@
+{
+    "*.{ts,tsx}": [
+        "eslint 'src/**/*.{ts,tsx}' --fix --config ./.eslintrc.json",
+        "prettier 'src/**/*.{ts,tsx}' --write --config ./.prettierrc.json"
+    ]
+}
