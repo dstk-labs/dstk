@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider as Router } from 'react-router-dom';
 
-import { Dashboard } from '@/routes/dashboard';
+import { DashboardLayout } from '@/components/layout';
+import { Home, ModelRegistry } from '@/routes';
 
 // TODO: Will modularize this with protected / public routes whenever we get there
 export const RouterProvider = () => {
@@ -10,8 +11,17 @@ export const RouterProvider = () => {
             element: <div>Welcome to dstk!</div>,
         },
         {
-            path: '/dashboard',
-            element: <Dashboard />,
+            element: <DashboardLayout />,
+            children: [
+                {
+                    path: '/dashboard',
+                    element: <Home />,
+                },
+                {
+                    path: '/models',
+                    element: <ModelRegistry />,
+                },
+            ],
         },
     ]);
 
