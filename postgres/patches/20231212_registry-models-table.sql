@@ -37,6 +37,7 @@ CREATE TABLE registry.model_versions (
     id               SERIAL  NOT NULL PRIMARY KEY,
     model_version_id UUID    NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
     model_id         UUID    NOT NULL REFERENCES registry.models(model_id),
+    is_finalized     BOOLEAN NOT NULL DEFAULT FALSE,
     is_archived      BOOLEAN NOT NULL DEFAULT FALSE,
     created_by       UUID    REFERENCES dstk_user.user(user_id),
     numeric_version  INTEGER NOT NULL,
