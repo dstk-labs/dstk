@@ -1,5 +1,5 @@
 import { objectType } from 'nexus';
-import { MLModel, ObjectionMLModel } from '../model/model';
+import { MLModel, ObjectionMLModel } from '../model/model.js';
 import { Model } from 'objection';
 
 export const MLModelVersion = objectType({
