@@ -28,7 +28,7 @@ export const DashboardLayout = () => {
                     <>
                         <div className='mx-auto max-w-7xl px-2 sm:px-8 lg:px-10'>
                             <div className='relative flex h-16 items-center justify-between'>
-                                <div className='absolute inset-y-0 left-0 flex items-center sm:hidden'>
+                                <div className='absolute inset-y-0 left-0 flex items-center md:hidden'>
                                     {/* Mobile menu button*/}
                                     <Disclosure.Button className='relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white'>
                                         {open ? (
@@ -46,18 +46,18 @@ export const DashboardLayout = () => {
                                 </div>
 
                                 {/* Logo */}
-                                <div className='flex flex-1 items-center justify-center sm:items-stretch sm:justify-start'>
+                                <div className='flex flex-1 items-center justify-center md:items-stretch md:justify-start'>
                                     <span className='text-white'>DSTK Logo</span>
                                 </div>
 
                                 {/* User Menu */}
-                                <div className='absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0'>
+                                <div className='absolute inset-y-0 right-0 flex items-center pr-2 md:static md:inset-auto md:ml-6 md:pr-0'>
                                     <span className='text-white'>User Menu</span>
                                 </div>
                             </div>
                         </div>
 
-                        <Disclosure.Panel className='sm:hidden'>
+                        <Disclosure.Panel className='lg:hidden'>
                             <div className='flex flex-col gap-1 px-2 pb-3 pt-2'>
                                 {navigation.map((navItem) => (
                                     <Disclosure.Button
@@ -82,7 +82,7 @@ export const DashboardLayout = () => {
 
             <div className='flex flex-grow'>
                 {/* Sidebar */}
-                <div className='hidden overflow-x-auto border-r border-gray-900/10 py-4 px-2 sm:px-6 lg:px-8 sm:block sm:w-64 sm:flex-none'>
+                <div className='hidden overflow-x-auto border-r border-gray-900/10 py-4 px-2 md:px-6 lg:px-8 md:block md:w-64 md:flex-none'>
                     <nav>
                         <ul className='flex flex-col gap-1'>
                             {navigation.map((navItem) => (
@@ -114,7 +114,7 @@ export const DashboardLayout = () => {
                 </div>
 
                 {/* Main Content */}
-                <main className='flex flex-grow bg-gray-50 px-4 py-4 sm:px-6'>
+                <main className='flex-grow overflow-hidden bg-gray-50 px-4 py-6 sm:px-8'>
                     <Outlet />
                 </main>
             </div>
