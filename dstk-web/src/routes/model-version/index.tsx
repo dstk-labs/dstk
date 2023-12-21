@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ClipboardIcon } from '@heroicons/react/24/outline';
 
 import {
@@ -12,6 +13,7 @@ import {
     TableHeaderCell,
     TableRow,
     type BadgeProps,
+    Tooltip,
 } from '@/components/ui';
 
 const models = [
@@ -53,6 +55,23 @@ const models = [
 ];
 
 export const ModelVersion = () => {
+    const [isTooltipHidden, setIsTooltipHidden] = useState(true);
+    const [copiedVersionId, setCopiedVersionId] = useState('');
+
+    const handleCopy = (modelVersion: string) => {
+        if (isTooltipHidden) {
+            setIsTooltipHidden(false);
+            setCopiedVersionId(modelVersion);
+
+            navigator.clipboard.writeText(modelVersion);
+
+            setTimeout(() => {
+                setIsTooltipHidden(true);
+                setCopiedVersionId('');
+            }, 750);
+        }
+    };
+
     return (
         <div className='w-full flex flex-col gap-12'>
             {/* Page Header */}
@@ -88,12 +107,19 @@ export const ModelVersion = () => {
                         <TableRow key={model.versionId}>
                             <TableCell
                                 className='hover:text-gray-800 hover:cursor-pointer'
-                                onClick={() => console.log('Text to copy:', model.versionId)}
+                                onClick={() => handleCopy(model.versionId)}
                             >
-                                <div className='flex items-center gap-1'>
-                                    <div>{model.versionId.substring(0, 8)}...</div>
-                                    <ClipboardIcon className='h-3 w-3 shrink-0 hover:text-gray-800 hover:cursor-pointer' />
-                                </div>
+                                <Tooltip
+                                    isVisible={
+                                        !isTooltipHidden && model.versionId === copiedVersionId
+                                    }
+                                    message='Copied!'
+                                >
+                                    <div className='flex items-center gap-1'>
+                                        <div>{model.versionId.substring(0, 8)}...</div>
+                                        <ClipboardIcon className='h-3 w-3 shrink-0 hover:text-gray-800 hover:cursor-pointer' />
+                                    </div>
+                                </Tooltip>
                             </TableCell>
                             <TableCell>{model.version}</TableCell>
                             <TableCell>
