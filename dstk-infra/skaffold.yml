@@ -32,6 +32,10 @@ profiles:
       port: 9001
       localPort: 9001
     - resourceType: service
+      resourceName: dstk-minio
+      port: 9000
+      localPort: 9000
+    - resourceType: service
       resourceName: dstk-postgres
       port: 5432
       localPort: 5432

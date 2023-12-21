@@ -18,6 +18,7 @@ export const MLModelVersion = objectType({
         t.string('description');
         // TODO: Custom Scalar Type for JSON Object: t.something('metadata')
         t.string('dateCreated');
+        t.string('uploadId');
     },
 });
 
@@ -28,6 +29,8 @@ export class ObjectionMLModelVersion extends Model {
     createdBy!: string;
     numericVersion!: number;
     description: string;
+    isFinalzed!: boolean;
+    uploadId: string;
     // TODO: metadata: something
     dateCreated!: string;
 

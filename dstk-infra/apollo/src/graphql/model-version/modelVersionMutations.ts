@@ -1,7 +1,7 @@
 import { extendType, inputObjectType, nonNull, stringArg } from 'nexus';
 import { MLModelVersion, ObjectionMLModelVersion } from './modelVersion.js';
-import { raw } from 'objection';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
+import { CreateMultipartUpload } from '../../utils/s3-api.js';
 
 export const ModelVersionInputType = inputObjectType({
     name: 'ModelVersionInput',
@@ -36,18 +36,26 @@ export const CreateModelVersionMutation = extendType({
                         .first();
 
                     console.log(modelStorageProvider);
-
                     const lastModelVersion = await ObjectionMLModelVersion.query()
                         .select('numericVersion')
                         .where('modelId', args.data.modelId)
                         .orderBy('numericVersion', 'DESC')
                         .first();
+                    const incrementedVersion = (lastModelVersion?.numericVersion || 0) + 1;
+
+                    // TODO: We will need to parameterize the team subpath once
+                    // user auth stuff gets set up; just hardcoding it to a dummy
+                    // location for now
+                    const key = `teams/DEFAULT/models/${args.data.modelId}/versions/${incrementedVersion}`;
+                    const mpu_url = await CreateMultipartUpload(modelStorageProvider, key);
+                    console.log(mpu_url);
 
                     const mlModelVersion = await ObjectionMLModelVersion.query(trx)
                         .insertAndFetch({
                             modelId: args.data.modelId,
                             description: args.data.description,
-                            numericVersion: (lastModelVersion?.numericVersion || 0) + 1,
+                            numericVersion: incrementedVersion,
+                            uploadId: mpu_url.UploadId,
                         })
                         .first();
 

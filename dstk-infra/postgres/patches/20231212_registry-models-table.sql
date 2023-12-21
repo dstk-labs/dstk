@@ -41,6 +41,7 @@ CREATE TABLE registry.model_versions (
     is_archived      BOOLEAN NOT NULL DEFAULT FALSE,
     created_by       UUID    REFERENCES dstk_user.user(user_id),
     numeric_version  INTEGER NOT NULL,
+    upload_id        TEXT,
     description      TEXT,
     metadata         JSON,
     date_created     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()

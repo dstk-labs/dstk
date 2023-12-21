@@ -32,7 +32,6 @@ export class ObjectionStorageProvider extends Model {
     owner!: string;
     dateCreated!: string;
     dateModified!: string;
-    isFinalized!: boolean;
     isArchived!: boolean;
 
     static tableName = 'registry.storageProviders';
