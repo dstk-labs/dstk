@@ -95,7 +95,7 @@ export const DashboardLayout = () => {
                                         href={navItem.href}
                                         className={cn(
                                             'group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold',
-                                            navItem.href.split('/')[2] === location.pathname
+                                            checkSubrouteMatch(navItem.href)
                                                 ? 'bg-gray-50 text-gray-800'
                                                 : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50',
                                         )}
