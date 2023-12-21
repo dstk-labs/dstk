@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 import {
     BreadcrumbItem,
     Breadcrumbs,
@@ -12,6 +14,7 @@ import {
 } from '@/components/ui';
 
 export const ModelRegistry = () => {
+    const navigate = useNavigate();
     return (
         <div className='w-full flex flex-col gap-12'>
             {/* Page Header */}
@@ -40,7 +43,10 @@ export const ModelRegistry = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    <TableRow>
+                    <TableRow
+                        className='hover:bg-gray-50 hover:cursor-pointer'
+                        onClick={() => navigate('/models/1234')}
+                    >
                         <TableCell className='font-medium text-gray-900'>
                             Housing Market Clustering
                         </TableCell>
@@ -61,7 +67,7 @@ export const ModelRegistry = () => {
                         <TableCell>Steve O</TableCell>
                         <TableCell>December 12th, 2023</TableCell>
                     </TableRow>
-                    <TableRow>
+                    <TableRow className='hover:bg-gray-50 hover:cursor-pointer'>
                         <TableCell className='font-medium text-gray-900'>Employee Churn</TableCell>
                         <TableCell>3</TableCell>
                         <TableCell>
