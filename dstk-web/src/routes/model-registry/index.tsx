@@ -21,8 +21,8 @@ export const ModelRegistry = () => {
             <header className='flex flex-col gap-4'>
                 <div>
                     <Breadcrumbs>
-                        <BreadcrumbItem href='/dashboard'>Dashboard</BreadcrumbItem>
-                        <BreadcrumbItem href='/models'>Models</BreadcrumbItem>
+                        <BreadcrumbItem href='/dashboard/home'>Dashboard</BreadcrumbItem>
+                        <BreadcrumbItem href='/dashboard/models'>Models</BreadcrumbItem>
                     </Breadcrumbs>
                 </div>
                 <div className='flex items-center justify-between gap-0'>
@@ -45,7 +45,7 @@ export const ModelRegistry = () => {
                 <TableBody>
                     <TableRow
                         className='hover:bg-gray-50 hover:cursor-pointer'
-                        onClick={() => navigate('/models/1234')}
+                        onClick={() => navigate('/dashboard/models/1234')}
                     >
                         <TableCell className='font-medium text-gray-900'>
                             Housing Market Clustering

@@ -59,9 +59,9 @@ export const ModelVersion = () => {
             <header className='flex flex-col gap-4'>
                 <div>
                     <Breadcrumbs>
-                        <BreadcrumbItem href='/dashboard'>Dashboard</BreadcrumbItem>
-                        <BreadcrumbItem href='/models'>Models</BreadcrumbItem>
-                        <BreadcrumbItem href='/models/1234'>
+                        <BreadcrumbItem href='/dashboard/home'>Dashboard</BreadcrumbItem>
+                        <BreadcrumbItem href='/dashboard/models'>Models</BreadcrumbItem>
+                        <BreadcrumbItem href='/dashboard/models/1234'>
                             Housing Market Clustering
                         </BreadcrumbItem>
                     </Breadcrumbs>

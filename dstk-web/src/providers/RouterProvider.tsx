@@ -12,17 +12,18 @@ export const RouterProvider = () => {
         },
         {
             element: <DashboardLayout />,
+            path: '/dashboard',
             children: [
                 {
-                    path: '/dashboard',
+                    path: '/dashboard/home',
                     element: <Home />,
                 },
                 {
-                    path: '/models',
+                    path: '/dashboard/models',
                     element: <ModelRegistry />,
                 },
                 {
-                    path: '/models/:modelId',
+                    path: '/dashboard/models/:modelId',
                     element: <ModelVersion />,
                 },
             ],
