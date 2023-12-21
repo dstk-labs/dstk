@@ -13,7 +13,6 @@ import {
     TableRow,
     type BadgeProps,
 } from '@/components/ui';
-import { cn } from '@/lib/cn';
 
 const models = [
     {
