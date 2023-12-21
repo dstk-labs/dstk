@@ -3,7 +3,7 @@ import { MLModel, ObjectionMLModel } from '../model/model.js';
 import { Model } from 'objection';
 
 export const MLModelVersion = objectType({
-    name: 'MLModel',
+    name: 'MLModelVersion',
     definition(t) {
         t.id('modelVersionId');
         t.field('modelId', {
