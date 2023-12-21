@@ -7,18 +7,22 @@ import { cn } from '@/lib/cn';
 const navigation = [
     {
         name: 'Home',
-        href: '/dashboard',
+        href: '/dashboard/home',
         icon: HomeIcon,
     },
     {
         name: 'Model Registry',
-        href: '/models',
+        href: '/dashboard/models',
         icon: SquaresPlusIcon,
     },
 ];
 
 export const DashboardLayout = () => {
     const location = useLocation();
+
+    const checkSubrouteMatch = (route: string) => {
+        return route.split('/')[2] === location.pathname.split('/')[2];
+    };
 
     return (
         <div className='flex flex-col min-h-screen'>
@@ -66,7 +70,7 @@ export const DashboardLayout = () => {
                                         href={navItem.href}
                                         className={cn(
                                             'block rounded-md px-3 py-2 text-base font-medium',
-                                            navItem.href === location.pathname
+                                            checkSubrouteMatch(navItem.href)
                                                 ? 'bg-gray-900 text-white'
                                                 : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                                         )}
@@ -91,7 +95,7 @@ export const DashboardLayout = () => {
                                         href={navItem.href}
                                         className={cn(
                                             'group flex gap-3 rounded-md p-2 text-sm leading-6 font-semibold',
-                                            navItem.href === location.pathname
+                                            checkSubrouteMatch(navItem.href)
                                                 ? 'bg-gray-50 text-gray-800'
                                                 : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50',
                                         )}
@@ -99,7 +103,7 @@ export const DashboardLayout = () => {
                                         <navItem.icon
                                             className={cn(
                                                 'h-6 w-6 shrink-0',
-                                                navItem.href === location.pathname
+                                                checkSubrouteMatch(navItem.href)
                                                     ? 'text-gray-800'
                                                     : 'text-gray-400 group-hover:text-gray-800',
                                             )}
