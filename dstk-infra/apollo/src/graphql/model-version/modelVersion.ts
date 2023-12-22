@@ -31,7 +31,7 @@ export class ObjectionMLModelVersion extends Model {
     createdBy!: string;
     numericVersion!: number;
     description: string;
-    isFinalzed!: boolean;
+    isFinalized!: boolean;
     s3Prefix: string;
     // TODO: metadata: something
     dateCreated!: string;
