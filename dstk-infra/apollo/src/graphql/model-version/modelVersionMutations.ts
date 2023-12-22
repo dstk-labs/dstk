@@ -8,7 +8,6 @@ import {
     FinalizeMultipartUpload,
     PresignedURL,
 } from '../../utils/s3-api.js';
-import { ObjectionMLModel } from '../model/model.js';
 
 export const ModelVersionInputType = inputObjectType({
     name: 'ModelVersionInput',
@@ -183,6 +182,29 @@ export const PublishModelVersionMutation = extendType({
                         trx,
                     ).updateAndFetchById(args.modelVersionId, {
                         isFinalized: true,
+                    });
+
+                    return mlModelVersion;
+                });
+
+                return results;
+            },
+        });
+    },
+});
+
+export const ArchiveModelVersionMutation = extendType({
+    type: 'Mutation',
+    definition(t) {
+        t.field('archiveModelVersion', {
+            type: MLModelVersion,
+            args: { modelVersionId: nonNull(stringArg()) },
+            async resolve(root, args, ctx) {
+                const results = ObjectionMLModelVersion.transaction(async (trx) => {
+                    const mlModelVersion = await ObjectionMLModelVersion.query(
+                        trx,
+                    ).updateAndFetchById(args.modelVersionId, {
+                        isArchived: true,
                     });
 
                     return mlModelVersion;
