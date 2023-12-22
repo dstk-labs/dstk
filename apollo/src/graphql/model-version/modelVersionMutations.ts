@@ -1,4 +1,4 @@
-import { extendType, inputObjectType, enumType } from 'nexus';
+import { extendType, inputObjectType, enumType, nonNull, stringArg } from 'nexus';
 import { MLModelVersion, ObjectionMLModelVersion } from './modelVersion.js';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 import {
@@ -26,12 +26,6 @@ export const CreateModelVersionMutation = extendType({
             args: { data: ModelVersionInputType },
             async resolve(root, args, ctx) {
                 const results = ObjectionMLModelVersion.transaction(async (trx) => {
-                    const modelStorageProvider = (await ObjectionMLModel.relatedQuery(
-                        'storageProvider',
-                    )
-                        .for(args.data.modelId)
-                        .first()) as ObjectionStorageProvider;
-
                     const lastModelVersion = await ObjectionMLModelVersion.query()
                         .select('numericVersion')
                         .where('modelId', args.data.modelId)
@@ -113,69 +107,85 @@ export const PresignURLForModelVersion = extendType({
             type: PresignedURL,
             args: { data: PresignedURLInputType },
             async resolve(root, args, ctx) {
+                const modelStorageProvider = (await ObjectionMLModelVersion.relatedQuery(
+                    'storageProvider',
+                )
+                    .for(args.data.modelVersionId)
+                    .first()) as ObjectionStorageProvider;
+
+                const modelVersion = await ObjectionMLModelVersion.query()
+                    .where('modelVersionId', args.data.modelVersionId)
+                    .first();
+
+                let mpu_url;
+                const key = `${modelVersion.s3Prefix}/${args.data.filename}`;
+
+                if (args.data.method === 'createMultipartUpload') {
+                    const result = await CreateMultipartUpload(modelStorageProvider, key);
+
+                    mpu_url = {
+                        uploadId: result.UploadId,
+                        key: result.Key,
+                    };
+                } else if (args.data.method === 'uploadPart') {
+                    const result = await CreatePresignedURLForPart(
+                        modelStorageProvider,
+                        key,
+                        args.data.uploadId,
+                        args.data.partNumber,
+                    );
+
+                    mpu_url = {
+                        uploadId: args.data.uploadId,
+                        key: key,
+                        partNumber: args.data.partNumber,
+                        url: result,
+                    };
+                } else if (args.data.method === 'finalizeMultipartUpload') {
+                    const result = await FinalizeMultipartUpload(
+                        modelStorageProvider,
+                        key,
+                        args.data.uploadId,
+                        args.data.multipartUpload,
+                    );
+                    mpu_url = {
+                        uploadId: args.data.uploadId,
+                        key: key,
+                        ETag: result.ETag,
+                        url: result.Location,
+                    };
+                } else if (args.data.method === 'abortMultipartUpload') {
+                    const result = await AbortMultipartUpload(
+                        modelStorageProvider,
+                        key,
+                        args.data.uploadId,
+                    );
+                    mpu_url = {};
+                } else {
+                    mpu_url = {};
+                }
+
+                return mpu_url;
+            },
+        });
+    },
+});
+
+export const PublishModelVersionMutation = extendType({
+    type: 'Mutation',
+    definition(t) {
+        t.field('publishModelVersion', {
+            type: MLModelVersion,
+            args: { modelVersionId: nonNull(stringArg()) },
+            async resolve(root, args, ctx) {
                 const results = ObjectionMLModelVersion.transaction(async (trx) => {
-                    // TODO: abstract this into a getStorageProviderForModel thingy...
-                    // could also do some withRelated thing to query the model version
-                    // and pull through the model and storage provider with it
-                    const modelStorageProvider = (await ObjectionMLModelVersion.relatedQuery(
-                        'storageProvider',
-                    )
-                        .for(args.data.modelVersionId)
-                        .first()) as ObjectionStorageProvider;
+                    const mlModelVersion = await ObjectionMLModelVersion.query(
+                        trx,
+                    ).updateAndFetchById(args.modelVersionId, {
+                        isFinalized: true,
+                    });
 
-                    const modelVersion = await ObjectionMLModelVersion.query()
-                        .where('modelVersionId', args.data.modelVersionId)
-                        .first();
-
-                    let mpu_url;
-                    const key = `${modelVersion.s3Prefix}/${args.data.filename}`;
-
-                    if (args.data.method === 'createMultipartUpload') {
-                        const result = await CreateMultipartUpload(modelStorageProvider, key);
-
-                        mpu_url = {
-                            uploadId: result.UploadId,
-                            key: result.Key,
-                        };
-                    } else if (args.data.method === 'uploadPart') {
-                        const result = await CreatePresignedURLForPart(
-                            modelStorageProvider,
-                            key,
-                            args.data.uploadId,
-                            args.data.partNumber,
-                        );
-
-                        mpu_url = {
-                            uploadId: args.data.uploadId,
-                            key: key,
-                            partNumber: args.data.partNumber,
-                            url: result,
-                        };
-                    } else if (args.data.method === 'finalizeMultipartUpload') {
-                        const result = await FinalizeMultipartUpload(
-                            modelStorageProvider,
-                            key,
-                            args.data.uploadId,
-                            args.data.multipartUpload,
-                        );
-                        mpu_url = {
-                            uploadId: args.data.uploadId,
-                            key: key,
-                            ETag: result.ETag,
-                            url: result.Location,
-                        };
-                    } else if (args.data.method === 'abortMultipartUpload') {
-                        const result = await AbortMultipartUpload(
-                            modelStorageProvider,
-                            key,
-                            args.data.uploadId,
-                        );
-                        mpu_url = {};
-                    } else {
-                        mpu_url = {};
-                    }
-
-                    return mpu_url;
+                    return mlModelVersion;
                 });
 
                 return results;
