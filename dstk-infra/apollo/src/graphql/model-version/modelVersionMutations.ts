@@ -5,6 +5,7 @@ import {
     CreateMultipartUpload,
     PresignedURL,
     CreatePresignedURLForPart,
+    FinalizeMultipartUpload,
 } from '../../utils/s3-api.js';
 import { ObjectionMLModel } from '../model/model.js';
 
@@ -60,6 +61,24 @@ export const CreateModelVersionMutation = extendType({
     },
 });
 
+export const CompletedPartInputType = inputObjectType({
+    name: 'CompletedPartUploadInput',
+    definition(t) {
+        t.nonNull.string('ETag');
+        t.nonNull.int('PartNumber');
+    },
+});
+
+export const PartsInputType = inputObjectType({
+    name: 'PartsInputType',
+    definition(t) {
+        t.list.field(
+            'Parts', // This is capitalized to conform to the AWS SDK
+            { type: CompletedPartInputType },
+        );
+    },
+});
+
 const PresignMethod = enumType({
     name: 'method',
     members: [
@@ -80,6 +99,9 @@ export const PresignedURLInputType = inputObjectType({
         t.nonNull.string('filename');
         t.string('uploadId');
         t.int('partNumber');
+        t.field('multipartUpload', {
+            type: PartsInputType,
+        });
     },
 });
 
@@ -127,6 +149,19 @@ export const PresignURLForModelVersion = extendType({
                             key: key,
                             partNumber: args.data.partNumber,
                             url: result,
+                        };
+                    } else if (args.data.method === 'finalizeMultipartUpload') {
+                        const result = await FinalizeMultipartUpload(
+                            modelStorageProvider,
+                            key,
+                            args.data.uploadId,
+                            args.data.multipartUpload,
+                        );
+                        mpu_url = {
+                            uploadId: args.data.uploadId,
+                            key: key,
+                            ETag: result.ETag,
+                            url: result.Location,
                         };
                     } else {
                         mpu_url = {};
