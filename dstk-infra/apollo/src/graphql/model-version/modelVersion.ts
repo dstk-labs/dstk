@@ -14,6 +14,7 @@ export const MLModelVersion = objectType({
             },
         });
         t.boolean('isArchived');
+        t.boolean('isFinalized');
         t.string('createdBy'); // TODO: Resolve actual user object
         t.int('numericVersion');
         t.string('description');
