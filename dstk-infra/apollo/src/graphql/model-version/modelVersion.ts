@@ -1,6 +1,7 @@
 import { objectType } from 'nexus';
 import { MLModel, ObjectionMLModel } from '../model/model.js';
-import { Model } from 'objection';
+import Objection, { Model } from 'objection';
+import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 
 export const MLModelVersion = objectType({
     name: 'MLModelVersion',
@@ -18,7 +19,7 @@ export const MLModelVersion = objectType({
         t.string('description');
         // TODO: Custom Scalar Type for JSON Object: t.something('metadata')
         t.string('dateCreated');
-        t.string('uploadId');
+        t.string('s3Prefix');
     },
 });
 
@@ -30,7 +31,7 @@ export class ObjectionMLModelVersion extends Model {
     numericVersion!: number;
     description: string;
     isFinalzed!: boolean;
-    uploadId: string;
+    s3Prefix: string;
     // TODO: metadata: something
     dateCreated!: string;
 
@@ -38,4 +39,27 @@ export class ObjectionMLModelVersion extends Model {
     static get idColumn() {
         return 'modelVersionId';
     }
+
+    static relationMappings = () => ({
+        model: {
+            relation: Model.HasOneRelation,
+            modelClass: ObjectionMLModel,
+            join: {
+                from: 'registry.modelVersions.modelId',
+                to: 'registry.models.modelId',
+            },
+        },
+        storageProvider: {
+            relation: Model.HasOneThroughRelation,
+            modelClass: ObjectionStorageProvider,
+            join: {
+                from: 'registry.modelVersions.modelId',
+                through: {
+                    from: 'registry.models.modelId',
+                    to: 'registry.models.storageProviderId',
+                },
+                to: 'registry.storageProviders.providerId',
+            },
+        },
+    });
 }

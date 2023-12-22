@@ -24,7 +24,7 @@ CREATE TABLE registry.models (
     model_id            UUID        NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
     storage_provider_id UUID        NOT NULL REFERENCES registry.storage_providers(provider_id),
     is_archived         BOOLEAN     NOT NULL DEFAULT FALSE,
-    model_name          VARCHAR(64) NOT NULL UNIQUE,
+    model_name          VARCHAR(64) NOT NULL,
     created_by          UUID        REFERENCES dstk_user.user(user_id),
     modified_by         UUID        REFERENCES dstk_user.user(user_id),
     description         TEXT,
@@ -41,7 +41,6 @@ CREATE TABLE registry.model_versions (
     is_archived      BOOLEAN NOT NULL DEFAULT FALSE,
     created_by       UUID    REFERENCES dstk_user.user(user_id),
     numeric_version  INTEGER NOT NULL,
-    upload_id        TEXT,
     description      TEXT,
     metadata         JSON,
     date_created     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()

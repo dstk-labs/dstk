@@ -1,4 +1,4 @@
-import { extendType, inputObjectType, nonNull, stringArg } from 'nexus';
+import { extendType, inputObjectType, enumType } from 'nexus';
 import { MLModelVersion, ObjectionMLModelVersion } from './modelVersion.js';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 import {
@@ -6,6 +6,7 @@ import {
     PresignedURL,
     CreatePresignedURLForPart,
 } from '../../utils/s3-api.js';
+import { ObjectionMLModel } from '../model/model.js';
 
 export const ModelVersionInputType = inputObjectType({
     name: 'ModelVersionInput',
@@ -23,21 +24,11 @@ export const CreateModelVersionMutation = extendType({
             args: { data: ModelVersionInputType },
             async resolve(root, args, ctx) {
                 const results = ObjectionMLModelVersion.transaction(async (trx) => {
-                    const modelStorageProvider = await ObjectionStorageProvider.query()
-                        .select(
-                            'registry.storageProviders.endpointUrl',
-                            'registry.storageProviders.region',
-                            'registry.storageProviders.bucket',
-                            'registry.storageProviders.accessKeyId',
-                            'registry.storageProviders.secretAccessKey',
-                        )
-                        .innerJoin(
-                            'registry.models as m',
-                            'registry.storageProviders.providerId',
-                            'm.storageProviderId',
-                        )
-                        .where('m.modelId', args.data.modelId)
-                        .first();
+                    const modelStorageProvider = (await ObjectionMLModel.relatedQuery(
+                        'storageProvider',
+                    )
+                        .for(args.data.modelId)
+                        .first()) as ObjectionStorageProvider;
 
                     const lastModelVersion = await ObjectionMLModelVersion.query()
                         .select('numericVersion')
@@ -49,15 +40,14 @@ export const CreateModelVersionMutation = extendType({
                     // TODO: We will need to parameterize the team subpath once
                     // user auth stuff gets set up; just hardcoding it to a dummy
                     // location for now
-                    const key = `teams/DEFAULT/models/${args.data.modelId}/versions/${incrementedVersion}`;
-                    const mpu_url = await CreateMultipartUpload(modelStorageProvider, key);
+                    const s3_prefix = `teams/DEFAULT/models/${args.data.modelId}/versions/${incrementedVersion}`;
 
                     const mlModelVersion = await ObjectionMLModelVersion.query(trx)
                         .insertAndFetch({
                             modelId: args.data.modelId,
                             description: args.data.description,
                             numericVersion: incrementedVersion,
-                            uploadId: mpu_url.UploadId,
+                            s3Prefix: s3_prefix,
                         })
                         .first();
 
@@ -70,12 +60,26 @@ export const CreateModelVersionMutation = extendType({
     },
 });
 
+const PresignMethod = enumType({
+    name: 'method',
+    members: [
+        'createMultipartUpload',
+        'uploadPart',
+        'finalizeMultipartUpload',
+        'abortMultipartUpload',
+    ],
+});
+
 export const PresignedURLInputType = inputObjectType({
     name: 'PresignedURLInput',
     definition(t) {
         t.nonNull.string('modelVersionId');
-        t.nonNull.string('uploadId');
-        t.nonNull.int('partNumber');
+        t.nonNull.field('method', {
+            type: PresignMethod,
+        });
+        t.nonNull.string('filename');
+        t.string('uploadId');
+        t.int('partNumber');
     },
 });
 
@@ -90,49 +94,45 @@ export const PresignURLForModelVersion = extendType({
                     // TODO: abstract this into a getStorageProviderForModel thingy...
                     // could also do some withRelated thing to query the model version
                     // and pull through the model and storage provider with it
-                    const modelStorageProvider = await ObjectionStorageProvider.query()
-                        .select(
-                            'registry.storageProviders.endpointUrl',
-                            'registry.storageProviders.region',
-                            'registry.storageProviders.bucket',
-                            'registry.storageProviders.accessKeyId',
-                            'registry.storageProviders.secretAccessKey',
-                        )
-                        .innerJoin(
-                            'registry.models as m',
-                            'registry.storageProviders.providerId',
-                            'm.storageProviderId',
-                        )
-                        .innerJoin('registry.modelVersions as mv', 'm.modelId', 'mv.modelId')
-                        .where('mv.modelId', args.data.modelVersionId)
-                        .first();
-
-                    console.log(modelStorageProvider);
+                    const modelStorageProvider = (await ObjectionMLModelVersion.relatedQuery(
+                        'storageProvider',
+                    )
+                        .for(args.data.modelVersionId)
+                        .first()) as ObjectionStorageProvider;
 
                     const modelVersion = await ObjectionMLModelVersion.query()
                         .where('modelVersionId', args.data.modelVersionId)
                         .first();
 
-                    // TODO: We will need to parameterize the team subpath once
-                    // user auth stuff gets set up; just hardcoding it to a dummy
-                    // location for now
-                    const key = `teams/DEFAULT/models/${modelVersion.modelId}/versions/${modelVersion.numericVersion}`;
-                    const mpu_url = await CreatePresignedURLForPart(
-                        modelStorageProvider,
-                        key,
-                        args.data.uploadId,
-                        args.data.partNumber,
-                    );
-                    console.log(mpu_url);
+                    let mpu_url;
+                    const key = `${modelVersion.s3Prefix}/${args.data.filename}`;
 
-                    const result = {
-                        url: mpu_url,
-                        key: args.data.key,
-                        uploadId: args.data.uploadId,
-                        partNumber: args.data.partNumber,
-                    };
+                    if (args.data.method === 'createMultipartUpload') {
+                        const result = await CreateMultipartUpload(modelStorageProvider, key);
 
-                    return result;
+                        mpu_url = {
+                            uploadId: result.UploadId,
+                            key: result.Key,
+                        };
+                    } else if (args.data.method === 'uploadPart') {
+                        const result = await CreatePresignedURLForPart(
+                            modelStorageProvider,
+                            key,
+                            args.data.uploadId,
+                            args.data.partNumber,
+                        );
+
+                        mpu_url = {
+                            uploadId: args.data.uploadId,
+                            key: key,
+                            partNumber: args.data.partNumber,
+                            url: result,
+                        };
+                    } else {
+                        mpu_url = {};
+                    }
+
+                    return mpu_url;
                 });
 
                 return results;
