@@ -2,10 +2,11 @@ import { extendType, inputObjectType, enumType } from 'nexus';
 import { MLModelVersion, ObjectionMLModelVersion } from './modelVersion.js';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 import {
+    AbortMultipartUpload,
     CreateMultipartUpload,
-    PresignedURL,
     CreatePresignedURLForPart,
     FinalizeMultipartUpload,
+    PresignedURL,
 } from '../../utils/s3-api.js';
 import { ObjectionMLModel } from '../model/model.js';
 
@@ -163,6 +164,13 @@ export const PresignURLForModelVersion = extendType({
                             ETag: result.ETag,
                             url: result.Location,
                         };
+                    } else if (args.data.method === 'abortMultipartUpload') {
+                        const result = await AbortMultipartUpload(
+                            modelStorageProvider,
+                            key,
+                            args.data.uploadId,
+                        );
+                        mpu_url = {};
                     } else {
                         mpu_url = {};
                     }

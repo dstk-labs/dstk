@@ -1,9 +1,10 @@
 import { ObjectionStorageProvider } from '../graphql';
 import {
-    S3Client,
-    CreateMultipartUploadCommand,
-    UploadPartCommand,
+    AbortMultipartUploadCommand,
     CompleteMultipartUploadCommand,
+    CreateMultipartUploadCommand,
+    S3Client,
+    UploadPartCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { objectType } from 'nexus';
@@ -96,6 +97,30 @@ export async function FinalizeMultipartUpload(
         Key: key,
         UploadId: uploadId,
         MultipartUpload: multipartUpload,
+    });
+    const response = client.send(command);
+    return response;
+}
+
+export async function AbortMultipartUpload(
+    storageProvider: ObjectionStorageProvider,
+    key: string,
+    uploadId: string,
+) {
+    const client = new S3Client({
+        apiVersion: '2006-03-01',
+        region: storageProvider.region,
+        endpoint: storageProvider.endpointUrl,
+        credentials: {
+            accessKeyId: storageProvider.accessKeyId,
+            secretAccessKey: storageProvider.secretAccessKey,
+        },
+    });
+
+    const command = new AbortMultipartUploadCommand({
+        Bucket: storageProvider.bucket,
+        Key: key,
+        UploadId: uploadId,
     });
     const response = client.send(command);
     return response;
