@@ -1,6 +1,7 @@
 import { objectType } from 'nexus';
 import { Model } from 'objection';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
+import { ObjectionMLModelVersion } from '../model-version/modelVersion.js';
 
 export const MLModel = objectType({
     name: 'Model',
@@ -39,4 +40,23 @@ export class ObjectionMLModel extends Model {
     static get idColumn() {
         return 'modelId';
     }
+
+    static relationMappings = () => ({
+        storageProvider: {
+            relation: Model.HasOneRelation,
+            modelClass: ObjectionStorageProvider,
+            join: {
+                from: 'registry.models.storageProviderId',
+                to: 'registry.storageProviders.providerId',
+            },
+        },
+        modelVersions: {
+            relation: Model.HasManyRelation,
+            modelClass: ObjectionMLModelVersion,
+            join: {
+                from: 'registry.models.modelId',
+                to: 'registry.modelVersions.modelId',
+            },
+        },
+    });
 }
