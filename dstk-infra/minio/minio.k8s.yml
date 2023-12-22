@@ -50,5 +50,7 @@ spec:
   ports:
     - name: "9001"
       port: 9001
+    - name: "9000"
+      port: 9000
   selector:
     io.kompose.service: dstk-minio

@@ -1,9 +1,10 @@
 import { objectType } from 'nexus';
 import { MLModel, ObjectionMLModel } from '../model/model.js';
-import { Model } from 'objection';
+import Objection, { Model } from 'objection';
+import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 
 export const MLModelVersion = objectType({
-    name: 'MLModel',
+    name: 'MLModelVersion',
     definition(t) {
         t.id('modelVersionId');
         t.field('modelId', {
@@ -13,11 +14,13 @@ export const MLModelVersion = objectType({
             },
         });
         t.boolean('isArchived');
+        t.boolean('isFinalized');
         t.string('createdBy'); // TODO: Resolve actual user object
         t.int('numericVersion');
         t.string('description');
         // TODO: Custom Scalar Type for JSON Object: t.something('metadata')
         t.string('dateCreated');
+        t.string('s3Prefix');
     },
 });
 
@@ -28,6 +31,8 @@ export class ObjectionMLModelVersion extends Model {
     createdBy!: string;
     numericVersion!: number;
     description: string;
+    isFinalzed!: boolean;
+    s3Prefix: string;
     // TODO: metadata: something
     dateCreated!: string;
 
@@ -35,4 +40,27 @@ export class ObjectionMLModelVersion extends Model {
     static get idColumn() {
         return 'modelVersionId';
     }
+
+    static relationMappings = () => ({
+        model: {
+            relation: Model.HasOneRelation,
+            modelClass: ObjectionMLModel,
+            join: {
+                from: 'registry.modelVersions.modelId',
+                to: 'registry.models.modelId',
+            },
+        },
+        storageProvider: {
+            relation: Model.HasOneThroughRelation,
+            modelClass: ObjectionStorageProvider,
+            join: {
+                from: 'registry.modelVersions.modelId',
+                through: {
+                    from: 'registry.models.modelId',
+                    to: 'registry.models.storageProviderId',
+                },
+                to: 'registry.storageProviders.providerId',
+            },
+        },
+    });
 }
