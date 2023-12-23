@@ -8,6 +8,9 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { objectType } from 'nexus';
+import Security from './encryption.js';
+
+const EncryptoMatic = new Security();
 
 export const PresignedURL = objectType({
     name: 'PresignedURL',
@@ -29,8 +32,8 @@ export async function CreateMultipartUpload(
         region: storageProvider.region,
         endpoint: storageProvider.endpointUrl,
         credentials: {
-            accessKeyId: storageProvider.accessKeyId,
-            secretAccessKey: storageProvider.secretAccessKey,
+            accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
+            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
         },
     });
 
@@ -53,8 +56,8 @@ export async function CreatePresignedURLForPart(
         region: storageProvider.region,
         endpoint: storageProvider.endpointUrl,
         credentials: {
-            accessKeyId: storageProvider.accessKeyId,
-            secretAccessKey: storageProvider.secretAccessKey,
+            accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
+            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
         },
     });
 
@@ -87,8 +90,8 @@ export async function FinalizeMultipartUpload(
         region: storageProvider.region,
         endpoint: storageProvider.endpointUrl,
         credentials: {
-            accessKeyId: storageProvider.accessKeyId,
-            secretAccessKey: storageProvider.secretAccessKey,
+            accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
+            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
         },
     });
 
@@ -112,8 +115,8 @@ export async function AbortMultipartUpload(
         region: storageProvider.region,
         endpoint: storageProvider.endpointUrl,
         credentials: {
-            accessKeyId: storageProvider.accessKeyId,
-            secretAccessKey: storageProvider.secretAccessKey,
+            accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
+            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
         },
     });
 

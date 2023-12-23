@@ -1,3 +1,14 @@
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: storage-provider-key
+#   labels:
+#     io.kompose.service: dstk-apollo
+#     app.kubernetes.io/name: dstk-apollo
+# data:
+#   enc-key: SW1JbkRhbmdlcgo=
+
+---  
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,6 +32,12 @@ spec:
       containers:
         - name: dstk-apollo
           image: dstk-apollo
+          # env:
+          # - name: STORAGE_PROVIDER_KEY
+          #   valueFrom:
+          #     secretKeyRef:
+          #       name: storage-provider-key
+          #       key: enc-key
 
 ---
 apiVersion: v1
