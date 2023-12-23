@@ -20,8 +20,8 @@ fail () {
 check_binary () {
   set +e
   which $1 > /dev/null 2>&1
-  status=$?
-  if [ $status -eq 0 ]; then
+  bin_status=$?
+  if [ $bin_status -eq 0 ]; then
     success "Found binary ${1} in PATH"
   else
     fail "No valid binary for ${1} found in PATH. Please correct your installation"
@@ -68,8 +68,15 @@ storage__readiness() {
 
 storage__upgrade() {
   # Enumerate patches
-  SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P)
-  readarray -d '' patches < <(find "${SCRIPT_DIR}/../postgres/patches" -type f -name '*.sql' -print0 | sort -z)
+  
+  if [ -n "${ZSH_VERSION:-}" ]; then
+    SCRIPT_DIR=$( cd -- "$( dirname -- "${(%):-%x}" )" &> /dev/null && pwd -P)
+    echo "${SCRIPT_DIR}"
+    patches=( "${(@0)$(find "${SCRIPT_DIR}/../postgres/patches" -type f -name '*.sql' -print0 | sort -z)}" )
+  else
+    SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P)
+    readarray -d '' patches < <(find "${SCRIPT_DIR}/../postgres/patches" -type f -name '*.sql' -print0 | sort -z)
+  fi
 
   for patch in "${patches[@]}"; do
     base_name=$(basename "${patch}")
@@ -86,7 +93,12 @@ storage__upgrade() {
     # Check to see if this is a patch that has already been applied or not
     info "Checking patch ${base_name}"
     query="SELECT patch, applied FROM dstk_metadata.patch_status WHERE patch = '${base_name}';"
-    IFS="|" read -r -a res <<< $(echo "${query}" | query_psql "dstk")
+    
+    if [ -n "${ZSH_VERSION:-}" ]; then
+      IFS="|" read -r res <<< $(echo "${query}" | query_psql "dstk")
+    else
+      IFS="|" read -r -a res <<< $(echo "${query}" | query_psql "dstk")
+    fi
 
     # If the result set is length 0, meaning that the patch doesn't exist
     # in our `patch_status` table, we will attempt to apply it
