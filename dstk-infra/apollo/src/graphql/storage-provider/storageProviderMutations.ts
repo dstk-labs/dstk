@@ -1,6 +1,9 @@
 import { extendType, inputObjectType, nonNull, stringArg } from 'nexus';
 import { StorageProvider, ObjectionStorageProvider } from './storageProvider.js';
+import Security from '../../utils/encryption.js';
 import { raw } from 'objection';
+
+const EncryptoMatic = new Security();
 
 export const StorageProviderInputType = inputObjectType({
     name: 'StorageProviderInput',
@@ -21,16 +24,20 @@ export const CreateStorageProviderMutation = extendType({
             args: { data: StorageProviderInputType },
             async resolve(root, args, ctx) {
                 const results = ObjectionStorageProvider.transaction(async (trx) => {
+                    const encryptedAccessKeyId = EncryptoMatic.encrypt(args.data.accessKeyId);
+                    const encryptedSecretAccessKey = EncryptoMatic.encrypt(
+                        args.data.secretAccessKey,
+                    );
+
                     const storageProvider = await ObjectionStorageProvider.query(trx)
                         .insertAndFetch({
                             endpointUrl: args.data.endpointUrl,
                             region: args.data.region,
                             bucket: args.data.bucket,
-                            accessKeyId: args.data.accessKeyId,
-                            secretAccessKey: args.data.secretAccessKey,
+                            accessKeyId: encryptedAccessKeyId,
+                            secretAccessKey: encryptedSecretAccessKey,
                         })
                         .first();
-
                     return storageProvider;
                 });
 
@@ -51,14 +58,19 @@ export const EditStorageProviderMutation = extendType({
             },
             async resolve(root, args, ctx) {
                 const results = ObjectionStorageProvider.transaction(async (trx) => {
+                    const encryptedAccessKeyId = EncryptoMatic.encrypt(args.data.accessKeyId);
+                    const encryptedSecretAccessKey = EncryptoMatic.encrypt(
+                        args.data.secretAccessKey,
+                    );
+
                     const storageProvider = await ObjectionStorageProvider.query(
                         trx,
                     ).patchAndFetchById(args.providerId, {
                         endpointUrl: args.data.endpointUrl,
                         region: args.data.region,
                         bucket: args.data.bucket,
-                        accessKeyId: args.data.accessKeyId,
-                        secretAccessKey: args.data.secretAccessKey,
+                        accessKeyId: encryptedAccessKeyId,
+                        secretAccessKey: encryptedSecretAccessKey,
                         dateModified: raw('NOW()'),
                     });
 
@@ -85,10 +97,11 @@ export const ArchiveStorageProviderMutation = extendType({
                         trx,
                     ).patchAndFetchById(args.providerId, {
                         isArchived: raw('NOT is_archived'),
-                        secretAccessKey: '<DELETED>',
-                        accessKeyId: '<DELETED>',
+                        secretAccessKey: EncryptoMatic.encrypt('<DELETED>'),
+                        accessKeyId: EncryptoMatic.encrypt('<DELETED>'),
                         dateModified: raw('NOW()'),
                     });
+
                     return storageProvider;
                 });
 
