@@ -1,5 +1,9 @@
-import { RouterProvider } from './providers/RouterProvider';
+import { ApolloProvider, RouterProvider } from '@/providers';
 
 export default function App() {
-    return <RouterProvider />;
+    return (
+        <ApolloProvider>
+            <RouterProvider />
+        </ApolloProvider>
+    );
 }
