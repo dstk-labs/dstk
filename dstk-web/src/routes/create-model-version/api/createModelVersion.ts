@@ -5,6 +5,7 @@ import { MLModelVersion } from '@/types/MLModelVersion';
 const CREATE_MODEL_VERSION: TypedDocumentNode<MLModelVersion> = gql`
     mutation CreateModelVersion($data: ModelVersionInput) {
         createModelVersion(data: $data) {
+            modelVersionId
             numericVersion
         }
     }
