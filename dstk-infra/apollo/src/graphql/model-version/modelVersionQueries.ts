@@ -16,3 +16,20 @@ export const ListModelVersions = extendType({
         });
     },
 });
+
+export const ListAllModelVersions = extendType({
+    type: 'Query',
+    definition(t) {
+        t.nonNull.list.field('listAllModelVersions', {
+            type: MLModelVersion,
+            async resolve(_root, _args, _ctx) {
+                const result = await ObjectionMLModelVersion.query().where(
+                    'numericVersion',
+                    '=',
+                    ObjectionMLModelVersion.query().max('numericVersion'),
+                );
+                return result;
+            },
+        });
+    },
+});
