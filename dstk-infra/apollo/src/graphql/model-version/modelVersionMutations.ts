@@ -1,6 +1,8 @@
 import { extendType, inputObjectType, enumType, nonNull, stringArg } from 'nexus';
 import { MLModelVersion, ObjectionMLModelVersion } from './modelVersion.js';
+import { ObjectionMLModel } from '../model/model.js';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
+import { RegistryOperationError } from '../../utils/errors.js';
 import {
     AbortMultipartUpload,
     CreateMultipartUpload,
@@ -8,6 +10,7 @@ import {
     FinalizeMultipartUpload,
     PresignedURL,
 } from '../../utils/s3-api.js';
+import { raw } from 'objection';
 
 export const ModelVersionInputType = inputObjectType({
     name: 'ModelVersionInput',
@@ -25,6 +28,10 @@ export const CreateModelVersionMutation = extendType({
             args: { data: ModelVersionInputType },
             async resolve(root, args, ctx) {
                 const results = ObjectionMLModelVersion.transaction(async (trx) => {
+                    const parentModel = await ObjectionMLModel.query().findById(args.data.modelId);
+                    if (parentModel.isArchived === true) {
+                        throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_ERROR' });
+                    }
                     const lastModelVersion = await ObjectionMLModelVersion.query()
                         .select('numericVersion')
                         .where('modelId', args.data.modelId)
@@ -111,10 +118,25 @@ export const PresignURLForModelVersion = extendType({
                 )
                     .for(args.data.modelVersionId)
                     .first()) as ObjectionStorageProvider;
+                if (modelStorageProvider.isArchived === true) {
+                    throw new RegistryOperationError({ name: 'ARCHIVED_STORAGE_ERROR' });
+                }
+
+                const parentModel = (await ObjectionMLModelVersion.relatedQuery('model')
+                    .for(args.data.modelVersionId)
+                    .first()) as ObjectionMLModel;
+                if (parentModel.isArchived === true) {
+                    throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_ERROR' });
+                }
 
                 const modelVersion = await ObjectionMLModelVersion.query()
                     .where('modelVersionId', args.data.modelVersionId)
                     .first();
+                if (modelVersion.isArchived === true) {
+                    throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_VERSION_ERROR' });
+                } else if (modelVersion.isFinalized === true) {
+                    throw new RegistryOperationError({ name: 'PUBLISHED_MODEL_VERSION_ERROR' });
+                }
 
                 let mpu_url;
                 const key = `${modelVersion.s3Prefix}/${args.data.filename}`;
@@ -184,6 +206,12 @@ export const PublishModelVersionMutation = extendType({
                         isFinalized: true,
                     });
 
+                    // since we're wrapping everything in a transaction, throwing
+                    // will cause a rollback
+                    if (mlModelVersion.isArchived === true) {
+                        throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_VERSION_ERROR' });
+                    }
+
                     return mlModelVersion;
                 });
 
@@ -201,10 +229,13 @@ export const ArchiveModelVersionMutation = extendType({
             args: { modelVersionId: nonNull(stringArg()) },
             async resolve(root, args, ctx) {
                 const results = ObjectionMLModelVersion.transaction(async (trx) => {
+                    // Intentionally don't throw an error here on archived storage
+                    // providers or models. It's not unreasonable to want to mark old
+                    // assets as archived if a parent object goes bye-bye
                     const mlModelVersion = await ObjectionMLModelVersion.query(
                         trx,
                     ).updateAndFetchById(args.modelVersionId, {
-                        isArchived: true,
+                        isArchived: raw('NOT is_archived'),
                     });
 
                     return mlModelVersion;

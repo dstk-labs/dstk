@@ -1,6 +1,8 @@
 import { extendType, inputObjectType, nonNull, stringArg } from 'nexus';
 import { MLModel, ObjectionMLModel } from './model.js';
 import { raw } from 'objection';
+import { RegistryOperationError } from '../../utils/errors.js';
+import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 
 export const ModelInputType = inputObjectType({
     name: 'ModelInput',
@@ -50,6 +52,13 @@ export const EditModelMutation = extendType({
             },
             async resolve(root, args, ctx) {
                 const results = ObjectionMLModel.transaction(async (trx) => {
+                    const storageProvider = (await ObjectionMLModel.relatedQuery('storageProvider')
+                        .for(args.modelId)
+                        .first()) as ObjectionStorageProvider;
+                    if (storageProvider.isArchived === true) {
+                        throw new RegistryOperationError({ name: 'ARCHIVED_STORAGE_ERROR' });
+                    }
+
                     const mlModel = await ObjectionMLModel.query(trx).patchAndFetchById(
                         args.modelId,
                         {
@@ -58,6 +67,9 @@ export const EditModelMutation = extendType({
                             dateModified: raw('NOW()'),
                         },
                     );
+                    if (mlModel.isArchived === true) {
+                        throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_ERROR' });
+                    }
 
                     return mlModel;
                 });
@@ -78,6 +90,9 @@ export const ArchiveModelMutation = extendType({
             },
             async resolve(root, args, ctx) {
                 const results = ObjectionMLModel.transaction(async (trx) => {
+                    // Intentionally don't throw an error here on archived storage
+                    // providers. It's not unreasonable to want to mark old assets
+                    // as archived if their parent blob storage goes bye-bye
                     const mlModel = await ObjectionMLModel.query(trx).patchAndFetchById(
                         args.modelId,
                         {
