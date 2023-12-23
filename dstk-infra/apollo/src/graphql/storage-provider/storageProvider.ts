@@ -1,6 +1,9 @@
 import { objectType } from 'nexus';
 import { Model } from 'objection';
 import { ObjectionMLModel } from '../model/model.js';
+import Security from '../../utils/encryption.js';
+
+const EncryptoMatic = new Security();
 
 export const StorageProvider = objectType({
     name: 'StorageProvider',
@@ -9,8 +12,11 @@ export const StorageProvider = objectType({
         t.string('endpointUrl');
         t.string('region');
         t.string('bucket');
-        t.string('accessKeyId');
-        t.string('secretAccessKey');
+        t.string('accessKeyId', {
+            resolve(root) {
+                return EncryptoMatic.decrypt(root.accessKeyId);
+            },
+        });
         t.string('createdBy'); // TODO: resolve actual user object
         t.string('modifiedBy');
         t.string('owner');
