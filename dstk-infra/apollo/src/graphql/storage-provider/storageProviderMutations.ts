@@ -5,15 +5,14 @@ import { raw } from 'objection';
 
 const EncryptoMatic = new Security();
 
-export const StorageProviderInputType = inputObjectType({
-    name: 'StorageProviderInput',
-    definition(t) {
-        t.nonNull.string('endpointUrl');
-        t.nonNull.string('region');
-        t.nonNull.string('bucket');
-        t.nonNull.string('accessKeyId');
-        t.nonNull.string('secretAccessKey');
-    },
+export const StorageProviderInputType = builder.inputType('StorageProviderInput', {
+    fields: (t) => ({
+        endpointUrl: t.string(),
+        region: t.string(),
+        bucket: t.string(),
+        accessKeyId: t.string(),
+        secretAccessKey: t.string(),
+    }),
 });
 
 export const CreateStorageProviderMutation = extendType({
