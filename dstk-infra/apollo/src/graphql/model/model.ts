@@ -1,28 +1,31 @@
-import { objectType } from 'nexus';
+import { builder } from '../../builder.js';
 import { Model } from 'objection';
-import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
-import { ObjectionMLModelVersion } from '../model-version/modelVersion.js';
+import { StorageProvider, ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
+// import { ObjectionMLModelVersion } from '../model-version/modelVersion.js';
 
-export const MLModel = objectType({
-    name: 'Model',
-    definition(t) {
-        t.id('modelId');
-        t.field('storageProvider', {
-            type: 'StorageProvider',
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const MLModel = builder.objectRef<any>('MLModel').implement({
+    fields: (t) => ({
+        modelId: t.exposeID('modelId'),
+
+        storageProvider: t.field({
+            type: StorageProvider,
             async resolve(root, _args, _ctx) {
-                ObjectionStorageProvider.query().findById(root.providerId).first();
+                const storageProvider = (await ObjectionStorageProvider.query()
+                    .findById(root.providerId)
+                    .first()) as typeof StorageProvider.$inferType;
+                return storageProvider;
             },
-        });
-        t.boolean('isArchived');
-        t.string('modelName');
-        t.string('createdBy'); // TODO: resolve actual user object
-        t.string('modifiedBy');
-        t.string('dateCreated');
-        t.string('dateModified');
-        t.string('description');
-        // holding off on metadata bc I don't want to deal
-        // with JSON serialization/deserialization right now
-    },
+        }),
+
+        isArchived: t.exposeBoolean('isArchived'),
+        modelName: t.exposeString('modelName'),
+        createdBy: t.exposeString('createdBy'),
+        modifiedBy: t.exposeString('modifiedBy'),
+        dateCreated: t.exposeString('dateCreated'),
+        dateModified: t.exposeString('dateModified'),
+        description: t.exposeString('description'),
+    }),
 });
 
 export class ObjectionMLModel extends Model {
@@ -50,13 +53,13 @@ export class ObjectionMLModel extends Model {
                 to: 'registry.storageProviders.providerId',
             },
         },
-        modelVersions: {
-            relation: Model.HasManyRelation,
-            modelClass: ObjectionMLModelVersion,
-            join: {
-                from: 'registry.models.modelId',
-                to: 'registry.modelVersions.modelId',
-            },
-        },
+        // modelVersions: {
+        //     relation: Model.HasManyRelation,
+        //     modelClass: ObjectionMLModelVersion,
+        //     join: {
+        //         from: 'registry.models.modelId',
+        //         to: 'registry.modelVersions.modelId',
+        //     },
+        // },
     });
 }

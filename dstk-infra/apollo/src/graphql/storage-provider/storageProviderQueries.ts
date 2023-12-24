@@ -11,13 +11,12 @@ builder.queryFields((t) => ({
     }),
     getStorageProvider: t.field({
         type: StorageProvider,
-        nullable: true,
         args: {
-            id: t.arg.string({ required: true }),
+            storageProviderId: t.arg.string({ required: true }),
         },
         async resolve(root, args, ctx) {
             const storageProvider = (await ObjectionStorageProvider.query().findById(
-                args.id,
+                args.storageProviderId,
             )) as typeof StorageProvider.$inferType;
             return storageProvider;
         },

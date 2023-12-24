@@ -1,11 +1,11 @@
 import { builder } from '../../builder.js';
 import { Model } from 'objection';
-// import { ObjectionMLModel } from '../model/model.js';
+import { ObjectionMLModel } from '../model/model.js';
 import Security from '../../utils/encryption.js';
 
 const EncryptoMatic = new Security();
 
-/* eslint-disable  @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const StorageProvider = builder.objectRef<any>('StorageProvider').implement({
     fields: (t) => ({
         providerId: t.exposeID('providerId'),
@@ -27,7 +27,6 @@ export const StorageProvider = builder.objectRef<any>('StorageProvider').impleme
         isArchived: t.exposeBoolean('isArchived'),
     }),
 });
-/* eslint-enable  @typescript-eslint/no-explicit-any */
 
 export class ObjectionStorageProvider extends Model {
     id!: string;
@@ -48,14 +47,14 @@ export class ObjectionStorageProvider extends Model {
         return 'providerId';
     }
 
-    // static relationMappings = () => ({
-    //     models: {
-    //         relation: Model.HasManyRelation,
-    //         modelClass: ObjectionMLModel,
-    //         join: {
-    //             from: 'registry.storageProviders.providerId',
-    //             to: 'registry.models.storageProviderId',
-    //         },
-    //     },
-    // });
+    static relationMappings = () => ({
+        models: {
+            relation: Model.HasManyRelation,
+            modelClass: ObjectionMLModel,
+            join: {
+                from: 'registry.storageProviders.providerId',
+                to: 'registry.models.storageProviderId',
+            },
+        },
+    });
 }
