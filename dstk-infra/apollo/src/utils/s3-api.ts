@@ -12,7 +12,7 @@ import { builder } from '../builder.js';
 
 const EncryptoMatic = new Security();
 
-/* eslint-disable  @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const PresignedURL = builder.objectRef<any>('PresignedURL').implement({
     fields: (t) => ({
         url: t.exposeString('url'),
@@ -22,7 +22,6 @@ export const PresignedURL = builder.objectRef<any>('PresignedURL').implement({
         ETag: t.exposeString('ETag'),
     }),
 });
-/* eslint-enable  @typescript-eslint/no-explicit-any */
 
 export async function CreateMultipartUpload(
     storageProvider: ObjectionStorageProvider,
