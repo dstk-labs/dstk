@@ -4,7 +4,7 @@ import { startStandaloneServer } from '@apollo/server/standalone';
 import { Model } from 'objection';
 import Knex from 'knex';
 import { knexConfig } from './knexfile.js';
-import { schema } from './graphql';
+import { schema } from './graphql/index.js';
 
 const knex = Knex(knexConfig.development);
 Model.knex(knex);

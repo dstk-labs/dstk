@@ -1,6 +1,6 @@
 import { builder } from '../../builder.js';
 import { Model } from 'objection';
-import { ObjectionMLModel } from '../model/model.js';
+// import { ObjectionMLModel } from '../model/model.js';
 import Security from '../../utils/encryption.js';
 
 const EncryptoMatic = new Security();
@@ -48,14 +48,14 @@ export class ObjectionStorageProvider extends Model {
         return 'providerId';
     }
 
-    static relationMappings = () => ({
-        models: {
-            relation: Model.HasManyRelation,
-            modelClass: ObjectionMLModel,
-            join: {
-                from: 'registry.storageProviders.providerId',
-                to: 'registry.models.storageProviderId',
-            },
-        },
-    });
+    // static relationMappings = () => ({
+    //     models: {
+    //         relation: Model.HasManyRelation,
+    //         modelClass: ObjectionMLModel,
+    //         join: {
+    //             from: 'registry.storageProviders.providerId',
+    //             to: 'registry.models.storageProviderId',
+    //         },
+    //     },
+    // });
 }

@@ -1,4 +1,3 @@
-import { extendType, stringArg, nonNull } from 'nexus';
 import { StorageProvider, ObjectionStorageProvider } from './storageProvider.js';
 import { builder } from '../../builder.js';
 
@@ -11,13 +10,15 @@ builder.queryFields((t) => ({
         },
     }),
     getStorageProvider: t.field({
-        type: [StorageProvider],
+        type: StorageProvider,
         nullable: true,
         args: {
             id: t.arg.string({ required: true }),
         },
         async resolve(root, args, ctx) {
-            const storageProvider = await ObjectionStorageProvider.query().findById(args.id);
+            const storageProvider = (await ObjectionStorageProvider.query().findById(
+                args.id,
+            )) as typeof StorageProvider.$inferType;
             return storageProvider;
         },
     }),
