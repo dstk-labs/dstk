@@ -1,7 +1,7 @@
 import { builder } from '../../builder.js';
 import { Model } from 'objection';
 import { StorageProvider, ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
-// import { ObjectionMLModelVersion } from '../model-version/modelVersion.js';
+import { ObjectionMLModelVersion } from '../model-version/modelVersion.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const MLModel = builder.objectRef<any>('MLModel').implement({
@@ -53,13 +53,13 @@ export class ObjectionMLModel extends Model {
                 to: 'registry.storageProviders.providerId',
             },
         },
-        // modelVersions: {
-        //     relation: Model.HasManyRelation,
-        //     modelClass: ObjectionMLModelVersion,
-        //     join: {
-        //         from: 'registry.models.modelId',
-        //         to: 'registry.modelVersions.modelId',
-        //     },
-        // },
+        modelVersions: {
+            relation: Model.HasManyRelation,
+            modelClass: ObjectionMLModelVersion,
+            join: {
+                from: 'registry.models.modelId',
+                to: 'registry.modelVersions.modelId',
+            },
+        },
     });
 }
