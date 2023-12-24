@@ -7,20 +7,20 @@ import {
     UploadPartCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { objectType } from 'nexus';
 import Security from './encryption.js';
+import { builder } from '../builder.js';
 
 const EncryptoMatic = new Security();
 
-export const PresignedURL = objectType({
-    name: 'PresignedURL',
-    definition(t) {
-        t.string('url');
-        t.string('key');
-        t.string('uploadId');
-        t.string('partNumber');
-        t.string('ETag');
-    },
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const PresignedURL = builder.objectRef<any>('PresignedURL').implement({
+    fields: (t) => ({
+        url: t.exposeString('url'),
+        key: t.exposeString('key'),
+        uploadId: t.exposeString('uploadId'),
+        partNumber: t.exposeString('partNumber'),
+        ETag: t.exposeString('ETag'),
+    }),
 });
 
 export async function CreateMultipartUpload(

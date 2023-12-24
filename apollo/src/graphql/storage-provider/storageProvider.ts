@@ -1,29 +1,31 @@
-import { objectType } from 'nexus';
+import { builder } from '../../builder.js';
 import { Model } from 'objection';
 import { ObjectionMLModel } from '../model/model.js';
 import Security from '../../utils/encryption.js';
 
 const EncryptoMatic = new Security();
 
-export const StorageProvider = objectType({
-    name: 'StorageProvider',
-    definition(t) {
-        t.id('providerId');
-        t.string('endpointUrl');
-        t.string('region');
-        t.string('bucket');
-        t.string('accessKeyId', {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const StorageProvider = builder.objectRef<any>('StorageProvider').implement({
+    fields: (t) => ({
+        providerId: t.exposeID('providerId'),
+        endpointUrl: t.exposeString('endpointUrl'),
+        region: t.exposeString('region'),
+        bucket: t.exposeString('bucket'),
+
+        accessKeyId: t.string({
             resolve(root) {
                 return EncryptoMatic.decrypt(root.accessKeyId);
             },
-        });
-        t.string('createdBy'); // TODO: resolve actual user object
-        t.string('modifiedBy');
-        t.string('owner');
-        t.string('dateCreated');
-        t.string('dateModified');
-        t.boolean('isArchived');
-    },
+        }),
+
+        createdBy: t.exposeString('createdBy'),
+        modifiedBy: t.exposeString('modifiedBy'),
+        owner: t.exposeString('owner'),
+        dateCreated: t.exposeString('dateCreated'),
+        dateModified: t.exposeString('dateModified'),
+        isArchived: t.exposeBoolean('isArchived'),
+    }),
 });
 
 export class ObjectionStorageProvider extends Model {
