@@ -1,27 +1,32 @@
-import { objectType } from 'nexus';
+import { builder } from '../../builder.js';
 import { MLModel, ObjectionMLModel } from '../model/model.js';
 import { Model } from 'objection';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 
-export const MLModelVersion = objectType({
-    name: 'MLModelVersion',
-    definition(t) {
-        t.id('modelVersionId');
-        t.field('modelId', {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const MLModelVersion = builder.objectRef<any>('MLModelVersion').implement({
+    fields: (t) => ({
+        modelVersionId: t.exposeID('modelVersionId'),
+
+        modelId: t.field({
             type: MLModel,
+
             async resolve(root: ObjectionMLModelVersion, _args, _ctx) {
-                ObjectionMLModel.query().findById(root.modelId).first();
+                const mlModel = (await ObjectionMLModel.query()
+                    .findById(root.modelId)
+                    .first()) as typeof MLModel.$inferType;
+                return mlModel;
             },
-        });
-        t.boolean('isArchived');
-        t.boolean('isFinalized');
-        t.string('createdBy'); // TODO: Resolve actual user object
-        t.int('numericVersion');
-        t.string('description');
-        // TODO: Custom Scalar Type for JSON Object: t.something('metadata')
-        t.string('dateCreated');
-        t.string('s3Prefix');
-    },
+        }),
+
+        isArchived: t.exposeBoolean('isArchived'),
+        isFinalized: t.exposeBoolean('isFinalized'),
+        createdBy: t.exposeString('createdBy'),
+        numericVersion: t.exposeInt('numericVersion'),
+        description: t.exposeString('description'),
+        dateCreated: t.exposeString('dateCreated'),
+        s3Prefix: t.exposeString('s3Prefix'),
+    }),
 });
 
 export class ObjectionMLModelVersion extends Model {
@@ -30,9 +35,9 @@ export class ObjectionMLModelVersion extends Model {
     isArchived!: boolean;
     createdBy!: string;
     numericVersion!: number;
-    description: string;
+    description?: string;
     isFinalized!: boolean;
-    s3Prefix: string;
+    s3Prefix?: string;
     // TODO: metadata: something
     dateCreated!: string;
 

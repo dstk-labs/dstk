@@ -1,18 +1,17 @@
-import { extendType, stringArg, nonNull } from 'nexus';
 import { MLModelVersion, ObjectionMLModelVersion } from './modelVersion.js';
+import { builder } from '../../builder.js';
 
-export const ListModelVersions = extendType({
-    type: 'Query',
-    definition(t) {
-        t.nonNull.list.field('listModelVersions', {
-            type: MLModelVersion,
-            args: { modelId: nonNull(stringArg()) },
-            async resolve(root, args, ctx) {
-                const result = await ObjectionMLModelVersion.query()
-                    .where('modelId', args.modelId)
-                    .orderBy('numericVersion', 'ASC');
-                return result;
-            },
-        });
-    },
-});
+builder.queryFields((t) => ({
+    listMLModelVersions: t.field({
+        type: [MLModelVersion],
+        args: {
+            modelId: t.arg.string({ required: true }),
+        },
+        async resolve(root, args, ctx) {
+            const mlModelVersions = await ObjectionMLModelVersion.query()
+                .where('modelId', args.modelId)
+                .orderBy('numericVersion', 'ASC');
+            return mlModelVersions;
+        },
+    }),
+}));
