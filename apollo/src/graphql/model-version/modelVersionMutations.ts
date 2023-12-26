@@ -11,7 +11,6 @@ import {
 } from '../../utils/s3-api.js';
 import { raw } from 'objection';
 import { builder } from '../../builder.js';
-import { resolve } from 'path';
 
 export const ModelVersionInputType = builder.inputType('ModelVersionInputType', {
     fields: (t) => ({
@@ -95,6 +94,12 @@ builder.mutationFields((t) => ({
                         s3Prefix: s3_prefix,
                     })
                     .first();
+
+                const mlModelVersionId = mlModelVersion.$modelClass.idColumn;
+
+                await ObjectionMLModel.query(trx).patchAndFetchById(args.data.modelId, {
+                    currentModelVersionId: mlModelVersionId[0],
+                });
 
                 return mlModelVersion as typeof MLModelVersion.$inferType;
             });
