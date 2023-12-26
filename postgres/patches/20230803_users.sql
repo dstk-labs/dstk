@@ -1,7 +1,5 @@
 \connect dstk;
 
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 CREATE SCHEMA dstk_user;
 
 CREATE TABLE dstk_user.user (
