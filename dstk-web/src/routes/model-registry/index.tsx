@@ -4,7 +4,6 @@ import {
     BreadcrumbItem,
     Breadcrumbs,
     Button,
-    StatusIcon,
     Table,
     TableBody,
     TableCell,
@@ -13,8 +12,18 @@ import {
     TableRow,
 } from '@/components/ui';
 
+import { useListModels } from './api/listModels';
+
 export const ModelRegistry = () => {
     const navigate = useNavigate();
+
+    const { data, loading, error } = useListModels();
+
+    // TODO: Make UX Prettier
+    if (error) return <p>Error: {error.message}</p>;
+
+    if (loading) return <p>Loading...</p>;
+
     return (
         <div className='w-full flex flex-col gap-12'>
             {/* Page Header */}
@@ -32,54 +41,33 @@ export const ModelRegistry = () => {
                     <Button size='lg'>Create</Button>
                 </div>
             </header>
+            {/* TODO: Add in indicator that lets user know there are no models current registered */}
             <Table className='whitespace-nowrap overflow-x-scroll'>
                 <TableHead>
                     <TableRow>
                         <TableHeaderCell>Name</TableHeaderCell>
                         <TableHeaderCell>Total Versions</TableHeaderCell>
-                        <TableHeaderCell>Deployments</TableHeaderCell>
                         <TableHeaderCell>Created By</TableHeaderCell>
                         <TableHeaderCell>Last Modified</TableHeaderCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    <TableRow
-                        className='hover:bg-gray-50 hover:cursor-pointer'
-                        onClick={() => navigate('/dashboard/models/1234')}
-                    >
-                        <TableCell className='font-medium text-gray-900'>
-                            Housing Market Clustering
-                        </TableCell>
-                        <TableCell>5</TableCell>
-                        <TableCell>
-                            <div className='flex flex-col gap-2'>
-                                <div className='flex items-center gap-2'>
-                                    <StatusIcon variant='success' />3 Active
-                                </div>
-                                <div className='flex items-center gap-2'>
-                                    <StatusIcon variant='pending' />1 Pending
-                                </div>
-                                <div className='flex items-center gap-2'>
-                                    <StatusIcon variant='archived' />1 Archived
-                                </div>
-                            </div>
-                        </TableCell>
-                        <TableCell>Steve O</TableCell>
-                        <TableCell>December 12th, 2023</TableCell>
-                    </TableRow>
-                    <TableRow className='hover:bg-gray-50 hover:cursor-pointer'>
-                        <TableCell className='font-medium text-gray-900'>Employee Churn</TableCell>
-                        <TableCell>3</TableCell>
-                        <TableCell>
-                            <div className='flex flex-col gap-2'>
-                                <div className='flex items-center gap-2'>
-                                    <StatusIcon variant='error' />3 Failed
-                                </div>
-                            </div>
-                        </TableCell>
-                        <TableCell>Michael L</TableCell>
-                        <TableCell>December 10th, 2023</TableCell>
-                    </TableRow>
+                    {data &&
+                        data.listMLModels &&
+                        data.listMLModels.map((model) => (
+                            <TableRow
+                                className='hover:bg-gray-50 hover:cursor-pointer'
+                                key={model.modelId}
+                                onClick={() => navigate(`/dashboard/models/${model.modelId}`)}
+                            >
+                                <TableCell className='font-medium text-gray-900'>
+                                    {model.modelName}
+                                </TableCell>
+                                <TableCell>{model.currentModelVersion.numericVersion}</TableCell>
+                                <TableCell>{model.createdBy}</TableCell>
+                                <TableCell>{model.dateModified}</TableCell>
+                            </TableRow>
+                        ))}
                 </TableBody>
             </Table>
         </div>
