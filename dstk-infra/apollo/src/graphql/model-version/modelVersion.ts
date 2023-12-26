@@ -3,10 +3,14 @@ import { MLModel, ObjectionMLModel } from '../model/model.js';
 import { Model } from 'objection';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const MLModelVersion = builder.objectRef<any>('MLModelVersion').implement({
+export const MLModelVersion = builder.objectRef<ObjectionMLModelVersion>('MLModelVersion').implement({
     fields: (t) => ({
-        modelVersionId: t.exposeID('modelVersionId'),
+        modelVersionId: t.field({
+            type: 'ID',
+            resolve(root: ObjectionMLModelVersion, _args, _ctx) {
+                return root.$modelClass.idColumn[0];
+            },
+        }),
 
         modelId: t.field({
             type: MLModel,
