@@ -1,4 +1,5 @@
 import * as crypto from 'crypto';
+import * as argon2 from 'argon2';
 
 function splitEncryptedText(encryptedText: string) {
     return {
@@ -9,10 +10,10 @@ function splitEncryptedText(encryptedText: string) {
     };
 }
 
-export default class Security {
+export class Security {
     encoding: BufferEncoding = 'hex';
     // process.env.CRYPTO_KEY should be a 32 BYTE key
-    key = 'asdfasdfasdfasdfasdfasdfasdfasdf';
+    key: string = 'asdfasdfasdfasdfasdfasdfasdfasdf';
 
     encrypt(plaintext: string): string {
         const iv = crypto.randomBytes(12);
@@ -51,5 +52,20 @@ export default class Security {
 
         const decrypted = decipher.update(encryptedText);
         return Buffer.concat([decrypted, decipher.final()]).toString();
+    }
+}
+
+export class HashBrown {
+    // again, obviously a placeholder until I get a proper secrets
+    // manager implemented that can populate these values at runtime
+    key: string = 'asdfasdfasdfasdfasdfasdfasdfasdf';
+    async hash(password: string): Promise<string> {
+        const hash = await argon2.hash(password, { secret: Buffer.from(this.key) });
+        return hash;
+    }
+
+    async verify(password: string, hash: string): Promise<boolean> {
+        const verified = await argon2.verify(hash, password, { secret: Buffer.from(this.key) });
+        return verified;
     }
 }

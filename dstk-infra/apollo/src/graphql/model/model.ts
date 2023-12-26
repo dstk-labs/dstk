@@ -34,7 +34,7 @@ builder.objectType(MLModel, {
                 return currentModelVersion;
             },
         }),
-        
+
         isArchived: t.exposeBoolean('isArchived'),
         modelName: t.exposeString('modelName'),
         createdBy: t.exposeString('createdBy'),

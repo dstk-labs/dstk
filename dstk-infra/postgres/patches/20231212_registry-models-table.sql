@@ -1,7 +1,5 @@
 \connect dstk;
 
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 CREATE SCHEMA registry;
 
 CREATE TABLE registry.storage_providers (
