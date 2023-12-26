@@ -32,6 +32,18 @@ builder.objectType(MLModel, {
                     .first()) as typeof MLModelVersion.$inferType;
 
                 return currentModelVersion;
+            },
+        }),
+        
+        isArchived: t.exposeBoolean('isArchived'),
+        modelName: t.exposeString('modelName'),
+        createdBy: t.exposeString('createdBy'),
+        modifiedBy: t.exposeString('modifiedBy'),
+        dateCreated: t.exposeString('dateCreated'),
+        dateModified: t.exposeString('dateModified'),
+        description: t.exposeString('description'),
+    }),
+});
 
 export class ObjectionMLModel extends Model {
     id!: string;
