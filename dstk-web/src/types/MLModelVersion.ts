@@ -12,7 +12,3 @@ export type MLModelVersion = {
     dateCreated: string;
     s3Prefix: string;
 };
-
-export type MLModelVersionList = {
-    listAllModelVersions: MLModelVersion[];
-};

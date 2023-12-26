@@ -12,17 +12,17 @@ import {
     TableRow,
 } from '@/components/ui';
 
-import { useListAllModelVersions } from './api/listAllModelVersions';
+import { useListModels } from './api/listModels';
 
 export const ModelRegistry = () => {
     const navigate = useNavigate();
 
-    const { data, loading, error } = useListAllModelVersions();
+    const { data, loading, error } = useListModels();
 
     // TODO: Make UX Prettier
-    if (error) return <p>Error: {error.message}</p>
+    if (error) return <p>Error: {error.message}</p>;
 
-    if (loading) return <p>Loading...</p>
+    if (loading) return <p>Loading...</p>;
 
     return (
         <div className='w-full flex flex-col gap-12'>
@@ -41,6 +41,7 @@ export const ModelRegistry = () => {
                     <Button size='lg'>Create</Button>
                 </div>
             </header>
+            {/* TODO: Add in indicator that lets user know there are no models current registered */}
             <Table className='whitespace-nowrap overflow-x-scroll'>
                 <TableHead>
                     <TableRow>
@@ -51,18 +52,22 @@ export const ModelRegistry = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {data && data.listAllModelVersions && data.listAllModelVersions.map(modelVersion => (
-                        <TableRow
-                            className='hover:bg-gray-50 hover:cursor-pointer'
-                            key={modelVersion.modelVersionId}
-                            onClick={() => navigate(`/dashboard/models/${modelVersion.modelId.modelId}`)}
-                        >
-                            <TableCell className='font-medium text-gray-900'>{modelVersion.modelId.modelName}</TableCell>
-                            <TableCell>{modelVersion.numericVersion}</TableCell>
-                            <TableCell>{modelVersion.modelId.createdBy}</TableCell>
-                            <TableCell>{modelVersion.modelId.dateModified}</TableCell>
-                        </TableRow>
-                    ))}
+                    {data &&
+                        data.listMLModels &&
+                        data.listMLModels.map((model) => (
+                            <TableRow
+                                className='hover:bg-gray-50 hover:cursor-pointer'
+                                key={model.modelId}
+                                onClick={() => navigate(`/dashboard/models/${model.modelId}`)}
+                            >
+                                <TableCell className='font-medium text-gray-900'>
+                                    {model.modelName}
+                                </TableCell>
+                                <TableCell>{model.currentModelVersion.numericVersion}</TableCell>
+                                <TableCell>{model.createdBy}</TableCell>
+                                <TableCell>{model.dateModified}</TableCell>
+                            </TableRow>
+                        ))}
                 </TableBody>
             </Table>
         </div>
