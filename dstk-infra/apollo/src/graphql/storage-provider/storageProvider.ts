@@ -5,10 +5,14 @@ import Security from '../../utils/encryption.js';
 
 const EncryptoMatic = new Security();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const StorageProvider = builder.objectRef<any>('StorageProvider').implement({
+export const StorageProvider = builder.objectRef<ObjectionStorageProvider>('StorageProvider').implement({
     fields: (t) => ({
-        providerId: t.exposeID('providerId'),
+        providerId: t.field({
+            type: 'ID',
+            resolve(root: ObjectionStorageProvider, _args, _ctx) {
+                return root.$modelClass.idColumn[0];
+            },
+        }),
         endpointUrl: t.exposeString('endpointUrl'),
         region: t.exposeString('region'),
         bucket: t.exposeString('bucket'),
