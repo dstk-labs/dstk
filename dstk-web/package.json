@@ -10,7 +10,7 @@
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix --config ./.eslintrc.json",
     "format": "prettier 'src/**/*.{ts,tsx}' --write --config ./.prettierrc.json",
     "format:fix": "prettier 'src/**/*.{ts,tsx}' --write --config ./.prettierrc.json",
-    "prepare": "cd ../ && husky install ./dstk-web/.husky",
+    "prepare": "husky install ./.husky",
     "preview": "vite preview"
   },
   "dependencies": {
