@@ -10,7 +10,7 @@ builder.objectType(MLModel, {
         modelId: t.field({
             type: 'ID',
             resolve(root: ObjectionMLModel, _args, _ctx) {
-                return root.$modelClass.idColumn[0];
+                return root.$id();
             },
         }),
 

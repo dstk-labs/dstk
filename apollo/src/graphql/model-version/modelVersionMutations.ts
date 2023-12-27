@@ -95,10 +95,8 @@ builder.mutationFields((t) => ({
                     })
                     .first();
 
-                const mlModelVersionId = mlModelVersion.$modelClass.idColumn;
-
                 await ObjectionMLModel.query(trx).patchAndFetchById(args.data.modelId, {
-                    currentModelVersionId: mlModelVersionId[0],
+                    currentModelVersionId: mlModelVersion.$id(),
                 });
 
                 return mlModelVersion as typeof MLModelVersion.$inferType;
