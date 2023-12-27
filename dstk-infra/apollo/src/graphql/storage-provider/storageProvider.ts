@@ -1,7 +1,7 @@
 import { builder } from '../../builder.js';
 import { Model } from 'objection';
 import { ObjectionMLModel } from '../model/model.js';
-import Security from '../../utils/encryption.js';
+import { Security } from '../../utils/encryption.js';
 
 const EncryptoMatic = new Security();
 
