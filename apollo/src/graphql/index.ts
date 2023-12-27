@@ -1,3 +1,7 @@
+export * from './user/user.js';
+
+export * from './auth/authMutations.js';
+
 export * from './model/model.js';
 export * from './model/modelMutations.js';
 export * from './model/modelQueries.js';

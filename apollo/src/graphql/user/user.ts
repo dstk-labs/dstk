@@ -21,8 +21,9 @@ builder.objectType(User, {
         primaryEmail: t.field({
             type: 'String',
             async resolve(root: ObjectionUser, _args, _ctx) {
-                const primaryEmail = (await ObjectionUser.relatedQuery('userEmail(isPrimary)')
-                    .for(root.$modelClass.idColumn[0])
+                const primaryEmail = (await ObjectionUser.relatedQuery('userEmail')
+                    .for(root.$id())
+                    .where('isPrimary', true)
                     .first()) as ObjectionUserEmail;
                 return primaryEmail?.emailAddress;
             },
@@ -41,6 +42,7 @@ export class ObjectionUser extends Model {
     userName!: string;
     dateCreated!: string;
     dateModified!: string;
+    password!: string;
 
     static tableName = 'dstkUser.user';
     static get idColumn() {
@@ -53,7 +55,7 @@ export class ObjectionUser extends Model {
             modelClass: ObjectionUserEmail,
             join: {
                 from: 'dstkUser.user.userId',
-                to: 'dstkUser.userEmail.userId',
+                to: 'dstkUser.email.userId',
             },
         },
     });
@@ -69,7 +71,7 @@ export class ObjectionUserEmail extends Model {
     dateCreated!: string;
     dateModified!: string;
 
-    static tableName = 'dstkUser.userEmail';
+    static tableName = 'dstkUser.email';
     static get idColumn() {
         return 'emailId';
     }
@@ -84,7 +86,7 @@ export class ObjectionUserEmail extends Model {
             relation: Model.HasOneRelation,
             modelClass: ObjectionUser,
             join: {
-                from: 'dstkUser.userEmail.userId',
+                from: 'dstkUser.email.userId',
                 to: 'dstkUser.user.userId',
             },
         },

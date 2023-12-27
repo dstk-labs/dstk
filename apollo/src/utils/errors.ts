@@ -27,4 +27,24 @@ export class RegistryOperationError extends Error {
         this.name = name;
         this.message = RegistryErrorMessages[name];
     }
-}
+};
+
+type AccountErrorName =
+    | 'ACCOUNT_REGISTRATION_ERROR'
+    | 'USERNAME_IN_USE_ERROR';
+
+const AccountErrorMessages = {
+    ACCOUNT_REGISTRATION_ERROR: 'Something went wrong and we were not able to complete this action',
+    USERNAME_IN_USE_ERROR: 'An account already exists with this username',
+};
+
+export class AccountError extends Error {
+    name: AccountErrorName;
+    message: string;
+
+    constructor({ name }: { name: AccountErrorName }) {
+        super();
+        this.name = name;
+        this.message = AccountErrorMessages[name];
+    }
+};
