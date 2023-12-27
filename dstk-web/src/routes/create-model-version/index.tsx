@@ -9,7 +9,7 @@ import { useNotificationStore } from '@/stores';
 import { BreadcrumbItem, Breadcrumbs, Button, TextArea } from '@/components/ui';
 
 import { useCreateModelVersion } from './api/createModelVersion';
-import { ErrorNotification, SuccessNotification } from './components';
+import { ErrorNotification } from './components';
 
 const createModelInputSchema = z.object({
     description: z.string().optional(),
