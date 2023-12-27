@@ -3,37 +3,36 @@ import { MLModel, ObjectionMLModel } from '../model/model.js';
 import { Model } from 'objection';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 
-export const MLModelVersion = builder
-    .objectRef<ObjectionMLModelVersion>('MLModelVersion')
-    .implement({
-        fields: (t) => ({
-            modelVersionId: t.field({
-                type: 'ID',
-                resolve(root: ObjectionMLModelVersion, _args, _ctx) {
-                    return root.$modelClass.idColumn[0];
-                },
-            }),
-
-            modelId: t.field({
-                type: MLModel,
-
-                async resolve(root: ObjectionMLModelVersion, _args, _ctx) {
-                    const mlModel = (await ObjectionMLModel.query()
-                        .findById(root.modelId)
-                        .first()) as typeof MLModel.$inferType;
-                    return mlModel;
-                },
-            }),
-
-            isArchived: t.exposeBoolean('isArchived'),
-            isFinalized: t.exposeBoolean('isFinalized'),
-            createdBy: t.exposeString('createdBy'),
-            numericVersion: t.exposeInt('numericVersion'),
-            description: t.exposeString('description'),
-            dateCreated: t.exposeString('dateCreated'),
-            s3Prefix: t.exposeString('s3Prefix'),
+export const MLModelVersion = builder.objectRef<ObjectionMLModelVersion>('MLModelVersion');
+builder.objectType(MLModelVersion, {
+    fields: (t) => ({
+        modelVersionId: t.field({
+            type: 'ID',
+            resolve(root: ObjectionMLModelVersion, _args, _ctx) {
+                return root.$id();
+            },
         }),
-    });
+
+        modelId: t.field({
+            type: MLModel,
+
+            async resolve(root: ObjectionMLModelVersion, _args, _ctx) {
+                const mlModel = (await ObjectionMLModel.query()
+                    .findById(root.modelId)
+                    .first()) as typeof MLModel.$inferType;
+                return mlModel;
+            },
+        }),
+
+        isArchived: t.exposeBoolean('isArchived'),
+        isFinalized: t.exposeBoolean('isFinalized'),
+        createdBy: t.exposeString('createdBy'),
+        numericVersion: t.exposeInt('numericVersion'),
+        description: t.exposeString('description'),
+        dateCreated: t.exposeString('dateCreated'),
+        s3Prefix: t.exposeString('s3Prefix'),
+    }),
+});
 
 export class ObjectionMLModelVersion extends Model {
     id!: string;

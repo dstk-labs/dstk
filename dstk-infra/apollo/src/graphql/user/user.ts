@@ -8,7 +8,7 @@ builder.objectType(User, {
         userId: t.field({
             type: 'ID',
             resolve(root: ObjectionUser, _args, _ctx) {
-                return root.$modelClass.idColumn[0];
+                return root.$id();
             },
         }),
         isAdmin: t.exposeBoolean('isAdmin'),
