@@ -1,5 +1,5 @@
 import { StorageProvider, ObjectionStorageProvider } from './storageProvider.js';
-import Security from '../../utils/encryption.js';
+import { Security } from '../../utils/encryption.js';
 import { raw } from 'objection';
 import { builder } from '../../builder.js';
 
