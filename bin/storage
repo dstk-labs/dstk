@@ -65,6 +65,12 @@ storage__readiness() {
   success "Connected to postgres!"
 }
 
+storage__wipe() {
+    info "Tactically nuking table ${1:-}"
+    query="TRUNCATE TABLE ${1:-} CASCADE;"
+    result=$(echo "${query}" | query_psql "dstk")
+    success "Table has been truncated"
+}
 
 storage__upgrade() {
   # Enumerate patches
@@ -138,7 +144,7 @@ storage() {
 
   local cmdname=$1; shift
   if type "storage__$cmdname" >/dev/null 2>&1; then
-    "storage__$cmdname"
+    "storage__$cmdname" "${1:-}"
   fi
 }
 
