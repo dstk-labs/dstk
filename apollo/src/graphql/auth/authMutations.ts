@@ -36,6 +36,7 @@ builder.mutationFields((t) => ({
                         isPrimary: true,
                         isVerified: false
                     });
+
                 return userAccount;
             });
             return results;
