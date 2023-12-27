@@ -1,7 +1,14 @@
 import { createBrowserRouter, RouterProvider as Router } from 'react-router-dom';
 
 import { DashboardLayout } from '@/components/layout';
-import { CreateModelVersion, Home, ModelRegistry, ModelVersion } from '@/routes';
+import {
+    CreateModelVersion,
+    Home,
+    ModelRegistry,
+    ModelVersion,
+    ModelVersionDetails,
+    UploadFiles,
+} from '@/routes';
 
 // TODO: Will modularize this with protected / public routes whenever we get there
 export const RouterProvider = () => {
@@ -29,6 +36,14 @@ export const RouterProvider = () => {
                 {
                     path: '/dashboard/models/:modelId/create',
                     element: <CreateModelVersion />,
+                },
+                {
+                    path: '/dashboard/models/:modelId/:versionId',
+                    element: <ModelVersionDetails />,
+                },
+                {
+                    path: '/dashboard/models/:modelId/:versionId/upload',
+                    element: <UploadFiles />,
                 },
             ],
         },
