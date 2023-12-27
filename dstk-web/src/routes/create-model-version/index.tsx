@@ -1,11 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { BarLoader } from 'react-spinners';
 import { z } from 'zod';
+
+import { useNotificationStore } from '@/stores';
 
 import { BreadcrumbItem, Breadcrumbs, Button, TextArea } from '@/components/ui';
 
 import { useCreateModelVersion } from './api/createModelVersion';
+import { ErrorNotification, SuccessNotification } from './components';
 
 const createModelInputSchema = z.object({
     description: z.string().optional(),
@@ -15,11 +19,12 @@ type CreateModelInput = z.infer<typeof createModelInputSchema>;
 
 export const CreateModelVersion = () => {
     const [createModelVersion, { loading }] = useCreateModelVersion();
+    const { addNotification } = useNotificationStore();
 
     const navigate = useNavigate();
 
     const { pathname } = useLocation();
-    const modelId = pathname.split('/')[pathname.length - 2];
+    const modelId = pathname.split('/')[pathname.split('/').length - 2];
 
     const { register, handleSubmit } = useForm<CreateModelInput>({
         resolver: zodResolver(createModelInputSchema),
@@ -33,8 +38,26 @@ export const CreateModelVersion = () => {
                     modelId: modelId,
                 },
             },
-            // TODO: onCompleted: {} => On success, create new notification w/ model version number and link to upload page
-            // TODO: onError: {} => On error, create new notification w/ error message for user.
+            onCompleted: (data) => {
+                addNotification({
+                    type: 'success',
+                    title: 'Success',
+                    children: (
+                        <SuccessNotification
+                            modelId={data.createModelVersion.modelId.modelId}
+                            modelVersionId={data.createModelVersion.modelVersionId}
+                            numericVersion={data.createModelVersion.numericVersion}
+                        />
+                    ),
+                });
+            },
+            onError: (error) => {
+                addNotification({
+                    type: 'error',
+                    title: 'Error',
+                    children: <ErrorNotification message={error.message} />,
+                });
+            },
         });
     };
 
@@ -84,8 +107,7 @@ export const CreateModelVersion = () => {
                     </form>
                 </div>
             ) : (
-                // TODO: Change this out for a loading spinner, bar, or some type of better UX
-                'Loading...'
+                <BarLoader color='#4f46e5' width='250' />
             )}
         </div>
     );
