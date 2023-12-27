@@ -42,7 +42,7 @@ export const ModelRegistry = () => {
                 </div>
             </header>
             {/* TODO: Add in indicator that lets user know there are no models current registered */}
-            <Table className='whitespace-nowrap overflow-x-scroll'>
+            <Table>
                 <TableHead>
                     <TableRow>
                         <TableHeaderCell>Name</TableHeaderCell>
