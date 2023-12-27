@@ -63,7 +63,11 @@ export const ModelRegistry = () => {
                                 <TableCell className='font-medium text-gray-900'>
                                     {model.modelName}
                                 </TableCell>
-                                <TableCell>{model.currentModelVersion.numericVersion}</TableCell>
+                                <TableCell>
+                                    {(model.currentModelVersion &&
+                                        model.currentModelVersion.numericVersion) ||
+                                        0}
+                                </TableCell>
                                 <TableCell>{model.createdBy}</TableCell>
                                 <TableCell>{model.dateModified}</TableCell>
                             </TableRow>

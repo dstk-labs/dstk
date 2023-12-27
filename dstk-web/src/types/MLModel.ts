@@ -4,7 +4,7 @@ import { StorageProvider } from './StorageProvider';
 export type MLModel = {
     modelId: string;
     storageProvider: StorageProvider;
-    currentModelVersion: MLModelVersion;
+    currentModelVersion?: MLModelVersion;
     isArchived: boolean;
     modelName: string;
     createdBy: string; // TODO: User Object

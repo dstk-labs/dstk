@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ClipboardIcon } from '@heroicons/react/24/outline';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
     Badge,
@@ -55,6 +56,11 @@ const models = [
 ];
 
 export const ModelVersion = () => {
+    const { pathname } = useLocation();
+    const navigate = useNavigate();
+
+    const modelId = pathname.split('/')[pathname.split('/').length - 1];
+
     const [isTooltipHidden, setIsTooltipHidden] = useState(true);
     const [copiedVersionId, setCopiedVersionId] = useState('');
 
@@ -80,7 +86,7 @@ export const ModelVersion = () => {
                     <Breadcrumbs>
                         <BreadcrumbItem href='/dashboard/home'>Dashboard</BreadcrumbItem>
                         <BreadcrumbItem href='/dashboard/models'>Models</BreadcrumbItem>
-                        <BreadcrumbItem href='/dashboard/models/1234'>
+                        <BreadcrumbItem href={`/dashboard/models/${modelId}`}>
                             Housing Market Clustering
                         </BreadcrumbItem>
                     </Breadcrumbs>
@@ -89,7 +95,12 @@ export const ModelVersion = () => {
                     <h2 className='text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight'>
                         Housing Market Clustering
                     </h2>
-                    <Button size='lg'>Create New Version</Button>
+                    <Button
+                        onClick={() => navigate(`/dashboard/models/${modelId}/create`)}
+                        size='lg'
+                    >
+                        Create New Version
+                    </Button>
                 </div>
             </header>
             <Table className='whitespace-nowrap overflow-x-scroll'>
