@@ -39,17 +39,10 @@ export const CreateModelVersion = () => {
                 },
             },
             onCompleted: (data) => {
-                addNotification({
-                    type: 'success',
-                    title: 'Success',
-                    children: (
-                        <SuccessNotification
-                            modelId={data.createModelVersion.modelId.modelId}
-                            modelVersionId={data.createModelVersion.modelVersionId}
-                            numericVersion={data.createModelVersion.numericVersion}
-                        />
-                    ),
-                });
+                const modelId = data.createModelVersion.modelId.modelId;
+                const modelVersionId = data.createModelVersion.modelVersionId;
+
+                navigate(`/dashboard/models/${modelId}/${modelVersionId}`);
             },
             onError: (error) => {
                 addNotification({

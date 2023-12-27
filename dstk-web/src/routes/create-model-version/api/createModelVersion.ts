@@ -6,7 +6,6 @@ const CREATE_MODEL_VERSION: TypedDocumentNode<CreateMLModelVersion> = gql`
     mutation CreateModelVersion($data: ModelVersionInputType!) {
         createModelVersion(data: $data) {
             modelVersionId
-            numericVersion
             modelId {
                 modelId
             }
