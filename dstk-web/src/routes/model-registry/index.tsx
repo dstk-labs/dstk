@@ -104,7 +104,11 @@ export const ModelRegistry = () => {
                                                     <DropdownItem>Edit</DropdownItem>
                                                     <DropdownItem>Archive</DropdownItem>
                                                     <Divider />
-                                                    <DropdownItem>Delete</DropdownItem>
+                                                    <DropdownItem>
+                                                        <span className='text-indigo-600 font-semibold'>
+                                                            Publish
+                                                        </span>
+                                                    </DropdownItem>
                                                 </DropdownItems>
                                             </Dropdown>
                                         </TableCell>
