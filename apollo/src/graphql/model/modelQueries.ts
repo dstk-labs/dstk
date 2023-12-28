@@ -8,9 +8,11 @@ builder.queryFields((t) => ({
             modelName: t.arg.string(),
         },
         async resolve(_root, args, _ctx) {
-            const mlModel = await ObjectionMLModel.query()
-                .where('modelName', 'LIKE', `${args.modelName || ''}%`)
-                .orderBy('dateCreated');
+            const query = ObjectionMLModel.query();
+            if (args.modelName) {
+                query.where('modelName', 'ILIKE', `%${args.modelName}%`);
+            }
+            const mlModel = await query.orderBy('dateCreated');
             return mlModel;
         },
     }),
