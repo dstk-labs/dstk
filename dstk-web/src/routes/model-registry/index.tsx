@@ -43,7 +43,9 @@ export const ModelRegistry = () => {
                     <h2 className='text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight'>
                         Model Registry
                     </h2>
-                    <Button size='lg'>Create</Button>
+                    <Button onClick={() => navigate('/dashboard/models/create')} size='lg'>
+                        Create
+                    </Button>
                 </div>
             </header>
             {/* TODO: Add in indicator that lets user know there are no models current registered */}
