@@ -4,8 +4,13 @@ import { builder } from '../../builder.js';
 builder.queryFields((t) => ({
     listMLModels: t.field({
         type: [MLModel],
-        async resolve(root, args, ctx) {
-            const mlModel = await ObjectionMLModel.query().orderBy('dateCreated');
+        args: {
+            modelName: t.arg.string(),
+        },
+        async resolve(_root, args, _ctx) {
+            const mlModel = await ObjectionMLModel.query()
+                .where('modelName', 'LIKE', `${args.modelName || ''}%`)
+                .orderBy('dateCreated');
             return mlModel;
         },
     }),
@@ -18,20 +23,6 @@ builder.queryFields((t) => ({
             const mlModel = (await ObjectionMLModel.query().findById(
                 args.modelId,
             )) as typeof MLModel.$inferType;
-            return mlModel;
-        },
-    }),
-    listMLModelByName: t.field({
-        type: [MLModel],
-        args: {
-            modelName: t.arg.string(),
-        },
-        async resolve(_root, args, _ctx) {
-            const mlModel = await ObjectionMLModel.query().where(
-                'modelName',
-                'LIKE',
-                `${args.modelName || ''}%`,
-            );
             return mlModel;
         },
     }),
