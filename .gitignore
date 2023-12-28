@@ -11,6 +11,7 @@
 *.pnp
 *coverage
 *build
+*dist
 
 # And permit certain files
 !.gitignore
