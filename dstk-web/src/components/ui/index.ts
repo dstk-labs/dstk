@@ -4,6 +4,7 @@ export * from './button';
 export * from './divider';
 export * from './dropdown';
 export * from './input';
+export * from './label';
 export * from './notification';
 export * from './select';
 export * from './status-icon';
