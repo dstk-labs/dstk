@@ -21,4 +21,18 @@ builder.queryFields((t) => ({
             return mlModel;
         },
     }),
+    listMLModelByName: t.field({
+        type: [MLModel],
+        args: {
+            modelName: t.arg.string(),
+        },
+        async resolve(_root, args, _ctx) {
+            const mlModel = await ObjectionMLModel.query().where(
+                'modelName',
+                'LIKE',
+                `${args.modelName || ''}%`,
+            );
+            return mlModel;
+        },
+    }),
 }));
