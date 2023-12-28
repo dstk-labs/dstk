@@ -8,7 +8,7 @@ export const Table = ({ children, className, ...props }: TableProps) => {
     return (
         <div
             className={cn(
-                'overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg',
+                'overflow-hidden whitespace-nowrap overflow-auto shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg',
                 className,
             )}
             {...props}
