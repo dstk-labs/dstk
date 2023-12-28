@@ -1,39 +1,22 @@
 import pkg from 'jsonwebtoken';
-const { sign } = pkg;
+const { sign, verify } = pkg;
 
 export interface Session {
-    id: string;
     dateCreated: number;
     userId: string;
     iat: number;
     exp: number;
 }
 export type PartialSession = Omit<Session, "iat" | "exp">;
-export interface EncodeResult {
-    token: string;
-    exp: number;
-    iat: number;
-}
-export type DecodeResult =
-    | {
-        type: "valid";
-        session: Session;
-    } | {
-        type: "integrity-error";
-    } | {
-        type: "invalid-token";
-    };
-export type ExpirationStatus = "expired" | "active" | "grace";
 
 export class JWTValidator {
     // again, obviously a placeholder until I get a proper secrets
     // manager implemented that can populate these values at runtime
     key: string = 'asdfasdfasdfasdfasdfasdfasdfasdf';
 
-    encodeSession(partialSession: PartialSession): EncodeResult {
+    encodeSession(partialSession: PartialSession): string {
         const issued = Date.now();
-        const fifteenMinutesInMs = 15 * 60 * 1000;
-        const expires = issued + fifteenMinutesInMs;
+        const expires = issued + (15 * 60);
         const session: Session = {
             ...partialSession,
             iat: issued,
@@ -46,12 +29,17 @@ export class JWTValidator {
             }
         );
 
-        return {
-            token: signedJWT,
-            iat: issued,
-            exp: expires,
-        }
+        return signedJWT;
     }
-    // decodeSession() {}
-    // checkExpiration() {}
+
+    verifySession(tokenString: string) {
+        const decoded = verify(
+            tokenString,
+            this.key, {
+                algorithms: ['HS512'],
+                maxAge: '3h',
+            },
+        );
+        return decoded;
+    }
 }
