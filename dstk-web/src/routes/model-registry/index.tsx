@@ -1,3 +1,4 @@
+import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { BarLoader } from 'react-spinners';
 
@@ -5,6 +6,10 @@ import {
     BreadcrumbItem,
     Breadcrumbs,
     Button,
+    Divider,
+    Dropdown,
+    DropdownItem,
+    DropdownItems,
     Input,
     Table,
     TableBody,
@@ -63,6 +68,9 @@ export const ModelRegistry = () => {
                                 <TableHeaderCell>Total Versions</TableHeaderCell>
                                 <TableHeaderCell>Created By</TableHeaderCell>
                                 <TableHeaderCell>Last Modified</TableHeaderCell>
+                                <TableHeaderCell>
+                                    <span className='sr-only'>Model Registry Actions</span>
+                                </TableHeaderCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -86,6 +94,20 @@ export const ModelRegistry = () => {
                                         </TableCell>
                                         <TableCell>{model.createdBy}</TableCell>
                                         <TableCell>{model.dateModified}</TableCell>
+                                        <TableCell>
+                                            <Dropdown
+                                                menuButton={
+                                                    <EllipsisHorizontalIcon className='h-6 w-6' />
+                                                }
+                                            >
+                                                <DropdownItems>
+                                                    <DropdownItem>Edit</DropdownItem>
+                                                    <DropdownItem>Archive</DropdownItem>
+                                                    <Divider />
+                                                    <DropdownItem>Delete</DropdownItem>
+                                                </DropdownItems>
+                                            </Dropdown>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                         </TableBody>
