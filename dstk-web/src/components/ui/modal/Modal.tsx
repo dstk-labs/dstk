@@ -2,7 +2,7 @@ import { Dialog, Transition } from '@headlessui/react';
 
 export type ModalProps = {
     isOpen: boolean;
-    onClose: React.Dispatch<React.SetStateAction<boolean>>;
+    onClose: () => void;
     children: React.ReactNode;
 };
 
