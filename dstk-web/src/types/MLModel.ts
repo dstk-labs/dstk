@@ -18,3 +18,7 @@ export type MLModel = {
 export type MLModelList = {
     listMLModels: MLModel[];
 };
+
+export type CreateMLModel = {
+    createModel: MLModel;
+};

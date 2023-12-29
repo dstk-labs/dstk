@@ -12,3 +12,7 @@ export type StorageProvider = {
     dateModified: string;
     isArchvied: boolean;
 };
+
+export type StorageProviderList = {
+    listStorageProviders: StorageProvider[];
+};

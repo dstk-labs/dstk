@@ -1,3 +1,4 @@
+export * from './create-model';
 export * from './create-model-version';
 export * from './home';
 export * from './model-registry';

@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider as Router } from 'react-router-dom'
 
 import { DashboardLayout } from '@/components/layout';
 import {
+    CreateModel,
     CreateModelVersion,
     Home,
     ModelRegistry,
@@ -28,6 +29,10 @@ export const RouterProvider = () => {
                 {
                     path: '/dashboard/models',
                     element: <ModelRegistry />,
+                },
+                {
+                    path: '/dashboard/models/create',
+                    element: <CreateModel />,
                 },
                 {
                     path: '/dashboard/models/:modelId',
