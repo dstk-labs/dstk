@@ -4,6 +4,7 @@ import { DashboardLayout } from '@/components/layout';
 import {
     CreateModel,
     CreateModelVersion,
+    EditModel,
     Home,
     ModelRegistry,
     ModelVersion,
@@ -37,6 +38,10 @@ export const RouterProvider = () => {
                 {
                     path: '/dashboard/models/:modelId',
                     element: <ModelVersion />,
+                },
+                {
+                    path: '/dashboard/models/:modelId/edit',
+                    element: <EditModel />,
                 },
                 {
                     path: '/dashboard/models/:modelId/create',
