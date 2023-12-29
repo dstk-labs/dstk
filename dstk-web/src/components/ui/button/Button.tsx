@@ -1,12 +1,13 @@
 import { cn } from '@/lib/cn';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-const buttonVariants = cva('font-semibold', {
+const buttonVariants = cva('font-semibold shadow-sm', {
     variants: {
         variant: {
             primary:
                 'bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
             secondary: 'bg-white text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50',
+            destructive: 'bg-red-600 text-white hover:bg-red-500',
         },
         size: {
             xs: 'rounded px-2 py-1 text-xs',
