@@ -6,6 +6,8 @@ import { z } from 'zod';
 
 import { useNotificationStore } from '@/stores';
 
+import { useListStorageProviders } from '@/hooks';
+
 import {
     BreadcrumbItem,
     Breadcrumbs,
@@ -17,7 +19,7 @@ import {
     TextArea,
 } from '@/components/ui';
 
-import { useCreateModel, useListStorageProviders } from './api';
+import { useCreateModel } from './api';
 
 const createModelInputSchema = z.object({
     description: z.string().optional(),
