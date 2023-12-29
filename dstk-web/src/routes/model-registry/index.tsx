@@ -25,7 +25,10 @@ import { useListModels } from './api';
 import { ArchiveModal } from './components';
 
 export const ModelRegistry = () => {
-    const [selectedModel, setSelectedModel] = useState('');
+    const [selectedModel, setSelectedModel] = useState({
+        modelId: '',
+        modelName: '',
+    });
     const [archiveModalOpen, setArchiveModalOpen] = useState(false);
 
     const navigate = useNavigate();
@@ -120,9 +123,10 @@ export const ModelRegistry = () => {
                                                         <DropdownItem>
                                                             <button
                                                                 onClick={() => {
-                                                                    setSelectedModel(
-                                                                        model.modelName,
-                                                                    );
+                                                                    setSelectedModel({
+                                                                        modelId: model.modelId,
+                                                                        modelName: model.modelName,
+                                                                    });
                                                                     setArchiveModalOpen(true);
                                                                 }}
                                                             >
@@ -148,7 +152,7 @@ export const ModelRegistry = () => {
                 </div>
             </div>
             <ArchiveModal
-                modelName={selectedModel}
+                model={selectedModel}
                 isOpen={archiveModalOpen}
                 onClose={() => setArchiveModalOpen(false)}
             />
