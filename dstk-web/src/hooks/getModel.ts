@@ -7,6 +7,9 @@ const GET_MODEL: TypedDocumentNode<GetMLModel> = gql`
         getMLModel(modelId: $modelId) {
             description
             modelName
+            storageProvider {
+                providerId
+            }
         }
     }
 `;

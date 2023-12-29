@@ -108,7 +108,14 @@ export const EditModel = () => {
                 >
                     <div className='flex flex-col gap-2 sm:col-span-2'>
                         <Label>Storage Provider</Label>
-                        <Select {...register('storageProviderId')}>
+                        <Select
+                            defaultValue={
+                                model &&
+                                model.getMLModel &&
+                                model.getMLModel.storageProvider.providerId
+                            }
+                            {...register('storageProviderId')}
+                        >
                             {storageProviders &&
                                 storageProviders.listStorageProviders &&
                                 storageProviders.listStorageProviders.map((storageProvider) => (
