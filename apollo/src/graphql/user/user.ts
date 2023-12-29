@@ -1,5 +1,6 @@
 import { builder } from '../../builder.js';
 import { Model, AnyQueryBuilder } from 'objection';
+import { ObjectionApiKey } from '../auth/auth.js';
 
 export const User = builder.objectRef<ObjectionUser>('User');
 
@@ -56,6 +57,14 @@ export class ObjectionUser extends Model {
             join: {
                 from: 'dstkUser.user.userId',
                 to: 'dstkUser.email.userId',
+            },
+        },
+        apiKeys: {
+            relation: Model.HasManyRelation,
+            modelClass: ObjectionApiKey,
+            join: {
+                from: 'dstkUser.apiKey.userId',
+                to: 'dstkUser.user.userId',
             },
         },
     });
