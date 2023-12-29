@@ -1,4 +1,3 @@
-import { Request } from 'express';
 import { ApolloServer, BaseContext } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import { Model } from 'objection';
@@ -7,7 +6,6 @@ import { knexConfig } from './knexfile.js';
 import { schema } from './graphql/index.js';
 import { JWTValidator } from './utils/jwt.js';
 import { JwtPayload } from 'jsonwebtoken';
-import { GraphQLError } from 'graphql';
 import { IncomingMessage, ServerResponse } from 'http';
 
 const JWT = new JWTValidator;
@@ -37,6 +35,24 @@ const createContext = async ({ res, req }: { res: ServerResponse, req: IncomingM
             // });
             return {};
         }
+    } else if (auth.startsWith("Basic ")){
+        const token = auth.substring(6, auth.length);
+        try {
+            // const verifiedToken = JWT.verifySession(token) as JwtPayload;
+            const userAuth = {
+                userId: '',
+            };
+            return { userAuth };
+        } catch(err) {
+            // throw new GraphQLError('Authentication token is invalid', {
+            //     extensions: {
+            //       code: 'UNAUTHENTICATED',
+            //       http: { status: 401 },
+            //     },
+            // });
+            return {};
+        }
+
     } else {
         // throw new GraphQLError('User is not authenticated', {
         //     extensions: {
