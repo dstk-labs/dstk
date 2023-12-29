@@ -64,7 +64,7 @@ export class HashBrown {
         return hash;
     }
 
-    async verify(password: string, hash: string): Promise<boolean> {
+    async verify(hash: string, password: string): Promise<boolean> {
         const verified = await argon2.verify(hash, password, { secret: Buffer.from(this.key) });
         return verified;
     }

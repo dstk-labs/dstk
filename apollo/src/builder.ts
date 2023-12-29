@@ -2,9 +2,12 @@ import SchemaBuilder from '@pothos/core';
 
 export const builder = new SchemaBuilder<{
     Context: {
-        user?: {
-            id: number;
-        };
+        // userAuth: {
+        //     userId: string;
+        //     dateCreated: number;
+        //     iat: number;
+        //     exp: number;
+        // };
     };
     DefaultFieldNullability: true;
 }>({

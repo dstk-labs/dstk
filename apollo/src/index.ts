@@ -8,24 +8,13 @@ import { schema } from './graphql/index.js';
 import { JWTValidator } from './utils/jwt.js';
 import { JwtPayload } from 'jsonwebtoken';
 import { GraphQLError } from 'graphql';
-import { IncomingMessage } from 'http';
-import { create } from 'domain';
+import { IncomingMessage, ServerResponse } from 'http';
 
+const JWT = new JWTValidator;
 const knex = Knex(knexConfig.development);
 Model.knex(knex);
 
-interface UserAuthInterface {
-    userId: string;
-    dateCreated: number;
-    iat: number;
-    exp: number;
-}
-
-interface AuthContext extends BaseContext {
-    userAuth: UserAuthInterface;
-}
-
-const createContext = async ({ req }: { req: IncomingMessage }) => {
+const createContext = async ({ res, req }: { res: ServerResponse, req: IncomingMessage }) => {
     // simple auth check on every request
     const auth = (req.headers && req.headers.authorization) || '';
     if (auth.startsWith("Bearer ")){
@@ -59,7 +48,6 @@ const createContext = async ({ req }: { req: IncomingMessage }) => {
     }
 };
 
-const JWT = new JWTValidator;
 const server = new ApolloServer({
     schema,
 });
