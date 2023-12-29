@@ -15,10 +15,18 @@ export type MLModel = {
     // TODO: Metadata
 };
 
+export type GetMLModel = {
+    getMLModel: MLModel;
+};
+
 export type MLModelList = {
     listMLModels: MLModel[];
 };
 
 export type CreateMLModel = {
     createModel: MLModel;
+};
+
+export type EditMLModel = {
+    editModel: MLModel;
 };

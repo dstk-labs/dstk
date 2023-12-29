@@ -1,12 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { BarLoader } from 'react-spinners';
 import { z } from 'zod';
 
 import { useNotificationStore } from '@/stores';
 
-import { useListStorageProviders } from '@/hooks';
+import { useGetModel, useListStorageProviders } from '@/hooks';
 
 import {
     BreadcrumbItem,
@@ -19,39 +19,44 @@ import {
     TextArea,
 } from '@/components/ui';
 
-import { useCreateModel } from './api';
+import { useEditModel } from './api';
 
-const createModelInputSchema = z.object({
+const editModelInputSchema = z.object({
     description: z.string().optional(),
     modelName: z.string().min(1, 'Model Name is required.'),
     storageProviderId: z.string().uuid(),
 });
 
-type CreateModelInput = z.infer<typeof createModelInputSchema>;
+type EditModelInput = z.infer<typeof editModelInputSchema>;
 
-export const CreateModel = () => {
-    const [createModel, { loading: createModelLoading }] = useCreateModel();
+export const EditModel = () => {
+    const navigate = useNavigate();
+    const { pathname } = useLocation();
+    const modelId = pathname.split('/')[pathname.split('/').length - 2];
+
+    const [editModel, { loading: editModelLoading }] = useEditModel();
+    const { data: model, loading: modelLoading, error: modelError } = useGetModel(modelId);
     const {
         data: storageProviders,
         loading: storageProviderLoading,
-        error,
+        error: storageProviderError,
     } = useListStorageProviders();
 
     const { addNotification } = useNotificationStore();
-    const navigate = useNavigate();
 
-    const { register, handleSubmit } = useForm<CreateModelInput>({
-        resolver: zodResolver(createModelInputSchema),
+    const { register, handleSubmit } = useForm<EditModelInput>({
+        resolver: zodResolver(editModelInputSchema),
     });
 
-    const onSubmit: SubmitHandler<CreateModelInput> = (data) => {
-        createModel({
+    const onSubmit: SubmitHandler<EditModelInput> = (data) => {
+        editModel({
             variables: {
                 data: {
                     description: data.description,
                     modelName: data.modelName,
                     storageProviderId: data.storageProviderId,
                 },
+                modelId: modelId,
             },
             onCompleted: () => navigate('/dashboard/models'),
             onError: (error) =>
@@ -64,13 +69,17 @@ export const CreateModel = () => {
         });
     };
 
-    if (storageProviderLoading) {
+    if (storageProviderLoading || modelLoading) {
         return <BarLoader color='#4f46e5' width='250px' />;
     }
 
     // TODO: Change UX
-    if (error) {
-        return `Error! ${error.message}`;
+    if (storageProviderError) {
+        return `Error! ${storageProviderError.message}`;
+    }
+
+    if (modelError) {
+        return `Error! ${modelError.message}`;
     }
 
     return (
@@ -80,14 +89,19 @@ export const CreateModel = () => {
                     <Breadcrumbs>
                         <BreadcrumbItem href='/dashboard/home'>Dashboard</BreadcrumbItem>
                         <BreadcrumbItem href='/dashboard/models'>Models</BreadcrumbItem>
-                        <BreadcrumbItem href='/dashboard/models/create'>Create</BreadcrumbItem>
+                        <BreadcrumbItem href={`/dashboard/models/${modelId}`}>
+                            {model && model.getMLModel && model.getMLModel.modelName}
+                        </BreadcrumbItem>
+                        <BreadcrumbItem href={`/dashboard/models/${modelId}/edit`}>
+                            Edit
+                        </BreadcrumbItem>
                     </Breadcrumbs>
                 </div>
                 <h2 className='text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight'>
-                    Register New Model
+                    Edit {model && model.getMLModel && model.getMLModel.modelName}
                 </h2>
             </header>
-            {!createModelLoading ? (
+            {!editModelLoading ? (
                 <form
                     className='grid grid-cols-1 gap-x-6 gap-y-8 items-center sm:grid-cols-4'
                     onSubmit={handleSubmit(onSubmit)}
@@ -109,11 +123,18 @@ export const CreateModel = () => {
                     </div>
                     <div className='flex flex-col gap-2 sm:col-span-2'>
                         <Label>Model Name</Label>
-                        <Input {...register('modelName')} />
+                        <Input
+                            defaultValue={model && model.getMLModel && model.getMLModel.modelName}
+                            {...register('modelName')}
+                        />
                     </div>
                     <div className='flex flex-col gap-2 sm:col-span-4'>
                         <Label>Description</Label>
-                        <TextArea rows={4} {...register('description')} />
+                        <TextArea
+                            rows={4}
+                            defaultValue={model && model.getMLModel && model.getMLModel.description}
+                            {...register('description')}
+                        />
                     </div>
                     <div className='col-span-4 flex items-center justify-end gap-4'>
                         <Button

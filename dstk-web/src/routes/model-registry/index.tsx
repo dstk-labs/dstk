@@ -103,7 +103,13 @@ export const ModelRegistry = () => {
                                                 }
                                             >
                                                 <DropdownItems>
-                                                    <DropdownItem>Edit</DropdownItem>
+                                                    <DropdownItem>
+                                                        <a
+                                                            href={`/dashboard/models/${model.modelId}/edit`}
+                                                        >
+                                                            Edit
+                                                        </a>
+                                                    </DropdownItem>
                                                     <DropdownItem>Archive</DropdownItem>
                                                     <Divider />
                                                     <DropdownItem>
