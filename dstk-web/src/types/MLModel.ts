@@ -30,3 +30,7 @@ export type CreateMLModel = {
 export type EditMLModel = {
     editModel: MLModel;
 };
+
+export type ArchiveMLModel = {
+    archiveModel: MLModel;
+};
