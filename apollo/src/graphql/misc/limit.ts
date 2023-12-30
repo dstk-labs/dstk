@@ -1,4 +1,5 @@
 import { builder } from '../../builder.js';
+import { InputError } from '../../utils/errors.js';
 
 builder.scalarType('Limit', {
     serialize: (n) => n,
@@ -9,6 +10,6 @@ builder.scalarType('Limit', {
             return n;
         }
 
-        throw new Error('Limit must be 10, 25, or 50');
+        throw new InputError({ name: 'INVALID_LIMIT_ERROR' });
     },
 });
