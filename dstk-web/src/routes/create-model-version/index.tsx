@@ -6,6 +6,8 @@ import { z } from 'zod';
 
 import { useNotificationStore } from '@/stores';
 
+import { useGetModel } from '@/hooks';
+
 import { BreadcrumbItem, Breadcrumbs, Button, TextArea } from '@/components/ui';
 
 import { useCreateModelVersion } from './api/createModelVersion';
@@ -18,13 +20,17 @@ const createModelInputSchema = z.object({
 type CreateModelInput = z.infer<typeof createModelInputSchema>;
 
 export const CreateModelVersion = () => {
-    const [createModelVersion, { loading }] = useCreateModelVersion();
+    const [createModelVersion, { loading: createModelLoading }] = useCreateModelVersion();
     const { addNotification } = useNotificationStore();
 
     const navigate = useNavigate();
 
     const { pathname } = useLocation();
     const modelId = pathname.split('/')[pathname.split('/').length - 2];
+
+    const { data, loading: modelIdLoading, error } = useGetModel(modelId);
+
+    const modelName = data && data.getMLModel && data.getMLModel.modelName;
 
     const { register, handleSubmit } = useForm<CreateModelInput>({
         resolver: zodResolver(createModelInputSchema),
@@ -54,6 +60,11 @@ export const CreateModelVersion = () => {
         });
     };
 
+    if (modelIdLoading) return <BarLoader color='#4f46e5' width='250px' />;
+
+    // Better UX
+    if (error) return <p>Error! {error.message}</p>;
+
     return (
         <div className='w-full flex flex-col gap-12'>
             {/* Page Header */}
@@ -62,17 +73,19 @@ export const CreateModelVersion = () => {
                     <Breadcrumbs>
                         <BreadcrumbItem href='/dashboard/home'>Dashboard</BreadcrumbItem>
                         <BreadcrumbItem href='/dashboard/models'>Models</BreadcrumbItem>
-                        <BreadcrumbItem href='/dashboard/models/1234'>
-                            Housing Market Clustering
+                        <BreadcrumbItem href={`/dashboard/models/${modelId}`}>
+                            {modelName}
                         </BreadcrumbItem>
-                        <BreadcrumbItem href='/dashboard/models/1234/create'>Create</BreadcrumbItem>
+                        <BreadcrumbItem href={`/dashboard/models/${modelId}/create`}>
+                            Create
+                        </BreadcrumbItem>
                     </Breadcrumbs>
                 </div>
                 <h2 className='text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight'>
                     Create New Model Version
                 </h2>
             </header>
-            {!loading ? (
+            {!createModelLoading ? (
                 <div className='flex flex-col gap-6'>
                     <div className='flex flex-col'>
                         <h3 className='text-base font-semibold leading-7 text-gray-900'>
@@ -100,7 +113,7 @@ export const CreateModelVersion = () => {
                     </form>
                 </div>
             ) : (
-                <BarLoader color='#4f46e5' width='250' />
+                <BarLoader color='#4f46e5' width='250px' />
             )}
         </div>
     );

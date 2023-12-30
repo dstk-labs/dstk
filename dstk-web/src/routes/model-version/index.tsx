@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { ClipboardIcon } from '@heroicons/react/24/outline';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { BarLoader } from 'react-spinners';
+
+import { useGetModel } from '@/hooks';
 
 import {
-    Badge,
     BreadcrumbItem,
     Breadcrumbs,
     Button,
@@ -13,53 +15,23 @@ import {
     TableHead,
     TableHeaderCell,
     TableRow,
-    type BadgeProps,
     Tooltip,
 } from '@/components/ui';
 
-const models = [
-    {
-        versionId: '78f33d7c-dbe5-45e0-a49c-c9c54706b6f0',
-        version: 5,
-        deploymentStatus: 'Pending',
-        createdBy: 'Steve O',
-        lastModified: 'December 12th, 2023',
-    },
-    {
-        versionId: '297e5931-c8d4-46a0-87ba-a210cdf8a9fd',
-        version: 4,
-        deploymentStatus: 'Active',
-        createdBy: 'Steve O',
-        lastModified: 'December 11th, 2023',
-    },
-    {
-        versionId: '5f636561-12ab-43ef-aa90-416d15d33006',
-        version: 3,
-        deploymentStatus: 'Active',
-        createdBy: 'Steve O',
-        lastModified: 'December 10th, 2023',
-    },
-    {
-        versionId: 'a8bc2d4d-0a11-4733-919c-4bf03e5b0262',
-        version: 2,
-        deploymentStatus: 'Active',
-        createdBy: 'Steve O',
-        lastModified: 'December 9th, 2023',
-    },
-    {
-        versionId: 'b2425027-64d7-45a0-a91b-e6e4805841dd',
-        version: 1,
-        deploymentStatus: 'Archived',
-        createdBy: 'Steve O',
-        lastModified: 'December 8th, 2023',
-    },
-];
+import { useListModelVersions } from './api';
 
 export const ModelVersion = () => {
     const { pathname } = useLocation();
     const navigate = useNavigate();
 
     const modelId = pathname.split('/')[pathname.split('/').length - 1];
+
+    const { data: modelData, loading: modelLoading, error: modelError } = useGetModel(modelId);
+    const {
+        data: mlVersionData,
+        loading: mlVersionLoading,
+        error: mlVersionError,
+    } = useListModelVersions(modelId);
 
     const [isTooltipHidden, setIsTooltipHidden] = useState(true);
     const [copiedVersionId, setCopiedVersionId] = useState('');
@@ -78,6 +50,15 @@ export const ModelVersion = () => {
         }
     };
 
+    const modelName = modelData && modelData.getMLModel && modelData.getMLModel.modelName;
+
+    if (modelLoading || mlVersionLoading) return <BarLoader color='#4f46e5' width='250' />;
+
+    // TODO: Better UX
+    if (modelError) return <p>Error! {modelError.message}</p>;
+
+    if (mlVersionError) return <p>Error! {mlVersionError.message}</p>;
+
     return (
         <div className='w-full flex flex-col gap-12'>
             {/* Page Header */}
@@ -87,13 +68,13 @@ export const ModelVersion = () => {
                         <BreadcrumbItem href='/dashboard/home'>Dashboard</BreadcrumbItem>
                         <BreadcrumbItem href='/dashboard/models'>Models</BreadcrumbItem>
                         <BreadcrumbItem href={`/dashboard/models/${modelId}`}>
-                            Housing Market Clustering
+                            {modelName}
                         </BreadcrumbItem>
                     </Breadcrumbs>
                 </div>
                 <div className='flex items-center justify-between gap-0'>
                     <h2 className='text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight'>
-                        Housing Market Clustering
+                        {modelName}
                     </h2>
                     <Button
                         onClick={() => navigate(`/dashboard/models/${modelId}/create`)}
@@ -103,47 +84,42 @@ export const ModelVersion = () => {
                     </Button>
                 </div>
             </header>
-            <Table className='whitespace-nowrap overflow-x-scroll'>
+            <Table>
                 <TableHead>
                     <TableRow>
                         <TableHeaderCell>Version ID</TableHeaderCell>
                         <TableHeaderCell>Version</TableHeaderCell>
-                        <TableHeaderCell>Deployment Status</TableHeaderCell>
                         <TableHeaderCell>Created By</TableHeaderCell>
                         <TableHeaderCell>Last Modified</TableHeaderCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {models.map((model) => (
-                        <TableRow key={model.versionId}>
-                            <TableCell
-                                className='hover:text-gray-800 hover:cursor-pointer'
-                                onClick={() => handleCopy(model.versionId)}
-                            >
-                                <Tooltip
-                                    isVisible={
-                                        !isTooltipHidden && model.versionId === copiedVersionId
-                                    }
-                                    message='Copied!'
+                    {mlVersionData &&
+                        mlVersionData.listMLModelVersions &&
+                        mlVersionData.listMLModelVersions.map((mlVersion) => (
+                            <TableRow key={mlVersion.modelVersionId}>
+                                <TableCell
+                                    className='hover:text-gray-800 hover:cursor-pointer'
+                                    onClick={() => handleCopy(mlVersion.modelVersionId)}
                                 >
-                                    <div className='flex items-center gap-1'>
-                                        <div>{model.versionId.substring(0, 8)}...</div>
-                                        <ClipboardIcon className='h-3 w-3 shrink-0 hover:text-gray-800 hover:cursor-pointer' />
-                                    </div>
-                                </Tooltip>
-                            </TableCell>
-                            <TableCell>{model.version}</TableCell>
-                            <TableCell>
-                                <Badge
-                                    variant={model.deploymentStatus as keyof BadgeProps['variant']}
-                                >
-                                    {model.deploymentStatus}
-                                </Badge>
-                            </TableCell>
-                            <TableCell>{model.createdBy}</TableCell>
-                            <TableCell>{model.lastModified}</TableCell>
-                        </TableRow>
-                    ))}
+                                    <Tooltip
+                                        isVisible={
+                                            !isTooltipHidden &&
+                                            mlVersion.modelVersionId === copiedVersionId
+                                        }
+                                        message='Copied!'
+                                    >
+                                        <div className='flex items-center gap-1'>
+                                            <div>{mlVersion.modelVersionId.substring(0, 8)}...</div>
+                                            <ClipboardIcon className='h-3 w-3 shrink-0 hover:text-gray-800 hover:cursor-pointer' />
+                                        </div>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell>{mlVersion.numericVersion}</TableCell>
+                                <TableCell>{mlVersion.createdBy}</TableCell>
+                                <TableCell>{mlVersion.dateCreated}</TableCell>
+                            </TableRow>
+                        ))}
                 </TableBody>
             </Table>
         </div>

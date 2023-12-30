@@ -13,6 +13,10 @@ export type MLModelVersion = {
     s3Prefix: string;
 };
 
+export type MLModelVersionList = {
+    listMLModelVersions: MLModelVersion[];
+};
+
 export type CreateMLModelVersion = {
     createModelVersion: MLModelVersion;
 };
