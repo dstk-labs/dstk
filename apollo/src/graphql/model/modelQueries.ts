@@ -6,8 +6,8 @@ builder.queryFields((t) => ({
         type: [MLModel],
         args: {
             modelName: t.arg.string(),
-            limit: t.arg.int({ required: true }),
-            offset: t.arg.int({ required: true }),
+            limit: t.arg.int(),
+            offset: t.arg.int(),
         },
         async resolve(_root, args, _ctx) {
             const query = ObjectionMLModel.query();
@@ -15,9 +15,9 @@ builder.queryFields((t) => ({
                 query.where('modelName', 'ILIKE', `%${args.modelName}%`);
             }
             const mlModel = await query
-                .orderBy('dateCreated')
-                .limit(args.limit)
-                .offset(args.offset);
+                .limit(args.limit || 10)
+                .offset(args.offset || 0)
+                .orderBy('dateCreated');
             return mlModel;
         },
     }),
