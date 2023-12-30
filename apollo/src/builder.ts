@@ -1,5 +1,7 @@
 import SchemaBuilder from '@pothos/core';
 
+import type { Limit } from './types/Limit.js';
+
 export const builder = new SchemaBuilder<{
     Context: {
         userAuth: {
@@ -13,7 +15,7 @@ export const builder = new SchemaBuilder<{
     Scalars: {
         Limit: {
             Input: number;
-            Output: 10 | 25 | 50;
+            Output: Limit;
         };
     };
 }>({
