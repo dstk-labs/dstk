@@ -6,11 +6,23 @@ builder.queryFields((t) => ({
         type: [MLModel],
         args: {
             modelName: t.arg.string(),
+            limit: t.arg({
+                type: 'Limit',
+                defaultValue: 10,
+            }),
+            offset: t.arg.int({
+                defaultValue: 10,
+            }),
         },
         async resolve(_root, args, _ctx) {
             const query = ObjectionMLModel.query();
             if (args.modelName) {
                 query.where('modelName', 'ILIKE', `%${args.modelName}%`);
+            }
+            /* We provide default values for limit and offset but the type
+               inference does not resolve correctly */
+            if (args.limit && args.offset) {
+                query.limit(args.limit).offset(args.offset);
             }
             const mlModel = await query.orderBy('dateCreated');
             return mlModel;

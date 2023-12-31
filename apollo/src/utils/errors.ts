@@ -27,12 +27,9 @@ export class RegistryOperationError extends Error {
         this.name = name;
         this.message = RegistryErrorMessages[name];
     }
-};
+}
 
-type AccountErrorName =
-    | 'ACCOUNT_REGISTRATION_ERROR'
-    | 'USERNAME_IN_USE_ERROR'
-    | 'LOGIN_ERROR';
+type AccountErrorName = 'ACCOUNT_REGISTRATION_ERROR' | 'USERNAME_IN_USE_ERROR' | 'LOGIN_ERROR';
 
 const AccountErrorMessages = {
     ACCOUNT_REGISTRATION_ERROR: 'Something went wrong and we were not able to complete this action',
@@ -49,4 +46,21 @@ export class AccountError extends Error {
         this.name = name;
         this.message = AccountErrorMessages[name];
     }
+}
+
+type InputErrorName = 'INVALID_LIMIT_ERROR';
+
+const InputErrorMessages = {
+    INVALID_LIMIT_ERROR: 'Limit argument must be 10, 25, or 50',
 };
+
+export class InputError extends Error {
+    name: InputErrorName;
+    message: string;
+
+    constructor({ name }: { name: InputErrorName }) {
+        super();
+        this.name = name;
+        this.message = InputErrorMessages[name];
+    }
+}
