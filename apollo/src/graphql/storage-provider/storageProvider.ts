@@ -1,6 +1,7 @@
 import { builder } from '../../builder.js';
 import { Model } from 'objection';
 import { ObjectionMLModel } from '../model/model.js';
+import { User, ObjectionUser } from '../user/user.js';
 import { Security } from '../../utils/encryption.js';
 
 const EncryptoMatic = new Security();
@@ -24,9 +25,33 @@ builder.objectType(StorageProvider, {
             },
         }),
 
-        createdBy: t.exposeString('createdBy'),
-        modifiedBy: t.exposeString('modifiedBy'),
-        owner: t.exposeString('owner'),
+        createdBy: t.field({
+            type: User,
+            async resolve(root: ObjectionStorageProvider, _args, _ctx) {
+                const user = (await root.$relatedQuery('getCreatedBy')
+                    .for(root.$id())
+                    .first()) as ObjectionUser;
+                return user;
+            },
+        }),
+        modifiedBy: t.field({
+            type: User,
+            async resolve(root: ObjectionStorageProvider, _args, _ctx) {
+                const user = (await root.$relatedQuery('getModifiedBy')
+                    .for(root.$id())
+                    .first()) as ObjectionUser;
+                return user;
+            },
+        }),
+        owner: t.field({
+            type: User,
+            async resolve(root: ObjectionStorageProvider, _args, _ctx) {
+                const user = (await root.$relatedQuery('getOwner')
+                    .for(root.$id())
+                    .first()) as ObjectionUser;
+                return user;
+            },
+        }),
         dateCreated: t.exposeString('dateCreated'),
         dateModified: t.exposeString('dateModified'),
         isArchived: t.exposeBoolean('isArchived'),
@@ -40,12 +65,16 @@ export class ObjectionStorageProvider extends Model {
     bucket!: string;
     accessKeyId!: string;
     secretAccessKey!: string;
-    createdBy!: string;
-    modifiedBy!: string;
-    owner!: string;
+    createdById!: number;
+    modifiedById!: number;
+    ownerId!: number;
     dateCreated!: string;
     dateModified!: string;
     isArchived!: boolean;
+
+    owner!: ObjectionUser;
+    modifiedBy!: ObjectionUser;
+    createdBy!: ObjectionUser;
 
     static tableName = 'registry.storageProviders';
     static get idColumn() {
@@ -59,6 +88,30 @@ export class ObjectionStorageProvider extends Model {
             join: {
                 from: 'registry.storageProviders.providerId',
                 to: 'registry.models.storageProviderId',
+            },
+        },
+        getOwner: {
+            relation: Model.HasOneRelation,
+            modelClass: ObjectionUser,
+            join: {
+                from: 'registry.storageProviders.ownerId',
+                to: 'dstkUser.user.id',
+            },
+        },
+        getCreatedBy: {
+            relation: Model.HasOneRelation,
+            modelClass: ObjectionUser,
+            join: {
+                from: 'registry.storageProviders.createdById',
+                to: 'dstkUser.user.id',
+            },
+        },
+        getModifiedBy: {
+            relation: Model.HasOneRelation,
+            modelClass: ObjectionUser,
+            join: {
+                from: 'registry.storageProviders.modifiedById',
+                to: 'dstkUser.user.id',
             },
         },
     });
