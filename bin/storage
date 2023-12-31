@@ -65,11 +65,33 @@ storage__readiness() {
   success "Connected to postgres!"
 }
 
-storage__wipe() {
-    info "Tactically nuking table ${1:-}"
-    query="TRUNCATE TABLE ${1:-} CASCADE;"
-    result=$(echo "${query}" | query_psql "dstk")
-    success "Table has been truncated"
+storage__truncate() {
+  info "Tactically nuking table ${1:-}"
+  query="TRUNCATE TABLE ${1:-} CASCADE;"
+  result=$(echo "${query}" | query_psql "dstk")
+  success "Table has been truncated"
+}
+
+storage__drop() {
+  info "Dropping database"
+  query="DROP DATABASE dstk;"
+  result=$(echo "${query}" | query_psql)
+  success "Database has been removed"
+  info "Rebuilding database and metadata table"
+
+  if [ -n "${ZSH_VERSION:-}" ]; then
+    SCRIPT_DIR=$( cd -- "$( dirname -- "${(%):-%x}" )" &> /dev/null && pwd -P)
+    echo "${SCRIPT_DIR}"
+    patches=( "${(@0)$(find "${SCRIPT_DIR}/../postgres/docker-entrypoint-initdb.d" -type f -name '*.sql' -print0 | sort -z)}" )
+  else
+    SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P)
+    readarray -d '' patches < <(find "${SCRIPT_DIR}/../postgres/docker-entrypoint-initdb.d" -type f -name '*.sql' -print0 | sort -z)
+  fi
+
+  for patch in "${patches[@]}"; do
+    result=$(query_psql < "${patch}")
+  done
+  success "Database reinitialized"
 }
 
 storage__upgrade() {
