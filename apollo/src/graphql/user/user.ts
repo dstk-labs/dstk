@@ -33,7 +33,7 @@ builder.objectType(User, {
 });
 
 export class ObjectionUser extends Model {
-    id!: string;
+    id!: number;
     isAdmin!: boolean;
     isApproved!: boolean;
     isDisabled!: boolean;

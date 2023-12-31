@@ -1,4 +1,5 @@
 import { StorageProvider, ObjectionStorageProvider } from './storageProvider.js';
+import { ObjectionUser } from '../user/user.js';
 import { Security } from '../../utils/encryption.js';
 import { raw } from 'objection';
 import { builder } from '../../builder.js';
@@ -23,6 +24,9 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionStorageProvider.transaction(async (trx) => {
+                const user = (await ObjectionUser.query()
+                    .findById(ctx.userAuth.userId)) as ObjectionUser;
+
                 const encryptedAccessKeyId = EncryptoMatic.encrypt(args.data.accessKeyId);
                 const encryptedSecretAccessKey = EncryptoMatic.encrypt(args.data.secretAccessKey);
 
@@ -33,6 +37,9 @@ builder.mutationFields((t) => ({
                         bucket: args.data.bucket,
                         accessKeyId: encryptedAccessKeyId,
                         secretAccessKey: encryptedSecretAccessKey,
+                        createdById: user.id,
+                        modifiedById: user.id,
+                        ownerId: user.id,
                     })
                     .first();
                 return storageProvider as typeof StorageProvider.$inferType;
@@ -49,6 +56,8 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionStorageProvider.transaction(async (trx) => {
+                const user = (await ObjectionUser.query()
+                    .findById(ctx.userAuth.userId)) as ObjectionUser;
                 const encryptedAccessKeyId = EncryptoMatic.encrypt(args.data.accessKeyId);
                 const encryptedSecretAccessKey = EncryptoMatic.encrypt(args.data.secretAccessKey);
 
@@ -61,6 +70,7 @@ builder.mutationFields((t) => ({
                         accessKeyId: encryptedAccessKeyId,
                         secretAccessKey: encryptedSecretAccessKey,
                         dateModified: raw('NOW()'),
+                        modifiedById: user.id,
                     },
                 );
                 return storageProvider as typeof StorageProvider.$inferType;
@@ -76,6 +86,8 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionStorageProvider.transaction(async (trx) => {
+                const user = (await ObjectionUser.query()
+                    .findById(ctx.userAuth.userId)) as ObjectionUser;
                 const storageProvider = await ObjectionStorageProvider.query(trx).patchAndFetchById(
                     args.providerId,
                     {
@@ -83,6 +95,7 @@ builder.mutationFields((t) => ({
                         secretAccessKey: EncryptoMatic.encrypt('<DELETED>'),
                         accessKeyId: EncryptoMatic.encrypt('<DELETED>'),
                         dateModified: raw('NOW()'),
+                        modifiedById: user.id,
                     },
                 );
 

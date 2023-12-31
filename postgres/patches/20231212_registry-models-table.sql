@@ -10,9 +10,9 @@ CREATE TABLE registry.storage_providers (
     bucket            VARCHAR(64)  NOT NULL,
     access_key_id     TEXT         NOT NULL,
     secret_access_key TEXT         NOT NULL,
-    created_by        UUID         REFERENCES dstk_user.user(user_id),
-    modified_by       UUID         REFERENCES dstk_user.user(user_id),
-    owner             UUID         REFERENCES dstk_user.user(user_id),
+    created_by_id     INTEGER      NOT NULL REFERENCES dstk_user.user(id),
+    modified_by_id    INTEGER      NOT NULL REFERENCES dstk_user.user(id),
+    owner_id          INTEGER      NOT NULL REFERENCES dstk_user.user(id),
     date_created      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     date_modified     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );

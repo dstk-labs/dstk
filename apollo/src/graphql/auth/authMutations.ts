@@ -85,7 +85,7 @@ builder.mutationFields((t) => ({
 
                 const partialSession = {
                     dateCreated: Date.now(),
-                    userId: userAccount.id,
+                    userId: userAccount.$id(),
                 }
                 const token = JWT.encodeSession(partialSession);
                 return token;
