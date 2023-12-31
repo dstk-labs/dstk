@@ -6,13 +6,7 @@ export type TableHeaderCellProps = {
 
 export const TableHeaderCell = ({ children, className, ...props }: TableHeaderCellProps) => {
     return (
-        <th
-            className={cn(
-                'text-gray-900 px-3 py-3.5 first:pl-4 first:pr-3 first:sm:pl-6',
-                className,
-            )}
-            {...props}
-        >
+        <th className={cn('px-6 py-3 font-semibold text-gray-900', className)} {...props}>
             {children}
         </th>
     );

@@ -3,8 +3,8 @@ import { gql, useQuery, type TypedDocumentNode } from '@apollo/client';
 import type { MLModelList } from '@/types/MLModel';
 
 const LIST_MODELS: TypedDocumentNode<MLModelList> = gql`
-    query ListMLModels($modelName: String) {
-        listMLModels(modelName: $modelName) {
+    query ListMLModels($limit: Limit, $offset: Int, $modelName: String) {
+        listMLModels(limit: $limit, offset: $offset, modelName: $modelName) {
             modelName
             modelId
             createdBy
@@ -17,4 +17,11 @@ const LIST_MODELS: TypedDocumentNode<MLModelList> = gql`
     }
 `;
 
-export const useListModels = () => useQuery(LIST_MODELS);
+export const useListModels = (limit?: 10 | 25 | 50, offset?: number, modelName?: string) =>
+    useQuery(LIST_MODELS, {
+        variables: {
+            modelName: modelName,
+            limit: limit,
+            offset: offset,
+        },
+    });

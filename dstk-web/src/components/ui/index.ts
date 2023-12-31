@@ -1,6 +1,7 @@
 export * from './badge';
 export * from './breadcrumb';
 export * from './button';
+export * from './card';
 export * from './divider';
 export * from './dropdown';
 export * from './input';

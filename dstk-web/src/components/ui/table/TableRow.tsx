@@ -6,7 +6,7 @@ export type TableRowProps = {
 
 export const TableRow = ({ children, className, ...props }: TableRowProps) => {
     return (
-        <tr className={cn('text-sm text-left group', className)} {...props}>
+        <tr className={cn('text-sm text-left', className)} {...props}>
             {children}
         </tr>
     );

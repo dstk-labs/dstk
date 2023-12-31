@@ -118,7 +118,7 @@ export const DashboardLayout = () => {
                 </div>
 
                 {/* Main Content */}
-                <main className='flex-grow overflow-hidden bg-gray-50 px-4 py-6 sm:px-8'>
+                <main className='flex-grow overflow-hidden bg-gray-100 px-4 py-6 sm:px-8'>
                     <Outlet />
                 </main>
             </div>

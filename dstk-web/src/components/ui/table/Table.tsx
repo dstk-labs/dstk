@@ -6,14 +6,8 @@ export type TableProps = {
 
 export const Table = ({ children, className, ...props }: TableProps) => {
     return (
-        <div
-            className={cn(
-                'overflow-hidden whitespace-nowrap overflow-auto shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg',
-                className,
-            )}
-            {...props}
-        >
-            <table className='w-full divide-y divide-gray-300'>{children}</table>
-        </div>
+        <table className={cn('min-w-full divide-y divide-gray-200', className)} {...props}>
+            {children}
+        </table>
     );
 };

@@ -9,6 +9,7 @@ import {
     BreadcrumbItem,
     Breadcrumbs,
     Button,
+    Card,
     Table,
     TableBody,
     TableCell,
@@ -84,44 +85,48 @@ export const ModelVersion = () => {
                     </Button>
                 </div>
             </header>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableHeaderCell>Version ID</TableHeaderCell>
-                        <TableHeaderCell>Version</TableHeaderCell>
-                        <TableHeaderCell>Created By</TableHeaderCell>
-                        <TableHeaderCell>Last Modified</TableHeaderCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {mlVersionData &&
-                        mlVersionData.listMLModelVersions &&
-                        mlVersionData.listMLModelVersions.map((mlVersion) => (
-                            <TableRow key={mlVersion.modelVersionId}>
-                                <TableCell
-                                    className='hover:text-gray-800 hover:cursor-pointer'
-                                    onClick={() => handleCopy(mlVersion.modelVersionId)}
-                                >
-                                    <Tooltip
-                                        isVisible={
-                                            !isTooltipHidden &&
-                                            mlVersion.modelVersionId === copiedVersionId
-                                        }
-                                        message='Copied!'
+            <Card>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableHeaderCell>Version ID</TableHeaderCell>
+                            <TableHeaderCell>Version</TableHeaderCell>
+                            <TableHeaderCell>Created By</TableHeaderCell>
+                            <TableHeaderCell>Last Modified</TableHeaderCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {mlVersionData &&
+                            mlVersionData.listMLModelVersions &&
+                            mlVersionData.listMLModelVersions.map((mlVersion) => (
+                                <TableRow key={mlVersion.modelVersionId}>
+                                    <TableCell
+                                        className='hover:text-gray-800 hover:cursor-pointer'
+                                        onClick={() => handleCopy(mlVersion.modelVersionId)}
                                     >
-                                        <div className='flex items-center gap-1'>
-                                            <div>{mlVersion.modelVersionId.substring(0, 8)}...</div>
-                                            <ClipboardIcon className='h-3 w-3 shrink-0 hover:text-gray-800 hover:cursor-pointer' />
-                                        </div>
-                                    </Tooltip>
-                                </TableCell>
-                                <TableCell>{mlVersion.numericVersion}</TableCell>
-                                <TableCell>{mlVersion.createdBy}</TableCell>
-                                <TableCell>{mlVersion.dateCreated}</TableCell>
-                            </TableRow>
-                        ))}
-                </TableBody>
-            </Table>
+                                        <Tooltip
+                                            isVisible={
+                                                !isTooltipHidden &&
+                                                mlVersion.modelVersionId === copiedVersionId
+                                            }
+                                            message='Copied!'
+                                        >
+                                            <div className='flex items-center gap-1'>
+                                                <div>
+                                                    {mlVersion.modelVersionId.substring(0, 8)}...
+                                                </div>
+                                                <ClipboardIcon className='h-3 w-3 shrink-0 hover:text-gray-800 hover:cursor-pointer' />
+                                            </div>
+                                        </Tooltip>
+                                    </TableCell>
+                                    <TableCell>{mlVersion.numericVersion}</TableCell>
+                                    <TableCell>{mlVersion.createdBy}</TableCell>
+                                    <TableCell>{mlVersion.dateCreated}</TableCell>
+                                </TableRow>
+                            ))}
+                    </TableBody>
+                </Table>
+            </Card>
         </div>
     );
 };
