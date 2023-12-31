@@ -41,5 +41,6 @@ CREATE TABLE registry.model_versions (
     numeric_version  INTEGER NOT NULL,
     description      TEXT,
     metadata         JSON,
-    date_created     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    date_created     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    UNIQUE(model_id, numeric_version)
 );
