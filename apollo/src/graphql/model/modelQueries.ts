@@ -6,6 +6,8 @@ import {
     resolveCursorConnection,
     type ResolveCursorConnectionArgs,
 } from '@pothos/plugin-relay';
+import { LIMITS } from '../../types/Limit.js';
+import { InputError } from '../../utils/errors.js';
 
 builder.queryFields((t) => ({
     listMLModels: t.connection({
@@ -19,6 +21,10 @@ builder.queryFields((t) => ({
                 // Manually defining the arg type here is required
                 // so that typescript can correctly infer the return value
                 async ({ before, after, limit }: ResolveCursorConnectionArgs) => {
+                    if (!LIMITS.includes(limit)) {
+                        throw new InputError({ name: 'INVALID_LIMIT_ERROR' });
+                    }
+
                     const query = ObjectionMLModel.query();
 
                     if (before) {

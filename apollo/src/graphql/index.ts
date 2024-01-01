@@ -14,8 +14,6 @@ export * from './storage-provider/storageProvider.js';
 export * from './storage-provider/storageProviderMutations.js';
 export * from './storage-provider/storageProviderQueries.js';
 
-export * from './misc/limit.js';
-
 import { builder } from '../builder.js';
 
 export const schema = builder.toSchema();

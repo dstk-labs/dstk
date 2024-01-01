@@ -13,12 +13,6 @@ export const builder = new SchemaBuilder<{
         };
     };
     DefaultFieldNullability: true;
-    Scalars: {
-        Limit: {
-            Input: number;
-            Output: Limit;
-        };
-    };
 }>({
     plugins: [RelayPlugin],
     relayOptions: {},
