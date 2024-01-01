@@ -1,6 +1,11 @@
 import { MLModel, ObjectionMLModel } from './model.js';
 import { builder } from '../../builder.js';
-import { resolveCursorConnection, type ResolveCursorConnectionArgs } from '@pothos/plugin-relay';
+import {
+    decodeGlobalID,
+    encodeGlobalID,
+    resolveCursorConnection,
+    type ResolveCursorConnectionArgs,
+} from '@pothos/plugin-relay';
 
 builder.queryFields((t) => ({
     listMLModels: t.connection({
@@ -9,7 +14,7 @@ builder.queryFields((t) => ({
             resolveCursorConnection(
                 {
                     args,
-                    toCursor: (mlModel) => mlModel.id,
+                    toCursor: (mlModel) => encodeGlobalID('String', mlModel.id),
                 },
                 // Manually defining the arg type here is required
                 // so that typescript can correctly infer the return value
@@ -17,11 +22,11 @@ builder.queryFields((t) => ({
                     const query = ObjectionMLModel.query();
 
                     if (before) {
-                        query.where('id', '<', parseInt(before));
+                        query.where('id', '<', parseInt(decodeGlobalID(before).id));
                     }
 
                     if (after) {
-                        query.where('id', '>', parseInt(after));
+                        query.where('id', '>', parseInt(decodeGlobalID(after).id));
                     }
 
                     const mlModel = await query.limit(limit).orderBy('id');
