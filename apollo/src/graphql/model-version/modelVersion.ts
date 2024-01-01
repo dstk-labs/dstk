@@ -1,5 +1,6 @@
 import { builder } from '../../builder.js';
 import { MLModel, ObjectionMLModel } from '../model/model.js';
+import { User, ObjectionUser } from '../user/user.js';
 import { Model } from 'objection';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 
@@ -26,25 +27,36 @@ builder.objectType(MLModelVersion, {
 
         isArchived: t.exposeBoolean('isArchived'),
         isFinalized: t.exposeBoolean('isFinalized'),
-        createdBy: t.exposeString('createdBy'),
         numericVersion: t.exposeInt('numericVersion'),
         description: t.exposeString('description'),
         dateCreated: t.exposeString('dateCreated'),
         s3Prefix: t.exposeString('s3Prefix'),
+        createdBy: t.field({
+            type: User,
+            async resolve(root: ObjectionMLModelVersion, _args, _ctx) {
+                const user = (await root.$relatedQuery('getCreatedBy')
+                    .for(root.$id())
+                    .first()) as ObjectionUser;
+                return user;
+            },
+        }),
     }),
 });
 
 export class ObjectionMLModelVersion extends Model {
-    id!: string;
-    modelId!: string;
+    id!: number;
+    modelVersionId!: string;
+    modelId!: number;
     isArchived!: boolean;
-    createdBy!: string;
+    createdById!: number;
     numericVersion!: number;
     description?: string;
     isFinalized!: boolean;
     s3Prefix?: string;
     // TODO: metadata: something
     dateCreated!: string;
+
+    createdBy!: ObjectionUser;
 
     static tableName = 'registry.modelVersions';
     static get idColumn() {
@@ -57,7 +69,7 @@ export class ObjectionMLModelVersion extends Model {
             modelClass: ObjectionMLModel,
             join: {
                 from: 'registry.modelVersions.modelId',
-                to: 'registry.models.modelId',
+                to: 'registry.models.id',
             },
         },
         storageProvider: {
@@ -66,10 +78,18 @@ export class ObjectionMLModelVersion extends Model {
             join: {
                 from: 'registry.modelVersions.modelId',
                 through: {
-                    from: 'registry.models.modelId',
+                    from: 'registry.models.id',
                     to: 'registry.models.storageProviderId',
                 },
-                to: 'registry.storageProviders.providerId',
+                to: 'registry.storageProviders.id',
+            },
+        },
+        getCreatedBy: {
+            relation: Model.HasOneRelation,
+            modelClass: ObjectionUser,
+            join: {
+                from: 'registry.modelVersions.createdById',
+                to: 'dstkUser.user.id',
             },
         },
     });

@@ -23,7 +23,7 @@ builder.objectType(User, {
             type: 'String',
             async resolve(root: ObjectionUser, _args, _ctx) {
                 const primaryEmail = (await ObjectionUser.relatedQuery('userEmail')
-                    .for(root.$id())
+                    .for(root.id)
                     .where('isPrimary', true)
                     .first()) as ObjectionUserEmail;
                 return primaryEmail?.emailAddress;
@@ -34,6 +34,7 @@ builder.objectType(User, {
 
 export class ObjectionUser extends Model {
     id!: number;
+    userId!: string;
     isAdmin!: boolean;
     isApproved!: boolean;
     isDisabled!: boolean;
@@ -55,7 +56,7 @@ export class ObjectionUser extends Model {
             relation: Model.HasManyRelation,
             modelClass: ObjectionUserEmail,
             join: {
-                from: 'dstkUser.user.userId',
+                from: 'dstkUser.user.id',
                 to: 'dstkUser.email.userId',
             },
         },
@@ -63,16 +64,17 @@ export class ObjectionUser extends Model {
             relation: Model.HasManyRelation,
             modelClass: ObjectionApiKey,
             join: {
-                from: 'dstkUser.apiKey.userId',
-                to: 'dstkUser.user.userId',
+                from: 'dstkUser.user.id',
+                to: 'dstkUser.apiKey.userId',
             },
         },
     });
 }
 
 export class ObjectionUserEmail extends Model {
-    id!: string;
-    userId!: string;
+    id!: number;
+    emailId!: string;
+    userId!: number;
     emailAddress!: string;
     isVerified!: boolean;
     isPrimary!: boolean;
@@ -96,7 +98,7 @@ export class ObjectionUserEmail extends Model {
             modelClass: ObjectionUser,
             join: {
                 from: 'dstkUser.email.userId',
-                to: 'dstkUser.user.userId',
+                to: 'dstkUser.user.id',
             },
         },
     });
