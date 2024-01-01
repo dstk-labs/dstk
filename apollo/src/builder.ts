@@ -1,4 +1,5 @@
 import SchemaBuilder from '@pothos/core';
+import RelayPlugin from '@pothos/plugin-relay';
 
 import type { Limit } from './types/Limit.js';
 
@@ -19,6 +20,8 @@ export const builder = new SchemaBuilder<{
         };
     };
 }>({
+    plugins: [RelayPlugin],
+    relayOptions: {},
     defaultFieldNullability: true,
 });
 

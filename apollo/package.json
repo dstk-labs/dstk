@@ -17,6 +17,7 @@
     "@aws-sdk/types": "^3.468.0",
     "@aws-sdk/util-format-url": "^3.468.0",
     "@pothos/core": "^3.41.0",
+    "@pothos/plugin-relay": "^3.45.1",
     "@pothos/plugin-scope-auth": "^3.20.0",
     "@smithy/hash-node": "^2.0.17",
     "@smithy/protocol-http": "^3.0.11",

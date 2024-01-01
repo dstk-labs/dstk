@@ -1,32 +1,33 @@
 import { MLModel, ObjectionMLModel } from './model.js';
 import { builder } from '../../builder.js';
+import { resolveCursorConnection, type ResolveCursorConnectionArgs } from '@pothos/plugin-relay';
 
 builder.queryFields((t) => ({
-    listMLModels: t.field({
-        type: [MLModel],
-        args: {
-            modelName: t.arg.string(),
-            limit: t.arg({
-                type: 'Limit',
-                defaultValue: 10,
-            }),
-            offset: t.arg.int({
-                defaultValue: 10,
-            }),
-        },
-        async resolve(_root, args, _ctx) {
-            const query = ObjectionMLModel.query();
-            if (args.modelName) {
-                query.where('modelName', 'ILIKE', `%${args.modelName}%`);
-            }
-            /* We provide default values for limit and offset but the type
-               inference does not resolve correctly */
-            if (args.limit && args.offset) {
-                query.limit(args.limit).offset(args.offset);
-            }
-            const mlModel = await query.orderBy('dateCreated');
-            return mlModel;
-        },
+    listMLModels: t.connection({
+        type: MLModel,
+        resolve: (_, args) =>
+            resolveCursorConnection(
+                {
+                    args,
+                    toCursor: (mlModel) => mlModel.id,
+                },
+                // Manually defining the arg type here is required
+                // so that typescript can correctly infer the return value
+                async ({ before, after, limit }: ResolveCursorConnectionArgs) => {
+                    const query = ObjectionMLModel.query();
+
+                    if (before) {
+                        query.where('id', '<', parseInt(before));
+                    }
+
+                    if (after) {
+                        query.where('id', '>', parseInt(after));
+                    }
+
+                    const mlModel = await query.limit(limit).orderBy('id');
+                    return mlModel;
+                },
+            ),
     }),
     getMLModel: t.field({
         type: MLModel,
