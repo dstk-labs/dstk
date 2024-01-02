@@ -1,6 +1,5 @@
 import { builder } from '../../builder.js';
 import { ApiKey, ObjectionApiKey } from '../auth/auth.js';
-import { ObjectionUser } from '../user/user.js';
 import {v4 as uuidv4} from 'uuid';
 
 builder.mutationFields((t) => ({
@@ -8,13 +7,10 @@ builder.mutationFields((t) => ({
         type: ApiKey,
         async resolve(root, args, ctx) {
             const results = ObjectionApiKey.transaction(async (trx) => {
-                const user = (await ObjectionUser.query()
-                    .findById(ctx.userAuth.userId)) as ObjectionUser;
-
                 const apiKey = uuidv4().replace(/-/g, "");
                 const userApiKey = await ObjectionApiKey.query(trx)
                     .insertAndFetch({
-                        userId: user.id,
+                        userId: ctx.userAuth.userId,
                         apiKey: apiKey,
                     })
                     .first();
@@ -31,15 +27,12 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionApiKey.transaction(async (trx) => {
-                const user = (await ObjectionUser.query()
-                    .findById(ctx.userAuth.userId)) as ObjectionUser;
-
                 const userApiKey = await ObjectionApiKey.query(trx)
                     .patchAndFetchById(
                         args.apiKeyId,
                         { isArchived: true }
                     )
-                    .where('userId', user.id)
+                    .where('userId', ctx.userAuth.userId)
                     .first();
 
                 return userApiKey;

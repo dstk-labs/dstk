@@ -59,8 +59,7 @@ builder.objectType(StorageProvider, {
 });
 
 export class ObjectionStorageProvider extends Model {
-    id!: number;
-    storageProviderId!: string;
+    id!: string;
     endpointUrl!: string;
     region!: string;
     bucket!: string;
@@ -87,7 +86,7 @@ export class ObjectionStorageProvider extends Model {
             relation: Model.HasManyRelation,
             modelClass: ObjectionMLModel,
             join: {
-                from: 'registry.storageProviders.id',
+                from: 'registry.storageProviders.providerId',
                 to: 'registry.models.storageProviderId',
             },
         },

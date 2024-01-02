@@ -2,7 +2,6 @@ import { builder } from '../../builder.js';
 import { Model } from 'objection';
 import { StorageProvider, ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 import { MLModelVersion, ObjectionMLModelVersion } from '../model-version/modelVersion.js';
-import { User, ObjectionUser } from '../user/user.js';
 
 export const MLModel = builder.objectRef<ObjectionMLModel>('MLModel');
 
@@ -38,47 +37,25 @@ builder.objectType(MLModel, {
 
         isArchived: t.exposeBoolean('isArchived'),
         modelName: t.exposeString('modelName'),
+        createdBy: t.exposeString('createdBy'),
+        modifiedBy: t.exposeString('modifiedBy'),
         dateCreated: t.exposeString('dateCreated'),
         dateModified: t.exposeString('dateModified'),
         description: t.exposeString('description'),
-
-        createdBy: t.field({
-            type: User,
-            async resolve(root: ObjectionMLModel, _args, _ctx) {
-                const user = (await root.$relatedQuery('getCreatedBy')
-                    .for(root.$id())
-                    .first()) as ObjectionUser;
-                return user;
-            },
-        }),
-        modifiedBy: t.field({
-            type: User,
-            async resolve(root: ObjectionMLModel, _args, _ctx) {
-                const user = (await root.$relatedQuery('getModifiedBy')
-                    .for(root.$id())
-                    .first()) as ObjectionUser;
-                return user;
-            },
-        }),
-
     }),
 });
 
 export class ObjectionMLModel extends Model {
-    id!: number;
-    modelId!: string;
-    storageProviderId!: number;
-    currentModelVersionId!: number;
+    id!: string;
+    storageProviderId!: string;
+    currentModelVersionId!: string;
     isArchived!: boolean;
     modelName!: string;
-    createdById!: number;
-    modifiedById!: number;
+    createdBy!: string;
+    modifiedBy!: string;
     dateCreated!: string;
     dateModified!: string;
     description!: string;
-
-    modifiedBy!: ObjectionUser;
-    createdBy!: ObjectionUser;
 
     static tableName = 'registry.models';
     static get idColumn() {
@@ -91,7 +68,7 @@ export class ObjectionMLModel extends Model {
             modelClass: ObjectionStorageProvider,
             join: {
                 from: 'registry.models.storageProviderId',
-                to: 'registry.storageProviders.id',
+                to: 'registry.storageProviders.providerId',
             },
         },
         modelVersions: {
@@ -99,7 +76,7 @@ export class ObjectionMLModel extends Model {
             modelClass: ObjectionMLModelVersion,
             join: {
                 from: 'registry.models.modelId',
-                to: 'registry.modelVersions.id',
+                to: 'registry.modelVersions.modelId',
             },
         },
         currentModelVersion: {
@@ -107,25 +84,8 @@ export class ObjectionMLModel extends Model {
             modelClass: ObjectionMLModelVersion,
             join: {
                 from: 'registry.models.currentModelVersionId',
-                to: 'registry.modelVersions.id',
+                to: 'registry.modelVersions.modelVersionId',
             },
         },
-        getCreatedBy: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionUser,
-            join: {
-                from: 'registry.models.createdById',
-                to: 'dstkUser.user.id',
-            },
-        },
-        getModifiedBy: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionUser,
-            join: {
-                from: 'registry.models.modifiedById',
-                to: 'dstkUser.user.id',
-            },
-        },
-
     });
 }

@@ -1,5 +1,4 @@
 import { MLModelVersion, ObjectionMLModelVersion } from './modelVersion.js';
-import { ObjectionUser } from '../user/user.js';
 import { ObjectionMLModel } from '../model/model.js';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 import { RegistryOperationError } from '../../utils/errors.js';
@@ -69,17 +68,15 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionMLModelVersion.transaction(async (trx) => {
-                const user = (await ObjectionUser.query()
-                    .findById(ctx.userAuth.userId)) as ObjectionUser;
-
                 const parentModel = (await ObjectionMLModel.query()
-                    .findById(args.data.modelId)) as ObjectionMLModel;
+                    .where('modelId', args.data.modelId)
+                    .first()) as ObjectionMLModel;
                 if (parentModel.isArchived === true) {
                     throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_ERROR' });
                 }
                 const lastModelVersion = await ObjectionMLModelVersion.query()
                     .select('numericVersion')
-                    .where('modelId', parentModel.id)
+                    .where('modelId', args.data.modelId)
                     .orderBy('numericVersion', 'DESC')
                     .first();
                 const incrementedVersion = (lastModelVersion?.numericVersion || 0) + 1;
@@ -91,16 +88,15 @@ builder.mutationFields((t) => ({
 
                 const mlModelVersion = await ObjectionMLModelVersion.query(trx)
                     .insertAndFetch({
-                        modelId: parentModel.id,
+                        modelId: args.data.modelId,
                         description: args.data?.description || raw('NULL'),
                         numericVersion: incrementedVersion,
                         s3Prefix: s3_prefix,
-                        createdById: user.id,
                     })
-                    .first() as ObjectionMLModelVersion;
+                    .first();
 
-                await ObjectionMLModel.query(trx).patchAndFetchById(parentModel.$id(), {
-                    currentModelVersionId: mlModelVersion.id,
+                await ObjectionMLModel.query(trx).patchAndFetchById(args.data.modelId, {
+                    currentModelVersionId: mlModelVersion.$id(),
                 });
 
                 return mlModelVersion as typeof MLModelVersion.$inferType;
