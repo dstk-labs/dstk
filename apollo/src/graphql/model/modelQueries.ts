@@ -1,44 +1,51 @@
 import { MLModel, ObjectionMLModel } from './model.js';
 import { builder } from '../../builder.js';
-import {
-    decodeGlobalID,
-    encodeGlobalID,
-    resolveCursorConnection,
-    type ResolveCursorConnectionArgs,
-} from '@pothos/plugin-relay';
-import { LIMITS } from '../../types/Limit.js';
-import { InputError } from '../../utils/errors.js';
+import { MLModelConnection } from './modelConnection.js';
 
 builder.queryFields((t) => ({
-    listMLModels: t.connection({
-        type: MLModel,
-        resolve: (_, args) =>
-            resolveCursorConnection(
-                {
-                    args,
-                    toCursor: (mlModel) => encodeGlobalID('String', mlModel.id),
+    listMLModels: t.field({
+        type: MLModelConnection,
+        args: {
+            modelName: t.arg.string(),
+            first: t.arg({
+                type: 'Limit',
+                defaultValue: 10,
+                required: true,
+            }),
+            after: t.arg.string(),
+        },
+        async resolve(_root, { modelName, first, after }, _ctx) {
+            const query = ObjectionMLModel.query();
+
+            if (modelName) {
+                query.where('modelName', 'ILIKE', `%${modelName}%`);
+            }
+
+            if (after) {
+                query.where('id', '>', after);
+            }
+
+            const mlModels = await query.limit(first + 1).orderBy('id');
+
+            const hasPreviousPage = mlModels.length > 0 ? !!after : false;
+            const hasNextPage = mlModels.length > 0 ? mlModels.length > first : false;
+
+            const edges = mlModels.slice(0, first);
+
+            const continuationToken = edges.length > 0 ? edges[edges.length - 1].id : undefined;
+
+            return {
+                edges: edges.map((mlModel) => ({
+                    cursor: mlModel.id,
+                    node: mlModel,
+                })),
+                pageInfo: {
+                    hasPreviousPage: hasPreviousPage,
+                    hasNextPage: hasNextPage,
+                    continuationToken: continuationToken,
                 },
-                // Manually defining the arg type here is required
-                // so that typescript can correctly infer the return value
-                async ({ before, after, limit }: ResolveCursorConnectionArgs) => {
-                    if (!LIMITS.includes(limit)) {
-                        throw new InputError({ name: 'INVALID_LIMIT_ERROR' });
-                    }
-
-                    const query = ObjectionMLModel.query();
-
-                    if (before) {
-                        query.where('id', '<', parseInt(decodeGlobalID(before).id));
-                    }
-
-                    if (after) {
-                        query.where('id', '>', parseInt(decodeGlobalID(after).id));
-                    }
-
-                    const mlModel = await query.limit(limit).orderBy('id');
-                    return mlModel;
-                },
-            ),
+            };
+        },
     }),
     getMLModel: t.field({
         type: MLModel,
