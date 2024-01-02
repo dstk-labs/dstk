@@ -1,4 +1,4 @@
-import { User, ObjectionUser, ObjectionUserEmail,  } from '../user/user.js';
+import { User, ObjectionUser, ObjectionUserEmail } from '../user/user.js';
 import { AccountError } from '../../utils/errors.js';
 import { HashBrown } from '../../utils/encryption.js';
 import { JWTValidator, PartialSession } from '../../utils/jwt.js';
@@ -34,9 +34,9 @@ builder.mutationFields((t) => ({
                     .where(raw('LOWER(user_name)'), args.data.userName.toLowerCase())
                     .first();
                 if (username) {
-                    throw new AccountError({name: 'USERNAME_IN_USE_ERROR'});
+                    throw new AccountError({ name: 'USERNAME_IN_USE_ERROR' });
                 }
-                
+
                 const hashedPass = await HashSlingingSlasher.hash(args.data.password);
                 const userAccount = await ObjectionUser.query(trx)
                     .insertAndFetch({
@@ -45,13 +45,12 @@ builder.mutationFields((t) => ({
                         realName: args.data.realName,
                     })
                     .first();
-                await ObjectionUserEmail.query(trx)
-                    .insert({
-                        emailAddress: args.data.email,
-                        userId: userAccount.$id(),
-                        isPrimary: true,
-                        isVerified: false
-                    });
+                await ObjectionUserEmail.query(trx).insert({
+                    emailAddress: args.data.email,
+                    userId: userAccount.$id(),
+                    isPrimary: true,
+                    isVerified: false,
+                });
 
                 return userAccount;
             });
@@ -59,7 +58,7 @@ builder.mutationFields((t) => ({
         },
     }),
     login: t.field({
-        type: "String",
+        type: 'String',
         args: {
             data: t.arg({ type: LoginInputType, required: true }),
         },
@@ -72,25 +71,26 @@ builder.mutationFields((t) => ({
                     .where(raw('LOWER(user_name)'), args.data.userName.toLowerCase())
                     .first();
                 if (!userAccount) {
-                    throw new AccountError({name: 'LOGIN_ERROR'});
+                    throw new AccountError({ name: 'LOGIN_ERROR' });
                 }
-    
+
                 const verified = await HashSlingingSlasher.verify(
-                    userAccount.password, args.data.password
+                    userAccount.password,
+                    args.data.password,
                 );
 
                 if (!verified) {
-                    throw new AccountError({name: 'LOGIN_ERROR'});
+                    throw new AccountError({ name: 'LOGIN_ERROR' });
                 }
 
                 const partialSession = {
                     dateCreated: Date.now(),
                     userId: userAccount.$id(),
-                }
+                };
                 const token = JWT.encodeSession(partialSession);
                 return token;
             });
             return results;
         },
-    })
+    }),
 }));
