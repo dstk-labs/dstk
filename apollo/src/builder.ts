@@ -12,6 +12,12 @@ export const builder = new SchemaBuilder<{
         };
     };
     DefaultFieldNullability: true;
+    Scalars: {
+        Limit: {
+            Input: number;
+            Output: Limit;
+        };
+    };
 }>({
     defaultFieldNullability: true,
 });
