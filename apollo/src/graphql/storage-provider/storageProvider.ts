@@ -28,7 +28,8 @@ builder.objectType(StorageProvider, {
         createdBy: t.field({
             type: User,
             async resolve(root: ObjectionStorageProvider, _args, _ctx) {
-                const user = (await root.$relatedQuery('getCreatedBy')
+                const user = (await root
+                    .$relatedQuery('getCreatedBy')
                     .for(root.$id())
                     .first()) as ObjectionUser;
                 return user;
@@ -37,7 +38,8 @@ builder.objectType(StorageProvider, {
         modifiedBy: t.field({
             type: User,
             async resolve(root: ObjectionStorageProvider, _args, _ctx) {
-                const user = (await root.$relatedQuery('getModifiedBy')
+                const user = (await root
+                    .$relatedQuery('getModifiedBy')
                     .for(root.$id())
                     .first()) as ObjectionUser;
                 return user;
@@ -46,7 +48,8 @@ builder.objectType(StorageProvider, {
         owner: t.field({
             type: User,
             async resolve(root: ObjectionStorageProvider, _args, _ctx) {
-                const user = (await root.$relatedQuery('getOwner')
+                const user = (await root
+                    .$relatedQuery('getOwner')
                     .for(root.$id())
                     .first()) as ObjectionUser;
                 return user;

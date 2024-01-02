@@ -8,14 +8,14 @@ import { JWTValidator } from './utils/jwt.js';
 import { JwtPayload } from 'jsonwebtoken';
 import { IncomingMessage, ServerResponse } from 'http';
 
-const JWT = new JWTValidator;
+const JWT = new JWTValidator();
 const knex = Knex(knexConfig.development);
 Model.knex(knex);
 
-const createContext = async ({ res, req }: { res: ServerResponse, req: IncomingMessage }) => {
+const createContext = async ({ res, req }: { res: ServerResponse; req: IncomingMessage }) => {
     // simple auth check on every request
     const auth = (req.headers && req.headers.authorization) || '';
-    if (auth.startsWith("Bearer ")){
+    if (auth.startsWith('Bearer ')) {
         const token = auth.substring(7, auth.length);
         try {
             const verifiedToken = JWT.verifySession(token) as JwtPayload;
@@ -26,7 +26,7 @@ const createContext = async ({ res, req }: { res: ServerResponse, req: IncomingM
                 exp: verifiedToken.exp as number,
             };
             return { userAuth };
-        } catch(err) {
+        } catch (err) {
             // throw new GraphQLError('Authentication token is invalid', {
             //     extensions: {
             //       code: 'UNAUTHENTICATED',
@@ -35,7 +35,7 @@ const createContext = async ({ res, req }: { res: ServerResponse, req: IncomingM
             // });
             return {};
         }
-    } else if (auth.startsWith("Basic ")){
+    } else if (auth.startsWith('Basic ')) {
         const token = auth.substring(6, auth.length);
         try {
             // const verifiedToken = JWT.verifySession(token) as JwtPayload;
@@ -43,7 +43,7 @@ const createContext = async ({ res, req }: { res: ServerResponse, req: IncomingM
                 userId: '',
             };
             return { userAuth };
-        } catch(err) {
+        } catch (err) {
             // throw new GraphQLError('Authentication token is invalid', {
             //     extensions: {
             //       code: 'UNAUTHENTICATED',
@@ -52,7 +52,6 @@ const createContext = async ({ res, req }: { res: ServerResponse, req: IncomingM
             // });
             return {};
         }
-
     } else {
         // throw new GraphQLError('User is not authenticated', {
         //     extensions: {

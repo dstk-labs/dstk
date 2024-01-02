@@ -1,13 +1,13 @@
 import { builder } from '../../builder.js';
 import { ApiKey, ObjectionApiKey } from '../auth/auth.js';
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 builder.mutationFields((t) => ({
     createApiKey: t.field({
         type: ApiKey,
         async resolve(root, args, ctx) {
             const results = ObjectionApiKey.transaction(async (trx) => {
-                const apiKey = uuidv4().replace(/-/g, "");
+                const apiKey = uuidv4().replace(/-/g, '');
                 const userApiKey = await ObjectionApiKey.query(trx)
                     .insertAndFetch({
                         userId: ctx.userAuth.userId,
@@ -28,10 +28,7 @@ builder.mutationFields((t) => ({
         async resolve(root, args, ctx) {
             const results = ObjectionApiKey.transaction(async (trx) => {
                 const userApiKey = await ObjectionApiKey.query(trx)
-                    .patchAndFetchById(
-                        args.apiKeyId,
-                        { isArchived: true }
-                    )
+                    .patchAndFetchById(args.apiKeyId, { isArchived: true })
                     .where('userId', ctx.userAuth.userId)
                     .first();
 

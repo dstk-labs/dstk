@@ -7,7 +7,7 @@ export interface Session {
     iat: number;
     exp: number;
 }
-export type PartialSession = Omit<Session, "iat" | "exp">;
+export type PartialSession = Omit<Session, 'iat' | 'exp'>;
 
 export class JWTValidator {
     // again, obviously a placeholder until I get a proper secrets
@@ -16,30 +16,24 @@ export class JWTValidator {
 
     encodeSession(partialSession: PartialSession): string {
         const issued = Date.now();
-        const expires = issued + (15 * 60);
+        const expires = issued + 15 * 60;
         const session: Session = {
             ...partialSession,
             iat: issued,
             exp: expires,
         };
-        const signedJWT = sign(
-            session,
-            this.key, {
-                algorithm: 'HS512',
-            }
-        );
+        const signedJWT = sign(session, this.key, {
+            algorithm: 'HS512',
+        });
 
         return signedJWT;
     }
 
     verifySession(tokenString: string) {
-        const decoded = verify(
-            tokenString,
-            this.key, {
-                algorithms: ['HS512'],
-                maxAge: '3h',
-            },
-        );
+        const decoded = verify(tokenString, this.key, {
+            algorithms: ['HS512'],
+            maxAge: '3h',
+        });
         return decoded;
     }
 }

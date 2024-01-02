@@ -24,8 +24,9 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionStorageProvider.transaction(async (trx) => {
-                const user = (await ObjectionUser.query()
-                    .findById(ctx.userAuth.userId)) as ObjectionUser;
+                const user = (await ObjectionUser.query().findById(
+                    ctx.userAuth.userId,
+                )) as ObjectionUser;
 
                 const encryptedAccessKeyId = EncryptoMatic.encrypt(args.data.accessKeyId);
                 const encryptedSecretAccessKey = EncryptoMatic.encrypt(args.data.secretAccessKey);
@@ -56,8 +57,9 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionStorageProvider.transaction(async (trx) => {
-                const user = (await ObjectionUser.query()
-                    .findById(ctx.userAuth.userId)) as ObjectionUser;
+                const user = (await ObjectionUser.query().findById(
+                    ctx.userAuth.userId,
+                )) as ObjectionUser;
                 const encryptedAccessKeyId = EncryptoMatic.encrypt(args.data.accessKeyId);
                 const encryptedSecretAccessKey = EncryptoMatic.encrypt(args.data.secretAccessKey);
 
@@ -86,8 +88,9 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionStorageProvider.transaction(async (trx) => {
-                const user = (await ObjectionUser.query()
-                    .findById(ctx.userAuth.userId)) as ObjectionUser;
+                const user = (await ObjectionUser.query().findById(
+                    ctx.userAuth.userId,
+                )) as ObjectionUser;
                 const storageProvider = await ObjectionStorageProvider.query(trx).patchAndFetchById(
                     args.providerId,
                     {
