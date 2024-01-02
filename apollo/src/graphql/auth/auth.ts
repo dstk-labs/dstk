@@ -1,6 +1,6 @@
 import { builder } from '../../builder.js';
 import { Model, AnyQueryBuilder } from 'objection';
-import { User, ObjectionUser } from '../user/user.js';
+import { ObjectionUser } from '../user/user.js';
 
 export const ApiKey = builder.objectRef<ObjectionApiKey>('ApiKey');
 
@@ -12,32 +12,24 @@ builder.objectType(ApiKey, {
                 return root.$id();
             },
         }),
+        userId: t.exposeString('userId'),
         apiKey: t.exposeString('apiKey'),
         isArchived: t.exposeBoolean('isArchived'),
         dateCreated: t.exposeString('dateCreated'),
-        user: t.field({
-            type: User,
-            async resolve(root: ObjectionApiKey, _args, _ctx) {
-                const user = (await root.$relatedQuery('userEmail')
-                    .for(root.id)
-                    .first()) as ObjectionUser;
-                return user;
-            },
-        }),
     }),
 });
 
 export class ObjectionApiKey extends Model {
-    id!: number;
-    apiKeyId!: string;
-    userId!: number;
+    id!: string;
+    userId!: string;
     apiKey!: string;
     isArchived!: boolean;
     dateCreated!: string;
 
-    user!: ObjectionUser;
-
     static tableName = 'dstkUser.apiKey';
+    static get idColumn() {
+        return 'apiKeyId';
+    }
 
     static relationMappings = () => ({
         userEmail: {
@@ -45,7 +37,7 @@ export class ObjectionApiKey extends Model {
             modelClass: ObjectionUser,
             join: {
                 from: 'dstkUser.apiKey.userId',
-                to: 'dstkUser.user.id',
+                to: 'dstkUser.user.userId',
             },
         },
     });

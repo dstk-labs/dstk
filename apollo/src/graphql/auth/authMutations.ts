@@ -48,7 +48,7 @@ builder.mutationFields((t) => ({
                 await ObjectionUserEmail.query(trx)
                     .insert({
                         emailAddress: args.data.email,
-                        userId: userAccount.id,
+                        userId: userAccount.$id(),
                         isPrimary: true,
                         isVerified: false
                     });
