@@ -14,23 +14,23 @@ builder.queryFields((t) => ({
             }),
             after: t.arg.string(),
         },
-        async resolve(_root, { modelName, first, after }, _ctx) {
+        async resolve(_root, args, _ctx) {
             const query = ObjectionMLModel.query();
 
-            if (modelName) {
-                query.where('modelName', 'ILIKE', `%${modelName}%`);
+            if (args.modelName) {
+                query.where('modelName', 'ILIKE', `%${args.modelName}%`);
             }
 
-            if (after) {
-                query.where('id', '>', after);
+            if (args.after) {
+                query.where('id', '>', args.after);
             }
 
-            const mlModels = await query.limit(first + 1).orderBy('id');
+            const mlModels = await query.limit(args.first + 1).orderBy('id');
 
-            const hasPreviousPage = mlModels.length > 0 ? !!after : false;
-            const hasNextPage = mlModels.length > 0 ? mlModels.length > first : false;
+            const hasPreviousPage = mlModels.length > 0 ? !!args.after : false;
+            const hasNextPage = mlModels.length > 0 ? mlModels.length > args.first : false;
 
-            const edges = mlModels.slice(0, first);
+            const edges = mlModels.slice(0, args.first);
 
             const continuationToken = edges.length > 0 ? edges[edges.length - 1].id : undefined;
 
