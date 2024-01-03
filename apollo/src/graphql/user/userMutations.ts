@@ -10,7 +10,7 @@ builder.mutationFields((t) => ({
                 const apiKey = uuidv4().replace(/-/g, '');
                 const userApiKey = await ObjectionApiKey.query(trx)
                     .insertAndFetch({
-                        userId: ctx.userAuth.userId,
+                        userId: ctx.user.$id(),
                         apiKey: apiKey,
                     })
                     .first();
@@ -29,7 +29,7 @@ builder.mutationFields((t) => ({
             const results = ObjectionApiKey.transaction(async (trx) => {
                 const userApiKey = await ObjectionApiKey.query(trx)
                     .patchAndFetchById(args.apiKeyId, { isArchived: true })
-                    .where('userId', ctx.userAuth.userId)
+                    .where('userId', ctx.user.$id())
                     .first();
 
                 return userApiKey;

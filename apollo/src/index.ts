@@ -7,6 +7,7 @@ import { schema } from './graphql/index.js';
 import { JWTValidator } from './utils/jwt.js';
 import { JwtPayload } from 'jsonwebtoken';
 import { IncomingMessage, ServerResponse } from 'http';
+import { ObjectionUser } from './graphql/index.js';
 
 const JWT = new JWTValidator();
 const knex = Knex(knexConfig.development);
@@ -19,13 +20,11 @@ const createContext = async ({ res, req }: { res: ServerResponse; req: IncomingM
         const token = auth.substring(7, auth.length);
         try {
             const verifiedToken = JWT.verifySession(token) as JwtPayload;
-            const userAuth = {
-                userId: verifiedToken.userId,
-                dateCreated: verifiedToken.dateCreated,
-                iat: verifiedToken.iat as number,
-                exp: verifiedToken.exp as number,
-            };
-            return { userAuth };
+            const user = (await ObjectionUser.query().findById(
+                verifiedToken.userId,
+            )) as ObjectionUser;
+
+            return { user: user };
         } catch (err) {
             // throw new GraphQLError('Authentication token is invalid', {
             //     extensions: {

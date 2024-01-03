@@ -6,7 +6,7 @@ builder.queryFields((t) => ({
         type: [ApiKey],
         async resolve(_root, args, _ctx) {
             const apiKeys = await ObjectionApiKey.query().where({
-                userId: _ctx.userAuth.userId,
+                userId: _ctx.user.$id(),
                 isArchived: false,
             });
             return apiKeys;

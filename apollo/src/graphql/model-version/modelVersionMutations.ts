@@ -1,7 +1,6 @@
 import { MLModelVersion, ObjectionMLModelVersion } from './modelVersion.js';
 import { ObjectionMLModel } from '../model/model.js';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
-import { ObjectionUser } from '../user/user.js';
 import { RegistryOperationError } from '../../utils/errors.js';
 import {
     AbortMultipartUpload,
@@ -69,9 +68,6 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionMLModelVersion.transaction(async (trx) => {
-                const user = (await ObjectionUser.query()
-                    .findById(ctx.userAuth.userId)) as ObjectionUser;
-
                 const parentModel = (await ObjectionMLModel.query()
                     .where('modelId', args.data.modelId)
                     .first()) as ObjectionMLModel;
@@ -96,7 +92,7 @@ builder.mutationFields((t) => ({
                         description: args.data?.description || raw('NULL'),
                         numericVersion: incrementedVersion,
                         s3Prefix: s3_prefix,
-                        createdById: user.$id(),
+                        createdById: ctx.user.$id(),
                     })
                     .first();
 
