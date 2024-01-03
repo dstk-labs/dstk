@@ -62,15 +62,15 @@ builder.objectType(StorageProvider, {
 });
 
 export class ObjectionStorageProvider extends Model {
-    id!: string;
+    id!: number;
     endpointUrl!: string;
     region!: string;
     bucket!: string;
     accessKeyId!: string;
     secretAccessKey!: string;
-    createdById!: number;
-    modifiedById!: number;
-    ownerId!: number;
+    createdById!: string;
+    modifiedById!: string;
+    ownerId!: string;
     dateCreated!: string;
     dateModified!: string;
     isArchived!: boolean;
@@ -98,7 +98,7 @@ export class ObjectionStorageProvider extends Model {
             modelClass: ObjectionUser,
             join: {
                 from: 'registry.storageProviders.ownerId',
-                to: 'dstkUser.user.id',
+                to: 'dstkUser.user.userId',
             },
         },
         getCreatedBy: {
@@ -106,7 +106,7 @@ export class ObjectionStorageProvider extends Model {
             modelClass: ObjectionUser,
             join: {
                 from: 'registry.storageProviders.createdById',
-                to: 'dstkUser.user.id',
+                to: 'dstkUser.user.userId',
             },
         },
         getModifiedBy: {
@@ -114,7 +114,7 @@ export class ObjectionStorageProvider extends Model {
             modelClass: ObjectionUser,
             join: {
                 from: 'registry.storageProviders.modifiedById',
-                to: 'dstkUser.user.id',
+                to: 'dstkUser.user.userId',
             },
         },
     });

@@ -2,6 +2,7 @@ import { MLModel, ObjectionMLModel } from './model.js';
 import { raw } from 'objection';
 import { RegistryOperationError } from '../../utils/errors.js';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
+import { ObjectionUser } from '../user/user.js';
 import { builder } from '../../builder.js';
 
 export const ModelInputType = builder.inputType('ModelInput', {
@@ -20,6 +21,9 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionMLModel.transaction(async (trx) => {
+                const user = (await ObjectionUser.query()
+                    .findById(ctx.userAuth.userId)) as ObjectionUser;
+
                 const storageProvider = (await ObjectionStorageProvider.query().findById(
                     args.data.storageProviderId,
                 )) as ObjectionStorageProvider;
@@ -35,6 +39,8 @@ builder.mutationFields((t) => ({
                         storageProviderId: args.data.storageProviderId,
                         modelName: args.data.modelName,
                         description: args.data.description,
+                        createdById: user.$id(),
+                        modifiedById: user.$id(),
                     })
                     .first();
 
@@ -51,6 +57,9 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionMLModel.transaction(async (trx) => {
+                const user = (await ObjectionUser.query()
+                    .findById(ctx.userAuth.userId)) as ObjectionUser;
+
                 const storageProvider = (await ObjectionMLModel.relatedQuery('storageProvider')
                     .for(args.modelId)
                     .first()) as ObjectionStorageProvider;
@@ -62,6 +71,7 @@ builder.mutationFields((t) => ({
                     modelName: args.data.modelName,
                     description: args.data.description,
                     dateModified: raw('NOW()'),
+                    modifiedById: user.$id(),
                 });
                 if (mlModel.isArchived === true) {
                     throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_ERROR' });
@@ -80,12 +90,16 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionMLModel.transaction(async (trx) => {
+                const user = (await ObjectionUser.query()
+                    .findById(ctx.userAuth.userId)) as ObjectionUser;
+
                 // Intentionally don't throw an error here on archived storage
                 // providers. It's not unreasonable to want to mark old assets
                 // as archived if their parent blob storage goes bye-bye
                 const mlModel = await ObjectionMLModel.query(trx).patchAndFetchById(args.modelId, {
                     isArchived: raw('NOT is_archived'),
                     dateModified: raw('NOW()'),
+                    modifiedById: user.$id(),
                 });
                 return mlModel as typeof MLModel.$inferType;
             });

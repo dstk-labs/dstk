@@ -38,9 +38,9 @@ builder.mutationFields((t) => ({
                         bucket: args.data.bucket,
                         accessKeyId: encryptedAccessKeyId,
                         secretAccessKey: encryptedSecretAccessKey,
-                        createdById: user.id,
-                        modifiedById: user.id,
-                        ownerId: user.id,
+                        createdById: user.$id(),
+                        modifiedById: user.$id(),
+                        ownerId: user.$id(),
                     })
                     .first();
                 return storageProvider as typeof StorageProvider.$inferType;
@@ -72,7 +72,7 @@ builder.mutationFields((t) => ({
                         accessKeyId: encryptedAccessKeyId,
                         secretAccessKey: encryptedSecretAccessKey,
                         dateModified: raw('NOW()'),
-                        modifiedById: user.id,
+                        modifiedById: user.$id(),
                     },
                 );
                 return storageProvider as typeof StorageProvider.$inferType;
@@ -98,7 +98,7 @@ builder.mutationFields((t) => ({
                         secretAccessKey: EncryptoMatic.encrypt('<DELETED>'),
                         accessKeyId: EncryptoMatic.encrypt('<DELETED>'),
                         dateModified: raw('NOW()'),
-                        modifiedById: user.id,
+                        modifiedById: user.$id(),
                     },
                 );
 
