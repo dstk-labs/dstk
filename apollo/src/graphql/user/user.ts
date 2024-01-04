@@ -72,7 +72,7 @@ export class ObjectionUser extends Model {
 }
 
 export class ObjectionUserEmail extends Model {
-    id!: string;
+    id!: number;
     userId!: string;
     emailAddress!: string;
     isVerified!: boolean;
