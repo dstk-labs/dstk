@@ -20,7 +20,7 @@ CREATE TABLE dstk_user.email (
     id                SERIAL       NOT NULL PRIMARY KEY,
     email_id          UUID         NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
     user_id           VARCHAR(16)  NOT NULL REFERENCES dstk_user.user(user_id),
-    email_address     VARCHAR(128) NOT NULL UNIQUE,
+    email_address     VARCHAR(128) NOT NULL,
     is_verified       BOOLEAN      NOT NULL DEFAULT FALSE,
     is_primary        BOOLEAN      NOT NULL,
     verification_code VARCHAR(64),

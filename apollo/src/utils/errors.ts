@@ -5,7 +5,8 @@ type RegistryErrorName =
     | 'PUBLISHED_MODEL_VERSION_ERROR'
     | 'MISSING_UPLOAD_ID_ERROR'
     | 'MISSING_PART_NUM_ERROR'
-    | 'MULTIPART_FINALIZATION_ERROR';
+    | 'MULTIPART_FINALIZATION_ERROR'
+    | 'TEAM_PERMISSION_ERROR';
 
 const RegistryErrorMessages = {
     ARCHIVED_STORAGE_ERROR: 'New model versions cannot be added to an archived storage provider',
@@ -16,6 +17,7 @@ const RegistryErrorMessages = {
     MISSING_PART_NUM_ERROR: 'A Part Number must be supuplied for this operation',
     MULTIPART_FINALIZATION_ERROR:
         'Uploaded parts and their ETags must be supplied to finalize a MPU',
+    TEAM_PERMISSION_ERROR: 'Either this team doesn\'t exist or you don\'t have permission to take that action',
 };
 
 export class RegistryOperationError extends Error {

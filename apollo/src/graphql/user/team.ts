@@ -2,7 +2,6 @@ import { builder } from '../../builder.js';
 import { Model, AnyQueryBuilder } from 'objection';
 import { User, ObjectionUser } from '../user/user.js';
 import { ObjectionEdge } from '../misc/edges.js';
-import { deepStrictEqual } from 'assert';
 
 export const Team = builder.objectRef<ObjectionTeam>('Team');
 
@@ -36,15 +35,6 @@ builder.objectType(Team, {
                 return user;
             },
         }),
-        owner: t.field({
-            type: User,
-            async resolve(root: ObjectionTeam, _args, _ctx) {
-                const user = (await root.$relatedQuery('getOwnedBy')
-                    .for(root.$id())
-                    .first()) as ObjectionUser;
-                return user;
-            },
-        }),
     }),
 });
 
@@ -62,7 +52,6 @@ export class ObjectionTeam extends Model {
 
     createdBy!: ObjectionUser;
     modifiedBy!: ObjectionUser;
-    ownedBy!: ObjectionUser;
 
     static tableName = 'dstkUser.teams';
     static get idColumn() {
@@ -95,14 +84,6 @@ export class ObjectionTeam extends Model {
                 to: 'dstkUser.user.userId',
             },
         },
-        getOwnedBy: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionUser,
-            join: {
-                from: 'dstkUser.teams.ownerId',
-                to: 'dstkUser.user.userId',
-            },
-        },
         teamMembers: {
             relation: Model.HasManyRelation,
             modelClass: ObjectionUser,
@@ -119,11 +100,18 @@ export class ObjectionTeam extends Model {
 }
 
 export class ObjectionTeamEdge extends Model {
+    id!: number;
     teamId!: string;
     edgeType!: number;
     userId!: string;
 
     static tableName = 'dstkUser.teamEdges';
+    static modifiers = {
+        hasEditPermission(query: AnyQueryBuilder) {
+            query.withGraphJoined('edgeTypeMapping')
+                .where('edgeTypeMapping.type', 'owner');
+        },
+    };
     static relationMappings = () => ({
         user: {
             relation: Model.HasOneRelation,
@@ -138,7 +126,7 @@ export class ObjectionTeamEdge extends Model {
             modelClass: ObjectionTeam,
             join: {
                 from: 'dstkUser.teamEdges.teamId',
-                to: 'dstkUser.team.teamId'
+                to: 'dstkUser.teams.teamId'
             },
         },
         edgeTypeMapping: {

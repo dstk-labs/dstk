@@ -12,21 +12,21 @@ import {
 import { raw } from 'objection';
 import { builder } from '../../builder.js';
 
-export const ModelVersionInputType = builder.inputType('ModelVersionInputType', {
+export const ModelVersionInputType = builder.inputType('ModelVersionInput', {
     fields: (t) => ({
         modelId: t.string({ required: true }),
         description: t.string(),
     }),
 });
 
-export const CompletedPartInputType = builder.inputType('CompletedPartInputType', {
+export const CompletedPartInputType = builder.inputType('CompletedPartInput', {
     fields: (t) => ({
         ETag: t.string({ required: true }),
         PartNumber: t.int({ required: true }),
     }),
 });
 
-export const PartsInputType = builder.inputType('PartsInputType', {
+export const PartsInputType = builder.inputType('PartsInput', {
     fields: (t) => ({
         Parts: t.field({
             required: true,
@@ -44,7 +44,7 @@ export const PresignMethod = builder.enumType('PresignMethod', {
     ] as const,
 });
 
-export const PresignedURLInputType = builder.inputType('PresignedURLInputType', {
+export const PresignedURLInputType = builder.inputType('PresignedURLInput', {
     fields: (t) => ({
         modelVersionId: t.string({ required: true }),
         method: t.field({
