@@ -1,6 +1,7 @@
 import { builder } from '../../builder.js';
 import { Model, AnyQueryBuilder } from 'objection';
 import { ObjectionApiKey } from '../auth/auth.js';
+import { ObjectionTeam, ObjectionTeamEdge } from './team.js';
 
 export const User = builder.objectRef<ObjectionUser>('User');
 
@@ -68,6 +69,14 @@ export class ObjectionUser extends Model {
                 to: 'dstkUser.user.userId',
             },
         },
+        teamEdges: {
+            relation: Model.HasManyRelation,
+            modelClass: ObjectionTeamEdge,
+            join: {
+                from: 'dstkUser.user.userId',
+                to: 'dstkUser.teamEdges.userId'
+            }
+        }
     });
 }
 

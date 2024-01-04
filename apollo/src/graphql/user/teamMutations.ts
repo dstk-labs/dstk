@@ -1,12 +1,33 @@
 import { builder } from '../../builder.js';
+import { RegistryOperationError } from '../../utils/errors.js';
 import { ObjectionEdge } from '../misc/edges.js';
 import { Team, ObjectionTeam, ObjectionTeamEdge, } from './team.js';
+import { ObjectionUser } from './user.js';
 
 
 export const TeamInputType = builder.inputType('TeamInput', {
     fields: (t) => ({
         name: t.string({ required: true }),
         description: t.string({ required: true }),
+    }),
+});
+
+export const UserRole = builder.enumType('UserRole', {
+    values: [
+        'owner',
+        'member',
+        'viewer',
+    ] as const,
+});
+
+export const AddTeamMemberInputType = builder.inputType('AddTeamMemberInput', {
+    fields: (t) => ({
+        userId: t.string({ required: true }),
+        teamId: t.string({ required: true }),
+        role: t.field({
+            required: true,
+            type: UserRole,
+        }),
     }),
 });
 
@@ -24,7 +45,6 @@ builder.mutationFields((t) => ({
                         description: args.data.description,
                         createdById: ctx.user.$id(),
                         modifiedById: ctx.user.$id(),
-                        ownerId: ctx.user.$id(),
                     })
                     .first();
 
@@ -43,5 +63,52 @@ builder.mutationFields((t) => ({
             });
             return results;
         },
+    }),
+    addToTeam: t.boolean({
+        args: {
+            data: t.arg({ type: AddTeamMemberInputType, required: true }),
+        },
+        async resolve(root, args, ctx) {
+            const results = ObjectionTeamEdge.transaction(async (trx) => {
+                const userHasEditPermissions = await ObjectionTeamEdge.query()
+                    .modify('hasEditPermission')
+                    .where({
+                        userId: ctx.user.$id(),
+                        teamId: args.data.teamId,
+                    });
+                
+                if (!Array.isArray(userHasEditPermissions) || !userHasEditPermissions.length) {
+                    throw new RegistryOperationError({ name: 'TEAM_PERMISSION_ERROR' });
+                }
+
+                const targetUser = await ObjectionTeamEdge.query()
+                    .where({
+                        userId: args.data.userId,
+                        teamId: args.data.teamId,
+                    })
+                    .first();
+                const roleEdgeType = await ObjectionEdge.query()
+                    .where({
+                        type: args.data.role,
+                    }).first() as ObjectionEdge;
+
+                const upsertUserRole = ObjectionTeamEdge.query(trx);
+                if (targetUser === undefined) {
+                    upsertUserRole.insertAndFetch({
+                        userId: args.data.userId,
+                        teamId: args.data.teamId,
+                        edgeType: roleEdgeType.id,
+                    });
+                } else {
+                    upsertUserRole.patchAndFetchById(
+                        targetUser.id,
+                        { edgeType: roleEdgeType.id });
+                }
+                await upsertUserRole;
+
+                return true;
+            });
+            return results;
+        }
     }),
 }));
