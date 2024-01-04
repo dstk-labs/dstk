@@ -1,15 +1,10 @@
 import SchemaBuilder from '@pothos/core';
-
 import type { Limit } from './types/Limit.js';
+import { ObjectionUser } from './graphql/index.js';
 
 export const builder = new SchemaBuilder<{
     Context: {
-        userAuth: {
-            userId: string;
-            dateCreated: number;
-            iat: number;
-            exp: number;
-        };
+        user: ObjectionUser,
     };
     DefaultFieldNullability: true;
     Scalars: {
