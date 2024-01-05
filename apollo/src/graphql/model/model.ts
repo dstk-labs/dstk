@@ -66,7 +66,7 @@ builder.objectType(MLModel, {
 });
 
 export class ObjectionMLModel extends Model {
-    id!: string;
+    id!: number;
     storageProviderId!: string;
     currentModelVersionId!: string;
     isArchived!: boolean;
@@ -124,14 +124,6 @@ export class ObjectionMLModel extends Model {
             join: {
                 from: 'registry.models.modifiedById',
                 to: 'dstkUser.user.userId',
-            },
-        },
-        cursor: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionMLModelCursor,
-            join: {
-                from: 'registry.models.modelId',
-                to: 'metadata.modelCursors',
             },
         },
     });

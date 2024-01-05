@@ -14,7 +14,7 @@ builder.objectType(MLModelCursor, {
 });
 
 export class ObjectionMLModelCursor extends Model {
-    id!: string;
+    id!: number;
     cursorId!: string;
     cursorToken!: string;
     resultId!: string;
@@ -24,15 +24,4 @@ export class ObjectionMLModelCursor extends Model {
     static getIdColumn() {
         return 'cursorId';
     }
-
-    relationMappings = () => ({
-        model: {
-            relation: Model.HasOneRelation,
-            modelClass: MLModel,
-            join: {
-                from: 'metadata.modelCursors.resultId',
-                to: 'registry.models.modelId',
-            },
-        },
-    });
 }
