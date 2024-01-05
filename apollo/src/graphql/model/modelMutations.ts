@@ -15,6 +15,9 @@ export const ModelInputType = builder.inputType('ModelInput', {
 builder.mutationFields((t) => ({
     createModel: t.field({
         type: MLModel,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             data: t.arg({ type: ModelInputType, required: true }),
         },
@@ -47,6 +50,9 @@ builder.mutationFields((t) => ({
     }),
     editModel: t.field({
         type: MLModel,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             modelId: t.arg.string({ required: true }),
             data: t.arg({ type: ModelInputType, required: true }),
@@ -78,6 +84,9 @@ builder.mutationFields((t) => ({
     }),
     archiveModel: t.field({
         type: MLModel,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             modelId: t.arg.string({ required: true }),
         },

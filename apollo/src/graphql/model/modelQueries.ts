@@ -5,6 +5,9 @@ import { MLModelConnection } from './modelConnection.js';
 builder.queryFields((t) => ({
     listMLModels: t.field({
         type: MLModelConnection,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             modelName: t.arg.string(),
             first: t.arg({
