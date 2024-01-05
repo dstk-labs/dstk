@@ -1,8 +1,6 @@
 import { builder } from '../../builder.js';
-import { RegistryOperationError } from '../../utils/errors.js';
 import { ObjectionEdge } from '../misc/edges.js';
 import { Team, ObjectionTeam, ObjectionTeamEdge, } from './team.js';
-import { ObjectionUser } from './user.js';
 
 
 export const TeamInputType = builder.inputType('TeamInput', {
@@ -70,16 +68,11 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionTeamEdge.transaction(async (trx) => {
-                const userHasEditPermissions = await ObjectionTeamEdge.query()
-                    .modify('hasEditPermission')
-                    .where({
-                        userId: ctx.user.$id(),
-                        teamId: args.data.teamId,
-                    });
-                
-                if (!Array.isArray(userHasEditPermissions) || !userHasEditPermissions.length) {
-                    throw new RegistryOperationError({ name: 'TEAM_PERMISSION_ERROR' });
-                }
+                await ObjectionTeamEdge.userHasRole(
+                    ctx.user.$id(),
+                    args.data.teamId,
+                    ['owner']
+                );
 
                 const targetUser = await ObjectionTeamEdge.query()
                     .where({
