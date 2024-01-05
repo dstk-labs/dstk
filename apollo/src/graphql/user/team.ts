@@ -2,6 +2,7 @@ import { builder } from '../../builder.js';
 import { Model, AnyQueryBuilder } from 'objection';
 import { User, ObjectionUser } from '../user/user.js';
 import { ObjectionEdge } from '../misc/edges.js';
+import { RegistryOperationError } from '../../utils/errors.js';
 
 export const Team = builder.objectRef<ObjectionTeam>('Team');
 
@@ -58,13 +59,11 @@ export class ObjectionTeam extends Model {
         return 'teamId';
     }
 
-    static get modifiers() {
-        return {
-            filterByEdgeType(_builder: AnyQueryBuilder, edgeType: number) {
-                _builder.withGraphJoined('teamMembers')
-                    .where('dstkUser.teamEdges.edgeType', edgeType);
-            }
-        }
+    static modifiers = {
+        filterByEdgeType(_builder: AnyQueryBuilder, edgeType: number) {
+            _builder.withGraphJoined('teamMembers')
+                .where('dstkUser.teamEdges.edgeType', edgeType);
+        },
     }
 
     static relationMappings = () => ({
@@ -106,12 +105,20 @@ export class ObjectionTeamEdge extends Model {
     userId!: string;
 
     static tableName = 'dstkUser.teamEdges';
-    static modifiers = {
-        hasEditPermission(query: AnyQueryBuilder) {
-            query.withGraphJoined('edgeTypeMapping')
-                .where('edgeTypeMapping.type', 'owner');
-        },
-    };
+
+    static async userHasRole(userId: string, teamId: string, roles: [string]) {
+        const auth = await ObjectionTeamEdge.query()
+            .withGraphJoined('edgeTypeMapping')
+            .whereIn('edgeTypeMapping.type', roles)
+            .where({
+                userId: userId,
+                teamId: teamId,
+            });
+        if (!Array.isArray(auth) || !auth.length) {
+            throw new RegistryOperationError({ name: 'TEAM_PERMISSION_ERROR' });
+        }
+    }
+
     static relationMappings = () => ({
         user: {
             relation: Model.HasOneRelation,
