@@ -4,6 +4,9 @@ import { builder } from '../../builder.js';
 builder.queryFields((t) => ({
     listStorageProviders: t.field({
         type: [StorageProvider],
+        authScopes: {
+            loggedIn: true,
+        },
         async resolve(root, args, ctx) {
             const storageProvider = await ObjectionStorageProvider.query().orderBy('dateCreated');
             return storageProvider;
@@ -11,6 +14,9 @@ builder.queryFields((t) => ({
     }),
     getStorageProvider: t.field({
         type: StorageProvider,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             storageProviderId: t.arg.string({ required: true }),
         },

@@ -62,6 +62,9 @@ export const PresignedURLInputType = builder.inputType('PresignedURLInput', {
 
 builder.mutationFields((t) => ({
     createModelVersion: t.field({
+        authScopes: {
+            loggedIn: true,
+        },
         type: MLModelVersion,
         args: {
             data: t.arg({ type: ModelVersionInputType, required: true }),
@@ -108,6 +111,9 @@ builder.mutationFields((t) => ({
     }),
     publishModelVersion: t.field({
         type: MLModelVersion,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             modelVersionId: t.arg.string({ required: true }),
         },
@@ -134,6 +140,9 @@ builder.mutationFields((t) => ({
     }),
     archiveModelVersion: t.field({
         type: MLModelVersion,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             modelVersionId: t.arg.string({ required: true }),
         },
@@ -157,6 +166,9 @@ builder.mutationFields((t) => ({
     }),
     presignURL: t.field({
         type: PresignedURL,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             data: t.arg({ type: PresignedURLInputType, required: true }),
         },

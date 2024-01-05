@@ -18,6 +18,9 @@ export const StorageProviderInputType = builder.inputType('StorageProviderInput'
 builder.mutationFields((t) => ({
     createStorageProvider: t.field({
         type: StorageProvider,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             data: t.arg({ type: StorageProviderInputType, required: true }),
         },
@@ -46,6 +49,9 @@ builder.mutationFields((t) => ({
     }),
     editStorageProvider: t.field({
         type: StorageProvider,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             providerId: t.arg.string({ required: true }),
             data: t.arg({ type: StorageProviderInputType, required: true }),
@@ -75,6 +81,9 @@ builder.mutationFields((t) => ({
     }),
     archiveStorageProvider: t.field({
         type: StorageProvider,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             providerId: t.arg.string({ required: true }),
         },

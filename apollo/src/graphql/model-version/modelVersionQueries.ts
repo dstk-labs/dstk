@@ -4,6 +4,9 @@ import { builder } from '../../builder.js';
 builder.queryFields((t) => ({
     listMLModelVersions: t.field({
         type: [MLModelVersion],
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             modelId: t.arg.string({ required: true }),
         },

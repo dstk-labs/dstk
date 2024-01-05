@@ -5,6 +5,9 @@ import { v4 as uuidv4 } from 'uuid';
 builder.mutationFields((t) => ({
     createApiKey: t.field({
         type: ApiKey,
+        authScopes: {
+            loggedIn: true,
+        },
         async resolve(root, args, ctx) {
             const results = ObjectionApiKey.transaction(async (trx) => {
                 const apiKey = uuidv4().replace(/-/g, '');
@@ -22,6 +25,9 @@ builder.mutationFields((t) => ({
     }),
     archiveApiKey: t.field({
         type: ApiKey,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             apiKeyId: t.arg.string({ required: true }),
         },

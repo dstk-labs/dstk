@@ -32,16 +32,13 @@ const createContext = async ({ res, req }: { res: ServerResponse; req: IncomingM
             //       http: { status: 401 },
             //     },
             // });
-            return {};
+            return { user: ObjectionUser };
         }
     } else if (auth.startsWith('Basic ')) {
         const token = auth.substring(6, auth.length);
         try {
             // const verifiedToken = JWT.verifySession(token) as JwtPayload;
-            const userAuth = {
-                userId: '',
-            };
-            return { userAuth };
+            return { user: ObjectionUser };
         } catch (err) {
             // throw new GraphQLError('Authentication token is invalid', {
             //     extensions: {
@@ -49,7 +46,7 @@ const createContext = async ({ res, req }: { res: ServerResponse; req: IncomingM
             //       http: { status: 401 },
             //     },
             // });
-            return {};
+            return { user: ObjectionUser };
         }
     } else {
         // throw new GraphQLError('User is not authenticated', {
@@ -58,7 +55,7 @@ const createContext = async ({ res, req }: { res: ServerResponse; req: IncomingM
         //       http: { status: 401 },
         //     },
         // });
-        return {};
+        return { user: ObjectionUser };
     }
 };
 

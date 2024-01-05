@@ -32,6 +32,9 @@ export const AddTeamMemberInputType = builder.inputType('AddTeamMemberInput', {
 builder.mutationFields((t) => ({
     createTeam: t.field({
         type: Team,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             data: t.arg({ type: TeamInputType, required: true }),
         },
@@ -63,6 +66,9 @@ builder.mutationFields((t) => ({
         },
     }),
     addToTeam: t.boolean({
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             data: t.arg({ type: AddTeamMemberInputType, required: true }),
         },

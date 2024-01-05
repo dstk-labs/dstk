@@ -4,6 +4,7 @@ import { HashBrown } from '../../utils/encryption.js';
 import { JWTValidator, PartialSession } from '../../utils/jwt.js';
 import { builder } from '../../builder.js';
 import { raw } from 'objection';
+import { convertSDL } from 'nexus';
 
 export const AccountInputType = builder.inputType('AccountInput', {
     fields: (t) => ({
@@ -24,6 +25,9 @@ export const LoginInputType = builder.inputType('LoginInput', {
 builder.mutationFields((t) => ({
     createAccount: t.field({
         type: User,
+        authScopes: {
+            anonymousRequest: true,
+        },
         args: {
             data: t.arg({ type: AccountInputType, required: true }),
         },
