@@ -1,6 +1,11 @@
 import { MLModel, ObjectionMLModel } from './model.js';
 import { builder } from '../../builder.js';
 import { MLModelConnection } from './modelConnection.js';
+import { ObjectionMLModelCursor } from '../metadata/modelCursor.js';
+import { CursorError } from '../../utils/errors.js';
+import { Encoder } from '../../utils/encoder.js';
+
+const encoder = new Encoder();
 
 builder.queryFields((t) => ({
     listMLModels: t.field({
@@ -15,6 +20,8 @@ builder.queryFields((t) => ({
             after: t.arg.string(),
         },
         async resolve(_root, args, _ctx) {
+            const now = new Date(Date.now()).toISOString();
+            const nowPlusFiveMins = new Date(Date.now() + 5 * 60 * 1000).toISOString();
             const query = ObjectionMLModel.query();
 
             if (args.modelName) {
@@ -22,21 +29,50 @@ builder.queryFields((t) => ({
             }
 
             if (args.after) {
-                query.where('id', '>', args.after);
+                const cursor = await ObjectionMLModelCursor.query().findOne({
+                    cursorToken: args.after,
+                });
+
+                /* This will always return true b/c we do not have a scheduled
+                   system inplace to delete expired tokens. */
+                if (cursor) {
+                    if (cursor.expiration <= now) {
+                        await cursor.$query().patch({ expiration: nowPlusFiveMins });
+                    }
+
+                    query.where('id', '>', cursor.resultId);
+                } else {
+                    throw new CursorError({ name: 'TOKEN_DOES_NOT_EXIST' });
+                }
             }
 
             const mlModels = await query.limit(args.first + 1).orderBy('id');
 
-            const hasPreviousPage = mlModels.length > 0 ? !!args.after : false;
-            const hasNextPage = mlModels.length > 0 ? mlModels.length > args.first : false;
-
+            const hasPreviousPage = !!args.after;
+            const hasNextPage = mlModels.length > 1 && mlModels.length > args.first;
             const edges = mlModels.slice(0, args.first);
 
-            const continuationToken = edges.length > 0 ? edges[edges.length - 1].id : undefined;
+            const cursor =
+                edges.length > 0
+                    ? await ObjectionMLModelCursor.query().findOne({
+                          resultId: edges[edges.length - 1].id,
+                      })
+                    : undefined;
+
+            const result = cursor
+                ? await cursor.$query().patchAndFetch({ expiration: nowPlusFiveMins })
+                : edges.length > 0
+                ? await ObjectionMLModelCursor.query().insertAndFetch({
+                      cursorToken: encoder.encode(edges[edges.length - 1].id),
+                      resultId: edges[edges.length - 1].id,
+                  })
+                : undefined;
+
+            const continuationToken = result?.cursorToken;
 
             return {
                 edges: edges.map((mlModel) => ({
-                    cursor: mlModel.id,
+                    cursor: encoder.encode(mlModel.id.toString()),
                     node: mlModel,
                 })),
                 pageInfo: {

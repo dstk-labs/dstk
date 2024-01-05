@@ -17,7 +17,8 @@ const RegistryErrorMessages = {
     MISSING_PART_NUM_ERROR: 'A Part Number must be supuplied for this operation',
     MULTIPART_FINALIZATION_ERROR:
         'Uploaded parts and their ETags must be supplied to finalize a MPU',
-    TEAM_PERMISSION_ERROR: 'Either this team doesn\'t exist or you don\'t have permission to take that action',
+    TEAM_PERMISSION_ERROR:
+        "Either this team doesn't exist or you don't have permission to take that action",
 };
 
 export class RegistryOperationError extends Error {
@@ -64,5 +65,23 @@ export class InputError extends Error {
         super();
         this.name = name;
         this.message = InputErrorMessages[name];
+    }
+}
+
+type CursorErrorName = 'TOKEN_DOES_NOT_EXIST';
+
+const CursorErrorMessages = {
+    TOKEN_DOES_NOT_EXIST:
+        'The requested pagination token does not exist. Please refresh the client.',
+};
+
+export class CursorError extends Error {
+    name: CursorErrorName;
+    message: string;
+
+    constructor({ name }: { name: CursorErrorName }) {
+        super();
+        this.name = name;
+        this.message = CursorErrorMessages[name];
     }
 }
