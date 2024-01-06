@@ -44,7 +44,8 @@ builder.objectType(MLModel, {
         createdBy: t.field({
             type: User,
             async resolve(root: ObjectionMLModel, _args, _ctx) {
-                const user = (await root.$relatedQuery('getCreatedBy')
+                const user = (await root
+                    .$relatedQuery('getCreatedBy')
                     .for(root.$id())
                     .first()) as ObjectionUser;
                 return user;
@@ -53,7 +54,8 @@ builder.objectType(MLModel, {
         modifiedBy: t.field({
             type: User,
             async resolve(root: ObjectionMLModel, _args, _ctx) {
-                const user = (await root.$relatedQuery('getModifiedBy')
+                const user = (await root
+                    .$relatedQuery('getModifiedBy')
                     .for(root.$id())
                     .first()) as ObjectionUser;
                 return user;
@@ -63,7 +65,7 @@ builder.objectType(MLModel, {
 });
 
 export class ObjectionMLModel extends Model {
-    id!: string;
+    id!: number;
     storageProviderId!: string;
     currentModelVersionId!: string;
     isArchived!: boolean;

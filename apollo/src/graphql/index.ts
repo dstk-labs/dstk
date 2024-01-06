@@ -18,6 +18,8 @@ export * from './user/user.js';
 export * from './user/team.js';
 export * from './user/teamMutations.js';
 
+export * from './metadata/cursor.js';
+
 export * from './misc/limit.js';
 export * from './misc/pageInfo.js';
 
