@@ -3,7 +3,6 @@ import { Model } from 'objection';
 import { StorageProvider, ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 import { MLModelVersion, ObjectionMLModelVersion } from '../model-version/modelVersion.js';
 import { User, ObjectionUser } from '../user/user.js';
-import { ObjectionMLModelCursor } from '../metadata/modelCursor.js';
 
 export const MLModel = builder.objectRef<ObjectionMLModel>('MLModel');
 

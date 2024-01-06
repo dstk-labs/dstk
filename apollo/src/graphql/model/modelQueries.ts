@@ -1,7 +1,7 @@
 import { MLModel, ObjectionMLModel } from './model.js';
 import { builder } from '../../builder.js';
 import { MLModelConnection } from './modelConnection.js';
-import { ObjectionMLModelCursor } from '../metadata/modelCursor.js';
+import { ObjectionCursor } from '../metadata/cursor.js';
 import { CursorError } from '../../utils/errors.js';
 import { Encoder } from '../../utils/encoder.js';
 
@@ -29,8 +29,9 @@ builder.queryFields((t) => ({
             }
 
             if (args.after) {
-                const cursor = await ObjectionMLModelCursor.query().findOne({
+                const cursor = await ObjectionCursor.query().findOne({
                     cursorToken: args.after,
+                    cursorRelation: 'model',
                 });
 
                 /* This will always return true b/c we do not have a scheduled
@@ -54,7 +55,8 @@ builder.queryFields((t) => ({
 
             const cursor =
                 edges.length > 0
-                    ? await ObjectionMLModelCursor.query().findOne({
+                    ? await ObjectionCursor.query().findOne({
+                          cursorRelation: 'model',
                           resultId: edges[edges.length - 1].id,
                       })
                     : undefined;
@@ -62,8 +64,9 @@ builder.queryFields((t) => ({
             const result = cursor
                 ? await cursor.$query().patchAndFetch({ expiration: nowPlusFiveMins })
                 : edges.length > 0
-                ? await ObjectionMLModelCursor.query().insertAndFetch({
-                      cursorToken: encoder.encode(edges[edges.length - 1].id),
+                ? await ObjectionCursor.query().insertAndFetch({
+                      cursorToken: encoder.encode(edges[edges.length - 1].id.toString()),
+                      cursorRelation: 'model',
                       resultId: edges[edges.length - 1].id,
                   })
                 : undefined;
