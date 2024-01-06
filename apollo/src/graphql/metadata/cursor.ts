@@ -16,7 +16,6 @@ builder.objectType(Cursor, {
                 return root.cursorRelation;
             },
         }),
-        resultId: t.exposeInt('resultId'),
         expiration: t.exposeString('expiration'),
     }),
 });
@@ -25,7 +24,6 @@ export class ObjectionCursor extends Model {
     id!: number;
     cursorToken!: string;
     cursorRelation!: 'model' | 'model_version';
-    resultId!: number;
     expiration!: string;
 
     static tableName = 'dstk_metadata.cursors';
