@@ -6,6 +6,7 @@ import {
     CreateModelVersion,
     EditModel,
     Home,
+    Login,
     ModelRegistry,
     ModelVersion,
     ModelVersionDetails,
@@ -18,6 +19,10 @@ export const RouterProvider = () => {
         {
             path: '/',
             element: <div>Welcome to dstk!</div>,
+        },
+        {
+            path: '/login',
+            element: <Login />,
         },
         {
             element: <DashboardLayout />,
