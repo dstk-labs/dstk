@@ -44,23 +44,32 @@ builder.queryFields((t) => ({
                         await cursor.$query().patch({ expiration: nowPlusFiveMins });
                     }
 
-                    query.where('id', '>', cursor.resultId);
+                    const [id, dateCreated] = encoder.decode(cursor.cursorToken);
+
+                    query
+                        .where('dateCreated', '>=', new Date(dateCreated).toISOString())
+                        .andWhere('id', '>', parseInt(id));
                 } else {
                     throw new CursorError({ name: 'TOKEN_DOES_NOT_EXIST' });
                 }
             }
 
-            const mlModels = await query.limit(args.first + 1).orderBy('id');
+            const mlModels = await query.limit(args.first + 1).orderBy(['dateCreated', 'id']);
 
             const hasPreviousPage = !!args.after;
             const hasNextPage = mlModels.length > 1 && mlModels.length > args.first;
             const edges = mlModels.slice(0, args.first);
 
+            const lastResult = edges[edges.length - 1];
+
             const cursor =
                 edges.length > 0
                     ? await ObjectionCursor.query().findOne({
                           cursorRelation: 'model',
-                          resultId: edges[edges.length - 1].id,
+                          cursorToken: encoder.encode(
+                              lastResult.id.toString(),
+                              lastResult.dateCreated,
+                          ),
                       })
                     : undefined;
 
@@ -68,9 +77,11 @@ builder.queryFields((t) => ({
                 ? await cursor.$query().patchAndFetch({ expiration: nowPlusFiveMins })
                 : edges.length > 0
                 ? await ObjectionCursor.query().insertAndFetch({
-                      cursorToken: encoder.encode(edges[edges.length - 1].id.toString()),
+                      cursorToken: encoder.encode(
+                          edges[edges.length - 1].id.toString(),
+                          edges[edges.length - 1].dateCreated,
+                      ),
                       cursorRelation: 'model',
-                      resultId: edges[edges.length - 1].id,
                   })
                 : undefined;
 
@@ -78,7 +89,7 @@ builder.queryFields((t) => ({
 
             return {
                 edges: edges.map((mlModel) => ({
-                    cursor: encoder.encode(mlModel.id.toString()),
+                    cursor: encoder.encode(mlModel.id.toString(), mlModel.dateCreated),
                     node: mlModel,
                 })),
                 pageInfo: {
