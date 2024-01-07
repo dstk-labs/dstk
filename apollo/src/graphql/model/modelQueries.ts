@@ -48,7 +48,7 @@ builder.queryFields((t) => ({
 
                     query
                         .where('dateCreated', '>=', new Date(dateCreated).toISOString())
-                        .andWhere('id', '>', parseInt(id));
+                        .andWhere('id', '>', id);
                 } else {
                     throw new CursorError({ name: 'TOKEN_DOES_NOT_EXIST' });
                 }
@@ -78,7 +78,7 @@ builder.queryFields((t) => ({
                 : edges.length > 0
                 ? await ObjectionCursor.query().insertAndFetch({
                       cursorToken: encoder.encode(
-                          edges[edges.length - 1].id.toString(),
+                          edges[edges.length - 1].id,
                           edges[edges.length - 1].dateCreated,
                       ),
                       cursorRelation: 'model',
