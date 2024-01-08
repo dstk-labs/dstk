@@ -21,8 +21,8 @@ export const builder = new SchemaBuilder<{
 }>({
     plugins: [ScopeAuthPlugin],
     authScopes: async (context) => ({
-        anonymousRequest: !!!context.user.userId,
-        loggedIn: !!context.user.userId,
+        anonymousRequest: !!!context.user?.userId,
+        loggedIn: !!context.user?.userId,
     }),
     defaultFieldNullability: true,
 });

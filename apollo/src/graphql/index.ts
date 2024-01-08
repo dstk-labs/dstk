@@ -15,6 +15,9 @@ export * from './storage-provider/storageProviderMutations.js';
 export * from './storage-provider/storageProviderQueries.js';
 
 export * from './user/user.js';
+export * from './user/project.js';
+export * from './user/projectMutations.js';
+export * from './user/projectQueries.js';
 export * from './user/team.js';
 export * from './user/teamMutations.js';
 export * from './user/teamQueries.js';

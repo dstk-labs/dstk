@@ -3,6 +3,7 @@ import { Model, AnyQueryBuilder } from 'objection';
 import { User, ObjectionUser } from '../user/user.js';
 import { ObjectionEdge } from '../misc/edges.js';
 import { RegistryOperationError } from '../../utils/errors.js';
+import { ObjectionProject } from './project.js';
 
 export const Team = builder.objectRef<ObjectionTeam>('Team');
 
@@ -49,7 +50,6 @@ export class ObjectionTeam extends Model {
     dateModified!: string;
     createdById!: string;
     modifiedById!: string;
-    ownerId!: string;
 
     createdBy!: ObjectionUser;
     modifiedBy!: ObjectionUser;
@@ -94,7 +94,15 @@ export class ObjectionTeam extends Model {
                 },
                 to: 'dstkUser.user.userId',
             },
-        }
+        },
+        projects: {
+            relation: Model.HasManyRelation,
+            modelClass: ObjectionProject,
+            join: {
+                from: 'dstkUser.teams.teamId',
+                to: 'dstkUser.projects.teamId',
+            },
+        },
     });
 }
 
@@ -106,7 +114,7 @@ export class ObjectionTeamEdge extends Model {
 
     static tableName = 'dstkUser.teamEdges';
 
-    static async userHasRole(userId: string, teamId: string, roles: [string]) {
+    static async userHasRole(userId: string, teamId: string, roles: string[]) {
         const auth = await ObjectionTeamEdge.query()
             .withGraphJoined('edgeTypeMapping')
             .whereIn('edgeTypeMapping.type', roles)

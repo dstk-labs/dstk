@@ -32,14 +32,11 @@ builder.queryFields((t) =>({
             teamId: t.arg.string({ required: true }),
         },
         async resolve(root, args, ctx) {
-            const userCanView = await ObjectionTeamEdge.query()
-                .where({
-                    userId: ctx.user.$id(),
-                    teamId: args.teamId
-                }).first();
-            if (userCanView === undefined) {
-                return [];
-            }
+            await ObjectionTeamEdge.userHasRole(
+                ctx.user.$id(),
+                args.teamId,
+                ['owner', 'member', 'viewer']
+            );
 
             const teamMembers = await ObjectionTeam.relatedQuery('teamMembers')
                 .for(args.teamId) as [ObjectionUser];
