@@ -11,5 +11,5 @@ CREATE TABLE dstk_metadata.cursors (
     cursor_token       VARCHAR(128)     NOT NULL,
     cursor_relation    CURSOR_RELATIONS NOT NULL,
     expiration         TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '5 minute',
-    UNIQUE(cursor_relation, result_id)
+    UNIQUE(cursor_token, cursor_relation)
 );
