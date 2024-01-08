@@ -1,6 +1,6 @@
 import { builder } from '../../builder.js';
 import { ObjectionEdge } from '../misc/edges.js';
-import { Team, ObjectionTeam, ObjectionTeamEdge, } from './team.js';
+import { Team, ObjectionTeam, ObjectionTeamEdge } from './team.js';
 
 
 export const TeamInputType = builder.inputType('TeamInput', {
