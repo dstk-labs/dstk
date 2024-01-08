@@ -84,7 +84,7 @@ export class ObjectionTeam extends Model {
             },
         },
         teamMembers: {
-            relation: Model.HasManyRelation,
+            relation: Model.ManyToManyRelation,
             modelClass: ObjectionUser,
             join: {
                 from: 'dstkUser.teams.teamId',
