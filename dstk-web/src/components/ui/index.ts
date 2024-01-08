@@ -9,6 +9,7 @@ export * from './label';
 export * from './modal';
 export * from './notification';
 export * from './select';
+export * from './sidebar';
 export * from './status-icon';
 export * from './table';
 export * from './text-area';
