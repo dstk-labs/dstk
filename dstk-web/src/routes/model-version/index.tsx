@@ -120,7 +120,7 @@ export const ModelVersion = () => {
                                         </Tooltip>
                                     </TableCell>
                                     <TableCell>{mlVersion.numericVersion}</TableCell>
-                                    <TableCell>{mlVersion.createdBy}</TableCell>
+                                    <TableCell>{mlVersion.createdBy.userName}</TableCell>
                                     <TableCell>{mlVersion.dateCreated}</TableCell>
                                 </TableRow>
                             ))}

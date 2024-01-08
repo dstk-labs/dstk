@@ -7,14 +7,15 @@ import {
 import { setContext } from '@apollo/client/link/context';
 
 const httpLink = createHttpLink({
-    uri: 'http://localhost:4000/',
+    uri: 'http://localhost:4000',
 });
 
-const authLink = setContext(() => {
+const authLink = setContext((_, { headers }) => {
+    const token = localStorage.getItem('token');
     return {
         headers: {
-            ...Headers,
-            authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            ...headers,
+            authorization: token ? `Bearer ${JSON.parse(token)}` : '',
         },
     };
 });

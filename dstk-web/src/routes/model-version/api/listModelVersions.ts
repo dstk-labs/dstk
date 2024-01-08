@@ -5,7 +5,9 @@ import type { MLModelVersionList } from '@/types/MLModelVersion';
 const LIST_MODEL_VERSIONS: TypedDocumentNode<MLModelVersionList> = gql`
     query ListMLModelVersions($modelId: String!) {
         listMLModelVersions(modelId: $modelId) {
-            createdBy
+            createdBy {
+                userName
+            }
             dateCreated
             modelVersionId
             numericVersion

@@ -1,11 +1,12 @@
 import { MLModel } from './MLModel';
+import { User } from './User';
 
 export type MLModelVersion = {
     modelVersionId: string;
     modelId: MLModel;
     isArchived: boolean;
     isFinalized: boolean;
-    createdBy: string; // TODO: User Object
+    createdBy: User;
     numericVersion: number;
     description: string;
     // TODO: metadata

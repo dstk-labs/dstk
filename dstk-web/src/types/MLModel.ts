@@ -1,5 +1,7 @@
-import { MLModelVersion } from './MLModelVersion';
-import { StorageProvider } from './StorageProvider';
+import { Edge, PageInfo } from './Cursor';
+import type { MLModelVersion } from './MLModelVersion';
+import type { StorageProvider } from './StorageProvider';
+import type { User } from './User';
 
 export type MLModel = {
     modelId: string;
@@ -7,8 +9,8 @@ export type MLModel = {
     currentModelVersion?: MLModelVersion;
     isArchived: boolean;
     modelName: string;
-    createdBy: string; // TODO: User Object
-    modifiedBy: string; // TODO: User Object
+    createdBy: User;
+    modifiedBy: User;
     dateCreated: string;
     dateModified: string;
     description: string;
@@ -20,7 +22,10 @@ export type GetMLModel = {
 };
 
 export type MLModelList = {
-    listMLModels: MLModel[];
+    listMLModels: {
+        edges: Edge<MLModel>[];
+        pageInfo: PageInfo;
+    };
 };
 
 export type CreateMLModel = {

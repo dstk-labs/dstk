@@ -3,7 +3,7 @@ import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { BarLoader } from 'react-spinners';
 
-import type { Limit } from '@/types/limit';
+import type { Limit } from '@/types/Limit';
 
 import {
     BreadcrumbItem,
@@ -32,7 +32,11 @@ import { ArchiveModal } from './components';
 
 export const ModelRegistry = () => {
     const [limit, setLimit] = useState<Limit>(10);
-    const [offset, setOffset] = useState(0);
+    const [continuationTokens, setContinuationTokens] = useState<(string | undefined)[]>([
+        undefined,
+    ]);
+    const [hasPreviousPage, setHasPreviousPage] = useState(false);
+    const [hasNextPage, setHasNextPage] = useState(false);
 
     const [selectedModel, setSelectedModel] = useState({
         modelId: '',
@@ -42,7 +46,17 @@ export const ModelRegistry = () => {
 
     const navigate = useNavigate();
 
-    const { data, loading, error, refetch } = useListModels(limit, offset);
+    const { data, loading, error, refetch, fetchMore } = useListModels({
+        first: limit,
+        onCompleted(data) {
+            setHasPreviousPage(data.listMLModels.pageInfo.hasPreviousPage);
+            setHasNextPage(data.listMLModels.pageInfo.hasNextPage);
+            setContinuationTokens((tokens) => [
+                ...tokens,
+                data.listMLModels.pageInfo.continuationToken,
+            ]);
+        },
+    });
 
     // TODO: Make UX Prettier
     if (error) return <p>Error: {error.message}</p>;
@@ -74,7 +88,9 @@ export const ModelRegistry = () => {
                             <Input
                                 onChange={(e) =>
                                     refetch({
-                                        modelName: e.target.value,
+                                        variables: {
+                                            modelName: e.target.value,
+                                        },
                                     })
                                 }
                                 placeholder='Search Models'
@@ -112,27 +128,30 @@ export const ModelRegistry = () => {
                                 <TableBody>
                                     {data &&
                                         data.listMLModels &&
-                                        data.listMLModels.map((model) => (
+                                        data.listMLModels.edges.map((model) => (
                                             <TableRow
                                                 className='hover:bg-gray-50 hover:cursor-pointer'
-                                                key={model.modelId}
+                                                key={model.node.modelId}
                                                 onClick={() =>
-                                                    navigate(`/dashboard/models/${model.modelId}`)
+                                                    navigate(
+                                                        `/dashboard/models/${model.node.modelId}`,
+                                                    )
                                                 }
                                             >
                                                 <TableCell className='font-medium text-gray-900'>
-                                                    {model.modelName}
+                                                    {model.node.modelName}
                                                 </TableCell>
                                                 <TableCell className='text-right'>
-                                                    {(model.currentModelVersion &&
-                                                        model.currentModelVersion.numericVersion) ||
+                                                    {(model.node.currentModelVersion &&
+                                                        model.node.currentModelVersion
+                                                            .numericVersion) ||
                                                         0}
                                                 </TableCell>
                                                 <TableCell className='text-right'>
-                                                    {model.createdBy}
+                                                    {model.node.createdBy.userName}
                                                 </TableCell>
                                                 <TableCell className='text-right'>
-                                                    {model.dateModified}
+                                                    {model.node.dateModified}
                                                 </TableCell>
                                                 <TableCell className='text-right'>
                                                     <Dropdown
@@ -143,7 +162,7 @@ export const ModelRegistry = () => {
                                                         <DropdownItems>
                                                             <DropdownItem>
                                                                 <a
-                                                                    href={`/dashboard/models/${model.modelId}/edit`}
+                                                                    href={`/dashboard/models/${model.node.modelId}/edit`}
                                                                 >
                                                                     Edit
                                                                 </a>
@@ -152,9 +171,11 @@ export const ModelRegistry = () => {
                                                                 <button
                                                                     onClick={() => {
                                                                         setSelectedModel({
-                                                                            modelId: model.modelId,
+                                                                            modelId:
+                                                                                model.node.modelId,
                                                                             modelName:
-                                                                                model.modelName,
+                                                                                model.node
+                                                                                    .modelName,
                                                                         });
                                                                         setArchiveModalOpen(true);
                                                                     }}
@@ -178,27 +199,43 @@ export const ModelRegistry = () => {
                             <CardFooter>
                                 <div className='flex items-center justify-between'>
                                     {/* Dummy values */}
-                                    <p className='text-sm text-gray-700'>
-                                        Showing <span className='font-medium'>1</span> to{' '}
-                                        <span className='font-medium'>3</span> of{' '}
-                                        <span className='font-medium'>3</span> results
-                                    </p>
+                                    <div />
                                     <div className='flex items-center gap-x-3'>
                                         <Button
                                             variant='secondary'
+                                            disabled={hasPreviousPage}
                                             size='lg'
-                                            onClick={() =>
-                                                setOffset((offset) =>
-                                                    offset > 0 ? offset - 1 : offset,
-                                                )
-                                            }
+                                            onClick={() => {
+                                                setContinuationTokens(
+                                                    continuationTokens.filter(
+                                                        (_, idx) =>
+                                                            idx !== continuationTokens.length - 1,
+                                                    ),
+                                                );
+                                                fetchMore({
+                                                    variables: {
+                                                        after: continuationTokens[
+                                                            continuationTokens.length - 1
+                                                        ],
+                                                    },
+                                                });
+                                            }}
                                         >
                                             Previous
                                         </Button>
                                         <Button
                                             variant='secondary'
+                                            disabled={hasNextPage}
                                             size='lg'
-                                            onClick={() => setOffset((offset) => offset + 1)}
+                                            onClick={() =>
+                                                fetchMore({
+                                                    variables: {
+                                                        after: continuationTokens[
+                                                            continuationTokens.length - 1
+                                                        ],
+                                                    },
+                                                })
+                                            }
                                         >
                                             Next
                                         </Button>
@@ -207,7 +244,7 @@ export const ModelRegistry = () => {
                             </CardFooter>
                         </Card>
                     ) : (
-                        <BarLoader color='#4f46e5' width='250' />
+                        <BarLoader color='#4f46e5' width='250px' />
                     )}
                 </div>
             </div>

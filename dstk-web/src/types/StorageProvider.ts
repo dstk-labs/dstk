@@ -1,3 +1,5 @@
+import { User } from './User';
+
 export type StorageProvider = {
     providerId: string;
     endpointUrl: string;
@@ -5,9 +7,9 @@ export type StorageProvider = {
     bucket: string;
     accessKeyId: string;
     secretAccessKey: string;
-    createdBy: string; // TODO: User Object
-    modifiedBy: string; // TODO: User Object
-    owner: string; // TODO: User Object
+    createdBy: User;
+    modifiedBy: User;
+    owner: User;
     dateCreated: string;
     dateModified: string;
     isArchvied: boolean;

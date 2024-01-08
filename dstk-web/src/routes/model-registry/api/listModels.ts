@@ -1,27 +1,45 @@
-import { gql, useQuery, type TypedDocumentNode } from '@apollo/client';
+import { gql, useQuery, type TypedDocumentNode, type QueryDataOptions } from '@apollo/client';
 
 import type { MLModelList } from '@/types/MLModel';
+import type { Limit } from '@/types/Limit';
 
 const LIST_MODELS: TypedDocumentNode<MLModelList> = gql`
-    query ListMLModels($limit: Limit, $offset: Int, $modelName: String) {
-        listMLModels(limit: $limit, offset: $offset, modelName: $modelName) {
-            modelName
-            modelId
-            createdBy
-            dateCreated
-            currentModelVersion {
-                modelVersionId
-                numericVersion
+    query ListMLModels($after: String, $first: Limit, $modelName: String) {
+        listMLModels(after: $after, first: $first, modelName: $modelName) {
+            edges {
+                cursor
+                node {
+                    modelId
+                    modelName
+                    currentModelVersion {
+                        numericVersion
+                    }
+                    createdBy {
+                        userName
+                    }
+                }
+            }
+            pageInfo {
+                hasPreviousPage
+                hasNextPage
+                continuationToken
             }
         }
     }
 `;
 
-export const useListModels = (limit?: 10 | 25 | 50, offset?: number, modelName?: string) =>
+type ListModelOptions = {
+    after?: string;
+    first?: Limit;
+    modelName?: string;
+} & Omit<QueryDataOptions, 'query'>;
+
+export const useListModels = ({ after, first = 10, modelName, ...args }: ListModelOptions) =>
     useQuery(LIST_MODELS, {
         variables: {
+            after: after,
+            first: first,
             modelName: modelName,
-            limit: limit,
-            offset: offset,
         },
+        ...args,
     });
