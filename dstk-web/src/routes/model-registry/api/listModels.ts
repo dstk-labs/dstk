@@ -1,7 +1,10 @@
-import { gql, useQuery, type TypedDocumentNode, type QueryDataOptions } from '@apollo/client';
+import { useAtom } from 'jotai';
+import { gql, type TypedDocumentNode, useQuery } from '@apollo/client';
 
+import { useNotificationStore } from '@/stores';
 import type { MLModelList } from '@/types/MLModel';
-import type { Limit } from '@/types/Limit';
+
+import { modelRegistryPaginationAtom } from '../atoms';
 
 const LIST_MODELS: TypedDocumentNode<MLModelList> = gql`
     query ListMLModels($after: String, $first: Limit, $modelName: String) {
@@ -17,6 +20,7 @@ const LIST_MODELS: TypedDocumentNode<MLModelList> = gql`
                     createdBy {
                         userName
                     }
+                    dateModified
                 }
             }
             pageInfo {
@@ -28,18 +32,27 @@ const LIST_MODELS: TypedDocumentNode<MLModelList> = gql`
     }
 `;
 
-type ListModelOptions = {
-    after?: string;
-    first?: Limit;
-    modelName?: string;
-} & Omit<QueryDataOptions, 'query'>;
+export const useListModels = () => {
+    const [inputs, setInputs] = useAtom(modelRegistryPaginationAtom);
+    const { addNotification } = useNotificationStore();
 
-export const useListModels = ({ after, first = 10, modelName, ...args }: ListModelOptions) =>
-    useQuery(LIST_MODELS, {
+    return useQuery(LIST_MODELS, {
         variables: {
-            after: after,
-            first: first,
-            modelName: modelName,
+            after: inputs.continuationTokens.at(-1),
+            first: inputs.first,
+            modelName: inputs.modelName,
         },
-        ...args,
+        onCompleted: (data) =>
+            setInputs((values) => ({
+                ...values,
+                hasPreviousPage: data.listMLModels.pageInfo.hasPreviousPage,
+                hasNextPage: data.listMLModels.pageInfo.hasNextPage,
+            })),
+        onError: (error) =>
+            addNotification({
+                type: 'error',
+                title: 'Error',
+                children: error.message,
+            }),
     });
+};
