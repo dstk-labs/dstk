@@ -1,42 +1,48 @@
-import { forwardRef } from 'react';
-import { ExclamationCircleIcon } from '@heroicons/react/20/solid';
+import { createElement, forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-
 import { cn } from '@/lib/cn';
 
 const inputVariants = cva(
-    'block w-full rounded-md border-0 px-3 py-1.5 ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 disabled:ring-gray-200',
+    'block w-full shadow-sm pl-2 rounded-lg border bg-white placeholder-gray-400/70 text-gray-700 focus:outline-none focus:ring focus:ring-opacity-40 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500',
     {
         variants: {
             variant: {
-                default:
-                    'text-gray-900 shadow-sm ring-gray-300 placeholder:text-gray-400 focus:ring-indigo-600',
-                error: 'pr-10 text-red-900 ring-red-300 placeholder:text-red-300 focus:ring-red-500',
+                default: 'border-gray-200 focus:border-blue-400 focus:ring-blue-300',
+                error: 'border-red-400 focus:border-red-400 focus:ring-red-300 focus:ring-opacity-40',
+            },
+            size: {
+                xs: 'py-1 text-xs',
+                sm: 'py-1.5 text-sm',
+                md: 'py-2 text-sm',
+                lg: 'py-2.5 text-base',
+                xl: 'py-3 text-lg',
             },
         },
         defaultVariants: {
             variant: 'default',
+            size: 'md',
         },
     },
 );
 
-export type InputProps = React.InputHTMLAttributes<HTMLInputElement> &
+export type InputProps = {
+    icon?: React.ElementType;
+} & React.InputHTMLAttributes<HTMLInputElement> &
     VariantProps<typeof inputVariants>;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ className, variant, ...props }, ref) => {
+    ({ className, icon, size, variant, ...props }, ref) => {
         return (
-            <>
-                <input className={cn(inputVariants({ variant, className }))} ref={ref} {...props} />
-                {variant === 'error' ? (
-                    <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3'>
-                        <ExclamationCircleIcon
-                            className='h-5 w-5 text-red-500'
-                            aria-hidden='true'
-                        />
-                    </div>
-                ) : null}
-            </>
+            <div className='relative flex items-center'>
+                {icon && (
+                    <div className='absolute w-5 h-5 mx-3 text-gray-400'>{createElement(icon)}</div>
+                )}
+                <input
+                    className={cn(inputVariants({ size, variant, className }), icon ? 'pl-11' : '')}
+                    ref={ref}
+                    {...props}
+                />
+            </div>
         );
     },
 );

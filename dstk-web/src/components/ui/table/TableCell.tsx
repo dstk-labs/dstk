@@ -6,7 +6,10 @@ export type TableCellProps = {
 
 export const TableCell = ({ children, className, ...props }: TableCellProps) => {
     return (
-        <td className={cn('whitespace-nowrap text-gray-500 px-6 py-4', className)} {...props}>
+        <td
+            className={cn('px-4 py-4 text-sm text-gray-700 whitespace-nowrap', className)}
+            {...props}
+        >
             {children}
         </td>
     );

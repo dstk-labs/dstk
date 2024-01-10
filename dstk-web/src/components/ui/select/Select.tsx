@@ -1,19 +1,41 @@
 import { forwardRef } from 'react';
-
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
 
+const selectVariants = cva(
+    'block w-full bg-white outline pl-2 border border-r-8 border-transparent rounded-md shadow-sm focus:outline-none focus:ring focus:ring-opacity-40 disabled:cursor-not-allowed disabled:bg-gray-50',
+    {
+        variants: {
+            variant: {
+                primary:
+                    'outline-gray-200 text-gray-700 focus:outline-blue-400 focus:ring-blue-300',
+                error: 'outline-red-300 text-red-600 focus:outline-red-300 focus:ring-red-200',
+            },
+            size: {
+                xs: 'py-1 text-xs',
+                sm: 'py-1.5 text-sm',
+                md: 'py-2 text-sm',
+                lg: 'py-2.5 text-base',
+                xl: 'py-3 text-lg',
+            },
+        },
+        defaultVariants: {
+            variant: 'primary',
+            size: 'md',
+        },
+    },
+);
+
 export type SelectProps = {
-    children: React.ReactNode;
-} & React.SelectHTMLAttributes<HTMLSelectElement>;
+    children?: React.ReactNode;
+} & React.SelectHTMLAttributes<HTMLSelectElement> &
+    VariantProps<typeof selectVariants>;
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-    ({ children, className, ...props }, ref) => {
+    ({ children, className, size, variant, ...props }, ref) => {
         return (
             <select
-                className={cn(
-                    'block w-full rounded-md border-0 px-3 py-2 ring-1 ring-inset text-gray-900 shadow-sm ring-gray-300 focus:ring-indigo-600 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6',
-                    className,
-                )}
+                className={cn(selectVariants({ size, variant, className }))}
                 ref={ref}
                 {...props}
             >
