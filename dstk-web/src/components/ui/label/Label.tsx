@@ -1,4 +1,4 @@
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib';
 
 export type LabelProps = {
     children: React.ReactNode;
@@ -6,10 +6,7 @@ export type LabelProps = {
 
 export const Label = ({ children, className, ...props }: LabelProps) => {
     return (
-        <label
-            className={cn('block text-sm font-medium leading-6 text-gray-900', className)}
-            {...props}
-        >
+        <label className={cn('block text-sm text-gray-500', className)} {...props}>
             {children}
         </label>
     );
