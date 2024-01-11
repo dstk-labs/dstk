@@ -6,4 +6,5 @@ export * from './login';
 export * from './model-registry';
 export * from './model-version';
 export * from './model-version-details';
+export * from './register';
 export * from './upload-files';

@@ -9,3 +9,7 @@ export type User = {
     userId: string;
     userName: string;
 };
+
+export type CreateAccount = {
+    createAccount: User;
+};

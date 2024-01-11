@@ -4,7 +4,7 @@ import { cn } from '@/lib/cn';
 import { MoonLoader } from 'react-spinners';
 
 const buttonVariants = cva(
-    'inline-flex items-center gap-3 font-medium shadow-sm border disabled:cursor-not-allowed',
+    'inline-flex items-center justify-center gap-3 font-medium shadow-sm border disabled:cursor-not-allowed',
     {
         variants: {
             variant: {

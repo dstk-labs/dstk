@@ -11,6 +11,7 @@ import {
     ModelRegistry,
     ModelVersion,
     ModelVersionDetails,
+    Register,
     UploadFiles,
 } from '@/routes';
 
@@ -26,6 +27,10 @@ export const RouterProvider = () => {
                 {
                     path: '/login',
                     element: <Login />,
+                },
+                {
+                    path: '/register',
+                    element: <Register />,
                 },
             ],
         },
