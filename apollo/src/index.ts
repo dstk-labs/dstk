@@ -5,7 +5,6 @@ import Knex from 'knex';
 import { knexConfig } from './knexfile.js';
 import { schema } from './graphql/index.js';
 import { JWTValidator } from './utils/jwt.js';
-import { JwtPayload } from 'jsonwebtoken';
 import { IncomingMessage, ServerResponse } from 'http';
 import { ObjectionUser } from './graphql/index.js';
 
@@ -19,10 +18,20 @@ const createContext = async ({ res, req }: { res: ServerResponse; req: IncomingM
     if (auth.startsWith('Bearer ')) {
         const token = auth.substring(7, auth.length);
         try {
-            const verifiedToken = JWT.verifySession(token) as JwtPayload;
-            const user = (await ObjectionUser.query().findById(
-                verifiedToken.userId,
-            )) as ObjectionUser;
+            const accessToken = await JWT.verifySession(token, 'access');
+        
+            const user = (await ObjectionUser.query()
+                .findById(accessToken?.sub || '' )
+                .where({ isDisabled: false })
+            ) as ObjectionUser;
+
+            res.setHeader(
+                'Authorization',
+                JWT.encodeSession(
+                    { sub: user.$id() },
+                    'access',
+                ),
+            );
 
             return { user: user };
         } catch (err) {

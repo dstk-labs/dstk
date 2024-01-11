@@ -111,3 +111,19 @@ export class ObjectionUserEmail extends Model {
         },
     });
 }
+
+export class ObjectionRefreshToken extends Model {
+    id!: number;
+    sessionId!: string;
+    sessionFamily!: string;
+    userId!: string;
+    isPartial!: boolean;
+    isRevoked!: boolean;
+    sessionIat!: string;
+    sessionExp!: string;
+
+    static tableName = 'dstkUser.refreshToken';
+    static get idColumn() {
+        return 'sessionId';
+    }
+}

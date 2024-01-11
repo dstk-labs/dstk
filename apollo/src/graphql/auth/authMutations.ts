@@ -4,7 +4,7 @@ import { HashBrown } from '../../utils/encryption.js';
 import { JWTValidator, PartialSession } from '../../utils/jwt.js';
 import { builder } from '../../builder.js';
 import { raw } from 'objection';
-import { convertSDL } from 'nexus';
+import { v4 as uuidv4 } from 'uuid';
 
 export const AccountInputType = builder.inputType('AccountInput', {
     fields: (t) => ({
@@ -86,12 +86,15 @@ builder.mutationFields((t) => ({
                 if (!verified) {
                     throw new AccountError({ name: 'LOGIN_ERROR' });
                 }
+                if (userAccount.isDisabled) {
+                    throw new AccountError({ name: 'DISABLED_ERROR' });
+                }
 
                 const partialSession = {
-                    dateCreated: Date.now(),
-                    userId: userAccount.$id(),
+                    jti: uuidv4(),
+                    sub: userAccount.$id(),
                 };
-                const token = JWT.encodeSession(partialSession);
+                const token = JWT.encodeSession(partialSession, 'access');
                 return token;
             });
             return results;
