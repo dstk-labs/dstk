@@ -16,7 +16,7 @@ export class JWTValidator {
 
     encodeSession(partialSession: PartialSession): string {
         const issued = Date.now();
-        const expires = issued + 15 * 60;
+        const expires = issued + 15 * 60 * 1000;
         const session: Session = {
             ...partialSession,
             iat: issued,
