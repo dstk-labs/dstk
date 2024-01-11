@@ -35,12 +35,19 @@ export class RegistryOperationError extends Error {
     }
 }
 
-type AccountErrorName = 'ACCOUNT_REGISTRATION_ERROR' | 'USERNAME_IN_USE_ERROR' | 'LOGIN_ERROR';
+type AccountErrorName = 
+    | 'ACCOUNT_REGISTRATION_ERROR'
+    | 'USERNAME_IN_USE_ERROR'
+    | 'LOGIN_ERROR'
+    | 'DISABLED_ERROR'
+    | 'INVALID_REFRESH_TOKEN';
 
 const AccountErrorMessages = {
     ACCOUNT_REGISTRATION_ERROR: 'Something went wrong and we were not able to complete this action',
     USERNAME_IN_USE_ERROR: 'An account already exists with this username',
     LOGIN_ERROR: 'The username or password supplied was incorrect',
+    DISABLED_ERROR: 'This account has been disabled',
+    INVALID_REFRESH_TOKEN: 'The refresh token provided was invalid. Please log in again',
 };
 
 export class AccountError extends Error {
