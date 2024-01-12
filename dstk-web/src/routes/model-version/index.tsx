@@ -99,11 +99,16 @@ export const ModelVersion = () => {
                         {mlVersionData &&
                             mlVersionData.listMLModelVersions &&
                             mlVersionData.listMLModelVersions.map((mlVersion) => (
-                                <TableRow key={mlVersion.modelVersionId}>
-                                    <TableCell
-                                        className='hover:text-gray-800 hover:cursor-pointer'
-                                        onClick={() => handleCopy(mlVersion.modelVersionId)}
-                                    >
+                                <TableRow
+                                    className='hover:bg-gray-50 hover:cursor-pointer'
+                                    onClick={() =>
+                                        navigate(
+                                            `/dashboard/models/${modelId}/${mlVersion.modelVersionId}`,
+                                        )
+                                    }
+                                    key={mlVersion.modelVersionId}
+                                >
+                                    <TableCell>
                                         <Tooltip
                                             isVisible={
                                                 !isTooltipHidden &&
@@ -111,11 +116,16 @@ export const ModelVersion = () => {
                                             }
                                             message='Copied!'
                                         >
-                                            <div className='flex items-center gap-1'>
+                                            <div className='flex items-center gap-1 hover:text-gray-800'>
                                                 <div>
                                                     {mlVersion.modelVersionId.substring(0, 8)}...
                                                 </div>
-                                                <ClipboardIcon className='h-3 w-3 shrink-0 hover:text-gray-800 hover:cursor-pointer' />
+                                                <ClipboardIcon
+                                                    className='h-3 w-3 shrink-0 hover:text-gray-800 hover:cursor-pointer'
+                                                    onClick={() =>
+                                                        handleCopy(mlVersion.modelVersionId)
+                                                    }
+                                                />
                                             </div>
                                         </Tooltip>
                                     </TableCell>
