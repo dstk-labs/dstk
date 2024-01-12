@@ -17,4 +17,20 @@ builder.queryFields((t) => ({
             return mlModelVersions;
         },
     }),
+    getMLModelVersion: t.field({
+        type: MLModelVersion,
+        authScopes: {
+            loggedIn: true,
+        },
+        args: {
+            modelVersionId: t.arg.string({ required: true }),
+        },
+        async resolve(_root, args, _ctx) {
+            const mlModelVersion = (await ObjectionMLModelVersion.query().findById(
+                args.modelVersionId,
+            )) as typeof MLModelVersion.$inferType;
+
+            return mlModelVersion;
+        },
+    }),
 }));
