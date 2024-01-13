@@ -55,6 +55,7 @@ builder.objectType(StorageProvider, {
                 return user;
             },
         }),
+        teamId: t.exposeString('teamId'),
         dateCreated: t.exposeString('dateCreated'),
         dateModified: t.exposeString('dateModified'),
         isArchived: t.exposeBoolean('isArchived'),
@@ -71,6 +72,7 @@ export class ObjectionStorageProvider extends Model {
     createdById!: string;
     modifiedById!: string;
     ownerId!: string;
+    teamId!: string;
     dateCreated!: string;
     dateModified!: string;
     isArchived!: boolean;

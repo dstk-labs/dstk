@@ -4,6 +4,7 @@ import { User, ObjectionUser } from '../user/user.js';
 import { ObjectionEdge } from '../misc/edges.js';
 import { RegistryOperationError } from '../../utils/errors.js';
 import { ObjectionProject } from './project.js';
+import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 
 export const Team = builder.objectRef<ObjectionTeam>('Team');
 
@@ -89,8 +90,8 @@ export class ObjectionTeam extends Model {
             join: {
                 from: 'dstkUser.teams.teamId',
                 through: {
-                    from: 'dstkUser.team_edges.teamId',
-                    to: 'dstkUser.team_edges.userId'
+                    from: 'dstkUser.teamEdges.teamId',
+                    to: 'dstkUser.teamEdges.userId'
                 },
                 to: 'dstkUser.user.userId',
             },
@@ -101,6 +102,14 @@ export class ObjectionTeam extends Model {
             join: {
                 from: 'dstkUser.teams.teamId',
                 to: 'dstkUser.projects.teamId',
+            },
+        },
+        storageProviders: {
+            relation: Model.HasManyRelation,
+            modelClass: ObjectionStorageProvider,
+            join: {
+                from: 'dstkUser.teams.teamId',
+                to: 'registry.storageProviders.teamId'
             },
         },
     });

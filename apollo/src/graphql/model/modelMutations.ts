@@ -3,10 +3,13 @@ import { raw } from 'objection';
 import { RegistryOperationError } from '../../utils/errors.js';
 import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 import { builder } from '../../builder.js';
+import { ObjectionTeam, ObjectionTeamEdge } from '../user/team.js';
+import { ObjectionProject } from '../user/project.js';
 
 export const ModelInputType = builder.inputType('ModelInput', {
     fields: (t) => ({
         storageProviderId: t.string({ required: true }),
+        projectId: t.string({ required: true }),
         modelName: t.string({ required: true }),
         description: t.string({ required: true }),
     }),
@@ -23,19 +26,31 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionMLModel.transaction(async (trx) => {
-                const storageProvider = (await ObjectionStorageProvider.query().findById(
-                    args.data.storageProviderId,
-                )) as ObjectionStorageProvider;
+                const project = await ObjectionProject.query()
+                    .findById(args.data.projectId) as ObjectionProject;
+                await ObjectionTeamEdge.userHasRole(
+                    ctx.user.$id(),
+                    project.teamId,
+                    ['owner', 'member']
+                );
+
+                const storageProvider = await ObjectionTeam
+                    .relatedQuery('storageProviders')
+                    .for(project.teamId)
+                    .where({ providerId: args.data.storageProviderId})
+                    .first() as ObjectionStorageProvider | undefined;
+                
+                if (storageProvider === undefined) {
+                    throw new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' });
+                }
                 if (storageProvider.isArchived === true) {
                     throw new RegistryOperationError({ name: 'ARCHIVED_STORAGE_ERROR' });
                 }
 
-                // TODO: some server-side validation that the supplied
-                // storage provider ID is a valid record (that the user
-                // has permission to utilize) is probably needed
                 const mlModel = await ObjectionMLModel.query(trx)
                     .insertAndFetch({
                         storageProviderId: args.data.storageProviderId,
+                        projectId: project.$id(),
                         modelName: args.data.modelName,
                         description: args.data.description,
                         createdById: ctx.user.$id(),
@@ -43,7 +58,7 @@ builder.mutationFields((t) => ({
                     })
                     .first();
 
-                return mlModel as typeof MLModel.$inferType;
+                return mlModel as ObjectionMLModel;
             });
             return results;
         },

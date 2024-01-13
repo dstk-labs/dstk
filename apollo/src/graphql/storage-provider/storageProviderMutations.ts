@@ -2,6 +2,7 @@ import { StorageProvider, ObjectionStorageProvider } from './storageProvider.js'
 import { Security } from '../../utils/encryption.js';
 import { raw } from 'objection';
 import { builder } from '../../builder.js';
+import { ObjectionTeamEdge } from '../user/team.js';
 
 const EncryptoMatic = new Security();
 
@@ -12,6 +13,7 @@ export const StorageProviderInputType = builder.inputType('StorageProviderInput'
         bucket: t.string({ required: true }),
         accessKeyId: t.string({ required: true }),
         secretAccessKey: t.string({ required: true }),
+        teamId: t.string({ required: true }),
     }),
 });
 
@@ -26,6 +28,12 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionStorageProvider.transaction(async (trx) => {
+                await ObjectionTeamEdge.userHasRole(
+                    ctx.user.$id(),
+                    args.data.teamId,
+                    ['owner', 'member']
+                );
+
                 const encryptedAccessKeyId = EncryptoMatic.encrypt(args.data.accessKeyId);
                 const encryptedSecretAccessKey = EncryptoMatic.encrypt(args.data.secretAccessKey);
 
@@ -39,6 +47,7 @@ builder.mutationFields((t) => ({
                         createdById: ctx.user.$id(),
                         modifiedById: ctx.user.$id(),
                         ownerId: ctx.user.$id(),
+                        teamId: args.data.teamId,
                     })
                     .first();
                 return storageProvider as typeof StorageProvider.$inferType;
