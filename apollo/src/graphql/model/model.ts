@@ -3,6 +3,7 @@ import { Model } from 'objection';
 import { StorageProvider, ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 import { MLModelVersion, ObjectionMLModelVersion } from '../model-version/modelVersion.js';
 import { User, ObjectionUser } from '../user/user.js';
+import { ObjectionProject, Project } from '../user/project.js';
 
 export const MLModel = builder.objectRef<ObjectionMLModel>('MLModel');
 
@@ -20,7 +21,7 @@ builder.objectType(MLModel, {
             async resolve(root: ObjectionMLModel, _args, _ctx) {
                 const storageProvider = (await ObjectionStorageProvider.query()
                     .findById(root.storageProviderId)
-                    .first()) as typeof StorageProvider.$inferType;
+                    .first()) as ObjectionStorageProvider;
                 return storageProvider;
             },
         }),
@@ -30,7 +31,18 @@ builder.objectType(MLModel, {
             async resolve(root: ObjectionMLModel, _args, _ctx) {
                 const currentModelVersion = (await ObjectionMLModelVersion.query()
                     .findById(root.currentModelVersionId)
-                    .first()) as typeof MLModelVersion.$inferType;
+                    .first()) as ObjectionMLModelVersion;
+
+                return currentModelVersion;
+            },
+        }),
+
+        project: t.field({
+            type: Project,
+            async resolve(root: ObjectionMLModel, _args, _ctx) {
+                const currentModelVersion = (await ObjectionProject.query()
+                    .findById(root.projectId)
+                    .first()) as ObjectionProject;
 
                 return currentModelVersion;
             },
@@ -68,6 +80,7 @@ export class ObjectionMLModel extends Model {
     id!: number;
     storageProviderId!: string;
     currentModelVersionId!: string;
+    projectId!: string;
     isArchived!: boolean;
     modelName!: string;
     createdById!: string;

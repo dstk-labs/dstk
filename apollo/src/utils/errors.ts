@@ -1,5 +1,6 @@
 type RegistryErrorName =
     | 'ARCHIVED_STORAGE_ERROR'
+    | 'PROVIDER_NOT_FOUND_ERROR'
     | 'ARCHIVED_MODEL_ERROR'
     | 'ARCHIVED_MODEL_VERSION_ERROR'
     | 'PUBLISHED_MODEL_VERSION_ERROR'
@@ -11,6 +12,8 @@ type RegistryErrorName =
 
 const RegistryErrorMessages = {
     ARCHIVED_STORAGE_ERROR: 'New model versions cannot be added to an archived storage provider',
+    PROVIDER_NOT_FOUND_ERROR:
+        "Either this storage provider doesn't exist or you don't have permission to take that action",
     ARCHIVED_MODEL_ERROR: 'New model versions cannot be added to archived models',
     ARCHIVED_MODEL_VERSION_ERROR: 'An archived model version cannot be modified',
     PUBLISHED_MODEL_VERSION_ERROR: 'Published model versions cannot be modified',
