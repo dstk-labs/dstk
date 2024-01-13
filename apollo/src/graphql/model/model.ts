@@ -4,6 +4,7 @@ import { StorageProvider, ObjectionStorageProvider } from '../storage-provider/s
 import { MLModelVersion, ObjectionMLModelVersion } from '../model-version/modelVersion.js';
 import { User, ObjectionUser } from '../user/user.js';
 import { ObjectionProject, Project } from '../user/project.js';
+import { ObjectionTeam } from '../user/team.js';
 
 export const MLModel = builder.objectRef<ObjectionMLModel>('MLModel');
 
@@ -122,6 +123,14 @@ export class ObjectionMLModel extends Model {
                 to: 'registry.modelVersions.modelVersionId',
             },
         },
+        projects: {
+            relation: Model.HasOneRelation,
+            modelClass: ObjectionProject,
+            join: {
+                from: 'registry.models.projectId',
+                to: 'dstkUser.projects.projectId',
+            },
+        },
         getCreatedBy: {
             relation: Model.HasOneRelation,
             modelClass: ObjectionUser,
@@ -136,6 +145,18 @@ export class ObjectionMLModel extends Model {
             join: {
                 from: 'registry.models.modifiedById',
                 to: 'dstkUser.user.userId',
+            },
+        },
+        getTeam: {
+            relation: Model.BelongsToOneRelation,
+            modelClass: ObjectionTeam,
+            join: {
+                from: 'registry.models.projectId',
+                through: {
+                    from: 'dstkUser.projects.projectId',
+                    to: 'dstkUser.projects.teamId',
+                },
+                to: 'dstkUser.teams.teamId',
             },
         },
     });

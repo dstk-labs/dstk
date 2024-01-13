@@ -37,7 +37,7 @@ builder.mutationFields((t) => ({
                 const storageProvider = await ObjectionTeam
                     .relatedQuery('storageProviders')
                     .for(project.teamId)
-                    .where({ providerId: args.data.storageProviderId})
+                    .where({ providerId: args.data.storageProviderId })
                     .first() as ObjectionStorageProvider | undefined;
                 
                 if (storageProvider === undefined) {
@@ -58,7 +58,7 @@ builder.mutationFields((t) => ({
                     })
                     .first();
 
-                return mlModel as ObjectionMLModel;
+                return mlModel;
             });
             return results;
         },
@@ -74,9 +74,25 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionMLModel.transaction(async (trx) => {
-                const storageProvider = (await ObjectionMLModel.relatedQuery('storageProvider')
-                    .for(args.modelId)
-                    .first()) as ObjectionStorageProvider;
+                const team = (await ObjectionMLModel
+                    .relatedQuery('getTeam')
+                    .for(args.modelId).first() as ObjectionTeam
+                );
+                await ObjectionTeamEdge.userHasRole(
+                    ctx.user.$id(),
+                    team.$id(),
+                    ['owner', 'member']
+                );
+
+                const storageProvider = await team
+                    .$relatedQuery('storageProviders')
+                    .for(team.$id())
+                    .where({ providerId: args.data.storageProviderId })
+                    .first() as ObjectionStorageProvider | undefined;
+
+                if (storageProvider === undefined) {
+                    throw new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' });
+                }    
                 if (storageProvider.isArchived === true) {
                     throw new RegistryOperationError({ name: 'ARCHIVED_STORAGE_ERROR' });
                 }
@@ -91,7 +107,7 @@ builder.mutationFields((t) => ({
                     throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_ERROR' });
                 }
 
-                return mlModel as typeof MLModel.$inferType;
+                return mlModel;
             });
 
             return results;
@@ -107,6 +123,16 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionMLModel.transaction(async (trx) => {
+                const team = (await ObjectionMLModel
+                    .relatedQuery('getTeam')
+                    .for(args.modelId).first() as ObjectionTeam
+                );
+                await ObjectionTeamEdge.userHasRole(
+                    ctx.user.$id(),
+                    team.$id(),
+                    ['owner', 'member']
+                );
+
                 // Intentionally don't throw an error here on archived storage
                 // providers. It's not unreasonable to want to mark old assets
                 // as archived if their parent blob storage goes bye-bye
@@ -115,7 +141,7 @@ builder.mutationFields((t) => ({
                     dateModified: raw('NOW()'),
                     modifiedById: ctx.user.$id(),
                 });
-                return mlModel as typeof MLModel.$inferType;
+                return mlModel;
             });
 
             return results;
