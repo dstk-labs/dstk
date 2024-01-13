@@ -1,12 +1,14 @@
 export * from './auth/authMutations.js';
 
 export * from './model/model.js';
+export * from './model/modelConnection.js';
+export * from './model/modelEdge.js';
 export * from './model/modelMutations.js';
 export * from './model/modelQueries.js';
 
 export * from './model-version/modelVersion.js';
-export * from './model/modelConnection.js';
-export * from './model/modelEdge.js';
+export * from './model-version/modelVersionConnection.js';
+export * from './model-version/modelVersionEdge.js';
 export * from './model-version/modelVersionMutations.js';
 export * from './model-version/modelVersionQueries.js';
 
