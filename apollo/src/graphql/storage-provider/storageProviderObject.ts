@@ -1,7 +1,7 @@
 import { builder } from '../../builder.js';
 
 export const StorageProviderObjectType = builder.enumType('StorageProviderObjectType', {
-    values: ['folder', 'file', 'viewer'] as const,
+    values: ['folder', 'file'] as const,
 });
 
 export const StorageProviderObject =
