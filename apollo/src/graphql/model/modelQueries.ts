@@ -4,6 +4,7 @@ import { MLModelConnection } from './modelConnection.js';
 import { ObjectionCursor } from '../metadata/cursor.js';
 import { CursorError } from '../../utils/errors.js';
 import { Encoder } from '../../utils/encoder.js';
+import { ObjectionTeamEdge } from '../user/team.js';
 
 const encoder = new Encoder();
 
@@ -23,9 +24,15 @@ builder.queryFields((t) => ({
             after: t.arg.string(),
         },
         async resolve(_root, args, _ctx) {
+            const userTeams = await ObjectionTeamEdge.query()
+                .where({ userId: _ctx.user.$id() })
+                .select(['teamId']);
+
             const now = new Date(Date.now()).toISOString();
             const nowPlusFiveMins = new Date(Date.now() + 5 * 60 * 1000).toISOString();
-            const query = ObjectionMLModel.query();
+            const query = ObjectionMLModel.query()
+                .withGraphJoined('projects')
+                .whereIn('projects.teamId', userTeams.map(edge => edge.teamId));
 
             if (args.modelName) {
                 query.where('modelName', 'ILIKE', `%${args.modelName}%`);
@@ -102,13 +109,21 @@ builder.queryFields((t) => ({
     }),
     getMLModel: t.field({
         type: MLModel,
+        authScopes: {
+            loggedIn: true,
+        },
         args: {
             modelId: t.arg.string({ required: true }),
         },
         async resolve(root, args, ctx) {
-            const mlModel = (await ObjectionMLModel.query().findById(
-                args.modelId,
-            )) as typeof MLModel.$inferType;
+            const userTeams = await ObjectionTeamEdge.query()
+                .where({ userId: ctx.user.$id() })
+                .select(['teamId']);
+
+            const mlModel = await ObjectionMLModel.query()
+                .findById(args.modelId)
+                .withGraphJoined('projects')
+                .whereIn('projects.teamId', userTeams.map(edge => edge.teamId));
             return mlModel;
         },
     }),
