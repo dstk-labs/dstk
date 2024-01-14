@@ -3,6 +3,7 @@ import {
     AbortMultipartUploadCommand,
     CompleteMultipartUploadCommand,
     CreateMultipartUploadCommand,
+    ListObjectsV2Command,
     S3Client,
     UploadPartCommand,
 } from '@aws-sdk/client-s3';
@@ -126,5 +127,32 @@ export async function AbortMultipartUpload(
         UploadId: uploadId,
     });
     const response = client.send(command);
+    return response;
+}
+
+export async function ListObjects(
+    storageProvider: ObjectionStorageProvider,
+    maxKeys: number,
+    prefix: string,
+    continuationToken?: string,
+) {
+    const client = new S3Client({
+        apiVersion: '2006-03-01',
+        region: storageProvider.region,
+        endpoint: storageProvider.endpointUrl,
+        credentials: {
+            accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
+            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
+        },
+    });
+
+    const command = new ListObjectsV2Command({
+        Bucket: storageProvider.bucket,
+        ContinuationToken: continuationToken,
+        MaxKeys: maxKeys,
+        Prefix: prefix,
+    });
+
+    const response = await client.send(command);
     return response;
 }
