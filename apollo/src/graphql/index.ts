@@ -14,6 +14,9 @@ export * from './model-version/modelVersionQueries.js';
 
 export * from './storage-provider/storageProvider.js';
 export * from './storage-provider/storageProviderMutations.js';
+export * from './storage-provider/storageProviderObject.js';
+export * from './storage-provider/storageProviderObjectConnection.js';
+export * from './storage-provider/storageProviderObjectEdge.js';
 export * from './storage-provider/storageProviderQueries.js';
 
 export * from './user/user.js';
