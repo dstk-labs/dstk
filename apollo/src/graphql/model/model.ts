@@ -148,7 +148,7 @@ export class ObjectionMLModel extends Model {
             },
         },
         getTeam: {
-            relation: Model.BelongsToOneRelation,
+            relation: Model.HasOneThroughRelation,
             modelClass: ObjectionTeam,
             join: {
                 from: 'registry.models.projectId',
