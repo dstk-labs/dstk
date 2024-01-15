@@ -3,9 +3,8 @@ import { builder } from '../../builder.js';
 import { ListObjects } from '../../utils/s3-api.js';
 import { StorageProviderObjectConnection } from '../storage-provider/storageProviderObjectConnection.js';
 import { ObjectionMLModelVersion } from '../model-version/modelVersion.js';
-import { ObjectionTeamEdge } from '../user/team.js';
+import { ObjectionTeam, ObjectionTeamEdge } from '../user/team.js';
 import { ObjectionMLModel } from '../model/model.js';
-import { ObjectionProject } from '../user/project.js';
 
 builder.queryFields((t) => ({
     listStorageProviders: t.field({
@@ -53,17 +52,14 @@ builder.queryFields((t) => ({
             const modelVersion = (await ObjectionMLModelVersion.query()
                 .findById(args.modelVersionId)
                 .first()) as ObjectionMLModelVersion;
+            const team = (await ObjectionMLModel.relatedQuery('getTeam')
+                .for(modelVersion.modelId)
+                .first()) as ObjectionTeam;
 
-            const parentModel = (await ObjectionMLModel.query()
-                .where('modelId', modelVersion.modelId)
-                .first()) as ObjectionMLModel;
-
-            const project = (await ObjectionProject.query().findById(
-                parentModel.projectId,
-            )) as ObjectionProject;
-            await ObjectionTeamEdge.userHasRole(ctx.user.$id(), project.teamId, [
+            await ObjectionTeamEdge.userHasRole(ctx.user.$id(), team.$id(), [
                 'owner',
                 'member',
+                'viewer',
             ]);
 
             const modelStorageProvider = (await ObjectionMLModelVersion.relatedQuery(
