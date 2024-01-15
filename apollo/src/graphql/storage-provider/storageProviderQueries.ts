@@ -91,11 +91,13 @@ builder.queryFields((t) => ({
             );
 
             const objects = Contents
-                ? Contents.map((Content) => ({
-                      name: Content.Key,
-                      size: Content.Size,
-                      lastModified: Content.LastModified && Content.LastModified.toISOString(),
-                  })).filter((Content) => Content.name?.slice(0, -1) !== Prefix)
+                ? Contents.filter((Content) => Content.Key?.slice(0, -1) !== Prefix).map(
+                      (Content) => ({
+                          name: Content.Key && Content.Key.replace(prefix + '/', ''),
+                          size: Content.Size,
+                          lastModified: Content.LastModified && Content.LastModified.toISOString(),
+                      }),
+                  )
                 : [];
 
             return {
