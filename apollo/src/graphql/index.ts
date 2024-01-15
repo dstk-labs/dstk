@@ -20,6 +20,8 @@ export * from './storage-provider/storageProviderObjectEdge.js';
 export * from './storage-provider/storageProviderQueries.js';
 
 export * from './user/user.js';
+export * from './user/userMutations.js';
+export * from './user/userQueries.js';
 export * from './user/project.js';
 export * from './user/projectMutations.js';
 export * from './user/projectQueries.js';
