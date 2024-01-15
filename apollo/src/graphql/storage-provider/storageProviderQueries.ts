@@ -3,6 +3,9 @@ import { builder } from '../../builder.js';
 import { ListObjects } from '../../utils/s3-api.js';
 import { StorageProviderObjectConnection } from '../storage-provider/storageProviderObjectConnection.js';
 import { ObjectionMLModelVersion } from '../model-version/modelVersion.js';
+import { ObjectionTeamEdge } from '../user/team.js';
+import { ObjectionMLModel } from '../model/model.js';
+import { ObjectionProject } from '../user/project.js';
 
 builder.queryFields((t) => ({
     listStorageProviders: t.field({
@@ -46,16 +49,28 @@ builder.queryFields((t) => ({
             after: t.arg.string(),
             prefix: t.arg.string(),
         },
-        async resolve(_root, args, _ctx) {
+        async resolve(_root, args, ctx) {
+            const modelVersion = (await ObjectionMLModelVersion.query()
+                .findById(args.modelVersionId)
+                .first()) as ObjectionMLModelVersion;
+
+            const parentModel = (await ObjectionMLModel.query()
+                .where('modelId', modelVersion.modelId)
+                .first()) as ObjectionMLModel;
+
+            const project = (await ObjectionProject.query().findById(
+                parentModel.projectId,
+            )) as ObjectionProject;
+            await ObjectionTeamEdge.userHasRole(ctx.user.$id(), project.teamId, [
+                'owner',
+                'member',
+            ]);
+
             const modelStorageProvider = (await ObjectionMLModelVersion.relatedQuery(
                 'storageProvider',
             )
                 .for(args.modelVersionId)
                 .first()) as ObjectionStorageProvider;
-
-            const modelVersion = (await ObjectionMLModelVersion.query()
-                .findById(args.modelVersionId)
-                .first()) as ObjectionMLModelVersion;
 
             // Appends new folder name to base prefix
             const prefix = `${modelVersion.s3Prefix}`.concat(args.prefix ? '/' + args.prefix : '');
@@ -66,8 +81,7 @@ builder.queryFields((t) => ({
             const limit = !args.after ? args.first + 1 : args.first;
 
             // To get Pothos and the S3 API to play nicely
-            const maxKeys =
-                args.after === null || args.after === undefined ? undefined : args.after;
+            const maxKeys = args?.after || undefined;
 
             const { Contents, IsTruncated, NextContinuationToken, Prefix } = await ListObjects(
                 modelStorageProvider,
@@ -87,7 +101,7 @@ builder.queryFields((t) => ({
             return {
                 edges:
                     objects.map((object) => ({
-                        cursor: NextContinuationToken || '',
+                        cursor: NextContinuationToken ?? '',
                         node: object,
                     })) ?? [],
                 pageInfo: {
