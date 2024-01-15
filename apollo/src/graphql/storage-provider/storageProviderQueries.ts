@@ -47,22 +47,6 @@ builder.queryFields((t) => ({
             prefix: t.arg.string(),
         },
         async resolve(_root, args, _ctx) {
-            const splitKey = (prefixLength: number, objectKey?: string): string[] => {
-                if (objectKey) {
-                    return objectKey.slice(prefixLength + 1).split('/');
-                }
-
-                return [];
-            };
-
-            const folderOrFile = (keyArr?: string[]): 'folder' | 'file' | undefined => {
-                if (keyArr) {
-                    return keyArr.length > 1 ? 'folder' : 'file';
-                }
-
-                return undefined;
-            };
-
             const modelStorageProvider = (await ObjectionMLModelVersion.relatedQuery(
                 'storageProvider',
             )
@@ -92,20 +76,12 @@ builder.queryFields((t) => ({
                 maxKeys,
             );
 
-            const prefixLength = prefix.length;
-
             const objects = Contents
                 ? Contents.map((Content) => ({
-                      id: Content.Key,
-                      name:
-                          Content.Key &&
-                          folderOrFile(splitKey(prefix.length, Content.Key)) === 'folder'
-                              ? splitKey(prefixLength, Content.Key)[0]
-                              : splitKey(prefixLength, Content.Key).at(-1),
+                      name: Content.Key,
                       size: Content.Size,
                       lastModified: Content.LastModified && Content.LastModified.toISOString(),
-                      type: folderOrFile(splitKey(prefixLength, Content.Key)),
-                  })).filter((Content) => Content.id?.slice(0, -1) !== Prefix)
+                  })).filter((Content) => Content.name?.slice(0, -1) !== Prefix)
                 : [];
 
             return {
