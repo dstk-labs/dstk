@@ -8,3 +8,4 @@ export * from './model-version';
 export * from './model-version-details';
 export * from './register';
 export * from './upload-files';
+export * from './user-settings';

@@ -13,6 +13,7 @@ import {
     ModelVersionDetails,
     Register,
     UploadFiles,
+    UserSettings,
 } from '@/routes';
 
 export const RouterProvider = () => {
@@ -39,7 +40,6 @@ export const RouterProvider = () => {
             children: [
                 {
                     element: <DashboardLayout />,
-                    path: '/dashboard',
                     children: [
                         {
                             path: '/dashboard/home',
@@ -72,6 +72,10 @@ export const RouterProvider = () => {
                         {
                             path: '/dashboard/models/:modelId/:versionId/upload',
                             element: <UploadFiles />,
+                        },
+                        {
+                            path: '/settings',
+                            element: <UserSettings />,
                         },
                     ],
                 },
