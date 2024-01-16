@@ -6,7 +6,7 @@ export type CardHeaderProps = {
 
 export const CardHeader = ({ children, className, ...props }: CardHeaderProps) => {
     return (
-        <div className={cn('px-4 py-2 sm:px-6', className)} {...props}>
+        <div className={cn('px-4 pt-6 pb-4', className)} {...props}>
             {children}
         </div>
     );

@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider as Router } from 'react-router-dom'
 import { PrivateRoute, PublicRoute } from '@/components/auth';
 import { DashboardLayout } from '@/components/layout';
 import {
+    APIKeys,
     CreateModel,
     CreateModelVersion,
     EditModel,
@@ -76,6 +77,10 @@ export const RouterProvider = () => {
                         {
                             path: '/settings',
                             element: <UserSettings />,
+                        },
+                        {
+                            path: '/settings/api-keys',
+                            element: <APIKeys />,
                         },
                     ],
                 },
