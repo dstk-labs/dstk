@@ -6,6 +6,7 @@ import {
     APIKeys,
     CreateModel,
     CreateModelVersion,
+    CreateTeam,
     EditModel,
     Home,
     Login,
@@ -78,6 +79,10 @@ export const RouterProvider = () => {
                         {
                             path: '/teams',
                             element: <Teams />,
+                        },
+                        {
+                            path: '/teams/create',
+                            element: <CreateTeam />,
                         },
                         {
                             path: '/settings',

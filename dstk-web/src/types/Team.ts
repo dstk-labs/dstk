@@ -13,3 +13,7 @@ export type Team = {
 export type TeamList = {
     listTeams: Team[];
 };
+
+export type CreateTeam = {
+    createTeam: Team;
+};
