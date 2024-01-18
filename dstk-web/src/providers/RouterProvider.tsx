@@ -13,6 +13,7 @@ import {
     ModelVersion,
     ModelVersionDetails,
     Register,
+    Teams,
     UploadFiles,
     UserSettings,
 } from '@/routes';
@@ -73,6 +74,10 @@ export const RouterProvider = () => {
                         {
                             path: '/dashboard/models/:modelId/:versionId/upload',
                             element: <UploadFiles />,
+                        },
+                        {
+                            path: '/teams',
+                            element: <Teams />,
                         },
                         {
                             path: '/settings',

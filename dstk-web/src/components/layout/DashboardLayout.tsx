@@ -1,4 +1,4 @@
-import { Cog6ToothIcon, HomeIcon, SquaresPlusIcon } from '@heroicons/react/24/outline';
+import { Cog6ToothIcon, HomeIcon, SquaresPlusIcon, UsersIcon } from '@heroicons/react/24/outline';
 import { Outlet } from 'react-router-dom';
 
 import { Sidebar, SidebarContent, SidebarLink, SidebarSection } from '../ui';
@@ -16,6 +16,16 @@ const navigation = [
                 name: 'Model Registry',
                 href: '/dashboard/models',
                 icon: <SquaresPlusIcon />,
+            },
+        ],
+    },
+    {
+        name: 'COLLABORATION',
+        links: [
+            {
+                name: 'Teams',
+                href: '/teams',
+                icon: <UsersIcon />,
             },
         ],
     },
