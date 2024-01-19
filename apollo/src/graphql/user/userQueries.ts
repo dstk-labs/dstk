@@ -1,6 +1,5 @@
 import { builder } from '../../builder.js';
 import { ApiKey, ObjectionApiKey } from '../auth/auth.js';
-import { ObjectionTeamEdge } from './team.js';
 import { ObjectionUser, User } from './user.js';
 
 builder.queryFields((t) => ({
@@ -22,12 +21,7 @@ builder.queryFields((t) => ({
         authScopes: {
             loggedIn: true,
         },
-        args: {
-            teamId: t.arg.string({ required: true }),
-        },
-        async resolve(_root, args, ctx) {
-            await ObjectionTeamEdge.userHasRole(ctx.user.$id(), args.teamId, ['owner']);
-
+        async resolve(_root, _args, _ctx) {
             const users = await ObjectionUser.query().orderBy('userName');
             return users;
         },
