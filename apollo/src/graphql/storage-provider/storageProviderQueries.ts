@@ -5,6 +5,7 @@ import { StorageProviderObjectConnection } from '../storage-provider/storageProv
 import { ObjectionMLModelVersion } from '../model-version/modelVersion.js';
 import { ObjectionTeam, ObjectionTeamEdge } from '../user/team.js';
 import { ObjectionMLModel } from '../model/model.js';
+import { RegistryOperationError } from '../../utils/errors.js';
 
 builder.queryFields((t) => ({
     listStorageProviders: t.field({
@@ -13,7 +14,13 @@ builder.queryFields((t) => ({
             loggedIn: true,
         },
         async resolve(root, args, ctx) {
-            const storageProvider = await ObjectionStorageProvider.query().orderBy('dateCreated');
+            const userTeams = await ObjectionTeamEdge.query()
+                .where({ userId: ctx.user.$id() })
+                .select(['teamId']);
+
+            const storageProvider = await ObjectionStorageProvider.query()
+                .whereIn('projects.teamId', userTeams.map(edge => edge.teamId))
+                .orderBy('dateCreated');
             return storageProvider;
         },
     }),
@@ -26,9 +33,19 @@ builder.queryFields((t) => ({
             storageProviderId: t.arg.string({ required: true }),
         },
         async resolve(root, args, ctx) {
-            const storageProvider = (await ObjectionStorageProvider.query().findById(
-                args.storageProviderId,
-            )) as typeof StorageProvider.$inferType;
+            const storageProvider = await ObjectionStorageProvider.query()
+                .findById(args.storageProviderId);
+
+            if (storageProvider === undefined) {
+                throw new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' });
+            }
+
+            await ObjectionTeamEdge.userHasRole(
+                ctx.user.$id(),
+                storageProvider.teamId,
+                ['owner', 'member', 'viewer']
+            );
+
             return storageProvider;
         },
     }),
@@ -56,15 +73,14 @@ builder.queryFields((t) => ({
                 .for(modelVersion.modelId)
                 .first()) as ObjectionTeam;
 
-            await ObjectionTeamEdge.userHasRole(ctx.user.$id(), team.$id(), [
-                'owner',
-                'member',
-                'viewer',
-            ]);
+            await ObjectionTeamEdge.userHasRole(
+                ctx.user.$id(),
+                team.$id(),
+                ['owner', 'member','viewer',]
+            );
 
-            const modelStorageProvider = (await ObjectionMLModelVersion.relatedQuery(
-                'storageProvider',
-            )
+            const modelStorageProvider = (await ObjectionMLModelVersion
+                .relatedQuery('storageProvider')
                 .for(args.modelVersionId)
                 .first()) as ObjectionStorageProvider;
 
