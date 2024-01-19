@@ -28,7 +28,9 @@ builder.queryFields((t) => ({
         async resolve(_root, args, ctx) {
             await ObjectionTeamEdge.userHasRole(ctx.user.$id(), args.teamId, ['owner']);
 
-            const users = await ObjectionUser.query().orderBy('userName');
+            const users = await ObjectionUser.query()
+                .where('isApproved', '=', true)
+                .orderBy('userName');
             return users;
         },
     }),
