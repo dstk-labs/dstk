@@ -9,6 +9,7 @@ export * from './model-registry';
 export * from './model-version';
 export * from './model-version-details';
 export * from './register';
+export * from './team-details';
 export * from './teams';
 export * from './upload-files';
 export * from './user-settings';

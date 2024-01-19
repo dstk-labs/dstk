@@ -14,6 +14,7 @@ import {
     ModelVersion,
     ModelVersionDetails,
     Register,
+    TeamDetails,
     Teams,
     UploadFiles,
     UserSettings,
@@ -83,6 +84,10 @@ export const RouterProvider = () => {
                         {
                             path: '/teams/create',
                             element: <CreateTeam />,
+                        },
+                        {
+                            path: '/teams/:teamId',
+                            element: <TeamDetails />,
                         },
                         {
                             path: '/settings',

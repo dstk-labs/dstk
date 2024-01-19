@@ -13,3 +13,7 @@ export type User = {
 export type CreateAccount = {
     createAccount: User;
 };
+
+export type ListTeamMembers = {
+    listTeamMembers: User[];
+};

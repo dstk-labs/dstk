@@ -15,10 +15,13 @@ const LIST_TEAMS: TypedDocumentNode<TeamList> = gql`
     }
 `;
 
-export const useListTeams = () => {
+export const useListTeams = (teamId?: string) => {
     const { addNotification } = useNotificationStore();
 
     return useQuery(LIST_TEAMS, {
+        variables: {
+            teamId: teamId,
+        },
         onError: (error) =>
             addNotification({
                 type: 'error',

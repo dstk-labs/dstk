@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { BarLoader } from 'react-spinners';
 
-import { useListTeams } from './api';
+import { useListTeams } from '@/hooks';
+
 import { TeamCards, TeamsHeader } from './components';
 
 export const Teams = () => {
