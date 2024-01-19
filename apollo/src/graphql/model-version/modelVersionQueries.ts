@@ -3,7 +3,9 @@ import { builder } from '../../builder.js';
 import { MLModelVersionConnection } from './modelVersionConnection.js';
 import { ObjectionCursor } from '../metadata/cursor.js';
 import { Encoder } from '../../utils/encoder.js';
-import { CursorError } from '../../utils/errors.js';
+import { CursorError, RegistryOperationError } from '../../utils/errors.js';
+import { ObjectionMLModel } from '../model/model.js';
+import { ObjectionTeam, ObjectionTeamEdge } from '../user/team.js';
 
 const encoder = new Encoder();
 
@@ -48,6 +50,18 @@ builder.queryFields((t) => ({
                     throw new CursorError({ name: 'TOKEN_DOES_NOT_EXIST' });
                 }
             }
+
+            const parentModel = (await ObjectionMLModel.query()
+                .where('modelId', args.modelId)
+                .first()) as ObjectionMLModel;
+            const team = await ObjectionMLModel.relatedQuery('getTeam')
+                .for(parentModel.modelId)
+                .first() as ObjectionTeam;
+            await ObjectionTeamEdge.userHasRole(
+                _ctx.user.$id(),
+                team.$id(),
+                ['owner', 'member']
+            );
 
             const mlModelVersions = await query
                 .where('modelId', '=', args.modelId)
@@ -104,9 +118,22 @@ builder.queryFields((t) => ({
             modelVersionId: t.arg.string({ required: true }),
         },
         async resolve(_root, args, _ctx) {
-            const mlModelVersion = (await ObjectionMLModelVersion.query().findById(
-                args.modelVersionId,
-            )) as typeof MLModelVersion.$inferType;
+            const mlModelVersion = await ObjectionMLModelVersion.query()
+                .findById(args.modelVersionId);
+            if ( mlModelVersion === undefined) {
+                throw new RegistryOperationError({ name: 'TEAM_PERMISSION_ERROR'});
+            }
+            const parentModel = (await ObjectionMLModel.query()
+                .where('modelId', mlModelVersion.modelId)
+                .first()) as ObjectionMLModel;
+            const team = await ObjectionMLModel.relatedQuery('getTeam')
+                .for(parentModel.modelId)
+                .first() as ObjectionTeam;
+            await ObjectionTeamEdge.userHasRole(
+                _ctx.user.$id(),
+                team.$id(),
+                ['owner', 'member', 'viewer']
+            );
 
             return mlModelVersion;
         },
