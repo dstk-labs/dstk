@@ -1,5 +1,6 @@
 import { builder } from '../../builder.js';
 import { ApiKey, ObjectionApiKey } from '../auth/auth.js';
+import { ObjectionUser, User } from './user.js';
 
 builder.queryFields((t) => ({
     listApiKeys: t.field({
@@ -13,6 +14,16 @@ builder.queryFields((t) => ({
                 isArchived: false,
             });
             return apiKeys;
+        },
+    }),
+    listUsers: t.field({
+        type: [User],
+        authScopes: {
+            loggedIn: true,
+        },
+        async resolve(_root, _args, _ctx) {
+            const users = await ObjectionUser.query().orderBy('userName');
+            return users;
         },
     }),
 }));
