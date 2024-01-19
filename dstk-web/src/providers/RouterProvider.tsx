@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider as Router } from 'react-router-dom'
 import { PrivateRoute, PublicRoute } from '@/components/auth';
 import { DashboardLayout } from '@/components/layout';
 import {
+    AddTeamMember,
     APIKeys,
     CreateModel,
     CreateModelVersion,
@@ -88,6 +89,10 @@ export const RouterProvider = () => {
                         {
                             path: '/teams/:teamId',
                             element: <TeamDetails />,
+                        },
+                        {
+                            path: 'teams/:teamId/add-member',
+                            element: <AddTeamMember />,
                         },
                         {
                             path: '/settings',

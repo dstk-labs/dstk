@@ -10,6 +10,10 @@ export type User = {
     userName: string;
 };
 
+export type ListUsers = {
+    listUsers: User[];
+};
+
 export type CreateAccount = {
     createAccount: User;
 };

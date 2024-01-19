@@ -17,3 +17,7 @@ export type TeamList = {
 export type CreateTeam = {
     createTeam: Team;
 };
+
+export type AddToTeam = {
+    addToTeam: boolean;
+};
