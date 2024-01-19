@@ -8,7 +8,8 @@ type RegistryErrorName =
     | 'MISSING_PART_NUM_ERROR'
     | 'MULTIPART_FINALIZATION_ERROR'
     | 'TEAM_PERMISSION_ERROR'
-    | 'PROJECT_PERMISSION_ERROR';
+    | 'PROJECT_PERMISSION_ERROR'
+    | 'VERSION_PERMISSION_ERROR';
 
 const RegistryErrorMessages = {
     ARCHIVED_STORAGE_ERROR: 'New model versions cannot be added to an archived storage provider',
@@ -25,6 +26,8 @@ const RegistryErrorMessages = {
         "Either this team doesn't exist or you don't have permission to take that action",
     PROJECT_PERMISSION_ERROR:
         "Either this project doesn't exist or you don't have permission to take that action",
+    VERSION_PERMISSION_ERROR:
+        "Either this model version doesn't exist or you don't have permission to take that action",
 };
 
 export class RegistryOperationError extends Error {

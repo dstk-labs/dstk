@@ -79,6 +79,7 @@ builder.objectType(MLModel, {
 
 export class ObjectionMLModel extends Model {
     id!: number;
+    modelId!: string;
     storageProviderId!: string;
     currentModelVersionId!: string;
     projectId!: string;
