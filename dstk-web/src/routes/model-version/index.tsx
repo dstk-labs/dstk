@@ -1,142 +1,60 @@
-import { useState } from 'react';
-import { ClipboardIcon } from '@heroicons/react/24/outline';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { BarLoader } from 'react-spinners';
 
 import { useGetModel } from '@/hooks';
 
-import {
-    BreadcrumbItem,
-    Breadcrumbs,
-    Button,
-    Card,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeaderCell,
-    TableRow,
-    Tooltip,
-} from '@/components/ui';
-
 import { useListModelVersions } from './api';
+import {
+    ModelVersionHeader,
+    ModelVersionPagination,
+    ModelVersionTable,
+    NoModelVersionsFound,
+} from './components';
 
 export const ModelVersion = () => {
-    const { pathname } = useLocation();
+    const { modelId } = useParams();
     const navigate = useNavigate();
 
-    const modelId = pathname.split('/')[pathname.split('/').length - 1];
-
-    const { data: modelData, loading: modelLoading, error: modelError } = useGetModel(modelId);
+    const {
+        data: modelData,
+        loading: modelLoading,
+        error: modelError,
+    } = useGetModel(modelId || '');
     const {
         data: mlVersionData,
         loading: mlVersionLoading,
         error: mlVersionError,
-    } = useListModelVersions(modelId);
+    } = useListModelVersions(modelId || '');
 
-    const [isTooltipHidden, setIsTooltipHidden] = useState(true);
-    const [copiedVersionId, setCopiedVersionId] = useState('');
+    if (modelLoading || mlVersionLoading) {
+        return <BarLoader color='#2563eb' width='250px' />;
+    }
 
-    const handleCopy = (modelVersion: string) => {
-        if (isTooltipHidden) {
-            setIsTooltipHidden(false);
-            setCopiedVersionId(modelVersion);
+    if (modelError || mlVersionError) {
+        return <NoModelVersionsFound />;
+    }
 
-            navigator.clipboard.writeText(modelVersion);
-
-            setTimeout(() => {
-                setIsTooltipHidden(true);
-                setCopiedVersionId('');
-            }, 750);
-        }
-    };
-
-    const modelName = modelData && modelData.getMLModel && modelData.getMLModel.modelName;
-
-    if (modelLoading || mlVersionLoading) return <BarLoader color='#4f46e5' width='250' />;
-
-    // TODO: Better UX
-    if (modelError) return <p>Error! {modelError.message}</p>;
-
-    if (mlVersionError) return <p>Error! {mlVersionError.message}</p>;
-
-    return (
-        <div className='w-full flex flex-col gap-12'>
-            {/* Page Header */}
-            <header className='flex flex-col gap-4'>
-                <div>
-                    <Breadcrumbs>
-                        <BreadcrumbItem href='/dashboard/home'>Dashboard</BreadcrumbItem>
-                        <BreadcrumbItem href='/dashboard/models'>Models</BreadcrumbItem>
-                        <BreadcrumbItem href={`/dashboard/models/${modelId}`}>
-                            {modelName}
-                        </BreadcrumbItem>
-                    </Breadcrumbs>
+    if (
+        modelData &&
+        modelData.getMLModel &&
+        mlVersionData &&
+        mlVersionData.listMLModelVersions &&
+        mlVersionData.listMLModelVersions.pageInfo
+    ) {
+        return (
+            <div className='w-full flex flex-col gap-12'>
+                <ModelVersionHeader mlModel={modelData.getMLModel} navigateFn={navigate} />
+                <div className='flex flex-col gap-6'>
+                    <ModelVersionTable mlModelVersions={mlVersionData} navigateFn={navigate} />
+                    <ModelVersionPagination
+                        continuationToken={
+                            mlVersionData.listMLModelVersions.pageInfo.continuationToken
+                        }
+                    />
                 </div>
-                <div className='flex items-center justify-between gap-0'>
-                    <h2 className='text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight'>
-                        {modelName}
-                    </h2>
-                    <Button
-                        onClick={() => navigate(`/dashboard/models/${modelId}/create`)}
-                        size='lg'
-                    >
-                        Create New Version
-                    </Button>
-                </div>
-            </header>
-            <Card>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableHeaderCell>Version ID</TableHeaderCell>
-                            <TableHeaderCell>Version</TableHeaderCell>
-                            <TableHeaderCell>Created By</TableHeaderCell>
-                            <TableHeaderCell>Last Modified</TableHeaderCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {mlVersionData &&
-                            mlVersionData.listMLModelVersions &&
-                            mlVersionData.listMLModelVersions.map((mlVersion) => (
-                                <TableRow
-                                    className='hover:bg-gray-50 hover:cursor-pointer'
-                                    onClick={() =>
-                                        navigate(
-                                            `/dashboard/models/${modelId}/${mlVersion.modelVersionId}`,
-                                        )
-                                    }
-                                    key={mlVersion.modelVersionId}
-                                >
-                                    <TableCell>
-                                        <Tooltip
-                                            isVisible={
-                                                !isTooltipHidden &&
-                                                mlVersion.modelVersionId === copiedVersionId
-                                            }
-                                            message='Copied!'
-                                        >
-                                            <div className='flex items-center gap-1 hover:text-gray-800'>
-                                                <div>
-                                                    {mlVersion.modelVersionId.substring(0, 8)}...
-                                                </div>
-                                                <ClipboardIcon
-                                                    className='h-3 w-3 shrink-0 hover:text-gray-800 hover:cursor-pointer'
-                                                    onClick={() =>
-                                                        handleCopy(mlVersion.modelVersionId)
-                                                    }
-                                                />
-                                            </div>
-                                        </Tooltip>
-                                    </TableCell>
-                                    <TableCell>{mlVersion.numericVersion}</TableCell>
-                                    <TableCell>{mlVersion.createdBy.userName}</TableCell>
-                                    <TableCell>{mlVersion.dateCreated}</TableCell>
-                                </TableRow>
-                            ))}
-                    </TableBody>
-                </Table>
-            </Card>
-        </div>
-    );
+            </div>
+        );
+    } else {
+        return null;
+    }
 };

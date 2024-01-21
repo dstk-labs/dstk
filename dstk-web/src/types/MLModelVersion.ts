@@ -1,5 +1,6 @@
-import { MLModel } from './MLModel';
-import { User } from './User';
+import type { Edge, PageInfo } from './Cursor';
+import type { MLModel } from './MLModel';
+import type { User } from './User';
 
 export type MLModelVersion = {
     modelVersionId: string;
@@ -19,7 +20,10 @@ export type GetMLModelVersion = {
 };
 
 export type MLModelVersionList = {
-    listMLModelVersions: MLModelVersion[];
+    listMLModelVersions: {
+        edges: Edge<MLModelVersion>[];
+        pageInfo: PageInfo;
+    };
 };
 
 export type CreateMLModelVersion = {
