@@ -1,10 +1,9 @@
 import { useParams } from 'react-router-dom';
 import { BarLoader } from 'react-spinners';
 
-import { useListTeams } from '@/hooks';
+import { useListTeamMembers, useListTeams } from '@/hooks';
 
 import { TeamDetailsHeader, TeamDetailsTable } from './components';
-import { useListTeamMembers } from './api';
 
 export const TeamDetails = () => {
     const { teamId } = useParams();

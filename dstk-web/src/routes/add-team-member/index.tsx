@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { BarLoader } from 'react-spinners';
 
-import { useListTeams } from '@/hooks';
+import { useListTeamMembers, useListTeams } from '@/hooks';
 
 import { AddTeamMemberForm, AddTeamMemberHeader } from './components';
 import { useListUsers } from './api';
@@ -9,22 +9,37 @@ import { useListUsers } from './api';
 export const AddTeamMember = () => {
     const { teamId } = useParams();
 
-    const { data: teamsData, loading: teamsLoading, error: teamsError } = useListTeams(teamId);
-    const { data: usersData, loading: usersLoading, error: usersError } = useListUsers();
+    const { data: team, loading: teamLoading, error: teamError } = useListTeams(teamId);
+    const {
+        data: currentTeamMembers,
+        loading: currentTeamMembersLoading,
+        error: currentTeamMembersError,
+    } = useListTeamMembers(teamId || '');
+    const { data: user, loading: userLoading, error: userError } = useListUsers();
 
-    if (teamsError || usersError) {
+    if (currentTeamMembersError || teamError || userError) {
         return <p>Error loading team information.</p>;
     }
 
-    if (teamsLoading || usersLoading) {
+    if (currentTeamMembersLoading || teamLoading || userLoading) {
         return <BarLoader color='#2563eb' width='250px' />;
     }
 
-    if (teamsData && teamsData.listTeams && usersData && usersData.listUsers) {
+    if (
+        currentTeamMembers &&
+        currentTeamMembers.listTeamMembers &&
+        team &&
+        team.listTeams &&
+        user &&
+        user.listUsers
+    ) {
         return (
             <div className='w-full flex flex-col gap-8'>
-                <AddTeamMemberHeader team={teamsData.listTeams[0]} />
-                <AddTeamMemberForm users={usersData.listUsers} />
+                <AddTeamMemberHeader team={team.listTeams[0]} />
+                <AddTeamMemberForm
+                    currentTeamMembers={currentTeamMembers.listTeamMembers}
+                    users={user.listUsers}
+                />
             </div>
         );
     } else {
