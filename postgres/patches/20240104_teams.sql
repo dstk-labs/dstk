@@ -17,11 +17,13 @@ CREATE TABLE dstk_metadata.edge_relations (
     type VARCHAR(12) NOT NULL
 );
 
+BEGIN;
 INSERT INTO dstk_metadata.edge_relations (type)
 VALUES
     ('owner'),
     ('member'),
     ('viewer');
+COMMIT;
 
 CREATE TABLE dstk_user.team_edges (
     id        BIGSERIAL   NOT NULL PRIMARY KEY,
