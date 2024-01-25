@@ -20,6 +20,8 @@ import {
     UploadFiles,
     UserSettings,
 } from '@/routes';
+import type { MLModelVersion } from '@/types/MLModelVersion';
+import type { Team } from '@/types/Team';
 
 export const RouterProvider = () => {
     const router = createBrowserRouter([
@@ -45,6 +47,9 @@ export const RouterProvider = () => {
             children: [
                 {
                     element: <DashboardLayout />,
+                    handle: {
+                        crumb: () => 'Home',
+                    },
                     children: [
                         {
                             path: '/dashboard/home',
@@ -52,55 +57,128 @@ export const RouterProvider = () => {
                         },
                         {
                             path: '/dashboard/models',
-                            element: <ModelRegistry />,
+                            handle: {
+                                crumb: () => 'Models',
+                            },
+                            children: [
+                                {
+                                    element: <ModelRegistry />,
+                                    index: true,
+                                },
+                                {
+                                    path: '/dashboard/models/create',
+                                    element: <CreateModel />,
+                                    handle: {
+                                        crumb: () => 'Create',
+                                    },
+                                },
+                                {
+                                    path: '/dashboard/models/:modelId',
+                                    handle: {
+                                        crumb: (data?: MLModelVersion) =>
+                                            (data && data.modelId.modelId) || 'Async is fun',
+                                    },
+                                    children: [
+                                        {
+                                            element: <ModelVersion />,
+                                            index: true,
+                                        },
+                                        {
+                                            path: '/dashboard/models/:modelId/edit',
+                                            element: <EditModel />,
+                                            handle: {
+                                                crumb: () => 'Edit',
+                                            },
+                                        },
+                                        {
+                                            path: '/dashboard/models/:modelId/create',
+                                            element: <CreateModelVersion />,
+                                            handle: {
+                                                crumb: () => 'Create',
+                                            },
+                                        },
+                                        {
+                                            path: '/dashboard/models/:modelId/:versionId',
+                                            handle: {
+                                                crumb: (data?: MLModelVersion) =>
+                                                    (data && `v${data.numericVersion}`) ||
+                                                    'Async is super duper fun',
+                                            },
+                                            children: [
+                                                {
+                                                    element: <ModelVersionDetails />,
+                                                    index: true,
+                                                },
+                                                {
+                                                    path: '/dashboard/models/:modelId/:versionId/upload',
+                                                    element: <UploadFiles />,
+                                                    handle: {
+                                                        crumb: () => 'Upload Files',
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            ],
                         },
                         {
-                            path: '/dashboard/models/create',
-                            element: <CreateModel />,
+                            path: 'dashboard/teams',
+                            handle: {
+                                crumb: () => 'Teams',
+                            },
+                            children: [
+                                {
+                                    element: <Teams />,
+                                    index: true,
+                                },
+                                {
+                                    path: 'dashboard/teams/create',
+                                    element: <CreateTeam />,
+                                    handle: {
+                                        crumb: () => 'Create',
+                                    },
+                                },
+                                {
+                                    path: 'dashboard/teams/:teamId',
+                                    handle: {
+                                        crumb: (data?: Team) =>
+                                            (data && data.name) || 'BILLIE JEAN',
+                                    },
+                                    children: [
+                                        {
+                                            element: <TeamDetails />,
+                                            index: true,
+                                        },
+                                        {
+                                            path: 'dashboard/teams/:teamId/add-member',
+                                            element: <AddTeamMember />,
+                                            handle: {
+                                                crumb: () => 'Add Team Member',
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
                         },
                         {
-                            path: '/dashboard/models/:modelId',
-                            element: <ModelVersion />,
-                        },
-                        {
-                            path: '/dashboard/models/:modelId/edit',
-                            element: <EditModel />,
-                        },
-                        {
-                            path: '/dashboard/models/:modelId/create',
-                            element: <CreateModelVersion />,
-                        },
-                        {
-                            path: '/dashboard/models/:modelId/:versionId',
-                            element: <ModelVersionDetails />,
-                        },
-                        {
-                            path: '/dashboard/models/:modelId/:versionId/upload',
-                            element: <UploadFiles />,
-                        },
-                        {
-                            path: '/teams',
-                            element: <Teams />,
-                        },
-                        {
-                            path: '/teams/create',
-                            element: <CreateTeam />,
-                        },
-                        {
-                            path: '/teams/:teamId',
-                            element: <TeamDetails />,
-                        },
-                        {
-                            path: 'teams/:teamId/add-member',
-                            element: <AddTeamMember />,
-                        },
-                        {
-                            path: '/settings',
-                            element: <UserSettings />,
-                        },
-                        {
-                            path: '/settings/api-keys',
-                            element: <APIKeys />,
+                            path: 'dashboard/settings',
+                            handle: {
+                                crumb: () => 'Settings',
+                            },
+                            children: [
+                                {
+                                    element: <UserSettings />,
+                                    index: true,
+                                },
+                                {
+                                    path: 'dashboard/settings/api-keys',
+                                    element: <APIKeys />,
+                                    handle: {
+                                        crumb: () => 'API Keys',
+                                    },
+                                },
+                            ],
                         },
                     ],
                 },

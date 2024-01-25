@@ -1,7 +1,14 @@
 import { Cog6ToothIcon, HomeIcon, SquaresPlusIcon, UsersIcon } from '@heroicons/react/24/outline';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useMatches, type UIMatch } from 'react-router-dom';
 
-import { Sidebar, SidebarContent, SidebarLink, SidebarSection } from '../ui';
+import {
+    BreadcrumbItem,
+    Breadcrumbs,
+    Sidebar,
+    SidebarContent,
+    SidebarLink,
+    SidebarSection,
+} from '../ui';
 
 const navigation = [
     {
@@ -42,6 +49,16 @@ const navigation = [
 ];
 
 export const DashboardLayout = () => {
+    // Am I a frontend engineer yet?
+    const matches = useMatches() as UIMatch<unknown, { crumb: (data?: unknown) => string }>[];
+
+    const crumbs = matches
+        .filter((match) => Boolean(match.handle))
+        .map((match) => ({
+            href: match.pathname,
+            label: match.handle.crumb(),
+        }));
+
     return (
         <div className='flex min-h-screen'>
             <Sidebar>
@@ -60,9 +77,20 @@ export const DashboardLayout = () => {
                     ))}
                 </SidebarContent>
             </Sidebar>
-            <main className='flex-grow px-5 py-9 bg-gray-100 md:py-8'>
-                <Outlet />
-            </main>
+            <section className='flex grow flex-col'>
+                <div className='w-full'>
+                    <Breadcrumbs>
+                        {crumbs.map((crumb) => (
+                            <BreadcrumbItem href={crumb.href} key={crumb.href}>
+                                {crumb.label}
+                            </BreadcrumbItem>
+                        ))}
+                    </Breadcrumbs>
+                </div>
+                <main className='flex-grow px-5 py-9 bg-gray-100 md:py-8'>
+                    <Outlet />
+                </main>
+            </section>
         </div>
     );
 };
