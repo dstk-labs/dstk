@@ -4,14 +4,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { BarLoader } from 'react-spinners';
 import { z } from 'zod';
 
-import { useNotificationStore } from '@/stores';
-
 import { useGetModel } from '@/hooks';
 
 import { BreadcrumbItem, Breadcrumbs, Button, TextArea } from '@/components/ui';
 
 import { useCreateModelVersion } from './api/createModelVersion';
-import { ErrorNotification } from './components';
 
 const createModelInputSchema = z.object({
     description: z.string().optional(),
@@ -21,7 +18,6 @@ type CreateModelInput = z.infer<typeof createModelInputSchema>;
 
 export const CreateModelVersion = () => {
     const [createModelVersion, { loading: createModelLoading }] = useCreateModelVersion();
-    const { addNotification } = useNotificationStore();
 
     const navigate = useNavigate();
 
@@ -49,13 +45,6 @@ export const CreateModelVersion = () => {
                 const modelVersionId = data.createModelVersion.modelVersionId;
 
                 navigate(`/dashboard/models/${modelId}/${modelVersionId}`);
-            },
-            onError: (error) => {
-                addNotification({
-                    type: 'error',
-                    title: 'Error',
-                    children: <ErrorNotification message={error.message} />,
-                });
             },
         });
     };

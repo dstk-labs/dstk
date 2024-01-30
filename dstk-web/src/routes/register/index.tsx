@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { useLogin } from '@/hooks';
@@ -5,7 +6,6 @@ import { Form, InputField } from '@/components/form';
 import { Button } from '@/components/ui';
 
 import { useCreateAccount } from './api/createAccount';
-import { useNotificationStore } from '@/stores';
 
 const createAccountSchema = z.object({
     email: z.string().email().min(1, 'Email is required'),
@@ -19,8 +19,6 @@ type CreateAccountInput = z.infer<typeof createAccountSchema>;
 export const Register = () => {
     const [createAccount, { loading: createAccountLoading }] = useCreateAccount();
     const [login, { loading: loginLoading }] = useLogin();
-
-    const { addNotification } = useNotificationStore();
 
     const onSubmit = (data: CreateAccountInput) => {
         createAccount({
@@ -41,10 +39,8 @@ export const Register = () => {
                         },
                     },
                 });
-                addNotification({
-                    type: 'success',
-                    title: 'Successfully created account!',
-                    children: 'A verification code has been sent to your email.',
+                toast.success('Successfully created account!', {
+                    description: 'A verification code has been sent to your email.',
                 });
             },
         });

@@ -2,7 +2,6 @@ import { gql, useQuery, type TypedDocumentNode } from '@apollo/client';
 import { useAtom } from 'jotai';
 
 import type { StorageProviderObjectList } from '@/types/StorageProvider';
-import { useNotificationStore } from '@/stores';
 
 import { listObjectsPaginationAtom } from '../atoms';
 
@@ -37,7 +36,6 @@ const LIST_OBJECTS_FOR_MODEL_VERSION: TypedDocumentNode<StorageProviderObjectLis
 `;
 
 export const useListStorageProviderObjects = (modelVersionId: string) => {
-    const { addNotification } = useNotificationStore();
     const [inputs, setInputs] = useAtom(listObjectsPaginationAtom);
 
     return useQuery(LIST_OBJECTS_FOR_MODEL_VERSION, {
@@ -53,11 +51,5 @@ export const useListStorageProviderObjects = (modelVersionId: string) => {
                 hasPreviousPage: data.listObjectsForModelVersion.pageInfo.hasPreviousPage,
                 hasNextPage: data.listObjectsForModelVersion.pageInfo.hasNextPage,
             })),
-        onError: (error) =>
-            addNotification({
-                type: 'error',
-                title: 'Error',
-                children: error.message,
-            }),
     });
 };

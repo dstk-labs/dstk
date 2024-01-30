@@ -1,7 +1,6 @@
 import { gql, useQuery, type TypedDocumentNode } from '@apollo/client';
 import { useAtom } from 'jotai';
 
-import { useNotificationStore } from '@/stores';
 import type { MLModelVersionList } from '@/types/MLModelVersion';
 
 import { modelVersionPaginationAtom } from '../atoms';
@@ -34,7 +33,6 @@ const LIST_MODEL_VERSIONS: TypedDocumentNode<MLModelVersionList> = gql`
 
 export const useListModelVersions = (modelId: string) => {
     const [inputs, setInputs] = useAtom(modelVersionPaginationAtom);
-    const { addNotification } = useNotificationStore();
 
     return useQuery(LIST_MODEL_VERSIONS, {
         variables: {
@@ -49,11 +47,5 @@ export const useListModelVersions = (modelId: string) => {
                 hasNextPage: data.listMLModelVersions.pageInfo.hasNextPage,
             }));
         },
-        onError: (error) =>
-            addNotification({
-                type: 'error',
-                title: 'Error',
-                children: error.message,
-            }),
     });
 };

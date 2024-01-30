@@ -1,6 +1,5 @@
 import { gql, useQuery, type TypedDocumentNode } from '@apollo/client';
 
-import { useNotificationStore } from '@/stores';
 import type { GetMLModelVersion } from '@/types/MLModelVersion';
 
 const GET_MODEL_VERSION: TypedDocumentNode<GetMLModelVersion> = gql`
@@ -22,17 +21,9 @@ const GET_MODEL_VERSION: TypedDocumentNode<GetMLModelVersion> = gql`
 `;
 
 export const useGetMLModelVersion = (modelVersionId: string) => {
-    const { addNotification } = useNotificationStore();
-
     return useQuery(GET_MODEL_VERSION, {
         variables: {
             modelVersionId: modelVersionId,
         },
-        onError: (error) =>
-            addNotification({
-                type: 'error',
-                title: 'Error',
-                children: error.message,
-            }),
     });
 };

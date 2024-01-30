@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { useNotificationStore } from '@/stores';
 import { Form, SelectField } from '@/components/form';
 import { Button } from '@/components/ui';
 import { ROLES } from '@/constants/roles';
@@ -26,8 +26,6 @@ export const AddTeamMemberForm = ({ currentTeamMembers, users }: AddTeamMemberFo
     const navigate = useNavigate();
     const { teamId } = useParams();
 
-    const { addNotification } = useNotificationStore();
-
     const [addTeamMember, { loading }] = useAddTeamMember();
 
     const onSubmit = (data: AddTeamMemberInput) => {
@@ -41,10 +39,7 @@ export const AddTeamMemberForm = ({ currentTeamMembers, users }: AddTeamMemberFo
             },
             onCompleted: () => {
                 navigate(`/teams/${teamId}`);
-                addNotification({
-                    type: 'success',
-                    title: 'Successfully added user',
-                });
+                toast.success('Successfully added user');
             },
         });
     };

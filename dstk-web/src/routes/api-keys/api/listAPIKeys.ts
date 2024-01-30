@@ -1,6 +1,5 @@
 import { gql, useQuery, type TypedDocumentNode } from '@apollo/client';
 
-import { useNotificationStore } from '@/stores';
 import type { APIKeyList } from '@/types/APIKey';
 
 const LIST_API_KEYS: TypedDocumentNode<APIKeyList> = gql`
@@ -14,15 +13,4 @@ const LIST_API_KEYS: TypedDocumentNode<APIKeyList> = gql`
     }
 `;
 
-export const useListAPIKeys = () => {
-    const { addNotification } = useNotificationStore();
-
-    return useQuery(LIST_API_KEYS, {
-        onError: (error) =>
-            addNotification({
-                type: 'error',
-                title: 'Error',
-                children: error.message,
-            }),
-    });
-};
+export const useListAPIKeys = () => useQuery(LIST_API_KEYS);

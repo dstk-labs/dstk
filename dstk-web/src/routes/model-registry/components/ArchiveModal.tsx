@@ -1,6 +1,5 @@
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
-import { useNotificationStore } from '@/stores';
 import {
     Button,
     Modal,
@@ -23,8 +22,6 @@ export type ArchiveModalProps = {
 };
 
 export const ArchiveModal = ({ isOpen, onClose, model }: ArchiveModalProps) => {
-    const { addNotification } = useNotificationStore();
-
     const [archiveModel, { loading }] = useArchiveModel();
 
     const handleArchive = () => {
@@ -33,12 +30,6 @@ export const ArchiveModal = ({ isOpen, onClose, model }: ArchiveModalProps) => {
                 modelId: model.modelId,
             },
             onCompleted: onClose,
-            onError: (error) =>
-                addNotification({
-                    type: 'error',
-                    title: 'Error',
-                    children: error.message,
-                }),
         });
     };
 
