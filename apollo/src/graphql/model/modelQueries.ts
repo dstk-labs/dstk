@@ -5,6 +5,7 @@ import { ObjectionCursor } from '../metadata/cursor.js';
 import { CursorError } from '../../utils/errors.js';
 import { Encoder } from '../../utils/encoder.js';
 import { ObjectionTeamEdge } from '../user/team.js';
+import { raw } from 'objection';
 
 const encoder = new Encoder();
 
@@ -32,7 +33,10 @@ builder.queryFields((t) => ({
             const nowPlusFiveMins = new Date(Date.now() + 5 * 60 * 1000).toISOString();
             const query = ObjectionMLModel.query()
                 .withGraphJoined('projects')
-                .whereIn('projects.teamId', userTeams.map(edge => edge.teamId));
+                .whereIn(
+                    'projects.teamId',
+                    userTeams.map((edge) => edge.teamId),
+                );
 
             if (args.modelName) {
                 query.where('modelName', 'ILIKE', `%${args.modelName}%`);
@@ -54,8 +58,13 @@ builder.queryFields((t) => ({
                     const [id, dateCreated] = encoder.decode(cursor.cursorToken);
 
                     query
-                        .where('dateCreated', '>=', new Date(dateCreated).toISOString())
-                        .andWhere('id', '>', id);
+                        .where(
+                            raw(
+                                'registry.models.date_created >= ?',
+                                new Date(dateCreated).toISOString(),
+                            ),
+                        )
+                        .andWhere(raw('registry.models.id > ?', id));
                 } else {
                     throw new CursorError({ name: 'TOKEN_DOES_NOT_EXIST' });
                 }
@@ -123,7 +132,10 @@ builder.queryFields((t) => ({
             const mlModel = await ObjectionMLModel.query()
                 .findById(args.modelId)
                 .withGraphJoined('projects')
-                .whereIn('projects.teamId', userTeams.map(edge => edge.teamId));
+                .whereIn(
+                    'projects.teamId',
+                    userTeams.map((edge) => edge.teamId),
+                );
             return mlModel;
         },
     }),
