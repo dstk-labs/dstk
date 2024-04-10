@@ -1,67 +1,133 @@
-import { createElement } from 'react';
+import React, { forwardRef } from 'react';
+import { Slot } from '@radix-ui/react-slot';
+import { RiLoader2Fill } from '@remixicon/react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/cn';
-import { MoonLoader } from 'react-spinners';
 
-const buttonVariants = cva(
-    'inline-flex items-center justify-center gap-3 font-medium shadow-sm border disabled:cursor-not-allowed',
+import { cn } from '@/lib';
+
+export const buttonVariants = cva(
+    cn(
+        // base
+        'relative inline-flex items-center justify-center border text-center font-medium shadow-sm transition-all duration-100 ease-in-out',
+        // disabled
+        'disabled:pointer-events-none disabled:shadow-none',
+        // focus
+        'outline outline-blue-500 outline-offset-2 outline-0 focus-visible:outline-2',
+    ),
     {
         variants: {
             variant: {
-                primary:
-                    'border-blue-600 bg-blue-600 text-white hover:border-blue-500 hover:bg-blue-500 focus:ring focus:ring-blue-200 disabled:border-blue-300 disabled:bg-blue-300',
-                secondary:
-                    'border-gray-300 bg-white text-gray-700 hover:bg-gray-100 focus:ring focus:ring-gray-100 disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-400',
-                ghost: 'border-transparent bg-transparent text-gray-700 shadow-none hover:bg-gray-100 disabled:bg-transparent disabled:text-gray-400',
-                destructive:
-                    'border-red-600 bg-red-600 text-white hover:border-red-500 hover:bg-red-500 focus:ring focus:ring-red-200 disabled:border-red-300 disabled:bg-red-300',
+                primary: cn(
+                    // border
+                    'border-transparent',
+                    // text color
+                    'text-white dark:text-gray-900',
+                    // background color
+                    'bg-gray-900 dark:bg-gray-50',
+                    // hover color
+                    'hover:bg-gray-800 dark:hover:bg-gray-200',
+                    // disabled
+                    'disabled:bg-gray-100 disabled:text-gray-400',
+                    'disabled:dark:bg-gray-800 disabled:dark:text-gray-600',
+                ),
+                secondary: cn(
+                    // border
+                    'border-gray-300 dark:border-gray-800',
+                    // text color
+                    'text-gray-900 dark:text-gray-50',
+                    // background color
+                    ' bg-white dark:bg-gray-950',
+                    //hover color
+                    'hover:bg-gray-50 dark:hover:bg-gray-900/60',
+                    // disabled
+                    'disabled:text-gray-400',
+                    'disabled:dark:text-gray-600',
+                ),
+                light: cn(
+                    // base
+                    'shadow-none',
+                    // border
+                    'border-transparent',
+                    // text color
+                    'text-gray-900 dark:text-gray-50',
+                    // background color
+                    'bg-gray-200 dark:bg-gray-900',
+                    // hover color
+                    'hover:bg-gray-300/70 dark:hover:bg-gray-800/80',
+                    // disabled
+                    'disabled:bg-gray-100 disabled:text-gray-400',
+                    'disabled:dark:bg-gray-800 disabled:dark:text-gray-600',
+                ),
+                destructive: cn(
+                    // text color
+                    'text-white',
+                    // border
+                    'border-transparent',
+                    // background color
+                    'bg-red-600 dark:bg-red-700',
+                    // hover color
+                    'hover:bg-red-700 dark:hover:bg-red-600',
+                    // disabled
+                    'disabled:bg-red-300 disabled:text-white',
+                    'disabled:dark:bg-red-950 disabled:dark:text-red-400',
+                ),
             },
             size: {
-                xs: 'px-3 py-1 text-xs',
-                sm: 'px-4 py-1.5 text-sm',
-                md: 'px-5 py-2 text-sm',
-                lg: 'px-6 py-2.5 text-base',
-                xl: 'px-8 py-3 text-lg',
-            },
-            radius: {
-                none: 'rounded-none',
-                half: 'rounded-lg',
-                full: 'rounded-full',
+                xs: 'rounded px-2 py-1 text-xs',
+                sm: 'rounded px-2 py-1 text-sm',
+                md: 'rounded-md px-3 py-1.5 text-sm',
+                lg: 'rounded-md px-3 py-2 text-sm',
+                xl: 'rounded-md px-3.5 py-2.5 text-sm',
             },
         },
         defaultVariants: {
             variant: 'primary',
             size: 'md',
-            radius: 'half',
         },
     },
 );
 
-export type ButtonProps = {
-    children?: React.ReactNode;
-} & React.ButtonHTMLAttributes<HTMLButtonElement> &
-    VariantProps<typeof buttonVariants> &
-    /* Discriminated union for loading state
-       If loading, then button is disabled and icon is removed. */
-    (| { loading?: true; icon?: undefined; disabled?: true }
-        | { icon?: React.ElementType; loading?: false; disabled?: boolean }
-    );
+export type ButtonProps = React.ComponentPropsWithoutRef<'button'> &
+    VariantProps<typeof buttonVariants> & {
+        asChild?: boolean;
+        isLoading?: boolean;
+    };
 
-export const Button = ({
-    children,
-    className,
-    icon,
-    loading = false,
-    radius,
-    size,
-    variant,
-    ...props
-}: ButtonProps) => {
-    return (
-        <button className={cn(buttonVariants({ radius, size, variant, className }))} {...props}>
-            {icon && <div className='h-5 w-5'>{createElement(icon)}</div>}
-            <MoonLoader color='white' loading={loading} size='12.5px' />
-            {children}
-        </button>
-    );
-};
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+    (
+        {
+            asChild,
+            children,
+            className,
+            disabled,
+            isLoading = false,
+            size,
+            variant,
+            ...props
+        }: ButtonProps,
+        forwardedRef,
+    ) => {
+        const Component = asChild ? Slot : 'button';
+        return (
+            <Component
+                ref={forwardedRef}
+                className={cn(buttonVariants({ size, variant }), className)}
+                disabled={disabled || isLoading}
+                {...props}
+            >
+                {isLoading ? (
+                    <span className='pointer-events-none flex shrink-0 items-center justify-center gap-1.5'>
+                        <RiLoader2Fill
+                            className='size-4 shrink-0 animate-spin'
+                            aria-hidden='true'
+                        />
+                        {children}
+                    </span>
+                ) : (
+                    children
+                )}
+            </Component>
+        );
+    },
+);
+Button.displayName = 'Button';
