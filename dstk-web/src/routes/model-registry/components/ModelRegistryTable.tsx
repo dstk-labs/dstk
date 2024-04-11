@@ -7,8 +7,8 @@ import {
     Card,
     Divider,
     Dropdown,
+    DropdownGroup,
     DropdownItem,
-    DropdownItems,
     Table,
     TableBody,
     TableCell,
@@ -99,7 +99,7 @@ export const ModelRegistryTable = ({ data, navigateFn }: ModelRegistryTableProps
                                         />
                                     }
                                 >
-                                    <DropdownItems>
+                                    <DropdownGroup>
                                         <DropdownItem onClick={(e) => handleEdit(e, model)}>
                                             Edit
                                         </DropdownItem>
@@ -110,7 +110,7 @@ export const ModelRegistryTable = ({ data, navigateFn }: ModelRegistryTableProps
                                         <DropdownItem className='text-blue-600 font-medium'>
                                             Publish
                                         </DropdownItem>
-                                    </DropdownItems>
+                                    </DropdownGroup>
                                 </Dropdown>
                             </TableCell>
                         </TableRow>

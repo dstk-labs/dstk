@@ -1,15 +1,7 @@
-import { Menu } from '@headlessui/react';
+import { Root } from '@radix-ui/react-dropdown-menu';
 
-export type DropdownProps = {
-    children: React.ReactNode;
-    menuButton: React.ReactElement;
-};
+export type DropdownProps = React.ComponentPropsWithoutRef<typeof Root>;
 
-export const Dropdown = ({ children, menuButton }: DropdownProps) => {
-    return (
-        <Menu as='div'>
-            <Menu.Button onClick={(e) => e.stopPropagation()}>{menuButton}</Menu.Button>
-            {children}
-        </Menu>
-    );
+export const Dropdown = ({ children, ...props }: DropdownProps) => {
+    return <Root {...props}>{children}</Root>;
 };
