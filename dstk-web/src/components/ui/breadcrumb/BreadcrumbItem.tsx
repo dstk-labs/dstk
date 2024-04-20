@@ -1,20 +1,16 @@
-import { ChevronRightIcon } from '@heroicons/react/24/outline';
+import { forwardRef } from 'react';
 
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib';
 
-export type BreadcrumbItemProps = {
-    children: React.ReactNode;
-    href: string;
-} & React.LiHTMLAttributes<HTMLLIElement>;
+export type BreadcrumbItemProps = React.ComponentPropsWithoutRef<'li'>;
 
-export const BreadcrumbItem = ({ children, className, href, ...props }: BreadcrumbItemProps) => {
-    return (
-        <li className={cn('group flex items-center gap-4', className)} {...props}>
-            {/* Yeah I CSS like that */}
-            <ChevronRightIcon className='group-first:hidden h-4 w-4 flex-shrink-0 text-gray-400' />
-            <a className='text-sm font-medium text-gray-500 hover:text-gray-700' href={href}>
+export const BreadcrumbItem = forwardRef<HTMLLIElement, BreadcrumbItemProps>(
+    ({ children, className, ...props }, ref) => {
+        return (
+            <li className={cn('inline-flex items-center gap-1.5', className)} ref={ref} {...props}>
                 {children}
-            </a>
-        </li>
-    );
-};
+            </li>
+        );
+    },
+);
+BreadcrumbItem.displayName = 'BreadcrumbItem';

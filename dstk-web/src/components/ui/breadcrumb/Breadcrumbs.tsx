@@ -1,15 +1,14 @@
-import { cn } from '@/lib/cn';
+import { forwardRef } from 'react';
 
-export type BreadcrumbsProps = {
-    children: React.ReactNode;
-} & React.OlHTMLAttributes<HTMLOListElement>;
+export type BreadcrumbsProps = React.ComponentPropsWithoutRef<'nav'>;
 
-export const Breadcrumbs = ({ children, className, ...props }: BreadcrumbsProps) => {
-    return (
-        <nav>
-            <ol className={cn('flex items-center gap-4', className)} {...props}>
+export const Breadcrumbs = forwardRef<HTMLElement, BreadcrumbsProps>(
+    ({ children, ...props }, ref) => {
+        return (
+            <nav ref={ref} {...props}>
                 {children}
-            </ol>
-        </nav>
-    );
-};
+            </nav>
+        );
+    },
+);
+Breadcrumbs.displayName = 'Breadcrumbs';
