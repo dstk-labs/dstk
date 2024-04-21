@@ -11,8 +11,6 @@ export const buttonVariants = cva(
         'relative inline-flex items-center justify-center border text-center font-medium shadow-sm transition-all duration-100 ease-in-out',
         // disabled
         'disabled:pointer-events-none disabled:shadow-none',
-        // focus
-        'outline outline-blue-500 outline-offset-2 outline-0 focus-visible:outline-2',
     ),
     {
         variants: {
@@ -70,6 +68,19 @@ export const buttonVariants = cva(
                     // disabled
                     'disabled:bg-red-300 disabled:text-white',
                     'disabled:dark:bg-red-950 disabled:dark:text-red-400',
+                ),
+                ghost: cn(
+                    // border
+                    'border-transparent',
+                    // text color
+                    'text-gray-900 dark:text-gray-50',
+                    // shadow
+                    'shadow-none',
+                    // hover color
+                    'hover:bg-gray-50 dark:hover:bg-gray-900/60',
+                    // disabled
+                    'disabled:text-gray-400',
+                    'disabled:dark:text-gray-600',
                 ),
             },
             size: {
