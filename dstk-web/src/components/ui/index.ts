@@ -10,6 +10,7 @@ export * from './label';
 export * from './modal';
 export * from './notification';
 export * from './select';
+export * from './skeleton';
 export * from './status-icon';
 export * from './table';
 export * from './text-area';
