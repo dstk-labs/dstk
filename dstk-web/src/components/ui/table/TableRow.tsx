@@ -1,13 +1,18 @@
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib';
+import { forwardRef } from 'react';
 
-export type TableRowProps = {
-    children: React.ReactNode;
-} & React.HTMLAttributes<HTMLTableRowElement>;
+export const TableRow = forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
+    ({ className, ...props }, forwardedRef) => (
+        <tr
+            ref={forwardedRef}
+            className={cn(
+                '[&_td:last-child]:pr-4 [&_th:last-child]:pr-4',
+                '[&_td:first-child]:pl-4 [&_th:first-child]:pl-4',
+                className,
+            )}
+            {...props}
+        />
+    ),
+);
 
-export const TableRow = ({ children, className, ...props }: TableRowProps) => {
-    return (
-        <tr className={cn('text-sm text-left', className)} {...props}>
-            {children}
-        </tr>
-    );
-};
+TableRow.displayName = 'TableRow';

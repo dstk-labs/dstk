@@ -1,13 +1,10 @@
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib';
+import { forwardRef } from 'react';
 
-export type TableHeadProps = {
-    children: React.ReactNode;
-} & React.HTMLAttributes<HTMLTableSectionElement>;
-
-export const TableHead = ({ children, className, ...props }: TableHeadProps) => {
-    return (
-        <thead className={cn('bg-gray-50', className)} {...props}>
-            {children}
-        </thead>
-    );
-};
+export const TableHead = forwardRef<
+    HTMLTableSectionElement,
+    React.HTMLAttributes<HTMLTableSectionElement>
+>(({ className, ...props }, forwardedRef) => (
+    <thead ref={forwardedRef} className={cn(className)} {...props} />
+));
+TableHead.displayName = 'TableHead';

@@ -1,13 +1,19 @@
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib';
+import { forwardRef } from 'react';
 
-export type TableProps = {
-    children: React.ReactNode;
-} & React.TableHTMLAttributes<HTMLTableElement>;
-
-export const Table = ({ children, className, ...props }: TableProps) => {
-    return (
-        <table className={cn('min-w-full divide-y divide-gray-200', className)} {...props}>
-            {children}
-        </table>
-    );
-};
+export const Table = forwardRef<HTMLTableElement, React.TableHTMLAttributes<HTMLTableElement>>(
+    ({ className, ...props }, forwardedRef) => (
+        <table
+            ref={forwardedRef}
+            className={cn(
+                // base
+                'w-full caption-bottom border-b',
+                // border color
+                'border-gray-200 dark:border-gray-800',
+                className,
+            )}
+            {...props}
+        />
+    ),
+);
+Table.displayName = 'Table';

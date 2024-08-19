@@ -1,13 +1,20 @@
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib';
+import { forwardRef } from 'react';
 
-export type TableBodyProps = {
-    children: React.ReactNode;
-} & React.HTMLAttributes<HTMLTableSectionElement>;
-
-export const TableBody = ({ children, className, ...props }: TableBodyProps) => {
-    return (
-        <tbody className={cn('divide-y divide-gray-200 bg-white', className)} {...props}>
-            {children}
-        </tbody>
-    );
-};
+export const TableBody = forwardRef<
+    HTMLTableSectionElement,
+    React.HTMLAttributes<HTMLTableSectionElement>
+>(({ className, ...props }, forwardedRef) => (
+    <tbody
+        ref={forwardedRef}
+        className={cn(
+            // base
+            'divide-y',
+            // divide color
+            'divide-gray-200 dark:divide-gray-800',
+            className,
+        )}
+        {...props}
+    />
+));
+TableBody.displayName = 'TableBody';

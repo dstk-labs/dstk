@@ -1,16 +1,21 @@
-import { cn } from '@/lib/cn';
+import { cn } from '@/lib';
+import { forwardRef } from 'react';
 
-export type TableCellProps = {
-    children: React.ReactNode;
-} & React.TdHTMLAttributes<HTMLTableCellElement>;
+export const TableCell = forwardRef<
+    HTMLTableCellElement,
+    React.TdHTMLAttributes<HTMLTableCellElement>
+>(({ className, ...props }, forwardedRef) => (
+    <td
+        ref={forwardedRef}
+        className={cn(
+            // base
+            'p-4 text-sm',
+            // text color
+            'text-gray-600 dark:text-gray-400',
+            className,
+        )}
+        {...props}
+    />
+));
 
-export const TableCell = ({ children, className, ...props }: TableCellProps) => {
-    return (
-        <td
-            className={cn('px-4 py-4 text-sm text-gray-700 whitespace-nowrap', className)}
-            {...props}
-        >
-            {children}
-        </td>
-    );
-};
+TableCell.displayName = 'TableCell';
