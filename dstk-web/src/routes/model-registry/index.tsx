@@ -1,55 +1,60 @@
-import { useAtom, useAtomValue } from 'jotai';
-import { useNavigate } from 'react-router-dom';
-import { BarLoader } from 'react-spinners';
-
-import { archiveModalOpenAtom, selectedModelAtom } from './atoms';
-import { useListModels } from './api';
-import {
-    ArchiveModal,
-    ModelRegistryFilters,
-    ModelRegistryHeader,
-    ModelRegistryPagination,
-    ModelRegistryTable,
-    NoModelsFound,
-} from './components';
+import { ModelRegistryData } from '@/features/model/components/ModelRegistryData';
+import { Suspense, useState, useTransition } from 'react';
+import { type Limit } from '@/types/filters';
+import { ModelRegistrySkeleton } from './components/ModelRegistrySkeleton';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button, Input } from '@/components/ui';
+import { RiLayoutGridLine, RiListUnordered } from '@remixicon/react';
 
 export const ModelRegistry = () => {
-    const [archiveModalOpen, setArchiveModalOpen] = useAtom(archiveModalOpenAtom);
-    const selectedModel = useAtomValue(selectedModelAtom);
-
-    const navigate = useNavigate();
-
-    const { data, loading, error } = useListModels();
-
-    if (error) return <NoModelsFound />;
+    const [continuationTokens, setContinuationTokens] = useState<(string | undefined)[]>([]);
+    const [limit, setLimit] = useState<Limit>(10);
+    const [isPending, startTransition] = useTransition();
+    const [modelName, setModelName] = useState<string>();
 
     return (
-        <>
-            <div className='w-full flex flex-col gap-12'>
-                <ModelRegistryHeader navigateFn={navigate} />
-                <div className='flex flex-col gap-4'>
-                    <ModelRegistryFilters />
-                    {!loading ? (
-                        <div className='flex flex-col gap-6'>
-                            {data!.listMLModels.edges.length === 0 ? (
-                                <NoModelsFound />
-                            ) : (
-                                <ModelRegistryTable data={data!} navigateFn={navigate} />
-                            )}
-                            <ModelRegistryPagination
-                                continuationToken={data!.listMLModels.pageInfo.continuationToken}
-                            />
+        <Tabs defaultValue='grid'>
+            <div className='flex flex-col gap-4'>
+                <h3 className='text-xl tracking-tight font-medium text-gray-900 dark:text-gray-50'>
+                    Models
+                </h3>
+                <div className='flex flex-col gap-4 sm:gap-0 sm:flex-row sm:items-center sm:justify-between'>
+                    <Input
+                        className='max-w-md'
+                        onChange={(e) =>
+                            startTransition(() => {
+                                setModelName(e.target.value);
+                            })
+                        }
+                        placeholder='Search for models...'
+                        value={modelName ?? ''}
+                    />
+                    <div className='flex items-center gap-4'>
+                        <div className='-mx-1'>
+                            <TabsList variant='solid'>
+                                <TabsTrigger value='grid'>
+                                    <RiLayoutGridLine />
+                                </TabsTrigger>
+                                <TabsTrigger value='table'>
+                                    <RiListUnordered />
+                                </TabsTrigger>
+                            </TabsList>
                         </div>
-                    ) : (
-                        <BarLoader color='#2563eb' width='250px' />
-                    )}
+                        <Button size='lg'>Add Model</Button>
+                    </div>
                 </div>
             </div>
-            <ArchiveModal
-                model={selectedModel}
-                isOpen={archiveModalOpen}
-                onClose={() => setArchiveModalOpen(false)}
-            />
-        </>
+            <Suspense fallback={<ModelRegistrySkeleton numCards={9} />}>
+                <ModelRegistryData
+                    after={continuationTokens.at(-1)}
+                    first={limit}
+                    isPending={isPending}
+                    modelName={modelName}
+                    setContinuationTokens={setContinuationTokens}
+                    setLimit={setLimit}
+                    startTransition={startTransition}
+                />
+            </Suspense>
+        </Tabs>
     );
 };
