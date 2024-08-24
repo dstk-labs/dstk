@@ -11,13 +11,14 @@ type TextAreaFieldProps = {
 
 export const TextAreaField = ({
     className,
+    description,
     error,
     label,
     registration,
     ...props
 }: TextAreaFieldProps) => {
     return (
-        <FieldWrapper label={label} error={error}>
+        <FieldWrapper description={description} label={label} error={error}>
             <TextArea className={className} {...registration} {...props} />
         </FieldWrapper>
     );

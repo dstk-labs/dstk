@@ -1,7 +1,6 @@
 export * from './add-team-member';
 export * from './api-keys';
 export * from './create-model';
-export * from './create-model-version';
 export * from './create-team';
 export * from './edit-model';
 export * from './home';

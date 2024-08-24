@@ -26,30 +26,32 @@ type ListMLModelVersionsVariables = {
     modelId: string;
 };
 
-const LIST_MODEL_VERSIONS: TypedDocumentNode<ListMLModelVersions, ListMLModelVersionsVariables> =
-    gql`
-        query ListMLModelVersions($modelId: String!, $after: String, $first: Limit!) {
-            listMLModelVersions(modelId: $modelId, after: $after, first: $first) {
-                edges {
-                    cursor
-                    node {
-                        createdBy {
-                            userName
-                        }
-                        dateCreated
-                        isArchived
-                        modelVersionId
-                        numericVersion
+export const LIST_MODEL_VERSIONS: TypedDocumentNode<
+    ListMLModelVersions,
+    ListMLModelVersionsVariables
+> = gql`
+    query ListMLModelVersions($modelId: String!, $after: String, $first: Limit!) {
+        listMLModelVersions(modelId: $modelId, after: $after, first: $first) {
+            edges {
+                cursor
+                node {
+                    createdBy {
+                        userName
                     }
-                }
-                pageInfo {
-                    continuationToken
-                    hasNextPage
-                    hasPreviousPage
+                    dateCreated
+                    isArchived
+                    modelVersionId
+                    numericVersion
                 }
             }
+            pageInfo {
+                continuationToken
+                hasNextPage
+                hasPreviousPage
+            }
         }
-    `;
+    }
+`;
 
 export const useListModelVersions = (
     options: SuspenseQueryHookOptions<ListMLModelVersions, ListMLModelVersionsVariables>,

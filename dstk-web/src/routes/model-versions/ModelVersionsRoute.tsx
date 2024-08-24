@@ -14,7 +14,7 @@ import { Limit } from '@/types/filters';
 import { useReadQuery } from '@apollo/client';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { useState, useTransition } from 'react';
-import { useLoaderData, type LoaderFunctionArgs } from 'react-router-dom';
+import { Link, useLoaderData, type LoaderFunctionArgs } from 'react-router-dom';
 
 export const modelLoader = async ({ params }: LoaderFunctionArgs) => {
     const modelId = params.modelId as string;
@@ -57,14 +57,18 @@ export const ModelVersionsRoute = () => {
                             </DropdownGroup>
                             <DropdownSeparator />
                             <DropdownGroup>
-                                <DropdownItem>Create New Version</DropdownItem>
+                                <DropdownItem>
+                                    <Link to='create'>Create New Version</Link>
+                                </DropdownItem>
                                 <DropdownItem>Edit</DropdownItem>
                                 <DropdownItem>Archive</DropdownItem>
                             </DropdownGroup>
                         </DropdownContent>
                     </Dropdown>
                 </div>
-                <p className='text-sm/6 text-gray-500'>{data.getMLModel.description}</p>
+                <div className='max-w-md'>
+                    <p className='text-sm/6 text-gray-500'>{data.getMLModel.description}</p>
+                </div>
             </div>
             <p className='text-red-600'>TODO: Model Deployment Statistics</p>
             <div className='flex flex-col gap-6'>

@@ -10,7 +10,6 @@ import {
     AddTeamMember,
     APIKeys,
     CreateModel,
-    CreateModelVersion,
     CreateTeam,
     EditModel,
     Home,
@@ -79,6 +78,19 @@ export const RouterProvider = () => {
                                 },
                                 {
                                     path: '/dashboard/models/:modelId',
+                                    handle: {
+                                        crumb: () => {
+                                            const modelId = window.location.href.split('/').at(5);
+                                            const data = apolloClient.readQuery({
+                                                query: GET_MODEL,
+                                                variables: {
+                                                    modelId: modelId,
+                                                },
+                                            });
+
+                                            return data?.getMLModel.modelName;
+                                        },
+                                    },
                                     children: [
                                         {
                                             lazy: async () => {
@@ -86,21 +98,6 @@ export const RouterProvider = () => {
                                                     '../routes/model-versions/ModelVersionsRoute'
                                                 );
                                                 return { Component: ModelVersionsRoute };
-                                            },
-                                            handle: {
-                                                crumb: () => {
-                                                    const modelId = window.location.href
-                                                        .split('/')
-                                                        .at(-1);
-                                                    const data = apolloClient.readQuery({
-                                                        query: GET_MODEL,
-                                                        variables: {
-                                                            modelId: modelId,
-                                                        },
-                                                    });
-
-                                                    return data?.getMLModel.modelName;
-                                                },
                                             },
                                             loader: async (args: LoaderFunctionArgs) => {
                                                 return modelLoader(args);
@@ -116,7 +113,12 @@ export const RouterProvider = () => {
                                         },
                                         {
                                             path: '/dashboard/models/:modelId/create',
-                                            element: <CreateModelVersion />,
+                                            lazy: async () => {
+                                                const { CreateModelVersionRoute } = await import(
+                                                    '../routes/create-model-version/CreateModelVersionRoute'
+                                                );
+                                                return { Component: CreateModelVersionRoute };
+                                            },
                                             handle: {
                                                 crumb: () => 'Create',
                                             },
