@@ -1,4 +1,8 @@
-import { createBrowserRouter, RouterProvider as Router } from 'react-router-dom';
+import {
+    createBrowserRouter,
+    RouterProvider as Router,
+    type LoaderFunctionArgs,
+} from 'react-router-dom';
 
 import { PrivateRoute, PublicRoute } from '@/components/auth';
 import { DashboardLayout } from '@/components/layout';
@@ -12,7 +16,6 @@ import {
     Home,
     Login,
     ModelRegistry,
-    ModelVersion,
     ModelVersionDetails,
     Register,
     TeamDetails,
@@ -20,8 +23,10 @@ import {
     UploadFiles,
     UserSettings,
 } from '@/routes';
-import type { MLModelVersion } from '@/types/MLModelVersion';
-import type { Team } from '@/types/Team';
+import type { MLModelVersion, Team } from '@/types/api';
+import { modelLoader } from '../routes/model-versions/ModelVersionsRoute';
+import { apolloClient } from '@/lib';
+import { GET_MODEL } from '@/features/model/api/getModel';
 
 export const RouterProvider = () => {
     const router = createBrowserRouter([
@@ -74,13 +79,32 @@ export const RouterProvider = () => {
                                 },
                                 {
                                     path: '/dashboard/models/:modelId',
-                                    handle: {
-                                        crumb: (data?: MLModelVersion) =>
-                                            (data && data.modelId.modelId) || 'Async is fun',
-                                    },
                                     children: [
                                         {
-                                            element: <ModelVersion />,
+                                            lazy: async () => {
+                                                const { ModelVersionsRoute } = await import(
+                                                    '../routes/model-versions/ModelVersionsRoute'
+                                                );
+                                                return { Component: ModelVersionsRoute };
+                                            },
+                                            handle: {
+                                                crumb: () => {
+                                                    const modelId = window.location.href
+                                                        .split('/')
+                                                        .at(-1);
+                                                    const data = apolloClient.readQuery({
+                                                        query: GET_MODEL,
+                                                        variables: {
+                                                            modelId: modelId,
+                                                        },
+                                                    });
+
+                                                    return data?.getMLModel.modelName;
+                                                },
+                                            },
+                                            loader: async (args: LoaderFunctionArgs) => {
+                                                return modelLoader(args);
+                                            },
                                             index: true,
                                         },
                                         {
