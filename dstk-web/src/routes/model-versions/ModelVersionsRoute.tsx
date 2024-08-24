@@ -1,4 +1,5 @@
 import {
+    Badge,
     Button,
     Dropdown,
     DropdownContent,
@@ -9,6 +10,7 @@ import {
 } from '@/components/ui';
 import { ModelVersionsTable } from '@/features/model-version/components/ModelVersionsTable';
 import { GET_MODEL } from '@/features/model/api/getModel';
+import { ArchiveModelModal } from '@/features/model/components/ArchiveModelModal';
 import { preloadQuery } from '@/lib';
 import { Limit } from '@/types/filters';
 import { useReadQuery } from '@apollo/client';
@@ -36,9 +38,12 @@ export const ModelVersionsRoute = () => {
         <section className='flex flex-col gap-12'>
             <div className='flex flex-col gap-2'>
                 <div className='isolate flex flex-wrap justify-between gap-x-6 gap-y-4'>
-                    <h1 className='text-lg font-bold text-gray-900 dark:text-gray-50'>
-                        {data.getMLModel.modelName}
-                    </h1>
+                    <div className='flex gap-2'>
+                        <h1 className='text-xl tracking-tight font-semibold text-gray-900 dark:text-gray-50'>
+                            {data.getMLModel.modelName}
+                        </h1>
+                        {data.getMLModel.isArchived && <Badge variant='error'>Archived</Badge>}
+                    </div>
                     <Dropdown>
                         <DropdownTrigger asChild>
                             <Button
@@ -57,11 +62,17 @@ export const ModelVersionsRoute = () => {
                             </DropdownGroup>
                             <DropdownSeparator />
                             <DropdownGroup>
-                                <DropdownItem>
+                                <DropdownItem asChild disabled={data.getMLModel.isArchived}>
                                     <Link to='create'>Create New Version</Link>
                                 </DropdownItem>
-                                <DropdownItem>Edit</DropdownItem>
-                                <DropdownItem>Archive</DropdownItem>
+                                <DropdownItem disabled={data.getMLModel.isArchived}>
+                                    Edit
+                                </DropdownItem>
+                                <ArchiveModelModal
+                                    isArchived={data.getMLModel.isArchived}
+                                    modelName={data.getMLModel.modelName}
+                                    modelId={data.getMLModel.modelId}
+                                />
                             </DropdownGroup>
                         </DropdownContent>
                     </Dropdown>

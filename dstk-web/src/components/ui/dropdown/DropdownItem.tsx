@@ -1,13 +1,13 @@
 import { forwardRef } from 'react';
-import { Item, type MenuItemProps } from '@radix-ui/react-dropdown-menu';
+import { Item, type DropdownMenuItemProps } from '@radix-ui/react-dropdown-menu';
 
 import { cn } from '@/lib';
 
-export type DropdownItemProps = MenuItemProps & { inset?: boolean };
+export type DropdownItemProps = DropdownMenuItemProps & { inset?: boolean };
 
 export const DropdownItem = forwardRef<
     React.ElementRef<typeof Item>,
-    MenuItemProps & { inset?: boolean }
+    DropdownMenuItemProps & { inset?: boolean }
 >(({ children, className, inset, ...props }, ref) => {
     return (
         <Item
