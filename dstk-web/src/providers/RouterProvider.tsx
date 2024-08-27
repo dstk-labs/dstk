@@ -3,18 +3,15 @@ import {
     RouterProvider as Router,
     type LoaderFunctionArgs,
 } from 'react-router-dom';
-
 import { PrivateRoute, PublicRoute } from '@/components/auth';
 import { DashboardLayout } from '@/components/layout';
 import {
     AddTeamMember,
     APIKeys,
-    CreateModel,
     CreateTeam,
     EditModel,
     Home,
     Login,
-    ModelRegistry,
     ModelVersionDetails,
     Register,
     TeamDetails,
@@ -26,6 +23,7 @@ import type { MLModelVersion, Team } from '@/types/api';
 import { modelLoader } from '../routes/model-versions/ModelVersionsRoute';
 import { apolloClient } from '@/lib';
 import { GET_MODEL } from '@/features/model/api/getModel';
+import { createModelLoader } from '@/features/model/components/CreateModelForm';
 
 export const RouterProvider = () => {
     const router = createBrowserRouter([
@@ -66,12 +64,25 @@ export const RouterProvider = () => {
                             },
                             children: [
                                 {
-                                    element: <ModelRegistry />,
+                                    lazy: async () => {
+                                        const { ModelRegistryRoute } = await import(
+                                            '../routes/model-registry/ModelRegistryRoute'
+                                        );
+                                        return { Component: ModelRegistryRoute };
+                                    },
                                     index: true,
                                 },
                                 {
                                     path: '/dashboard/models/create',
-                                    element: <CreateModel />,
+                                    lazy: async () => {
+                                        const { CreateModelRoute } = await import(
+                                            '../routes/create-model/CreateModelRoute'
+                                        );
+                                        return { Component: CreateModelRoute };
+                                    },
+                                    loader: async () => {
+                                        return createModelLoader();
+                                    },
                                     handle: {
                                         crumb: () => 'Create',
                                     },

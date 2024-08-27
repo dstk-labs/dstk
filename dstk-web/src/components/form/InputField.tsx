@@ -5,9 +5,10 @@ import { Input, type InputProps } from '../ui';
 import { FieldWrapper, type FieldPassThroughProps } from './FieldWrapper';
 
 export type InputFieldProps = {
+    className?: string;
     registration: Partial<UseFormRegisterReturn>;
 } & FieldPassThroughProps &
-    InputProps;
+    Omit<InputProps, 'className'>;
 
 export const InputField = ({
     className,
@@ -18,14 +19,8 @@ export const InputField = ({
     ...props
 }: InputFieldProps) => {
     return (
-        <FieldWrapper label={label} error={error}>
-            <Input
-                className={className}
-                type={type}
-                variant={error ? 'error' : 'default'}
-                {...registration}
-                {...props}
-            />
+        <FieldWrapper className={className} label={label} error={error}>
+            <Input hasError={error !== undefined} type={type} {...registration} {...props} />
         </FieldWrapper>
     );
 };

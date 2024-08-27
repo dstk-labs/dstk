@@ -5,8 +5,9 @@ import { ModelRegistrySkeleton } from './components/ModelRegistrySkeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button, Input } from '@/components/ui';
 import { RiLayoutGridLine, RiListUnordered } from '@remixicon/react';
+import { Link } from 'react-router-dom';
 
-export const ModelRegistry = () => {
+export const ModelRegistryRoute = () => {
     const [continuationTokens, setContinuationTokens] = useState<(string | undefined)[]>([]);
     const [limit, setLimit] = useState<Limit>(10);
     const [isPending, startTransition] = useTransition();
@@ -15,9 +16,9 @@ export const ModelRegistry = () => {
     return (
         <Tabs defaultValue='grid'>
             <div className='flex flex-col gap-4'>
-                <h3 className='text-xl tracking-tight font-medium text-gray-900 dark:text-gray-50'>
+                <h1 className='text-xl tracking-tight font-semibold text-gray-900 dark:text-gray-50'>
                     Models
-                </h3>
+                </h1>
                 <div className='flex flex-col gap-4 sm:gap-0 sm:flex-row sm:items-center sm:justify-between'>
                     <Input
                         className='max-w-md'
@@ -40,7 +41,9 @@ export const ModelRegistry = () => {
                                 </TabsTrigger>
                             </TabsList>
                         </div>
-                        <Button size='lg'>Add Model</Button>
+                        <Button asChild size='lg'>
+                            <Link to='/dashboard/models/create'>Add Model</Link>
+                        </Button>
                     </div>
                 </div>
             </div>

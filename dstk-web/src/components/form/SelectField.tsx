@@ -1,7 +1,12 @@
-import type { UseFormRegisterReturn } from 'react-hook-form';
-
-import { Select, type SelectProps } from '../ui';
-
+import { Controller, type Control } from 'react-hook-form';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    type SelectProps,
+} from '../ui';
 import { FieldWrapper, type FieldPassThroughProps } from './FieldWrapper';
 
 type Option = {
@@ -11,35 +16,55 @@ type Option = {
 };
 
 export type SelectFieldProps = {
-    options: Option[];
-    registration: Partial<UseFormRegisterReturn>;
+    className?: string;
+    control: Control<Record<string, unknown>> | undefined;
+    name: string;
+    onValueChange?: (value: string) => void;
+    options?: Option[];
+    placeholder?: string;
 } & FieldPassThroughProps &
-    SelectProps;
+    Omit<SelectProps, 'className'>;
 
 export const SelectField = ({
     className,
+    control,
     defaultValue,
+    disabled,
     error,
+    name,
     label,
+    onValueChange,
     options,
-    registration,
+    placeholder,
     ...props
 }: SelectFieldProps) => {
     return (
-        <FieldWrapper label={label} error={error}>
-            <Select
-                className={className}
-                defaultValue={defaultValue}
-                variant={error ? 'error' : 'primary'}
-                {...registration}
-                {...props}
-            >
-                {options.map((option) => (
-                    <option key={option.id} value={option.value.toString()}>
-                        {option.label}
-                    </option>
-                ))}
-            </Select>
-        </FieldWrapper>
+        <Controller
+            control={control}
+            name={name}
+            render={({ field }) => (
+                <FieldWrapper className={className} label={label} error={error}>
+                    <Select
+                        disabled={disabled}
+                        onValueChange={(value) => {
+                            field.onChange(value);
+                            onValueChange && onValueChange(value);
+                        }}
+                    >
+                        <SelectTrigger hasError={error !== undefined}>
+                            <SelectValue placeholder={placeholder} />
+                        </SelectTrigger>
+                        <SelectContent {...props}>
+                            {options &&
+                                options.map((option) => (
+                                    <SelectItem key={option.value} value={option.value.toString()}>
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
+                        </SelectContent>
+                    </Select>
+                </FieldWrapper>
+            )}
+        />
     );
 };

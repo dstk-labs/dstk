@@ -26,7 +26,7 @@ type ListMLModelVariables = {
     modelName?: string;
 };
 
-const LIST_MODELS: TypedDocumentNode<ListMLModel, ListMLModelVariables> = gql`
+export const LIST_MODELS: TypedDocumentNode<ListMLModel, ListMLModelVariables> = gql`
     query ListMLModels($after: String, $first: Limit, $modelName: String) {
         listMLModels(after: $after, first: $first, modelName: $modelName) {
             edges {

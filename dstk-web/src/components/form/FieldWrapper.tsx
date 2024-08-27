@@ -1,10 +1,12 @@
-import { Label } from '../ui';
+import { cn } from '@/lib';
+import { Label, type LabelProps } from '../ui';
 
 export type FieldWrapperProps = {
+    className?: string;
     description?: string;
     error?: string;
     label?: string;
-} & React.LabelHTMLAttributes<HTMLLabelElement>;
+} & Omit<LabelProps, 'className'>;
 
 export type FieldPassThroughProps = Pick<FieldWrapperProps, 'description' | 'error' | 'label'>;
 
@@ -16,14 +18,12 @@ export const FieldWrapper = ({
     label,
 }: FieldWrapperProps) => {
     return (
-        <div className='flex flex-col gap-3'>
+        <div className={cn('flex flex-col gap-3', className)}>
             <div className='flex flex-col gap-2'>
-                <Label className={className}>{label}</Label>
+                <Label>{label}</Label>
                 <div>{children}</div>
                 {description && (
-                    <p className='text-xs text-gray-500 dark:text-gray-500'>
-                        This field is optional
-                    </p>
+                    <p className='text-xs text-gray-500 dark:text-gray-500'>{description}</p>
                 )}
             </div>
             {error && <p className='text-sm text-red-500'>{error}</p>}

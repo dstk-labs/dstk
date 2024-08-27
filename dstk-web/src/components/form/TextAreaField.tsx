@@ -5,9 +5,10 @@ import { TextArea, type TextAreaProps } from '../ui';
 import { FieldWrapper, type FieldPassThroughProps } from './FieldWrapper';
 
 type TextAreaFieldProps = {
+    className?: string;
     registration: Partial<UseFormRegisterReturn>;
 } & FieldPassThroughProps &
-    TextAreaProps;
+    Omit<TextAreaProps, 'className'>;
 
 export const TextAreaField = ({
     className,
@@ -18,8 +19,8 @@ export const TextAreaField = ({
     ...props
 }: TextAreaFieldProps) => {
     return (
-        <FieldWrapper description={description} label={label} error={error}>
-            <TextArea className={className} {...registration} {...props} />
+        <FieldWrapper className={className} description={description} label={label} error={error}>
+            <TextArea hasError={error !== undefined} {...registration} {...props} />
         </FieldWrapper>
     );
 };
