@@ -5,11 +5,11 @@ import ScopeAuthPlugin from '@pothos/plugin-scope-auth';
 
 export const builder = new SchemaBuilder<{
     AuthScopes: {
-        anonymousRequest: boolean,
-        loggedIn: boolean,
+        anonymousRequest: boolean;
+        loggedIn: boolean;
     };
     Context: {
-        user: ObjectionUser,
+        user: ObjectionUser;
     };
     DefaultFieldNullability: true;
     Scalars: {
@@ -20,11 +20,13 @@ export const builder = new SchemaBuilder<{
     };
 }>({
     plugins: [ScopeAuthPlugin],
-    authScopes: async (context) => ({
-        anonymousRequest: !!!context.user?.userId,
-        loggedIn: !!context.user?.userId,
-    }),
-    defaultFieldNullability: true,
+    scopeAuth: {
+        authorizeOnSubscribe: true,
+        authScopes: async (context) => ({
+            anonymousRequest: !!!context.user?.userId,
+            loggedIn: !!context.user?.userId,
+        }),
+    },
 });
 
 builder.queryType();
