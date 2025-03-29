@@ -41,7 +41,7 @@ export class RegistryOperationError extends Error {
     }
 }
 
-type AccountErrorName = 
+type AccountErrorName =
     | 'ACCOUNT_REGISTRATION_ERROR'
     | 'USERNAME_IN_USE_ERROR'
     | 'LOGIN_ERROR'

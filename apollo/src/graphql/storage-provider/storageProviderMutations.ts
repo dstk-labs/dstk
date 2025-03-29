@@ -37,11 +37,10 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionStorageProvider.transaction(async (trx) => {
-                await ObjectionTeamEdge.userHasRole(
-                    ctx.user.$id(),
-                    args.data.teamId,
-                    ['owner', 'member']
-                );
+                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), args.data.teamId, [
+                    'owner',
+                    'member',
+                ]);
 
                 const encryptedAccessKeyId = EncryptoMatic.encrypt(args.data.accessKeyId);
                 const encryptedSecretAccessKey = EncryptoMatic.encrypt(args.data.secretAccessKey);
@@ -78,25 +77,24 @@ builder.mutationFields((t) => ({
                 const storageProvider = await ObjectionStorageProvider.query()
                     .findById(args.data.providerId)
                     .first();
-                
+
                 if (storageProvider === undefined) {
                     throw new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' });
                 }
 
-                await ObjectionTeamEdge.userHasRole(
-                    ctx.user.$id(),
-                    storageProvider.teamId,
-                    ['owner', 'member']
-                );
+                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), storageProvider.teamId, [
+                    'owner',
+                    'member',
+                ]);
 
                 const encryptedAccessKeyId = EncryptoMatic.encrypt(args.data.accessKeyId);
                 const encryptedSecretAccessKey = EncryptoMatic.encrypt(args.data.secretAccessKey);
 
                 await storageProvider.$query(trx).patchAndFetch({
-                        accessKeyId: encryptedAccessKeyId,
-                        secretAccessKey: encryptedSecretAccessKey,
-                        dateModified: raw('NOW()'),
-                        modifiedById: ctx.user.$id(),
+                    accessKeyId: encryptedAccessKeyId,
+                    secretAccessKey: encryptedSecretAccessKey,
+                    dateModified: raw('NOW()'),
+                    modifiedById: ctx.user.$id(),
                 });
                 return storageProvider;
             });
@@ -117,16 +115,14 @@ builder.mutationFields((t) => ({
                 const storageProvider = await ObjectionStorageProvider.query()
                     .findById(args.providerId)
                     .first();
-                
+
                 if (storageProvider === undefined) {
                     throw new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' });
                 }
 
-                await ObjectionTeamEdge.userHasRole(
-                    ctx.user.$id(),
-                    storageProvider.teamId,
-                    ['owner']
-                );
+                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), storageProvider.teamId, [
+                    'owner',
+                ]);
 
                 storageProvider.$query(trx).patchAndFetch({
                     isArchived: raw('NOT is_archived'),

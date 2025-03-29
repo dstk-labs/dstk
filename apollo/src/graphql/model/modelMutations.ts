@@ -26,20 +26,19 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionMLModel.transaction(async (trx) => {
-                const project = await ObjectionProject.query()
-                    .findById(args.data.projectId) as ObjectionProject;
-                await ObjectionTeamEdge.userHasRole(
-                    ctx.user.$id(),
-                    project.teamId,
-                    ['owner', 'member']
-                );
+                const project = (await ObjectionProject.query().findById(
+                    args.data.projectId,
+                )) as ObjectionProject;
+                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), project.teamId, [
+                    'owner',
+                    'member',
+                ]);
 
-                const storageProvider = await ObjectionTeam
-                    .relatedQuery('storageProviders')
+                const storageProvider = (await ObjectionTeam.relatedQuery('storageProviders')
                     .for(project.teamId)
                     .where({ providerId: args.data.storageProviderId })
-                    .first() as ObjectionStorageProvider | undefined;
-                
+                    .first()) as ObjectionStorageProvider | undefined;
+
                 if (storageProvider === undefined) {
                     throw new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' });
                 }
@@ -74,25 +73,23 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionMLModel.transaction(async (trx) => {
-                const team = (await ObjectionMLModel
-                    .relatedQuery('getTeam')
-                    .for(args.modelId).first() as ObjectionTeam
-                );
-                await ObjectionTeamEdge.userHasRole(
-                    ctx.user.$id(),
-                    team.$id(),
-                    ['owner', 'member']
-                );
+                const team = (await ObjectionMLModel.relatedQuery('getTeam')
+                    .for(args.modelId)
+                    .first()) as ObjectionTeam;
+                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), team.$id(), [
+                    'owner',
+                    'member',
+                ]);
 
-                const storageProvider = await team
+                const storageProvider = (await team
                     .$relatedQuery('storageProviders')
                     .for(team.$id())
                     .where({ providerId: args.data.storageProviderId })
-                    .first() as ObjectionStorageProvider | undefined;
+                    .first()) as ObjectionStorageProvider | undefined;
 
                 if (storageProvider === undefined) {
                     throw new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' });
-                }    
+                }
                 if (storageProvider.isArchived === true) {
                     throw new RegistryOperationError({ name: 'ARCHIVED_STORAGE_ERROR' });
                 }
@@ -123,15 +120,13 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionMLModel.transaction(async (trx) => {
-                const team = (await ObjectionMLModel
-                    .relatedQuery('getTeam')
-                    .for(args.modelId).first() as ObjectionTeam
-                );
-                await ObjectionTeamEdge.userHasRole(
-                    ctx.user.$id(),
-                    team.$id(),
-                    ['owner', 'member']
-                );
+                const team = (await ObjectionMLModel.relatedQuery('getTeam')
+                    .for(args.modelId)
+                    .first()) as ObjectionTeam;
+                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), team.$id(), [
+                    'owner',
+                    'member',
+                ]);
 
                 // Intentionally don't throw an error here on archived storage
                 // providers. It's not unreasonable to want to mark old assets

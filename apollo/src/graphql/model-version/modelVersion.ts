@@ -34,7 +34,8 @@ builder.objectType(MLModelVersion, {
         createdBy: t.field({
             type: User,
             async resolve(root: ObjectionMLModelVersion, _args, _ctx) {
-                const user = (await root.$relatedQuery('getCreatedBy')
+                const user = (await root
+                    .$relatedQuery('getCreatedBy')
                     .for(root.$id())
                     .first()) as ObjectionUser;
                 return user;

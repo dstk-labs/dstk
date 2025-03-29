@@ -92,14 +92,14 @@ builder.queryFields((t) => ({
             const result = cursor
                 ? await cursor.$query().patchAndFetch({ expiration: nowPlusFiveMins })
                 : edges.length > 0
-                ? await ObjectionCursor.query().insertAndFetch({
-                      cursorToken: encoder.encode(
-                          edges[edges.length - 1].id,
-                          edges[edges.length - 1].dateCreated,
-                      ),
-                      cursorRelation: 'model',
-                  })
-                : undefined;
+                  ? await ObjectionCursor.query().insertAndFetch({
+                        cursorToken: encoder.encode(
+                            edges[edges.length - 1].id,
+                            edges[edges.length - 1].dateCreated,
+                        ),
+                        cursorRelation: 'model',
+                    })
+                  : undefined;
 
             const continuationToken = result?.cursorToken;
 

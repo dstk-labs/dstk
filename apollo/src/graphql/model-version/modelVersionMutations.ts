@@ -75,15 +75,14 @@ builder.mutationFields((t) => ({
                 const parentModel = (await ObjectionMLModel.query()
                     .where('modelId', args.data.modelId)
                     .first()) as ObjectionMLModel;
-                const team = await ObjectionMLModel.relatedQuery('getTeam')
+                const team = (await ObjectionMLModel.relatedQuery('getTeam')
                     .for(parentModel.modelId)
-                    .first() as ObjectionTeam;
-                await ObjectionTeamEdge.userHasRole(
-                    ctx.user.$id(),
-                    team.$id(),
-                    ['owner', 'member']
-                );
-    
+                    .first()) as ObjectionTeam;
+                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), team.$id(), [
+                    'owner',
+                    'member',
+                ]);
+
                 if (parentModel.isArchived === true) {
                     throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_ERROR' });
                 }
@@ -129,7 +128,9 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionMLModelVersion.transaction(async (trx) => {
-                const mlModelVersion = await ObjectionMLModelVersion.query().findById(args.modelVersionId);
+                const mlModelVersion = await ObjectionMLModelVersion.query().findById(
+                    args.modelVersionId,
+                );
                 if (mlModelVersion === undefined) {
                     throw new RegistryOperationError({ name: 'VERSION_PERMISSION_ERROR' });
                 }
@@ -137,15 +138,14 @@ builder.mutationFields((t) => ({
                 const parentModel = (await ObjectionMLModel.query()
                     .where('modelId', mlModelVersion.modelId)
                     .first()) as ObjectionMLModel;
-                const team = await ObjectionMLModel.relatedQuery('getTeam')
+                const team = (await ObjectionMLModel.relatedQuery('getTeam')
                     .for(parentModel.modelId)
-                    .first() as ObjectionTeam;
-                await ObjectionTeamEdge.userHasRole(
-                    ctx.user.$id(),
-                    team.$id(),
-                    ['owner', 'member']
-                );
-    
+                    .first()) as ObjectionTeam;
+                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), team.$id(), [
+                    'owner',
+                    'member',
+                ]);
+
                 if (parentModel.isArchived === true) {
                     throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_ERROR' });
                 }
@@ -176,7 +176,9 @@ builder.mutationFields((t) => ({
                 // Intentionally don't throw an error here on archived storage
                 // providers or models. It's not unreasonable to want to mark old
                 // assets as archived if a parent object goes bye-bye
-                const mlModelVersion = await ObjectionMLModelVersion.query().findById(args.modelVersionId);
+                const mlModelVersion = await ObjectionMLModelVersion.query().findById(
+                    args.modelVersionId,
+                );
                 if (mlModelVersion === undefined) {
                     throw new RegistryOperationError({ name: 'VERSION_PERMISSION_ERROR' });
                 }
@@ -184,14 +186,13 @@ builder.mutationFields((t) => ({
                 const parentModel = (await ObjectionMLModel.query()
                     .where('modelId', mlModelVersion.modelId)
                     .first()) as ObjectionMLModel;
-                const team = await ObjectionMLModel.relatedQuery('getTeam')
+                const team = (await ObjectionMLModel.relatedQuery('getTeam')
                     .for(parentModel.modelId)
-                    .first() as ObjectionTeam;
-                await ObjectionTeamEdge.userHasRole(
-                    ctx.user.$id(),
-                    team.$id(),
-                    ['owner', 'member']
-                );
+                    .first()) as ObjectionTeam;
+                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), team.$id(), [
+                    'owner',
+                    'member',
+                ]);
 
                 await mlModelVersion.$query(trx).patchAndFetch({
                     isArchived: raw('NOT is_archived'),
@@ -227,17 +228,13 @@ builder.mutationFields((t) => ({
             if (parentModel.isArchived === true) {
                 throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_ERROR' });
             }
-            const team = await ObjectionMLModel.relatedQuery('getTeam')
+            const team = (await ObjectionMLModel.relatedQuery('getTeam')
                 .for(parentModel.modelId)
-                .first() as ObjectionTeam;
+                .first()) as ObjectionTeam;
 
             // Project viewers are not granted permission to download
             // model objects because I'm feeling petty tonight
-            await ObjectionTeamEdge.userHasRole(
-                ctx.user.$id(),
-                team.$id(),
-                ['owner', 'member']
-            );
+            await ObjectionTeamEdge.userHasRole(ctx.user.$id(), team.$id(), ['owner', 'member']);
 
             const modelVersion = (await ObjectionMLModelVersion.query()
                 .findById(args.data.modelVersionId)

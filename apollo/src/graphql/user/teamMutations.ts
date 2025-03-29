@@ -2,7 +2,6 @@ import { builder } from '../../builder.js';
 import { ObjectionEdge } from '../misc/edges.js';
 import { Team, ObjectionTeam, ObjectionTeamEdge } from './team.js';
 
-
 export const TeamInputType = builder.inputType('TeamInput', {
     fields: (t) => ({
         name: t.string({ required: true }),
@@ -11,11 +10,7 @@ export const TeamInputType = builder.inputType('TeamInput', {
 });
 
 export const UserRole = builder.enumType('UserRole', {
-    values: [
-        'owner',
-        'member',
-        'viewer',
-    ] as const,
+    values: ['owner', 'member', 'viewer'] as const,
 });
 
 export const AddTeamMemberInputType = builder.inputType('AddTeamMemberInput', {
@@ -49,9 +44,9 @@ builder.mutationFields((t) => ({
                     })
                     .first();
 
-                const ownerEdgeType = await ObjectionEdge.query()
+                const ownerEdgeType = (await ObjectionEdge.query()
                     .where('type', 'owner')
-                    .first() as ObjectionEdge;
+                    .first()) as ObjectionEdge;
                 await ObjectionTeamEdge.query(trx)
                     .insert({
                         teamId: team.$id(),
@@ -74,11 +69,7 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionTeamEdge.transaction(async (trx) => {
-                await ObjectionTeamEdge.userHasRole(
-                    ctx.user.$id(),
-                    args.data.teamId,
-                    ['owner']
-                );
+                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), args.data.teamId, ['owner']);
 
                 const targetUser = await ObjectionTeamEdge.query()
                     .where({
@@ -86,10 +77,11 @@ builder.mutationFields((t) => ({
                         teamId: args.data.teamId,
                     })
                     .first();
-                const roleEdgeType = await ObjectionEdge.query()
+                const roleEdgeType = (await ObjectionEdge.query()
                     .where({
                         type: args.data.role,
-                    }).first() as ObjectionEdge;
+                    })
+                    .first()) as ObjectionEdge;
 
                 const upsertUserRole = ObjectionTeamEdge.query(trx);
                 if (targetUser === undefined) {
@@ -99,15 +91,13 @@ builder.mutationFields((t) => ({
                         edgeType: roleEdgeType.id,
                     });
                 } else {
-                    upsertUserRole.patchAndFetchById(
-                        targetUser.id,
-                        { edgeType: roleEdgeType.id });
+                    upsertUserRole.patchAndFetchById(targetUser.id, { edgeType: roleEdgeType.id });
                 }
                 await upsertUserRole;
 
                 return true;
             });
             return results;
-        }
+        },
     }),
 }));

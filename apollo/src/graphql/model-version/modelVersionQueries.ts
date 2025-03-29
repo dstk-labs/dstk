@@ -54,14 +54,10 @@ builder.queryFields((t) => ({
             const parentModel = (await ObjectionMLModel.query()
                 .where('modelId', args.modelId)
                 .first()) as ObjectionMLModel;
-            const team = await ObjectionMLModel.relatedQuery('getTeam')
+            const team = (await ObjectionMLModel.relatedQuery('getTeam')
                 .for(parentModel.modelId)
-                .first() as ObjectionTeam;
-            await ObjectionTeamEdge.userHasRole(
-                _ctx.user.$id(),
-                team.$id(),
-                ['owner', 'member']
-            );
+                .first()) as ObjectionTeam;
+            await ObjectionTeamEdge.userHasRole(_ctx.user.$id(), team.$id(), ['owner', 'member']);
 
             const mlModelVersions = await query
                 .where('modelId', '=', args.modelId)
@@ -85,14 +81,14 @@ builder.queryFields((t) => ({
             const result = cursor
                 ? await cursor.$query().patchAndFetch({ expiration: nowPlusFiveMins })
                 : edges.length > 0
-                ? await ObjectionCursor.query().insertAndFetch({
-                      cursorToken: encoder.encode(
-                          edges[edges.length - 1].id,
-                          edges[edges.length - 1].numericVersion,
-                      ),
-                      cursorRelation: 'model_version',
-                  })
-                : undefined;
+                  ? await ObjectionCursor.query().insertAndFetch({
+                        cursorToken: encoder.encode(
+                            edges[edges.length - 1].id,
+                            edges[edges.length - 1].numericVersion,
+                        ),
+                        cursorRelation: 'model_version',
+                    })
+                  : undefined;
 
             const continuationToken = result?.cursorToken;
 
@@ -118,22 +114,23 @@ builder.queryFields((t) => ({
             modelVersionId: t.arg.string({ required: true }),
         },
         async resolve(_root, args, _ctx) {
-            const mlModelVersion = await ObjectionMLModelVersion.query()
-                .findById(args.modelVersionId);
-            if ( mlModelVersion === undefined) {
-                throw new RegistryOperationError({ name: 'TEAM_PERMISSION_ERROR'});
+            const mlModelVersion = await ObjectionMLModelVersion.query().findById(
+                args.modelVersionId,
+            );
+            if (mlModelVersion === undefined) {
+                throw new RegistryOperationError({ name: 'TEAM_PERMISSION_ERROR' });
             }
             const parentModel = (await ObjectionMLModel.query()
                 .where('modelId', mlModelVersion.modelId)
                 .first()) as ObjectionMLModel;
-            const team = await ObjectionMLModel.relatedQuery('getTeam')
+            const team = (await ObjectionMLModel.relatedQuery('getTeam')
                 .for(parentModel.modelId)
-                .first() as ObjectionTeam;
-            await ObjectionTeamEdge.userHasRole(
-                _ctx.user.$id(),
-                team.$id(),
-                ['owner', 'member', 'viewer']
-            );
+                .first()) as ObjectionTeam;
+            await ObjectionTeamEdge.userHasRole(_ctx.user.$id(), team.$id(), [
+                'owner',
+                'member',
+                'viewer',
+            ]);
 
             return mlModelVersion;
         },

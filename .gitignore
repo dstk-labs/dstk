@@ -33,6 +33,7 @@
 !*.graphql
 !.prettierrc
 !Dockerfile
+!*.config.mjs
 
 # And certain folders, regardless of content
 !*assets/*
