@@ -9,7 +9,7 @@
     "lint:fix": "eslint 'src/**/*.ts' --fix --config ./eslint.config.mjs",
     "format": "prettier 'src/**/*.ts' --write --config ./.prettierrc.json",
     "format:fix": "prettier 'src/**/*.ts' --write --config ./.prettierrc.json",
-    "prepare": "cd .. && husky install ./apollo/.husky"
+    "prepare": "cd .. && husky ./apollo/.husky"
   },
   "dependencies": {
     "@apollo/server": "^4.11.3",
