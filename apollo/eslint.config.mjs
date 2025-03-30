@@ -22,6 +22,8 @@ export default defineConfig([{
         sourceType: "module",
     },
 
+    ignores: ["db.d.ts"],
+
     rules: {
         "@typescript-eslint/no-unused-vars": ["warn", {
             argsIgnorePattern: "^_",
