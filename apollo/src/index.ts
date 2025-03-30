@@ -7,10 +7,31 @@ import { schema } from './graphql/index.js';
 import { JWTValidator } from './utils/jwt.js';
 import { IncomingMessage, ServerResponse } from 'http';
 import { ObjectionUser } from './graphql/index.js';
+import { DB } from './db/db.js';
+import { Kysely, PostgresDialect } from 'kysely';
+
+// https://github.com/brianc/node-postgres/issues/2819
+import pg from "pg";
+const { Pool } = pg;
 
 const JWT = new JWTValidator();
 const knex = Knex(knexConfig.development);
 Model.knex(knex);
+
+const dialect = new PostgresDialect({
+    pool: new Pool({
+        database: 'dstk',
+        host: 'localhost',
+        user: 'postgres',
+        password: 'postgres',
+        port: 5434,
+        max: 10,
+    })
+})
+  
+export const db = new Kysely<DB>({
+    dialect,
+})
 
 const createContext = async ({ res, req }: { res: ServerResponse; req: IncomingMessage }) => {
     // simple auth check on every request
@@ -19,19 +40,12 @@ const createContext = async ({ res, req }: { res: ServerResponse; req: IncomingM
         const token = auth.substring(7, auth.length);
         try {
             const accessToken = await JWT.verifySession(token, 'access');
-        
-            const user = (await ObjectionUser.query()
-                .findById(accessToken?.sub || '' )
-                .where({ isDisabled: false })
-            ) as ObjectionUser;
 
-            res.setHeader(
-                'Authorization',
-                JWT.encodeSession(
-                    { sub: user.$id() },
-                    'access',
-                ),
-            );
+            const user = (await ObjectionUser.query()
+                .findById(accessToken?.sub || '')
+                .where({ isDisabled: false })) as ObjectionUser;
+
+            res.setHeader('Authorization', JWT.encodeSession({ sub: user.$id() }, 'access'));
 
             return { user: user };
         } catch (err) {

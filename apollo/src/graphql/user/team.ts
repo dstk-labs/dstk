@@ -23,7 +23,8 @@ builder.objectType(Team, {
         createdBy: t.field({
             type: User,
             async resolve(root: ObjectionTeam, _args, _ctx) {
-                const user = (await root.$relatedQuery('getCreatedBy')
+                const user = (await root
+                    .$relatedQuery('getCreatedBy')
                     .for(root.$id())
                     .first()) as ObjectionUser;
                 return user;
@@ -32,7 +33,8 @@ builder.objectType(Team, {
         modifiedBy: t.field({
             type: User,
             async resolve(root: ObjectionTeam, _args, _ctx) {
-                const user = (await root.$relatedQuery('getModifiedBy')
+                const user = (await root
+                    .$relatedQuery('getModifiedBy')
                     .for(root.$id())
                     .first()) as ObjectionUser;
                 return user;
@@ -62,10 +64,9 @@ export class ObjectionTeam extends Model {
 
     static modifiers = {
         filterByEdgeType(_builder: AnyQueryBuilder, edgeType: number) {
-            _builder.withGraphJoined('teamMembers')
-                .where('dstkUser.teamEdges.edgeType', edgeType);
+            _builder.withGraphJoined('teamMembers').where('dstkUser.teamEdges.edgeType', edgeType);
         },
-    }
+    };
 
     static relationMappings = () => ({
         getCreatedBy: {
@@ -91,7 +92,7 @@ export class ObjectionTeam extends Model {
                 from: 'dstkUser.teams.teamId',
                 through: {
                     from: 'dstkUser.teamEdges.teamId',
-                    to: 'dstkUser.teamEdges.userId'
+                    to: 'dstkUser.teamEdges.userId',
                 },
                 to: 'dstkUser.user.userId',
             },
@@ -109,7 +110,7 @@ export class ObjectionTeam extends Model {
             modelClass: ObjectionStorageProvider,
             join: {
                 from: 'dstkUser.teams.teamId',
-                to: 'registry.storageProviders.teamId'
+                to: 'registry.storageProviders.teamId',
             },
         },
     });
@@ -142,7 +143,7 @@ export class ObjectionTeamEdge extends Model {
             modelClass: ObjectionUser,
             join: {
                 from: 'dstkUser.teamEdges.userId',
-                to: 'dstkUser.user.userId'
+                to: 'dstkUser.user.userId',
             },
         },
         team: {
@@ -150,7 +151,7 @@ export class ObjectionTeamEdge extends Model {
             modelClass: ObjectionTeam,
             join: {
                 from: 'dstkUser.teamEdges.teamId',
-                to: 'dstkUser.teams.teamId'
+                to: 'dstkUser.teams.teamId',
             },
         },
         edgeTypeMapping: {
@@ -158,7 +159,7 @@ export class ObjectionTeamEdge extends Model {
             modelClass: ObjectionEdge,
             join: {
                 from: 'dstkUser.teamEdges.edgeType',
-                to: 'dstkMetadata.edgeRelations.id'
+                to: 'dstkMetadata.edgeRelations.id',
             },
         },
     });

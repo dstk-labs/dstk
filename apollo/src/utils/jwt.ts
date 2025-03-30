@@ -14,9 +14,7 @@ export interface Session {
 
 export type PartialSession = Omit<Session, 'jti' | 'iat' | 'exp'>;
 
-type JwtType =
-    | 'refresh'
-    | 'access';
+type JwtType = 'refresh' | 'access';
 
 export class JWTValidator {
     // again, obviously a placeholder until I get a proper secrets
@@ -28,7 +26,7 @@ export class JWTValidator {
 
         const fifteenMinutes = 15 * 60 * 1000;
         const oneWeek = 7 * 24 * 60 * 60 * 1000;
-        const expires = (jwtType === 'refresh') ? issued + oneWeek : issued + fifteenMinutes;
+        const expires = jwtType === 'refresh' ? issued + oneWeek : issued + fifteenMinutes;
         const session: Session = {
             ...partialSession,
             jti: uuidv4(),
@@ -45,12 +43,11 @@ export class JWTValidator {
     async verifySession(tokenString: string, jwtType: JwtType) {
         const decoded = verify(tokenString, this.key, {
             algorithms: ['HS512'],
-            maxAge: (jwtType === 'access') ? '7 days' : undefined,
+            maxAge: jwtType === 'access' ? '7 days' : undefined,
         }) as JwtPayload;
 
         if (jwtType === 'refresh') {
-            const userTokens = await ObjectionRefreshToken.query()
-                .where({ userId: decoded.sub });
+            const userTokens = await ObjectionRefreshToken.query().where({ userId: decoded.sub });
             const isRefreshTokenValid = userTokens.length > 0;
 
             if (!isRefreshTokenValid) {

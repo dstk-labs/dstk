@@ -74,9 +74,9 @@ export class ObjectionUser extends Model {
             modelClass: ObjectionTeamEdge,
             join: {
                 from: 'dstkUser.user.userId',
-                to: 'dstkUser.teamEdges.userId'
-            }
-        }
+                to: 'dstkUser.teamEdges.userId',
+            },
+        },
     });
 }
 

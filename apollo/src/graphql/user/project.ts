@@ -21,7 +21,8 @@ builder.objectType(Project, {
         createdBy: t.field({
             type: User,
             async resolve(root: ObjectionProject, _args, _ctx) {
-                const user = (await root.$relatedQuery('getCreatedBy')
+                const user = (await root
+                    .$relatedQuery('getCreatedBy')
                     .for(root.$id())
                     .first()) as ObjectionUser;
                 return user;
@@ -30,7 +31,8 @@ builder.objectType(Project, {
         modifiedBy: t.field({
             type: User,
             async resolve(root: ObjectionProject, _args, _ctx) {
-                const user = (await root.$relatedQuery('getModifiedBy')
+                const user = (await root
+                    .$relatedQuery('getModifiedBy')
                     .for(root.$id())
                     .first()) as ObjectionUser;
                 return user;
@@ -83,6 +85,6 @@ export class ObjectionProject extends Model {
                 from: 'dstkUser.projects.teamId',
                 to: 'dstkUser.teams.teamId',
             },
-        }
+        },
     });
 }

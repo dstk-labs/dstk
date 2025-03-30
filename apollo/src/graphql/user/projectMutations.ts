@@ -23,11 +23,10 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionProject.transaction(async (trx) => {
-                await ObjectionTeamEdge.userHasRole(
-                    ctx.user.$id(),
-                    args.data.teamId,
-                    ['owner', 'member']
-                );
+                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), args.data.teamId, [
+                    'owner',
+                    'member',
+                ]);
 
                 const project = await ObjectionProject.query(trx)
                     .insertAndFetch({
@@ -54,29 +53,25 @@ builder.mutationFields((t) => ({
         },
         async resolve(root, args, ctx) {
             const results = ObjectionProject.transaction(async (trx) => {
-                const project = await ObjectionProject.query()
-                    .for(args.projectId)
-                    .first();
+                const project = await ObjectionProject.query().for(args.projectId).first();
                 if (project === undefined) {
                     throw new RegistryOperationError({ name: 'PROJECT_PERMISSION_ERROR' });
                 }
 
-                await ObjectionTeamEdge.userHasRole(
-                    ctx.user.$id(),
-                    project.teamId,
-                    ['owner', 'member']
-                );
+                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), project.teamId, [
+                    'owner',
+                    'member',
+                ]);
 
-                await project.$query(trx)
-                    .updateAndFetch({
-                        modifiedById: ctx.user.$id(),
-                        dateModified: raw('NOW()'),
-                        isArchived: raw('NOT is_archived'),
-                    });
+                await project.$query(trx).updateAndFetch({
+                    modifiedById: ctx.user.$id(),
+                    dateModified: raw('NOW()'),
+                    isArchived: raw('NOT is_archived'),
+                });
 
                 return project;
             });
             return results;
-        }
-    })
+        },
+    }),
 }));
