@@ -1,10 +1,9 @@
 import { betterAuth } from 'better-auth';
-import { admin, apiKey, organization, jwt, twoFactor } from 'better-auth/plugins';
-import { db } from '../db/kysely';
+import { admin, apiKey, organization, twoFactor } from 'better-auth/plugins';
+import { pool } from '../db/kysely.js';
 
 export const auth = betterAuth({
-    database: db,
-    basePath: '/graphql',
+    database: pool,
     emailAndPassword: {
         enabled: true,
     },
@@ -45,18 +44,6 @@ export const auth = betterAuth({
                         expiresAt: 'expires_at',
                         createdAt: 'date_created',
                         updatedAt: 'date_modified',
-                    },
-                },
-            },
-        }),
-        jwt({
-            schema: {
-                jwks: {
-                    modelName: 'dstk_user.jwks',
-                    fields: {
-                        publicKey: 'public_key',
-                        privateKey: 'private_key',
-                        createdAt: 'date_created',
                     },
                 },
             },
@@ -176,7 +163,7 @@ export const auth = betterAuth({
         },
     },
     verification: {
-        modelName: 'dstk_user.verification',
+        modelName: 'dstk_user.verifications',
         fields: {
             expiresAt: 'expires_at',
             createdAt: 'date_created',
