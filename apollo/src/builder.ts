@@ -1,7 +1,7 @@
 import SchemaBuilder from '@pothos/core';
 import type { Limit } from './types/Limit.js';
-import { ObjectionUser } from './graphql/index.js';
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth';
+import { auth } from './utils/auth.js';
 
 export const builder = new SchemaBuilder<{
     AuthScopes: {
@@ -9,7 +9,7 @@ export const builder = new SchemaBuilder<{
         loggedIn: boolean;
     };
     Context: {
-        user: ObjectionUser;
+        user: typeof auth.$Infer.Session.user | null;
     };
     DefaultFieldNullability: true;
     Scalars: {
@@ -23,8 +23,8 @@ export const builder = new SchemaBuilder<{
     scopeAuth: {
         authorizeOnSubscribe: true,
         authScopes: async (context) => ({
-            anonymousRequest: !!!context.user?.userId,
-            loggedIn: !!context.user?.userId,
+            anonymousRequest: !!!context.user?.user_id,
+            loggedIn: !!context.user?.user_id,
         }),
     },
 });
