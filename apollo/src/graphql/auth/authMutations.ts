@@ -1,10 +1,7 @@
-import { User, ObjectionUser, ObjectionUserEmail } from '../user/user.js';
-import { AccountError } from '../../utils/errors.js';
-import { HashBrown } from '../../utils/encryption.js';
-import { JWTValidator, PartialSession } from '../../utils/jwt.js';
 import { builder } from '../../builder.js';
-import { raw } from 'objection';
-import { v4 as uuidv4 } from 'uuid';
+import { auth } from '../../utils/auth.js';
+import { DstkUser, User } from '../user/user.js';
+import { db } from '../../db/kysely.js';
 
 export const AccountInputType = builder.inputType('AccountInput', {
     fields: (t) => ({
@@ -17,7 +14,7 @@ export const AccountInputType = builder.inputType('AccountInput', {
 
 export const LoginInputType = builder.inputType('LoginInput', {
     fields: (t) => ({
-        userName: t.string({ required: true }),
+        email: t.string({ required: true }),
         password: t.string({ required: true }),
     }),
 });
@@ -31,34 +28,24 @@ builder.mutationFields((t) => ({
         args: {
             data: t.arg({ type: AccountInputType, required: true }),
         },
-        async resolve(root, args, ctx) {
-            const HashSlingingSlasher = new HashBrown();
-            const results = ObjectionUser.transaction(async (trx) => {
-                const username = await ObjectionUser.query()
-                    .where(raw('LOWER(user_name)'), args.data.userName.toLowerCase())
-                    .first();
-                if (username) {
-                    throw new AccountError({ name: 'USERNAME_IN_USE_ERROR' });
-                }
-
-                const hashedPass = await HashSlingingSlasher.hash(args.data.password);
-                const userAccount = await ObjectionUser.query(trx)
-                    .insertAndFetch({
-                        userName: args.data.userName,
-                        password: hashedPass,
-                        realName: args.data.realName,
-                    })
-                    .first();
-                await ObjectionUserEmail.query(trx).insert({
-                    emailAddress: args.data.email,
-                    userId: userAccount.$id(),
-                    isPrimary: true,
-                    isVerified: false,
-                });
-
-                return userAccount;
+        async resolve(root, args, _ctx) {
+            const result = await auth.api.signUpEmail({
+                body: {
+                    name: args.data.realName,
+                    email: args.data.email,
+                    password: args.data.password,
+                    user_name: args.data.userName,
+                },
             });
-            return results;
+
+            const userId = result.user.id;
+
+            const user = await db
+                .selectFrom('dstk_user.user')
+                .where('dstk_user.user.id', '=', parseInt(userId))
+                .executeTakeFirstOrThrow();
+
+            return user as DstkUser;
         },
     }),
     login: t.field({
@@ -66,38 +53,15 @@ builder.mutationFields((t) => ({
         args: {
             data: t.arg({ type: LoginInputType, required: true }),
         },
-        async resolve(root, args, ctx) {
-            const HashSlingingSlasher = new HashBrown();
-            const JWT = new JWTValidator();
-
-            const results = ObjectionUser.transaction(async (trx) => {
-                const userAccount = await ObjectionUser.query()
-                    .where(raw('LOWER(user_name)'), args.data.userName.toLowerCase())
-                    .first();
-                if (!userAccount) {
-                    throw new AccountError({ name: 'LOGIN_ERROR' });
-                }
-
-                const verified = await HashSlingingSlasher.verify(
-                    userAccount.password,
-                    args.data.password,
-                );
-
-                if (!verified) {
-                    throw new AccountError({ name: 'LOGIN_ERROR' });
-                }
-                if (userAccount.isDisabled) {
-                    throw new AccountError({ name: 'DISABLED_ERROR' });
-                }
-
-                const partialSession = {
-                    jti: uuidv4(),
-                    sub: userAccount.$id(),
-                };
-                const token = JWT.encodeSession(partialSession, 'access');
-                return token;
+        async resolve(_args, args, _ctx) {
+            const result = await auth.api.signInEmail({
+                body: {
+                    email: args.data.email,
+                    password: args.data.password,
+                },
             });
-            return results;
+
+            return result.token;
         },
     }),
 }));
