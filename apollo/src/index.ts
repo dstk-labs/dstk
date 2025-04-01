@@ -57,7 +57,7 @@ app.use('/graphql', express.json(), async ({ req, res }: { req: Request; res: Re
                 method: req.method,
                 search: new URL(req.url).search,
             },
-            context: async () => createContext({ req }), // getContext is my own graphql context factory
+            context: async () => createContext({ req }),
         });
 
         const { headers, body, status } = httpGraphQLResponse;
