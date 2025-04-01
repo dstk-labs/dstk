@@ -121,11 +121,14 @@ export const auth = betterAuth({
         additionalFields: {
             user_id: {
                 type: 'string',
+                required: false,
+            },
+            user_name: {
+                type: 'string',
                 required: true,
             },
             is_approved: {
                 type: 'boolean',
-                required: true,
                 defaultValue: false,
             },
         },
