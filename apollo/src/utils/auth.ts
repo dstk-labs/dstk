@@ -146,7 +146,7 @@ export const auth = betterAuth({
         additionalFields: {
             session_id: {
                 type: 'string',
-                required: true,
+                required: false,
             },
         },
     },
