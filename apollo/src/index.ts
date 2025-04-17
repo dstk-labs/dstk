@@ -3,16 +3,12 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { fromNodeHeaders, toNodeHandler } from 'better-auth/node';
 import express from 'express';
 import type { Request, Response } from 'express';
-import http from 'http';
-import { Model } from 'objection';
-import Knex from 'knex';
-import { knexConfig } from './knexfile.js';
+import http from 'node:http';
 import { schema } from './graphql/index.js';
 import { auth } from './utils/auth.js';
-import { GraphQLError } from 'graphql';
+import { type DocumentNode, getOperationAST, GraphQLError, parse } from 'graphql';
 
-const knex = Knex(knexConfig.development);
-Model.knex(knex);
+const PORT = 4000;
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -24,7 +20,29 @@ const apollo = new ApolloServer({
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
+// I am beginning to regret not putting the auth into its own server.
 const createContext = async ({ req }: { req: Request }) => {
+    const body = req.body;
+
+    /* Do not allow non-graphql operations to hit the server */
+    let parsedQuery: DocumentNode;
+    try {
+        parsedQuery = parse(body.query);
+    } catch {
+        throw new GraphQLError('Invalid GraphQL query', {
+            extensions: { code: 'BAD_REQUEST', http: { status: 400 } },
+        });
+    }
+
+    const operationAST = getOperationAST(parsedQuery, body.operationName);
+
+    /* Apollo server runs introspection queries that are only used to update
+       the schema within the UI. This allows introspection queries to come
+       through by explicitly setting to auth context to nothing. */
+    if (operationAST?.operation === 'query' && body.query.includes('__schema')) {
+        return { user: null, session: null };
+    }
+
     const session = await auth.api.getSession({
         headers: fromNodeHeaders(req.headers),
     });
@@ -39,11 +57,14 @@ const createContext = async ({ req }: { req: Request }) => {
     }
 
     return {
+        headers: req.headers,
         user: session.user,
+        session: session.session,
     };
 };
 
-app.use('/graphql', express.json(), async ({ req, res }: { req: Request; res: Response }) => {
+await apollo.start();
+app.use('/graphql', express.json(), async (req: Request, res: Response) => {
     try {
         const httpGraphQLResponse = await apollo.executeHTTPGraphQLRequest({
             httpGraphQLRequest: {
@@ -55,7 +76,7 @@ app.use('/graphql', express.json(), async ({ req, res }: { req: Request; res: Re
                     ]),
                 ),
                 method: req.method,
-                search: new URL(req.url).search,
+                search: new URL(req.url, `http://${req.headers.host}`).search,
             },
             context: async () => createContext({ req }),
         });
@@ -85,5 +106,5 @@ app.use('/graphql', express.json(), async ({ req, res }: { req: Request; res: Re
     }
 });
 
-await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
-console.log(`🚀 Server ready at ${httpServer.address}`);
+await new Promise<void>((resolve) => httpServer.listen({ port: PORT }, resolve));
+console.log(`🚀 Server ready at http://localhost:${PORT}`);
