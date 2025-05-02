@@ -1,5 +1,4 @@
 import { betterAuth } from 'better-auth';
-import { admin, apiKey, organization, twoFactor } from 'better-auth/plugins';
 import { pool } from '../db/kysely.js';
 
 export const auth = betterAuth({
@@ -9,107 +8,6 @@ export const auth = betterAuth({
     },
     // emailVerification: { ... },
     appName: 'dstk',
-    plugins: [
-        admin({
-            schema: {
-                user: {
-                    modelName: 'dstk_user.user',
-                    fields: {
-                        banReason: 'ban_reason',
-                        banExpires: 'ban_expires',
-                    },
-                },
-                session: {
-                    modelName: 'dstk_user.sessions',
-                    fields: {
-                        impersonatedBy: 'impersonated_by',
-                    },
-                },
-            },
-        }),
-        apiKey({
-            schema: {
-                apikey: {
-                    modelName: 'dstk_user.api_keys',
-                    fields: {
-                        userId: 'user_id',
-                        refillInterval: 'refill_interval',
-                        refillAmount: 'refill_amount',
-                        lastRefillAt: 'last_refill_at',
-                        rateLimitEnabled: 'rate_limit_enabled',
-                        rateLimitTimeWindow: 'rate_limit_time_window',
-                        rateLimitMax: 'rate_limit_max',
-                        requestCount: 'request_count',
-                        lastRequest: 'last_request',
-                        expiresAt: 'expires_at',
-                        createdAt: 'date_created',
-                        updatedAt: 'date_modified',
-                    },
-                },
-            },
-        }),
-        organization({
-            teams: {
-                enabled: true,
-            },
-            schema: {
-                organization: {
-                    modelName: 'dstk_user.organizations',
-                    fields: {
-                        createdAt: 'date_created',
-                    },
-                },
-                member: {
-                    modelName: 'dstk_user.members',
-                    fields: {
-                        userId: 'user_id',
-                        organizationId: 'organization_id',
-                        createdAt: 'date_created',
-                    },
-                },
-                invitation: {
-                    modelName: 'dstk_user.invitation',
-                    fields: {
-                        inviterId: 'inviter_id',
-                        organizationId: 'organization_id',
-                        expiresAt: 'expires_at',
-                        createdAt: 'date_created',
-                    },
-                },
-                session: {
-                    modelName: 'dstk_user.sessions',
-                    fields: {
-                        activeOrganizationId: 'active_organization_id',
-                    },
-                },
-                team: {
-                    modelName: 'dstk_user.teams',
-                    fields: {
-                        organizationId: 'organization_id',
-                        createdAt: 'date_created',
-                        updatedAt: 'date_modified',
-                    },
-                },
-            },
-        }),
-        twoFactor({
-            schema: {
-                user: {
-                    modelName: 'dstk_user.users',
-                    fields: {
-                        twoFactorEnabled: 'is_mfa_enabled',
-                    },
-                },
-                twoFactor: {
-                    modelName: 'dstk_user.two_factor',
-                    fields: {
-                        userId: 'user_id',
-                        backupCodes: 'backup_codes',
-                    },
-                },
-            },
-        }),
-    ],
     user: {
         modelName: 'dstk_user.user',
         fields: {
@@ -127,10 +25,6 @@ export const auth = betterAuth({
                 type: 'string',
                 required: true,
             },
-            is_approved: {
-                type: 'boolean',
-                defaultValue: false,
-            },
         },
     },
     session: {
@@ -142,12 +36,6 @@ export const auth = betterAuth({
             userAgent: 'user_agent',
             createdAt: 'date_created',
             updatedAt: 'date_modified',
-        },
-        additionalFields: {
-            session_id: {
-                type: 'string',
-                required: false,
-            },
         },
     },
     account: {
@@ -173,10 +61,10 @@ export const auth = betterAuth({
             updatedAt: 'date_modified',
         },
     },
-    apiKey: {
-        modelName: 'dstk_user.api_keys',
-    },
     advanced: {
-        generateId: false,
+        defaultCookieAttributes: {
+            sameSite: process.env.NODE_ENV === 'dev' ? 'none' : 'Lax',
+            secure: true,
+        },
     },
 });
