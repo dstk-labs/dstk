@@ -1,90 +1,56 @@
 import { builder } from '../../builder.js';
-import { Model } from 'objection';
-import { User, ObjectionUser } from '../user/user.js';
-import { ObjectionTeam } from './team.js';
+import type { DstkUserProjects } from '../../db/db.js';
+import { db } from '../../db/kysely.js';
+import { User } from '../user/user.js';
+import type { Selectable } from 'kysely';
 
-export const Project = builder.objectRef<ObjectionProject>('Project');
+export type KyselyProject = Selectable<DstkUserProjects>;
 
+export const Project = builder.objectRef<KyselyProject>('Project');
 builder.objectType(Project, {
     fields: (t) => ({
         projectId: t.field({
             type: 'ID',
-            resolve(root: ObjectionProject, _args, _ctx) {
-                return root.$id();
+            resolve(root: KyselyProject, _args, _ctx) {
+                return root.project_id;
             },
         }),
         name: t.exposeString('name'),
         description: t.exposeString('description'),
-        isArchived: t.exposeBoolean('isArchived'),
-        dateCreated: t.exposeString('dateCreated'),
-        dateModified: t.exposeString('dateModified'),
+        isArchived: t.exposeBoolean('is_archived'),
+        dateCreated: t.field({
+            type: 'String',
+            resolve(root: KyselyProject, _args, _ctx) {
+                return root.date_created.toISOString();
+            },
+        }),
+        dateModified: t.field({
+            type: 'String',
+            resolve(root: KyselyProject, _args, _ctx) {
+                return root.date_modified.toISOString();
+            },
+        }),
         createdBy: t.field({
             type: User,
-            async resolve(root: ObjectionProject, _args, _ctx) {
-                const user = (await root
-                    .$relatedQuery('getCreatedBy')
-                    .for(root.$id())
-                    .first()) as ObjectionUser;
+            async resolve(root: KyselyProject, _args, _ctx) {
+                const user = await db
+                    .selectFrom('dstk_user.user')
+                    .selectAll()
+                    .where('dstk_user.user.user_id', '=', root.created_by_id)
+                    .executeTakeFirstOrThrow();
                 return user;
             },
         }),
         modifiedBy: t.field({
             type: User,
-            async resolve(root: ObjectionProject, _args, _ctx) {
-                const user = (await root
-                    .$relatedQuery('getModifiedBy')
-                    .for(root.$id())
-                    .first()) as ObjectionUser;
+            async resolve(root: KyselyProject, _args, _ctx) {
+                const user = await db
+                    .selectFrom('dstk_user.user')
+                    .selectAll()
+                    .where('dstk_user.user.user_id', '=', root.modified_by_id)
+                    .executeTakeFirstOrThrow();
                 return user;
             },
         }),
     }),
 });
-
-export class ObjectionProject extends Model {
-    id!: number;
-    projectId!: string;
-    teamId!: string;
-    name!: string;
-    description!: string;
-    isArchived!: boolean;
-    dateCreated!: string;
-    dateModified!: string;
-    createdById!: string;
-    modifiedById!: string;
-
-    createdBy!: ObjectionUser;
-    modifiedBy!: ObjectionUser;
-
-    static tableName = 'dstkUser.projects';
-    static get idColumn() {
-        return 'projectId';
-    }
-
-    static relationMappings = () => ({
-        getCreatedBy: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionUser,
-            join: {
-                from: 'dstkUser.projects.createdById',
-                to: 'dstkUser.user.userId',
-            },
-        },
-        getModifiedBy: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionUser,
-            join: {
-                from: 'dstkUser.projects.modifiedById',
-                to: 'dstkUser.user.userId',
-            },
-        },
-        team: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionTeam,
-            join: {
-                from: 'dstkUser.projects.teamId',
-                to: 'dstkUser.teams.teamId',
-            },
-        },
-    });
-}

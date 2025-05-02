@@ -1,6 +1,6 @@
 import { builder } from '../../builder.js';
-import { PageInfo, PageInfoClass } from '../misc/pageInfo.js';
-import { MLModelVersionEdge, MLModelVersionEdgeClass } from './modelVersionEdge.js';
+import { PageInfo, type PageInfoClass } from '../misc/pageInfo.js';
+import { MLModelVersionEdge, type MLModelVersionEdgeClass } from './modelVersionEdge.js';
 
 export const MLModelVersionConnection = builder.objectRef<MLModelVersionConnectionClass>(
     'MLModelVersionConnection',

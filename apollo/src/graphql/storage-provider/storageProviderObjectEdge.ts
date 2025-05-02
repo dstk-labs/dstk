@@ -1,5 +1,5 @@
 import { builder } from '../../builder.js';
-import { StorageProviderObject, StorageProviderObjectClass } from './storageProviderObject.js';
+import { StorageProviderObject, type StorageProviderObjectClass } from './storageProviderObject.js';
 
 export const StorageProviderObjectEdge = builder.objectRef<StorageProviderObjectEdgeClass>(
     'StorageProviderObjectEdge',
@@ -11,7 +11,7 @@ builder.objectType(StorageProviderObjectEdge, {
         node: t.field({
             type: StorageProviderObject,
             async resolve(root, _args, _ctx) {
-                return await root.node;
+                return root.node;
             },
         }),
     }),

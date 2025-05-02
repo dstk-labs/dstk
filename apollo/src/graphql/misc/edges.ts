@@ -1,7 +1,10 @@
-import { Model } from 'objection';
+import { Selectable } from 'kysely';
 import { builder } from '../../builder.js';
+import { DstkMetadataEdgeRelations } from '../../db/db.js';
 
-export const Role = builder.objectRef<ObjectionEdge>('Role');
+export type KyselyEdgeRelations = Selectable<DstkMetadataEdgeRelations>;
+
+export const Role = builder.objectRef<KyselyEdgeRelations>('Role');
 
 builder.objectType(Role, {
     fields: (t) => ({
@@ -9,11 +12,3 @@ builder.objectType(Role, {
         description: t.exposeString('description'),
     }),
 });
-
-export class ObjectionEdge extends Model {
-    id!: number;
-    type!: string;
-    description!: string;
-
-    static tableName = 'dstkMetadata.edgeRelations';
-}

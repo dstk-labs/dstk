@@ -1,7 +1,8 @@
-import { Project, ObjectionProject } from './project.js';
-import { ObjectionTeam, ObjectionTeamEdge } from './team.js';
+import { Project } from './project.js';
 import { builder } from '../../builder.js';
 import { RegistryOperationError } from '../../utils/errors.js';
+import { userHasRole } from '../../utils/rls.js';
+import { db } from '../../db/kysely.js';
 
 builder.queryFields((t) => ({
     listProjects: t.field({
@@ -12,16 +13,19 @@ builder.queryFields((t) => ({
         args: {
             teamId: t.arg.string({ required: true }),
         },
-        async resolve(root, args, ctx) {
-            await ObjectionTeamEdge.userHasRole(ctx.user.$id(), args.teamId, [
-                'owner',
-                'member',
-                'viewer',
-            ]);
+        async resolve(_root, args, ctx) {
+            await userHasRole({
+                userId: ctx.user.user_id,
+                teamId: args.teamId,
+                roles: ['owner', 'member', 'viewer'],
+            });
 
-            const projects = (await ObjectionTeam.relatedQuery('projects').for(args.teamId)) as [
-                ObjectionProject,
-            ];
+            const projects = await db
+                .selectFrom('dstk_user.projects')
+                .selectAll()
+                .where('dstk_user.projects.team_id', '=', args.teamId)
+                .execute();
+
             return projects;
         },
     }),
@@ -33,17 +37,20 @@ builder.queryFields((t) => ({
         args: {
             projectId: t.arg.string({ required: true }),
         },
-        async resolve(root, args, ctx) {
-            const project = await ObjectionProject.query().for(args.projectId).first();
-            if (project === undefined) {
-                throw new RegistryOperationError({ name: 'PROJECT_PERMISSION_ERROR' });
-            }
+        async resolve(_root, args, ctx) {
+            const project = await db
+                .selectFrom('dstk_user.projects')
+                .selectAll()
+                .where('dstk_user.projects.project_id', '=', args.projectId)
+                .executeTakeFirstOrThrow(
+                    () => new RegistryOperationError({ name: 'PROJECT_PERMISSION_ERROR' }),
+                );
 
-            await ObjectionTeamEdge.userHasRole(ctx.user.$id(), project.teamId, [
-                'owner',
-                'member',
-                'viewer',
-            ]);
+            await userHasRole({
+                userId: ctx.user.user_id,
+                teamId: project.team_id,
+                roles: ['owner', 'member', 'viewer'],
+            });
 
             return project;
         },

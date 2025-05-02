@@ -1,7 +1,8 @@
 import { builder } from '../../builder.js';
 import { auth } from '../../utils/auth.js';
-import { DstkUser, User } from '../user/user.js';
+import { User } from '../user/user.js';
 import { db } from '../../db/kysely.js';
+import { AccountError } from '../../utils/errors.js';
 
 export const AccountInputType = builder.inputType('AccountInput', {
     fields: (t) => ({
@@ -16,6 +17,7 @@ export const LoginInputType = builder.inputType('LoginInput', {
     fields: (t) => ({
         email: t.string({ required: true }),
         password: t.string({ required: true }),
+        rememberMe: t.boolean({ defaultValue: true }),
     }),
 });
 
@@ -28,8 +30,22 @@ builder.mutationFields((t) => ({
         args: {
             data: t.arg({ type: AccountInputType, required: true }),
         },
-        async resolve(root, args, _ctx) {
-            const result = await auth.api.signUpEmail({
+        async resolve(_root, args, ctx) {
+            const userName = await db
+                .selectFrom('dstk_user.user')
+                .select('dstk_user.user.user_name')
+                .where(
+                    ({ fn }) => fn('lower', ['dstk_user.user.user_name']),
+                    '=',
+                    args.data.userName,
+                )
+                .executeTakeFirst();
+            if (userName) {
+                throw new AccountError({ name: 'USERNAME_IN_USE_ERROR' });
+            }
+
+            const { headers, response } = await auth.api.signUpEmail({
+                returnHeaders: true,
                 body: {
                     name: args.data.realName,
                     email: args.data.email,
@@ -38,14 +54,19 @@ builder.mutationFields((t) => ({
                 },
             });
 
-            const userId = result.user.id;
+            const cookies = headers.get('set-cookie');
+            if (cookies === null) {
+                throw new AccountError({ name: 'ACCOUNT_REGISTRATION_ERROR' });
+            }
+            ctx.res.set('Set-Cookie', cookies);
 
             const user = await db
                 .selectFrom('dstk_user.user')
-                .where('dstk_user.user.id', '=', parseInt(userId))
+                .selectAll()
+                .where('dstk_user.user.id', '=', response.user.id)
                 .executeTakeFirstOrThrow();
 
-            return user as DstkUser;
+            return user;
         },
     }),
     login: t.field({
@@ -53,15 +74,38 @@ builder.mutationFields((t) => ({
         args: {
             data: t.arg({ type: LoginInputType, required: true }),
         },
-        async resolve(_args, args, _ctx) {
-            const result = await auth.api.signInEmail({
-                body: {
-                    email: args.data.email,
-                    password: args.data.password,
-                },
+        async resolve(_args, args, ctx) {
+            let body = {
+                email: args.data.email,
+                password: args.data.password,
+            };
+
+            if (args.data.rememberMe) {
+                body = Object.assign({}, body, { rememberMe: args.data.rememberMe });
+            }
+
+            const { headers, response } = await auth.api.signInEmail({
+                returnHeaders: true,
+                body,
             });
 
-            return result.token;
+            const cookies = headers.get('set-cookie');
+            if (cookies === null) {
+                throw new AccountError({ name: 'LOGIN_ERROR' });
+            }
+            ctx.res.set('Set-Cookie', cookies);
+
+            return response.token;
+        },
+    }),
+    logout: t.field({
+        type: 'Boolean',
+        async resolve(_root, _args, ctx) {
+            const { success } = await auth.api.signOut({
+                headers: ctx.headers,
+            });
+
+            return success;
         },
     }),
 }));

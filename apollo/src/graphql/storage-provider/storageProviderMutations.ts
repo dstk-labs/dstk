@@ -1,9 +1,9 @@
-import { StorageProvider, ObjectionStorageProvider } from './storageProvider.js';
+import { StorageProvider } from './storageProvider.js';
 import { Security } from '../../utils/encryption.js';
-import { raw } from 'objection';
 import { builder } from '../../builder.js';
-import { ObjectionTeamEdge } from '../user/team.js';
 import { RegistryOperationError } from '../../utils/errors.js';
+import { db } from '../../db/kysely.js';
+import { userHasRole } from '../../utils/rls.js';
 
 const EncryptoMatic = new Security();
 
@@ -35,30 +35,34 @@ builder.mutationFields((t) => ({
         args: {
             data: t.arg({ type: StorageProviderInputType, required: true }),
         },
-        async resolve(root, args, ctx) {
-            const results = ObjectionStorageProvider.transaction(async (trx) => {
-                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), args.data.teamId, [
-                    'owner',
-                    'member',
-                ]);
+        async resolve(_root, args, ctx) {
+            const results = await db.transaction().execute(async (trx) => {
+                await userHasRole({
+                    userId: ctx.user.user_id,
+                    teamId: args.data.teamId,
+                    roles: ['owner', 'member'],
+                });
 
                 const encryptedAccessKeyId = EncryptoMatic.encrypt(args.data.accessKeyId);
                 const encryptedSecretAccessKey = EncryptoMatic.encrypt(args.data.secretAccessKey);
 
-                const storageProvider = await ObjectionStorageProvider.query(trx)
-                    .insertAndFetch({
-                        endpointUrl: args.data.endpointUrl,
+                const storageProvider = await trx
+                    .insertInto('registry.storage_providers')
+                    .values({
+                        endpoint_url: args.data.endpointUrl,
                         region: args.data.region,
                         bucket: args.data.bucket,
-                        accessKeyId: encryptedAccessKeyId,
-                        secretAccessKey: encryptedSecretAccessKey,
-                        createdById: ctx.user.$id(),
-                        modifiedById: ctx.user.$id(),
-                        ownerId: ctx.user.$id(),
-                        teamId: args.data.teamId,
+                        access_key_id: encryptedAccessKeyId,
+                        secret_access_key: encryptedSecretAccessKey,
+                        created_by_id: ctx.user.user_id,
+                        modified_by_id: ctx.user.user_id,
+                        owner_id: ctx.user.user_id,
+                        team_id: args.data.teamId,
                     })
-                    .first();
-                return storageProvider as typeof StorageProvider.$inferType;
+                    .returningAll()
+                    .executeTakeFirstOrThrow();
+
+                return storageProvider;
             });
 
             return results;
@@ -72,31 +76,38 @@ builder.mutationFields((t) => ({
         args: {
             data: t.arg({ type: EditStorageProviderInputType, required: true }),
         },
-        async resolve(root, args, ctx) {
-            const results = ObjectionStorageProvider.transaction(async (trx) => {
-                const storageProvider = await ObjectionStorageProvider.query()
-                    .findById(args.data.providerId)
-                    .first();
+        async resolve(_root, args, ctx) {
+            const results = await db.transaction().execute(async (trx) => {
+                const storageProvider = await trx
+                    .selectFrom('registry.storage_providers')
+                    .select('registry.storage_providers.team_id')
+                    .where('registry.storage_providers.provider_id', '=', args.data.providerId)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' }),
+                    );
 
-                if (storageProvider === undefined) {
-                    throw new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' });
-                }
-
-                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), storageProvider.teamId, [
-                    'owner',
-                    'member',
-                ]);
+                await userHasRole({
+                    userId: ctx.user.user_id,
+                    teamId: storageProvider.team_id,
+                    roles: ['owner', 'member'],
+                });
 
                 const encryptedAccessKeyId = EncryptoMatic.encrypt(args.data.accessKeyId);
                 const encryptedSecretAccessKey = EncryptoMatic.encrypt(args.data.secretAccessKey);
 
-                await storageProvider.$query(trx).patchAndFetch({
-                    accessKeyId: encryptedAccessKeyId,
-                    secretAccessKey: encryptedSecretAccessKey,
-                    dateModified: raw('NOW()'),
-                    modifiedById: ctx.user.$id(),
-                });
-                return storageProvider;
+                const result = await trx
+                    .updateTable('registry.storage_providers')
+                    .set({
+                        access_key_id: encryptedAccessKeyId,
+                        secret_access_key: encryptedSecretAccessKey,
+                        date_modified: new Date(),
+                        modified_by_id: ctx.user.user_id,
+                    })
+                    .where('registry.storage_providers.provider_id', '=', args.data.providerId)
+                    .returningAll()
+                    .executeTakeFirstOrThrow();
+
+                return result;
             });
 
             return results;
@@ -110,29 +121,39 @@ builder.mutationFields((t) => ({
         args: {
             providerId: t.arg.string({ required: true }),
         },
-        async resolve(root, args, ctx) {
-            const results = ObjectionStorageProvider.transaction(async (trx) => {
-                const storageProvider = await ObjectionStorageProvider.query()
-                    .findById(args.providerId)
-                    .first();
+        async resolve(_root, args, ctx) {
+            const results = await db.transaction().execute(async (trx) => {
+                const storageProvider = await trx
+                    .selectFrom('registry.storage_providers')
+                    .select([
+                        'registry.storage_providers.is_archived',
+                        'registry.storage_providers.team_id',
+                    ])
+                    .where('registry.storage_providers.provider_id', '=', args.providerId)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' }),
+                    );
 
-                if (storageProvider === undefined) {
-                    throw new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' });
-                }
-
-                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), storageProvider.teamId, [
-                    'owner',
-                ]);
-
-                storageProvider.$query(trx).patchAndFetch({
-                    isArchived: raw('NOT is_archived'),
-                    secretAccessKey: EncryptoMatic.encrypt('<DELETED>'),
-                    accessKeyId: EncryptoMatic.encrypt('<DELETED>'),
-                    dateModified: raw('NOW()'),
-                    modifiedById: ctx.user.$id(),
+                await userHasRole({
+                    userId: ctx.user.user_id,
+                    teamId: storageProvider.team_id,
+                    roles: ['owner'],
                 });
 
-                return storageProvider;
+                const result = await trx
+                    .updateTable('registry.storage_providers')
+                    .set({
+                        is_archived: !storageProvider.is_archived,
+                        secret_access_key: EncryptoMatic.encrypt('<DELETED>'),
+                        access_key_id: EncryptoMatic.encrypt('<DELETED>'),
+                        date_modified: new Date(),
+                        modified_by_id: ctx.user.user_id,
+                    })
+                    .where('registry.storage_providers.provider_id', '=', args.providerId)
+                    .returningAll()
+                    .executeTakeFirstOrThrow();
+
+                return result;
             });
 
             return results;

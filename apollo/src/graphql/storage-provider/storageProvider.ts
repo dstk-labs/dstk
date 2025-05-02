@@ -1,123 +1,80 @@
 import { builder } from '../../builder.js';
-import { Model } from 'objection';
-import { ObjectionMLModel } from '../model/model.js';
-import { User, ObjectionUser } from '../user/user.js';
 import { Security } from '../../utils/encryption.js';
+import type { RegistryStorageProviders } from '../../db/db.js';
+import type { Selectable } from 'kysely';
+import { User } from '../user/user.js';
+import { db } from '../../db/kysely.js';
 
 const EncryptoMatic = new Security();
 
-export const StorageProvider = builder.objectRef<ObjectionStorageProvider>('StorageProvider');
+export type KyselyStorageProvider = Selectable<RegistryStorageProviders>;
+
+export const StorageProvider = builder.objectRef<KyselyStorageProvider>('StorageProvider');
+
 builder.objectType(StorageProvider, {
     fields: (t) => ({
         providerId: t.field({
             type: 'ID',
-            resolve(root: ObjectionStorageProvider, _args, _ctx) {
-                return root.$id();
+            resolve(root: KyselyStorageProvider, _args, _ctx) {
+                return root.provider_id;
             },
         }),
-        endpointUrl: t.exposeString('endpointUrl'),
+        endpointUrl: t.exposeString('endpoint_url'),
         region: t.exposeString('region'),
         bucket: t.exposeString('bucket'),
 
         accessKeyId: t.string({
-            resolve(root) {
-                return EncryptoMatic.decrypt(root.accessKeyId);
+            resolve(root: KyselyStorageProvider, _args, _ctx) {
+                return EncryptoMatic.decrypt(root.access_key_id);
             },
         }),
 
         createdBy: t.field({
             type: User,
-            async resolve(root: ObjectionStorageProvider, _args, _ctx) {
-                const user = (await root
-                    .$relatedQuery('getCreatedBy')
-                    .for(root.$id())
-                    .first()) as ObjectionUser;
+            async resolve(root: KyselyStorageProvider, _args, _ctx) {
+                const user = await db
+                    .selectFrom('dstk_user.user')
+                    .selectAll()
+                    .where('dstk_user.user.user_id', '=', root.created_by_id)
+                    .executeTakeFirstOrThrow();
                 return user;
             },
         }),
         modifiedBy: t.field({
             type: User,
-            async resolve(root: ObjectionStorageProvider, _args, _ctx) {
-                const user = (await root
-                    .$relatedQuery('getModifiedBy')
-                    .for(root.$id())
-                    .first()) as ObjectionUser;
+            async resolve(root: KyselyStorageProvider, _args, _ctx) {
+                const user = await db
+                    .selectFrom('dstk_user.user')
+                    .selectAll()
+                    .where('dstk_user.user.user_id', '=', root.modified_by_id)
+                    .executeTakeFirstOrThrow();
                 return user;
             },
         }),
         owner: t.field({
             type: User,
-            async resolve(root: ObjectionStorageProvider, _args, _ctx) {
-                const user = (await root
-                    .$relatedQuery('getOwner')
-                    .for(root.$id())
-                    .first()) as ObjectionUser;
+            async resolve(root: KyselyStorageProvider, _args, _ctx) {
+                const user = await db
+                    .selectFrom('dstk_user.user')
+                    .selectAll()
+                    .where('dstk_user.user.user_id', '=', root.owner_id)
+                    .executeTakeFirstOrThrow();
                 return user;
             },
         }),
-        teamId: t.exposeString('teamId'),
-        dateCreated: t.exposeString('dateCreated'),
-        dateModified: t.exposeString('dateModified'),
-        isArchived: t.exposeBoolean('isArchived'),
+        teamId: t.exposeString('team_id'),
+        dateCreated: t.field({
+            type: 'String',
+            resolve(root: KyselyStorageProvider, _args, _ctx) {
+                return root.date_created.toISOString();
+            },
+        }),
+        dateModified: t.field({
+            type: 'String',
+            resolve(root: KyselyStorageProvider, _args, _ctx) {
+                return root.date_modified.toISOString();
+            },
+        }),
+        isArchived: t.exposeBoolean('is_archived'),
     }),
 });
-
-export class ObjectionStorageProvider extends Model {
-    id!: number;
-    endpointUrl!: string;
-    region!: string;
-    bucket!: string;
-    accessKeyId!: string;
-    secretAccessKey!: string;
-    createdById!: string;
-    modifiedById!: string;
-    ownerId!: string;
-    teamId!: string;
-    dateCreated!: string;
-    dateModified!: string;
-    isArchived!: boolean;
-
-    owner!: ObjectionUser;
-    modifiedBy!: ObjectionUser;
-    createdBy!: ObjectionUser;
-
-    static tableName = 'registry.storageProviders';
-    static get idColumn() {
-        return 'providerId';
-    }
-
-    static relationMappings = () => ({
-        models: {
-            relation: Model.HasManyRelation,
-            modelClass: ObjectionMLModel,
-            join: {
-                from: 'registry.storageProviders.providerId',
-                to: 'registry.models.storageProviderId',
-            },
-        },
-        getOwner: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionUser,
-            join: {
-                from: 'registry.storageProviders.ownerId',
-                to: 'dstkUser.user.userId',
-            },
-        },
-        getCreatedBy: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionUser,
-            join: {
-                from: 'registry.storageProviders.createdById',
-                to: 'dstkUser.user.userId',
-            },
-        },
-        getModifiedBy: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionUser,
-            join: {
-                from: 'registry.storageProviders.modifiedById',
-                to: 'dstkUser.user.userId',
-            },
-        },
-    });
-}

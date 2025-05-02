@@ -1,8 +1,8 @@
 import { builder } from '../../builder.js';
-import { PageInfo, PageInfoClass } from '../misc/pageInfo.js';
+import { PageInfo, type PageInfoClass } from '../misc/pageInfo.js';
 import {
     StorageProviderObjectEdge,
-    StorageProviderObjectEdgeClass,
+    type StorageProviderObjectEdgeClass,
 } from './storageProviderObjectEdge.js';
 
 export const StorageProviderObjectConnection =

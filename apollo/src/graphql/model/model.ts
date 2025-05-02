@@ -1,164 +1,98 @@
 import { builder } from '../../builder.js';
-import { Model } from 'objection';
-import { StorageProvider, ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
-import { MLModelVersion, ObjectionMLModelVersion } from '../model-version/modelVersion.js';
-import { User, ObjectionUser } from '../user/user.js';
-import { ObjectionProject, Project } from '../user/project.js';
-import { ObjectionTeam } from '../user/team.js';
+import { StorageProvider } from '../storage-provider/storageProvider.js';
+import { User } from '../user/user.js';
+import { Project } from '../user/project.js';
+import { db } from '../../db/kysely.js';
+import type { RegistryModels } from '../../db/db.js';
+import type { Selectable } from 'kysely';
+import { MLModelVersion } from '../model-version/modelVersion.js';
 
-export const MLModel = builder.objectRef<ObjectionMLModel>('MLModel');
+export type KyselyMLModel = Selectable<RegistryModels>;
+
+export const MLModel = builder.objectRef<KyselyMLModel>('MLModel');
 
 builder.objectType(MLModel, {
     fields: (t) => ({
         modelId: t.field({
             type: 'ID',
-            resolve(root: ObjectionMLModel, _args, _ctx) {
-                return root.$id();
+            resolve(root: KyselyMLModel, _args, _ctx) {
+                return root.model_id;
             },
         }),
-
         storageProvider: t.field({
             type: StorageProvider,
-            async resolve(root: ObjectionMLModel, _args, _ctx) {
-                const storageProvider = (await ObjectionStorageProvider.query()
-                    .findById(root.storageProviderId)
-                    .first()) as ObjectionStorageProvider;
+            async resolve(root: KyselyMLModel, _args, _ctx) {
+                const storageProvider = await db
+                    .selectFrom('registry.storage_providers')
+                    .selectAll()
+                    .where('registry.storage_providers.provider_id', '=', root.storage_provider_id)
+                    .executeTakeFirstOrThrow();
+
                 return storageProvider;
             },
         }),
 
         currentModelVersion: t.field({
             type: MLModelVersion,
-            async resolve(root: ObjectionMLModel, _args, _ctx) {
-                const currentModelVersion = (await ObjectionMLModelVersion.query()
-                    .findById(root.currentModelVersionId)
-                    .first()) as ObjectionMLModelVersion;
-
+            async resolve(root: KyselyMLModel, _args, _ctx) {
+                const currentModelVersion = await db
+                    .selectFrom('registry.model_versions')
+                    .selectAll()
+                    .where('registry.model_versions.model_id', '=', root.current_model_version_id)
+                    .executeTakeFirstOrThrow();
                 return currentModelVersion;
             },
         }),
 
         project: t.field({
             type: Project,
-            async resolve(root: ObjectionMLModel, _args, _ctx) {
-                const currentModelVersion = (await ObjectionProject.query()
-                    .findById(root.projectId)
-                    .first()) as ObjectionProject;
+            async resolve(root: KyselyMLModel, _args, _ctx) {
+                const project = await db
+                    .selectFrom('dstk_user.projects')
+                    .selectAll()
+                    .where('dstk_user.projects.project_id', '=', root.project_id)
+                    .executeTakeFirstOrThrow();
 
-                return currentModelVersion;
+                return project;
             },
         }),
 
-        isArchived: t.exposeBoolean('isArchived'),
-        modelName: t.exposeString('modelName'),
-        dateCreated: t.exposeString('dateCreated'),
-        dateModified: t.exposeString('dateModified'),
+        isArchived: t.exposeBoolean('is_archived'),
+        modelName: t.exposeString('model_name'),
+        dateCreated: t.field({
+            type: 'String',
+            resolve(root: KyselyMLModel, _args, _ctx) {
+                return root.date_created.toISOString();
+            },
+        }),
+        dateModified: t.field({
+            type: 'String',
+            resolve(root: KyselyMLModel, _args, _ctx) {
+                return root.date_modified.toISOString();
+            },
+        }),
         description: t.exposeString('description'),
         createdBy: t.field({
             type: User,
-            async resolve(root: ObjectionMLModel, _args, _ctx) {
-                const user = (await root
-                    .$relatedQuery('getCreatedBy')
-                    .for(root.$id())
-                    .first()) as ObjectionUser;
+            async resolve(root: KyselyMLModel, _args, _ctx) {
+                const user = await db
+                    .selectFrom('dstk_user.user')
+                    .selectAll()
+                    .where('dstk_user.user.user_id', '=', root.created_by_id)
+                    .executeTakeFirstOrThrow();
                 return user;
             },
         }),
         modifiedBy: t.field({
             type: User,
-            async resolve(root: ObjectionMLModel, _args, _ctx) {
-                const user = (await root
-                    .$relatedQuery('getModifiedBy')
-                    .for(root.$id())
-                    .first()) as ObjectionUser;
+            async resolve(root: KyselyMLModel, _args, _ctx) {
+                const user = await db
+                    .selectFrom('dstk_user.user')
+                    .selectAll()
+                    .where('dstk_user.user.user_id', '=', root.modified_by_id)
+                    .executeTakeFirstOrThrow();
                 return user;
             },
         }),
     }),
 });
-
-export class ObjectionMLModel extends Model {
-    id!: number;
-    modelId!: string;
-    storageProviderId!: string;
-    currentModelVersionId!: string;
-    projectId!: string;
-    isArchived!: boolean;
-    modelName!: string;
-    createdById!: string;
-    modifiedById!: string;
-    dateCreated!: string;
-    dateModified!: string;
-    description!: string;
-
-    modifiedBy!: ObjectionUser;
-    createdBy!: ObjectionUser;
-
-    static tableName = 'registry.models';
-    static get idColumn() {
-        return 'modelId';
-    }
-
-    static relationMappings = () => ({
-        storageProvider: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionStorageProvider,
-            join: {
-                from: 'registry.models.storageProviderId',
-                to: 'registry.storageProviders.providerId',
-            },
-        },
-        modelVersions: {
-            relation: Model.HasManyRelation,
-            modelClass: ObjectionMLModelVersion,
-            join: {
-                from: 'registry.models.modelId',
-                to: 'registry.modelVersions.modelId',
-            },
-        },
-        currentModelVersion: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionMLModelVersion,
-            join: {
-                from: 'registry.models.currentModelVersionId',
-                to: 'registry.modelVersions.modelVersionId',
-            },
-        },
-        projects: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionProject,
-            join: {
-                from: 'registry.models.projectId',
-                to: 'dstkUser.projects.projectId',
-            },
-        },
-        getCreatedBy: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionUser,
-            join: {
-                from: 'registry.models.createdById',
-                to: 'dstkUser.user.userId',
-            },
-        },
-        getModifiedBy: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionUser,
-            join: {
-                from: 'registry.models.modifiedById',
-                to: 'dstkUser.user.userId',
-            },
-        },
-        getTeam: {
-            relation: Model.HasOneThroughRelation,
-            modelClass: ObjectionTeam,
-            join: {
-                from: 'registry.models.projectId',
-                through: {
-                    from: 'dstkUser.projects.projectId',
-                    to: 'dstkUser.projects.teamId',
-                },
-                to: 'dstkUser.teams.teamId',
-            },
-        },
-    });
-}

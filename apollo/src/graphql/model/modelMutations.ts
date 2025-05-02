@@ -1,10 +1,8 @@
-import { MLModel, ObjectionMLModel } from './model.js';
-import { raw } from 'objection';
 import { RegistryOperationError } from '../../utils/errors.js';
-import { ObjectionStorageProvider } from '../storage-provider/storageProvider.js';
 import { builder } from '../../builder.js';
-import { ObjectionTeam, ObjectionTeamEdge } from '../user/team.js';
-import { ObjectionProject } from '../user/project.js';
+import { MLModel } from './model.js';
+import { db } from '../../db/kysely.js';
+import { userHasRole } from '../../utils/rls.js';
 
 export const ModelInputType = builder.inputType('ModelInput', {
     fields: (t) => ({
@@ -24,38 +22,58 @@ builder.mutationFields((t) => ({
         args: {
             data: t.arg({ type: ModelInputType, required: true }),
         },
-        async resolve(root, args, ctx) {
-            const results = ObjectionMLModel.transaction(async (trx) => {
-                const project = (await ObjectionProject.query().findById(
-                    args.data.projectId,
-                )) as ObjectionProject;
-                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), project.teamId, [
-                    'owner',
-                    'member',
-                ]);
+        async resolve(_root, args, ctx) {
+            const results = await db.transaction().execute(async (trx) => {
+                const project = await trx
+                    .selectFrom('dstk_user.projects')
+                    .select(['dstk_user.projects.project_id', 'dstk_user.projects.team_id'])
+                    .where('dstk_user.projects.project_id', '=', args.data.projectId)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'PROJECT_PERMISSION_ERROR' }),
+                    );
 
-                const storageProvider = (await ObjectionTeam.relatedQuery('storageProviders')
-                    .for(project.teamId)
-                    .where({ providerId: args.data.storageProviderId })
-                    .first()) as ObjectionStorageProvider | undefined;
+                await userHasRole({
+                    userId: ctx.user.user_id,
+                    teamId: project.team_id,
+                    roles: ['owner', 'member'],
+                });
 
-                if (storageProvider === undefined) {
-                    throw new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' });
-                }
-                if (storageProvider.isArchived === true) {
+                const storageProvider = await trx
+                    .selectFrom('registry.storage_providers')
+                    .select([
+                        'registry.storage_providers.provider_id',
+                        'registry.storage_providers.is_archived',
+                    ])
+                    .where(({ eb, and }) =>
+                        and([
+                            eb('registry.storage_providers.team_id', '=', project.team_id),
+                            eb(
+                                'registry.storage_providers.provider_id',
+                                '=',
+                                args.data.storageProviderId,
+                            ),
+                        ]),
+                    )
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' }),
+                    );
+
+                if (storageProvider.is_archived === true) {
                     throw new RegistryOperationError({ name: 'ARCHIVED_STORAGE_ERROR' });
                 }
 
-                const mlModel = await ObjectionMLModel.query(trx)
-                    .insertAndFetch({
-                        storageProviderId: args.data.storageProviderId,
-                        projectId: project.$id(),
-                        modelName: args.data.modelName,
+                const mlModel = await trx
+                    .insertInto('registry.models')
+                    .values({
+                        storage_provider_id: args.data.storageProviderId,
+                        project_id: project.project_id,
+                        model_name: args.data.modelName,
                         description: args.data.description,
-                        createdById: ctx.user.$id(),
-                        modifiedById: ctx.user.$id(),
+                        created_by_id: ctx.user.user_id,
+                        modified_by_id: ctx.user.user_id,
                     })
-                    .first();
+                    .returningAll()
+                    .executeTakeFirst();
 
                 return mlModel;
             });
@@ -71,40 +89,67 @@ builder.mutationFields((t) => ({
             modelId: t.arg.string({ required: true }),
             data: t.arg({ type: ModelInputType, required: true }),
         },
-        async resolve(root, args, ctx) {
-            const results = ObjectionMLModel.transaction(async (trx) => {
-                const team = (await ObjectionMLModel.relatedQuery('getTeam')
-                    .for(args.modelId)
-                    .first()) as ObjectionTeam;
-                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), team.$id(), [
-                    'owner',
-                    'member',
-                ]);
+        async resolve(_root, args, ctx) {
+            const results = await db.transaction().execute(async (trx) => {
+                const mlModel = await trx
+                    .selectFrom('registry.models')
+                    .select(['registry.models.project_id', 'registry.models.is_archived'])
+                    .where('registry.models.model_id', '=', args.modelId)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'MODEL_PERMISSION_ERROR' }),
+                    );
 
-                const storageProvider = (await team
-                    .$relatedQuery('storageProviders')
-                    .for(team.$id())
-                    .where({ providerId: args.data.storageProviderId })
-                    .first()) as ObjectionStorageProvider | undefined;
-
-                if (storageProvider === undefined) {
-                    throw new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' });
-                }
-                if (storageProvider.isArchived === true) {
-                    throw new RegistryOperationError({ name: 'ARCHIVED_STORAGE_ERROR' });
-                }
-
-                const mlModel = await ObjectionMLModel.query(trx).patchAndFetchById(args.modelId, {
-                    modelName: args.data.modelName,
-                    description: args.data.description,
-                    dateModified: raw('NOW()'),
-                    modifiedById: ctx.user.$id(),
-                });
-                if (mlModel.isArchived === true) {
+                if (mlModel.is_archived === true) {
                     throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_ERROR' });
                 }
 
-                return mlModel;
+                const project = await trx
+                    .selectFrom('dstk_user.projects')
+                    .select('dstk_user.projects.team_id')
+                    .where('dstk_user.projects.project_id', '=', mlModel.project_id)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'PROJECT_PERMISSION_ERROR' }),
+                    );
+
+                await userHasRole({
+                    userId: ctx.user.user_id,
+                    teamId: project.team_id,
+                    roles: ['owner', 'viewer'],
+                });
+
+                const storageProvider = await trx
+                    .selectFrom('registry.storage_providers')
+                    .select('registry.storage_providers.is_archived')
+                    .where(({ eb, and }) =>
+                        and([
+                            eb('registry.storage_providers.team_id', '=', project.team_id),
+                            eb(
+                                'registry.storage_providers.provider_id',
+                                '=',
+                                args.data.storageProviderId,
+                            ),
+                        ]),
+                    )
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' }),
+                    );
+
+                if (storageProvider.is_archived === true) {
+                    throw new RegistryOperationError({ name: 'ARCHIVED_STORAGE_ERROR' });
+                }
+
+                const result = await trx
+                    .updateTable('registry.models')
+                    .set({
+                        model_name: args.data.modelName,
+                        description: args.data.description,
+                        date_modified: new Date(),
+                        modified_by_id: ctx.user.user_id,
+                    })
+                    .returningAll()
+                    .executeTakeFirst();
+
+                return result;
             });
 
             return results;
@@ -119,24 +164,43 @@ builder.mutationFields((t) => ({
             modelId: t.arg.string({ required: true }),
         },
         async resolve(root, args, ctx) {
-            const results = ObjectionMLModel.transaction(async (trx) => {
-                const team = (await ObjectionMLModel.relatedQuery('getTeam')
-                    .for(args.modelId)
-                    .first()) as ObjectionTeam;
-                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), team.$id(), [
-                    'owner',
-                    'member',
-                ]);
+            const results = await db.transaction().execute(async (trx) => {
+                const mlModel = await trx
+                    .selectFrom('registry.models')
+                    .select(['registry.models.project_id', 'registry.models.is_archived'])
+                    .where('registry.models.model_id', '=', args.modelId)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'MODEL_PERMISSION_ERROR' }),
+                    );
+
+                const project = await trx
+                    .selectFrom('dstk_user.projects')
+                    .select('dstk_user.projects.team_id')
+                    .where('dstk_user.projects.project_id', '=', mlModel.project_id)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'PROJECT_PERMISSION_ERROR' }),
+                    );
+
+                await userHasRole({
+                    userId: ctx.user.user_id,
+                    teamId: project.team_id,
+                    roles: ['owner', 'viewer'],
+                });
 
                 // Intentionally don't throw an error here on archived storage
                 // providers. It's not unreasonable to want to mark old assets
                 // as archived if their parent blob storage goes bye-bye
-                const mlModel = await ObjectionMLModel.query(trx).patchAndFetchById(args.modelId, {
-                    isArchived: raw('NOT is_archived'),
-                    dateModified: raw('NOW()'),
-                    modifiedById: ctx.user.$id(),
-                });
-                return mlModel;
+                const result = await trx
+                    .updateTable('registry.models')
+                    .set({
+                        is_archived: !mlModel.is_archived,
+                        date_modified: new Date(),
+                        modified_by_id: ctx.user.user_id,
+                    })
+                    .returningAll()
+                    .executeTakeFirst();
+
+                return result;
             });
 
             return results;

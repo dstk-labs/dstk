@@ -1,8 +1,11 @@
-import { DB } from './db.js';
+import type { DB } from './db.js';
 import { Kysely, PostgresDialect } from 'kysely';
 
 // https://github.com/brianc/node-postgres/issues/2819
 import pg from 'pg';
+import dotenv from 'dotenv';
+
+dotenv.config();
 const { Pool } = pg;
 
 export const pool = new Pool({
