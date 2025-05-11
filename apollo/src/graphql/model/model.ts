@@ -39,7 +39,7 @@ builder.objectType(MLModel, {
                     .selectFrom('registry.model_versions')
                     .selectAll()
                     .where('registry.model_versions.model_id', '=', root.current_model_version_id)
-                    .executeTakeFirstOrThrow();
+                    .executeTakeFirst();
                 return currentModelVersion;
             },
         }),
