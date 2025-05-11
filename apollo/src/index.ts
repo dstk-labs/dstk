@@ -29,20 +29,15 @@ const server = new ApolloServer({
 
 await server.start();
 
-const middlewares = [];
-
-if (process.env.NODE_ENV === 'dev') {
-    middlewares.push(
-        cors<cors.CorsRequest>({
-            origin: ['https://sandbox.embed.apollographql.com'],
-            credentials: true,
-        }),
-    );
-}
-
-middlewares.push(
+app.use(
+    '/graphql',
+    cors<cors.CorsRequest>({
+        origin: ['https://sandbox.embed.apollographql.com', 'http://localhost:5173'],
+        credentials: true,
+    }),
     express.json(),
     cookieparser(),
+    // @ts-expect-error middleware works fine, typescript is just inferring package types incorrectly
     expressMiddleware(server, {
         context: async ({ req, res }) => {
             const headers = fromNodeHeaders(req.headers);
@@ -71,9 +66,6 @@ middlewares.push(
         },
     }),
 );
-
-// @ts-expect-error middleware works fine, typescript is just inferring package types incorrectly
-app.use('/graphql', ...middlewares);
 
 await new Promise<void>((resolve) => httpServer.listen({ port: PORT }, resolve));
 console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
