@@ -8,7 +8,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "preview": "vite preview"
+  },
+  "lint-staged": {
+    "*": "pnpm lint"
   },
   "dependencies": {
     "react": "^19.1.0",
