@@ -7,7 +7,7 @@ import stylistic from '@stylistic/eslint-plugin'
 import perfectionist from 'eslint-plugin-perfectionist'
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  { ignores: ['dist', 'src/graphql'] },
   {
     extends: [
       js.configs.recommended,
