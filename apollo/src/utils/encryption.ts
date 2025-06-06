@@ -1,4 +1,4 @@
-import * as crypto from 'crypto';
+import * as crypto from 'node:crypto';
 import * as argon2 from 'argon2';
 
 function splitEncryptedText(encryptedText: string) {
@@ -13,7 +13,7 @@ function splitEncryptedText(encryptedText: string) {
 export class Security {
     encoding: BufferEncoding = 'hex';
     // process.env.CRYPTO_KEY should be a 32 BYTE key
-    key: string = 'asdfasdfasdfasdfasdfasdfasdfasdf';
+    key = 'asdfasdfasdfasdfasdfasdfasdfasdf';
 
     encrypt(plaintext: string): string {
         const iv = crypto.randomBytes(12);
@@ -58,7 +58,7 @@ export class Security {
 export class HashBrown {
     // again, obviously a placeholder until I get a proper secrets
     // manager implemented that can populate these values at runtime
-    key: string = 'asdfasdfasdfasdfasdfasdfasdfasdf';
+    key = 'asdfasdfasdfasdfasdfasdfasdfasdf';
     async hash(password: string): Promise<string> {
         const hash = await argon2.hash(password, { secret: Buffer.from(this.key) });
         return hash;

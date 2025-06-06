@@ -1,44 +1,40 @@
+import type { Selectable } from 'kysely';
 import { builder } from '../../builder.js';
-import { Model, AnyQueryBuilder } from 'objection';
-import { ObjectionUser } from '../user/user.js';
+import type { DstkUserApiKey } from '../../db/db.js';
+import { User } from '../user/user.js';
+import { db } from '../../db/kysely.js';
 
-export const ApiKey = builder.objectRef<ObjectionApiKey>('ApiKey');
+export type KyselyApiKey = Selectable<DstkUserApiKey>;
+
+export const ApiKey = builder.objectRef<KyselyApiKey>('ApiKey');
 
 builder.objectType(ApiKey, {
     fields: (t) => ({
         apiKeyId: t.field({
             type: 'ID',
-            resolve(root: ObjectionApiKey, _args, _ctx) {
-                return root.$id();
+            resolve(root: KyselyApiKey, _args, _ctx) {
+                return root.api_key_id;
             },
         }),
-        userId: t.exposeString('userId'),
-        apiKey: t.exposeString('apiKey'),
-        isArchived: t.exposeBoolean('isArchived'),
-        dateCreated: t.exposeString('dateCreated'),
+        userId: t.field({
+            type: User,
+            async resolve(root: KyselyApiKey, _args, _ctx) {
+                const result = await db
+                    .selectFrom('dstk_user.user')
+                    .selectAll()
+                    .where('dstk_user.user.user_id', '=', root.user_id)
+                    .executeTakeFirstOrThrow();
+
+                return result;
+            },
+        }),
+        apiKey: t.exposeString('api_key'),
+        isArchived: t.exposeBoolean('is_archived'),
+        dateCreated: t.field({
+            type: 'String',
+            resolve(root: KyselyApiKey, _args, _ctx) {
+                return root.date_created.toISOString();
+            },
+        }),
     }),
 });
-
-export class ObjectionApiKey extends Model {
-    id!: string;
-    userId!: string;
-    apiKey!: string;
-    isArchived!: boolean;
-    dateCreated!: string;
-
-    static tableName = 'dstkUser.apiKey';
-    static get idColumn() {
-        return 'apiKeyId';
-    }
-
-    static relationMappings = () => ({
-        userEmail: {
-            relation: Model.HasOneRelation,
-            modelClass: ObjectionUser,
-            join: {
-                from: 'dstkUser.apiKey.userId',
-                to: 'dstkUser.user.userId',
-            },
-        },
-    });
-}

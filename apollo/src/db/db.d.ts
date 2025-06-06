@@ -13,17 +13,7 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
 
 export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
 
-export type Json = JsonValue;
-
-export type JsonArray = JsonValue[];
-
-export type JsonObject = {
-  [x: string]: JsonValue | undefined;
-};
-
-export type JsonPrimitive = boolean | number | string | null;
-
-export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
+export type Numeric = ColumnType<string, number | string, number | string>;
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
@@ -41,10 +31,19 @@ export interface DstkMetadataEdgeRelations {
   type: string;
 }
 
-export interface DstkMetadataPatchStatus {
-  applied: Generated<boolean>;
-  duration: number | null;
-  patch: string;
+export interface DstkUserAccounts {
+  access_token: string | null;
+  access_token_expires_at: Timestamp | null;
+  account_id: string;
+  date_created: Generated<Timestamp>;
+  date_modified: Generated<Timestamp>;
+  id: string;
+  id_token: string | null;
+  password: string | null;
+  provider_id: string;
+  refresh_token: string | null;
+  scope: string | null;
+  user_id: string;
 }
 
 export interface DstkUserApiKey {
@@ -53,32 +52,6 @@ export interface DstkUserApiKey {
   date_created: Generated<Timestamp>;
   id: Generated<number>;
   is_archived: Generated<boolean>;
-  user_id: string;
-}
-
-export interface DstkUserEmail {
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
-  email_address: string;
-  email_id: Generated<string>;
-  id: Generated<number>;
-  is_primary: boolean;
-  is_verified: Generated<boolean>;
-  user_id: string;
-  verification_code: string | null;
-}
-
-export interface DstkUserLog {
-  actor_id: string;
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
-  details: string;
-  id: Generated<Int8>;
-  log_id: Generated<string>;
-  new_value: string;
-  old_value: string;
-  remote_addr: string;
-  user_action: string;
   user_id: string;
 }
 
@@ -95,14 +68,14 @@ export interface DstkUserProjects {
   team_id: string;
 }
 
-export interface DstkUserRefreshToken {
-  id: Generated<Int8>;
-  is_partial: Generated<boolean>;
-  is_revoked: Generated<boolean>;
-  session_family: Generated<string>;
-  session_iat: Timestamp;
-  session_id: Generated<string>;
-  sesstion_exp: Timestamp;
+export interface DstkUserSessions {
+  date_created: Generated<Timestamp>;
+  date_modified: Generated<Timestamp>;
+  expires_at: Timestamp;
+  id: string;
+  ip_address: string | null;
+  token: string;
+  user_agent: string | null;
   user_id: string;
 }
 
@@ -128,16 +101,23 @@ export interface DstkUserTeams {
 export interface DstkUserUser {
   date_created: Generated<Timestamp>;
   date_modified: Generated<Timestamp>;
-  id: Generated<number>;
-  is_admin: Generated<boolean>;
-  is_approved: Generated<boolean>;
-  is_disabled: Generated<boolean>;
+  email: string;
+  id: string;
+  image: string | null;
   is_email_verified: Generated<boolean>;
   is_mfa_enrolled: Generated<boolean>;
-  password: string;
   real_name: string;
   user_id: Generated<string>;
   user_name: string;
+}
+
+export interface DstkUserVerifications {
+  date_created: Generated<Timestamp>;
+  date_modified: Generated<Timestamp>;
+  expires_at: Timestamp;
+  id: string;
+  identifier: string;
+  value: string;
 }
 
 export interface RegistryModels {
@@ -190,15 +170,14 @@ export interface RegistryStorageProviders {
 export interface DB {
   "dstk_metadata.cursors": DstkMetadataCursors;
   "dstk_metadata.edge_relations": DstkMetadataEdgeRelations;
-  "dstk_metadata.patch_status": DstkMetadataPatchStatus;
+  "dstk_user.accounts": DstkUserAccounts;
   "dstk_user.api_key": DstkUserApiKey;
-  "dstk_user.email": DstkUserEmail;
-  "dstk_user.log": DstkUserLog;
   "dstk_user.projects": DstkUserProjects;
-  "dstk_user.refresh_token": DstkUserRefreshToken;
+  "dstk_user.sessions": DstkUserSessions;
   "dstk_user.team_edges": DstkUserTeamEdges;
   "dstk_user.teams": DstkUserTeams;
   "dstk_user.user": DstkUserUser;
+  "dstk_user.verifications": DstkUserVerifications;
   "registry.model_versions": RegistryModelVersions;
   "registry.models": RegistryModels;
   "registry.storage_providers": RegistryStorageProviders;

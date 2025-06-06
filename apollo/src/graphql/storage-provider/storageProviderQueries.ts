@@ -1,11 +1,10 @@
-import { StorageProvider, ObjectionStorageProvider } from './storageProvider.js';
+import { StorageProvider } from './storageProvider.js';
 import { builder } from '../../builder.js';
 import { ListObjects } from '../../utils/s3-api.js';
 import { StorageProviderObjectConnection } from '../storage-provider/storageProviderObjectConnection.js';
-import { ObjectionMLModelVersion } from '../model-version/modelVersion.js';
-import { ObjectionTeam, ObjectionTeamEdge } from '../user/team.js';
-import { ObjectionMLModel } from '../model/model.js';
 import { RegistryOperationError } from '../../utils/errors.js';
+import { db } from '../../db/kysely.js';
+import { userHasRole } from '../../utils/rls.js';
 
 builder.queryFields((t) => ({
     listStorageProviders: t.field({
@@ -14,17 +13,24 @@ builder.queryFields((t) => ({
             loggedIn: true,
         },
         async resolve(_root, _args, ctx) {
-            const userTeams = await ObjectionTeamEdge.query()
-                .where({ userId: ctx.user.$id() })
-                .select(['teamId']);
+            const userTeams = await db
+                .selectFrom('dstk_user.team_edges')
+                .select('dstk_user.team_edges.team_id')
+                .where('dstk_user.team_edges.user_id', '=', ctx.user.user_id)
+                .execute();
 
-            const storageProvider = await ObjectionStorageProvider.query()
-                .whereIn(
-                    'teamId',
-                    userTeams.map((edge) => edge.teamId),
+            const storageProviders = await db
+                .selectFrom('registry.storage_providers')
+                .selectAll()
+                .where(
+                    'registry.storage_providers.team_id',
+                    'in',
+                    userTeams.map((team) => team.team_id),
                 )
-                .orderBy('dateCreated');
-            return storageProvider;
+                .orderBy('registry.storage_providers.date_created')
+                .execute();
+
+            return storageProviders;
         },
     }),
     getStorageProvider: t.field({
@@ -35,20 +41,20 @@ builder.queryFields((t) => ({
         args: {
             storageProviderId: t.arg.string({ required: true }),
         },
-        async resolve(root, args, ctx) {
-            const storageProvider = await ObjectionStorageProvider.query().findById(
-                args.storageProviderId,
-            );
+        async resolve(_root, args, ctx) {
+            const storageProvider = await db
+                .selectFrom('registry.storage_providers')
+                .selectAll()
+                .where('registry.storage_providers.provider_id', '=', args.storageProviderId)
+                .executeTakeFirstOrThrow(
+                    () => new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' }),
+                );
 
-            if (storageProvider === undefined) {
-                throw new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' });
-            }
-
-            await ObjectionTeamEdge.userHasRole(ctx.user.$id(), storageProvider.teamId, [
-                'owner',
-                'member',
-                'viewer',
-            ]);
+            await userHasRole({
+                userId: ctx.user.user_id,
+                teamId: storageProvider.team_id,
+                roles: ['owner', 'member', 'viewer'],
+            });
 
             return storageProvider;
         },
@@ -70,27 +76,49 @@ builder.queryFields((t) => ({
             prefix: t.arg.string(),
         },
         async resolve(_root, args, ctx) {
-            const modelVersion = (await ObjectionMLModelVersion.query()
-                .findById(args.modelVersionId)
-                .first()) as ObjectionMLModelVersion;
-            const team = (await ObjectionMLModel.relatedQuery('getTeam')
-                .for(modelVersion.modelId)
-                .first()) as ObjectionTeam;
+            const modelVersion = await db
+                .selectFrom('registry.model_versions')
+                .select(['registry.model_versions.model_id', 'registry.model_versions.s3_prefix'])
+                .where('registry.model_versions.model_version_id', '=', args.modelVersionId)
+                .executeTakeFirstOrThrow(
+                    () => new RegistryOperationError({ name: 'VERSION_PERMISSION_ERROR' }),
+                );
 
-            await ObjectionTeamEdge.userHasRole(ctx.user.$id(), team.$id(), [
-                'owner',
-                'member',
-                'viewer',
-            ]);
+            const parentModel = await db
+                .selectFrom('registry.models')
+                .select(['registry.models.project_id', 'registry.models.storage_provider_id'])
+                .where('registry.models.model_id', '=', modelVersion.model_id)
+                .executeTakeFirstOrThrow(
+                    () => new RegistryOperationError({ name: 'MODEL_PERMISSION_ERROR' }),
+                );
 
-            const modelStorageProvider = (await ObjectionMLModelVersion.relatedQuery(
-                'storageProvider',
-            )
-                .for(args.modelVersionId)
-                .first()) as ObjectionStorageProvider;
+            const project = await db
+                .selectFrom('dstk_user.projects')
+                .select('dstk_user.projects.team_id')
+                .where('dstk_user.projects.project_id', '=', parentModel.project_id)
+                .executeTakeFirstOrThrow(
+                    () => new RegistryOperationError({ name: 'PROJECT_PERMISSION_ERROR' }),
+                );
 
-            // Appends new folder name to base prefix
-            const prefix = `${modelVersion.s3Prefix}`.concat(args.prefix ? '/' + args.prefix : '');
+            await userHasRole({
+                userId: ctx.user.user_id,
+                teamId: project.team_id,
+                roles: ['owner', 'member', 'viewer'],
+            });
+
+            const modelStorageProvider = await db
+                .selectFrom('registry.storage_providers')
+                .selectAll()
+                .where(
+                    'registry.storage_providers.provider_id',
+                    '=',
+                    parentModel.storage_provider_id,
+                )
+                .executeTakeFirstOrThrow(
+                    () => new RegistryOperationError({ name: 'PROVIDER_NOT_FOUND_ERROR' }),
+                );
+
+            const prefix = `${modelVersion.s3_prefix}`.concat(args.prefix ? '/' + args.prefix : '');
 
             /* If no continuation token, the s3 api will always
                return the root directory as an object. We do not want

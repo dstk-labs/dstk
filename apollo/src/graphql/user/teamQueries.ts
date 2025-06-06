@@ -1,6 +1,9 @@
-import { Team, ObjectionTeam, ObjectionTeamEdge } from './team.js';
-import { ObjectionUser, User } from './user.js';
+import { Team } from './team.js';
+import { User } from './user.js';
 import { builder } from '../../builder.js';
+import { db } from '../../db/kysely.js';
+import { Expression, SqlBool } from 'kysely';
+import { userHasRole } from '../../utils/rls.js';
 
 builder.queryFields((t) => ({
     listTeams: t.field({
@@ -11,15 +14,33 @@ builder.queryFields((t) => ({
         args: {
             teamId: t.arg.string(),
         },
-        async resolve(root, args, ctx) {
-            const userTeamEdges = ObjectionTeamEdge.query().where('userId', ctx.user.$id());
-            if (args.teamId) {
-                userTeamEdges.where('teamId', args.teamId);
-            }
+        async resolve(_root, args, ctx) {
+            const userTeamEdges = await db
+                .selectFrom('dstk_user.team_edges')
+                .select('dstk_user.team_edges.team_id')
+                .where(({ eb }) => {
+                    const ands: Expression<SqlBool>[] = [];
 
-            const userTeams = (await ObjectionTeamEdge.relatedQuery('team').for(userTeamEdges)) as [
-                ObjectionTeam,
-            ];
+                    ands.push(eb('dstk_user.team_edges.user_id', '=', ctx.user.user_id));
+
+                    if (args.teamId) {
+                        ands.push(eb('dstk_user.team_edges.team_id', '=', args.teamId));
+                    }
+
+                    return eb.and(ands);
+                })
+                .execute();
+
+            const userTeams = await db
+                .selectFrom('dstk_user.teams')
+                .selectAll()
+                .where(
+                    'dstk_user.teams.team_id',
+                    'in',
+                    userTeamEdges.map((edge) => edge.team_id),
+                )
+                .execute();
+
             return userTeams;
         },
     }),
@@ -31,16 +52,24 @@ builder.queryFields((t) => ({
         args: {
             teamId: t.arg.string({ required: true }),
         },
-        async resolve(root, args, ctx) {
-            await ObjectionTeamEdge.userHasRole(ctx.user.$id(), args.teamId, [
-                'owner',
-                'member',
-                'viewer',
-            ]);
+        async resolve(_root, args, ctx) {
+            await userHasRole({
+                userId: ctx.user.user_id,
+                teamId: args.teamId,
+                roles: ['owner', 'member', 'viewer'],
+            });
 
-            const teamMembers = (await ObjectionTeam.relatedQuery('teamMembers').for(
-                args.teamId,
-            )) as [ObjectionUser];
+            const teamMembers = await db
+                .selectFrom('dstk_user.user')
+                .selectAll()
+                .leftJoin(
+                    'dstk_user.team_edges',
+                    'dstk_user.user.user_id',
+                    'dstk_user.team_edges.user_id',
+                )
+                .where('dstk_user.team_edges.team_id', '=', args.teamId)
+                .execute();
+
             return teamMembers;
         },
     }),

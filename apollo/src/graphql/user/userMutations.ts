@@ -1,5 +1,6 @@
 import { builder } from '../../builder.js';
-import { ApiKey, ObjectionApiKey } from '../auth/auth.js';
+import { db } from '../../db/kysely.js';
+import { ApiKey } from '../auth/auth.js';
 import { v4 as uuidv4 } from 'uuid';
 
 builder.mutationFields((t) => ({
@@ -8,19 +9,15 @@ builder.mutationFields((t) => ({
         authScopes: {
             loggedIn: true,
         },
-        async resolve(root, args, ctx) {
-            const results = ObjectionApiKey.transaction(async (trx) => {
-                const apiKey = uuidv4().replace(/-/g, '');
-                const userApiKey = await ObjectionApiKey.query(trx)
-                    .insertAndFetch({
-                        userId: ctx.user.$id(),
-                        apiKey: apiKey,
-                    })
-                    .first();
-
-                return userApiKey;
-            });
-            return results;
+        async resolve(_root, _args, ctx) {
+            return await db
+                .insertInto('dstk_user.api_key')
+                .values({
+                    user_id: ctx.user.user_id,
+                    api_key: uuidv4().replace(/-/g, ''),
+                })
+                .returningAll()
+                .executeTakeFirst();
         },
     }),
     archiveApiKey: t.field({
@@ -31,12 +28,21 @@ builder.mutationFields((t) => ({
         args: {
             apiKeyId: t.arg.string({ required: true }),
         },
-        async resolve(root, args, ctx) {
-            const results = ObjectionApiKey.transaction(async (trx) => {
-                const userApiKey = await ObjectionApiKey.query(trx)
-                    .patchAndFetchById(args.apiKeyId, { isArchived: true })
-                    .where('userId', ctx.user.$id())
-                    .first();
+        async resolve(_root, args, ctx) {
+            const results = await db.transaction().execute(async (trx) => {
+                const userApiKey = await trx
+                    .updateTable('dstk_user.api_key')
+                    .set({
+                        is_archived: true,
+                    })
+                    .where(({ eb, and }) =>
+                        and([
+                            eb('dstk_user.api_key.api_key_id', '=', args.apiKeyId),
+                            eb('dstk_user.api_key.user_id', '=', ctx.user.user_id),
+                        ]),
+                    )
+                    .returningAll()
+                    .executeTakeFirstOrThrow();
 
                 return userApiKey;
             });

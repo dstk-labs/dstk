@@ -5,11 +5,12 @@
     "compile": "tsc",
     "schemagen": "kysely-codegen --dialect postgres --env-file .env --out-file ./src/db/db.d.ts",
     "start": "pnpm run schemagen && pnpm run compile && node ./dist/index.js",
+    "dev": "NODE_ENV=dev && pnpm run start",
     "lint": "eslint 'src/**/*.ts' --config ./eslint.config.mjs",
     "lint:fix": "eslint 'src/**/*.ts' --fix --config ./eslint.config.mjs",
     "format": "prettier 'src/**/*.ts' --write --config ./.prettierrc.json",
     "format:fix": "prettier 'src/**/*.ts' --write --config ./.prettierrc.json",
-    "prepare": "cd .. && husky install ./apollo/.husky"
+    "prepare": "cd .. && husky ./apollo/.husky"
   },
   "dependencies": {
     "@apollo/server": "^4.11.3",
@@ -27,13 +28,15 @@
     "@types/react-dom": "^19.0.4",
     "argon2": "^0.41.1",
     "aws-sdk": "^2.1692.0",
+    "better-auth": "^1.2.6",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "graphql": "^16.10.0",
     "jsonwebtoken": "^9.0.2",
-    "knex": "^3.1.0",
     "kysely": "^0.27.6",
     "nexus": "^1.3.0",
-    "objection": "^3.1.5",
     "pg": "^8.14.1",
     "ts-node": "^10.9.2",
     "uuid": "^11.1.0"
@@ -41,6 +44,8 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.23.0",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/node": "^22.13.14",
     "@types/pg": "^8.11.11",

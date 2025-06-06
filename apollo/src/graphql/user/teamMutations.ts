@@ -1,6 +1,8 @@
 import { builder } from '../../builder.js';
-import { ObjectionEdge } from '../misc/edges.js';
-import { Team, ObjectionTeam, ObjectionTeamEdge } from './team.js';
+import { db } from '../../db/kysely.js';
+import { RegistryOperationError } from '../../utils/errors.js';
+import { userHasRole } from '../../utils/rls.js';
+import { Team } from './team.js';
 
 export const TeamInputType = builder.inputType('TeamInput', {
     fields: (t) => ({
@@ -33,27 +35,33 @@ builder.mutationFields((t) => ({
         args: {
             data: t.arg({ type: TeamInputType, required: true }),
         },
-        async resolve(root, args, ctx) {
-            const results = ObjectionTeam.transaction(async (trx) => {
-                const team = await ObjectionTeam.query(trx)
-                    .insertAndFetch({
+        async resolve(_root, args, ctx) {
+            const results = await db.transaction().execute(async (trx) => {
+                const team = await trx
+                    .insertInto('dstk_user.teams')
+                    .values({
                         name: args.data.name,
                         description: args.data.description,
-                        createdById: ctx.user.$id(),
-                        modifiedById: ctx.user.$id(),
+                        created_by_id: ctx.user.user_id,
+                        modified_by_id: ctx.user.user_id,
                     })
-                    .first();
+                    .returningAll()
+                    .executeTakeFirstOrThrow();
 
-                const ownerEdgeType = (await ObjectionEdge.query()
-                    .where('type', 'owner')
-                    .first()) as ObjectionEdge;
-                await ObjectionTeamEdge.query(trx)
-                    .insert({
-                        teamId: team.$id(),
-                        userId: ctx.user.$id(),
-                        edgeType: ownerEdgeType.id,
+                const ownerEdgeType = await trx
+                    .selectFrom('dstk_metadata.edge_relations')
+                    .select('dstk_metadata.edge_relations.id')
+                    .where('dstk_metadata.edge_relations.type', '=', 'owner')
+                    .executeTakeFirstOrThrow();
+
+                await trx
+                    .insertInto('dstk_user.team_edges')
+                    .values({
+                        team_id: team.team_id,
+                        user_id: ctx.user.user_id,
+                        edge_type: ownerEdgeType.id,
                     })
-                    .returning('*');
+                    .execute();
 
                 return team;
             });
@@ -67,34 +75,51 @@ builder.mutationFields((t) => ({
         args: {
             data: t.arg({ type: AddTeamMemberInputType, required: true }),
         },
-        async resolve(root, args, ctx) {
-            const results = ObjectionTeamEdge.transaction(async (trx) => {
-                await ObjectionTeamEdge.userHasRole(ctx.user.$id(), args.data.teamId, ['owner']);
+        async resolve(_root, args, ctx) {
+            const results = await db.transaction().execute(async (trx) => {
+                await userHasRole({
+                    userId: ctx.user.user_id,
+                    teamId: args.data.teamId,
+                    roles: ['owner'],
+                });
 
-                const targetUser = await ObjectionTeamEdge.query()
-                    .where({
-                        userId: args.data.userId,
-                        teamId: args.data.teamId,
-                    })
-                    .first();
-                const roleEdgeType = (await ObjectionEdge.query()
-                    .where({
-                        type: args.data.role,
-                    })
-                    .first()) as ObjectionEdge;
+                const targetUser = await trx
+                    .selectFrom('dstk_user.team_edges')
+                    .select('dstk_user.team_edges.id')
+                    .where(({ eb, and }) =>
+                        and([
+                            eb('dstk_user.team_edges.user_id', '=', args.data.userId),
+                            eb('dstk_user.team_edges.team_id', '=', args.data.teamId),
+                        ]),
+                    )
+                    .executeTakeFirst();
 
-                const upsertUserRole = ObjectionTeamEdge.query(trx);
+                const roleEdgeType = await trx
+                    .selectFrom('dstk_metadata.edge_relations')
+                    .select('dstk_metadata.edge_relations.id')
+                    .where('dstk_metadata.edge_relations.type', '=', args.data.role)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'ROLE_NOT_FOUND_ERROR' }),
+                    );
+
                 if (targetUser === undefined) {
-                    upsertUserRole.insertAndFetch({
-                        userId: args.data.userId,
-                        teamId: args.data.teamId,
-                        edgeType: roleEdgeType.id,
-                    });
+                    await trx
+                        .insertInto('dstk_user.team_edges')
+                        .values({
+                            user_id: args.data.userId,
+                            team_id: args.data.teamId,
+                            edge_type: roleEdgeType.id,
+                        })
+                        .execute();
                 } else {
-                    upsertUserRole.patchAndFetchById(targetUser.id, { edgeType: roleEdgeType.id });
+                    await trx
+                        .updateTable('dstk_user.team_edges')
+                        .set({
+                            edge_type: roleEdgeType.id,
+                        })
+                        .where('dstk_user.team_edges.id', '=', targetUser.id)
+                        .execute();
                 }
-                await upsertUserRole;
-
                 return true;
             });
             return results;

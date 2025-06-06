@@ -6,7 +6,9 @@ type RegistryErrorName =
     | 'PUBLISHED_MODEL_VERSION_ERROR'
     | 'MISSING_UPLOAD_ID_ERROR'
     | 'MISSING_PART_NUM_ERROR'
+    | 'MODEL_PERMISSION_ERROR'
     | 'MULTIPART_FINALIZATION_ERROR'
+    | 'ROLE_NOT_FOUND_ERROR'
     | 'TEAM_PERMISSION_ERROR'
     | 'PROJECT_PERMISSION_ERROR'
     | 'VERSION_PERMISSION_ERROR';
@@ -20,8 +22,12 @@ const RegistryErrorMessages = {
     PUBLISHED_MODEL_VERSION_ERROR: 'Published model versions cannot be modified',
     MISSING_UPLOAD_ID_ERROR: 'An Upload ID must be supplied for this operation',
     MISSING_PART_NUM_ERROR: 'A Part Number must be supuplied for this operation',
+    MODEL_PERMISSION_ERROR:
+        "Either this model doesn't exist or you don't have permission to take that action",
     MULTIPART_FINALIZATION_ERROR:
         'Uploaded parts and their ETags must be supplied to finalize a MPU',
+    ROLE_NOT_FOUND_ERROR:
+        "Either this role doesn't exist or you don't have permission to take that action",
     TEAM_PERMISSION_ERROR:
         "Either this team doesn't exist or you don't have permission to take that action",
     PROJECT_PERMISSION_ERROR:

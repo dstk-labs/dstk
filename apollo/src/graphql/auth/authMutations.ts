@@ -1,10 +1,8 @@
-import { User, ObjectionUser, ObjectionUserEmail } from '../user/user.js';
-import { AccountError } from '../../utils/errors.js';
-import { HashBrown } from '../../utils/encryption.js';
-import { JWTValidator, PartialSession } from '../../utils/jwt.js';
 import { builder } from '../../builder.js';
-import { raw } from 'objection';
-import { v4 as uuidv4 } from 'uuid';
+import { auth } from '../../utils/auth.js';
+import { User } from '../user/user.js';
+import { db } from '../../db/kysely.js';
+import { AccountError } from '../../utils/errors.js';
 
 export const AccountInputType = builder.inputType('AccountInput', {
     fields: (t) => ({
@@ -17,8 +15,9 @@ export const AccountInputType = builder.inputType('AccountInput', {
 
 export const LoginInputType = builder.inputType('LoginInput', {
     fields: (t) => ({
-        userName: t.string({ required: true }),
+        email: t.string({ required: true }),
         password: t.string({ required: true }),
+        rememberMe: t.boolean({ defaultValue: true }),
     }),
 });
 
@@ -31,34 +30,43 @@ builder.mutationFields((t) => ({
         args: {
             data: t.arg({ type: AccountInputType, required: true }),
         },
-        async resolve(root, args, ctx) {
-            const HashSlingingSlasher = new HashBrown();
-            const results = ObjectionUser.transaction(async (trx) => {
-                const username = await ObjectionUser.query()
-                    .where(raw('LOWER(user_name)'), args.data.userName.toLowerCase())
-                    .first();
-                if (username) {
-                    throw new AccountError({ name: 'USERNAME_IN_USE_ERROR' });
-                }
+        async resolve(_root, args, ctx) {
+            const userName = await db
+                .selectFrom('dstk_user.user')
+                .select('dstk_user.user.user_name')
+                .where(
+                    ({ fn }) => fn('lower', ['dstk_user.user.user_name']),
+                    '=',
+                    args.data.userName,
+                )
+                .executeTakeFirst();
+            if (userName) {
+                throw new AccountError({ name: 'USERNAME_IN_USE_ERROR' });
+            }
 
-                const hashedPass = await HashSlingingSlasher.hash(args.data.password);
-                const userAccount = await ObjectionUser.query(trx)
-                    .insertAndFetch({
-                        userName: args.data.userName,
-                        password: hashedPass,
-                        realName: args.data.realName,
-                    })
-                    .first();
-                await ObjectionUserEmail.query(trx).insert({
-                    emailAddress: args.data.email,
-                    userId: userAccount.$id(),
-                    isPrimary: true,
-                    isVerified: false,
-                });
-
-                return userAccount;
+            const { headers, response } = await auth.api.signUpEmail({
+                returnHeaders: true,
+                body: {
+                    name: args.data.realName,
+                    email: args.data.email,
+                    password: args.data.password,
+                    user_name: args.data.userName,
+                },
             });
-            return results;
+
+            const cookies = headers.get('set-cookie');
+            if (cookies === null) {
+                throw new AccountError({ name: 'ACCOUNT_REGISTRATION_ERROR' });
+            }
+            ctx.res.set('Set-Cookie', cookies);
+
+            const user = await db
+                .selectFrom('dstk_user.user')
+                .selectAll()
+                .where('dstk_user.user.id', '=', response.user.id)
+                .executeTakeFirstOrThrow();
+
+            return user;
         },
     }),
     login: t.field({
@@ -66,38 +74,38 @@ builder.mutationFields((t) => ({
         args: {
             data: t.arg({ type: LoginInputType, required: true }),
         },
-        async resolve(root, args, ctx) {
-            const HashSlingingSlasher = new HashBrown();
-            const JWT = new JWTValidator();
+        async resolve(_args, args, ctx) {
+            let body = {
+                email: args.data.email,
+                password: args.data.password,
+            };
 
-            const results = ObjectionUser.transaction(async (trx) => {
-                const userAccount = await ObjectionUser.query()
-                    .where(raw('LOWER(user_name)'), args.data.userName.toLowerCase())
-                    .first();
-                if (!userAccount) {
-                    throw new AccountError({ name: 'LOGIN_ERROR' });
-                }
+            if (args.data.rememberMe) {
+                body = Object.assign({}, body, { rememberMe: args.data.rememberMe });
+            }
 
-                const verified = await HashSlingingSlasher.verify(
-                    userAccount.password,
-                    args.data.password,
-                );
-
-                if (!verified) {
-                    throw new AccountError({ name: 'LOGIN_ERROR' });
-                }
-                if (userAccount.isDisabled) {
-                    throw new AccountError({ name: 'DISABLED_ERROR' });
-                }
-
-                const partialSession = {
-                    jti: uuidv4(),
-                    sub: userAccount.$id(),
-                };
-                const token = JWT.encodeSession(partialSession, 'access');
-                return token;
+            const { headers, response } = await auth.api.signInEmail({
+                returnHeaders: true,
+                body,
             });
-            return results;
+
+            const cookies = headers.get('set-cookie');
+            if (cookies === null) {
+                throw new AccountError({ name: 'LOGIN_ERROR' });
+            }
+            ctx.res.set('Set-Cookie', cookies);
+
+            return response.token;
+        },
+    }),
+    logout: t.field({
+        type: 'Boolean',
+        async resolve(_root, _args, ctx) {
+            const { success } = await auth.api.signOut({
+                headers: ctx.headers,
+            });
+
+            return success;
         },
     }),
 }));

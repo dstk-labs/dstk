@@ -1,94 +1,71 @@
-import { ApolloServer, BaseContext } from '@apollo/server';
-import { startStandaloneServer } from '@apollo/server/standalone';
-import { Model } from 'objection';
-import Knex from 'knex';
-import { knexConfig } from './knexfile.js';
+import { ApolloServer } from '@apollo/server';
 import { schema } from './graphql/index.js';
-import { JWTValidator } from './utils/jwt.js';
-import { IncomingMessage, ServerResponse } from 'http';
-import { ObjectionUser } from './graphql/index.js';
-import { DB } from './db/db.js';
-import { Kysely, PostgresDialect } from 'kysely';
+import { auth } from './utils/auth.js';
+import { fromNodeHeaders } from 'better-auth/node';
+import express from 'express';
+import http from 'http';
+import cors from 'cors';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import cookieparser from 'cookie-parser';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import dotenv from 'dotenv';
 
-// https://github.com/brianc/node-postgres/issues/2819
-import pg from "pg";
-const { Pool } = pg;
+dotenv.config();
 
-const JWT = new JWTValidator();
-const knex = Knex(knexConfig.development);
-Model.knex(knex);
+const PORT = 4000;
 
-const dialect = new PostgresDialect({
-    pool: new Pool({
-        database: 'dstk',
-        host: 'localhost',
-        user: 'postgres',
-        password: 'postgres',
-        port: 5434,
-        max: 10,
-    })
-})
-  
-export const db = new Kysely<DB>({
-    dialect,
-})
+const app = express();
+const httpServer = http.createServer(app);
 
-const createContext = async ({ res, req }: { res: ServerResponse; req: IncomingMessage }) => {
-    // simple auth check on every request
-    const auth = (req.headers && req.headers.authorization) || '';
-    if (auth.startsWith('Bearer ')) {
-        const token = auth.substring(7, auth.length);
-        try {
-            const accessToken = await JWT.verifySession(token, 'access');
-
-            const user = (await ObjectionUser.query()
-                .findById(accessToken?.sub || '')
-                .where({ isDisabled: false })) as ObjectionUser;
-
-            res.setHeader('Authorization', JWT.encodeSession({ sub: user.$id() }, 'access'));
-
-            return { user: user };
-        } catch (err) {
-            // throw new GraphQLError('Authentication token is invalid', {
-            //     extensions: {
-            //       code: 'UNAUTHENTICATED',
-            //       http: { status: 401 },
-            //     },
-            // });
-            return { user: ObjectionUser };
-        }
-    } else if (auth.startsWith('Basic ')) {
-        const token = auth.substring(6, auth.length);
-        try {
-            // const verifiedToken = JWT.verifySession(token) as JwtPayload;
-            return { user: ObjectionUser };
-        } catch (err) {
-            // throw new GraphQLError('Authentication token is invalid', {
-            //     extensions: {
-            //       code: 'UNAUTHENTICATED',
-            //       http: { status: 401 },
-            //     },
-            // });
-            return { user: ObjectionUser };
-        }
-    } else {
-        // throw new GraphQLError('User is not authenticated', {
-        //     extensions: {
-        //       code: 'UNAUTHENTICATED',
-        //       http: { status: 401 },
-        //     },
-        // });
-        return { user: ObjectionUser };
-    }
-};
-
+const serverPlugins = [ApolloServerPluginDrainHttpServer({ httpServer })];
+if (process.env.NODE_ENV === 'dev') {
+    serverPlugins.push(ApolloServerPluginLandingPageLocalDefault({ includeCookies: true }));
+}
 const server = new ApolloServer({
     schema,
+    plugins: serverPlugins,
 });
 
-const { url } = await startStandaloneServer(server, {
-    listen: { port: 4000 },
-    context: createContext,
-});
+await server.start();
 
-console.log(`🚀  Server ready at: ${url}`);
+app.use(
+    '/graphql',
+    cors<cors.CorsRequest>({
+        origin: ['https://sandbox.embed.apollographql.com', 'http://localhost:5173'],
+        credentials: true,
+    }),
+    express.json(),
+    cookieparser(),
+    // @ts-expect-error middleware works fine, typescript is just inferring package types incorrectly
+    expressMiddleware(server, {
+        context: async ({ req, res }) => {
+            const headers = fromNodeHeaders(req.headers);
+
+            const session = await auth.api.getSession({
+                headers: headers,
+            });
+
+            if (session?.session && session?.user) {
+                return {
+                    headers: headers,
+                    res: res,
+                    session: session?.session,
+                    user: session?.user,
+                };
+            }
+
+            return {
+                headers: headers,
+                res: res,
+                session: undefined,
+                user: {
+                    userId: undefined,
+                },
+            };
+        },
+    }),
+);
+
+await new Promise<void>((resolve) => httpServer.listen({ port: PORT }, resolve));
+console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);

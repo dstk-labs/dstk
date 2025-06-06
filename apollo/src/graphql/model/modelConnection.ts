@@ -1,6 +1,6 @@
 import { builder } from '../../builder.js';
-import { PageInfo, PageInfoClass } from '../misc/pageInfo.js';
-import { MLModelEdge, MLModelEdgeClass } from './modelEdge.js';
+import { PageInfo, type PageInfoClass } from '../misc/pageInfo.js';
+import { MLModelEdge, type MLModelEdgeClass } from './modelEdge.js';
 
 export const MLModelConnection = builder.objectRef<MLModelConnectionClass>('MLModelConnection');
 

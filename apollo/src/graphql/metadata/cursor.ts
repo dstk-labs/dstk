@@ -1,33 +1,29 @@
+import type { Selectable } from 'kysely';
 import { builder } from '../../builder.js';
-import { Model } from 'objection';
+import type { DstkMetadataCursors } from '../../db/db.js';
+
+export type KyselyCursor = Selectable<DstkMetadataCursors>;
+
+export const Cursor = builder.objectRef<KyselyCursor>('Cursor');
 
 export const CursorRelation = builder.enumType('CursorRelation', {
     values: ['model', 'model_version'] as const,
 });
 
-export const Cursor = builder.objectRef<ObjectionCursor>('Cursor');
-
 builder.objectType(Cursor, {
     fields: (t) => ({
-        cursorToken: t.exposeString('cursorToken'),
+        cursorToken: t.exposeString('cursor_token'),
         cursorRelation: t.field({
             type: CursorRelation,
             resolve(root, _args, _ctx) {
-                return root.cursorRelation;
+                return root.cursor_relation;
             },
         }),
-        expiration: t.exposeString('expiration'),
+        expiration: t.field({
+            type: 'String',
+            resolve(root: KyselyCursor, _args, _ctx) {
+                return root.expiration.toISOString();
+            },
+        }),
     }),
 });
-
-export class ObjectionCursor extends Model {
-    id!: number;
-    cursorToken!: string;
-    cursorRelation!: 'model' | 'model_version';
-    expiration!: string;
-
-    static tableName = 'dstk_metadata.cursors';
-    static getIdColumn() {
-        return 'cursorId';
-    }
-}

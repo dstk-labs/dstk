@@ -1,4 +1,3 @@
-import { ObjectionStorageProvider } from '../graphql';
 import {
     AbortMultipartUploadCommand,
     CompleteMultipartUploadCommand,
@@ -10,31 +9,36 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Security } from './encryption.js';
 import { builder } from '../builder.js';
+import type { KyselyStorageProvider } from '../graphql/index.js';
 
 const EncryptoMatic = new Security();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const PresignedURL = builder.objectRef<any>('PresignedURL').implement({
+export class PresignedUrlClass {
+    url?: string;
+    key?: string;
+    uploadId?: string;
+    partNumber?: number;
+    ETag?: string;
+}
+
+export const PresignedURL = builder.objectRef<PresignedUrlClass>('PresignedURL').implement({
     fields: (t) => ({
         url: t.exposeString('url'),
         key: t.exposeString('key'),
         uploadId: t.exposeString('uploadId'),
-        partNumber: t.exposeString('partNumber'),
+        partNumber: t.exposeInt('partNumber'),
         ETag: t.exposeString('ETag'),
     }),
 });
 
-export async function CreateMultipartUpload(
-    storageProvider: ObjectionStorageProvider,
-    key: string,
-) {
+export async function CreateMultipartUpload(storageProvider: KyselyStorageProvider, key: string) {
     const client = new S3Client({
         apiVersion: '2006-03-01',
         region: storageProvider.region,
-        endpoint: storageProvider.endpointUrl,
+        endpoint: storageProvider.endpoint_url,
         credentials: {
-            accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
-            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
+            accessKeyId: EncryptoMatic.decrypt(storageProvider.access_key_id),
+            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secret_access_key),
         },
     });
 
@@ -47,7 +51,7 @@ export async function CreateMultipartUpload(
 }
 
 export async function CreatePresignedURLForPart(
-    storageProvider: ObjectionStorageProvider,
+    storageProvider: KyselyStorageProvider,
     key: string,
     uploadId: string,
     partNumber: number,
@@ -55,10 +59,10 @@ export async function CreatePresignedURLForPart(
     const client = new S3Client({
         apiVersion: '2006-03-01',
         region: storageProvider.region,
-        endpoint: storageProvider.endpointUrl,
+        endpoint: storageProvider.endpoint_url,
         credentials: {
-            accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
-            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
+            accessKeyId: EncryptoMatic.decrypt(storageProvider.access_key_id),
+            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secret_access_key),
         },
     });
 
@@ -81,7 +85,7 @@ export interface CompletedMultipartUpload {
 }
 
 export async function FinalizeMultipartUpload(
-    storageProvider: ObjectionStorageProvider,
+    storageProvider: KyselyStorageProvider,
     key: string,
     uploadId: string,
     multipartUpload: CompletedMultipartUpload,
@@ -89,10 +93,10 @@ export async function FinalizeMultipartUpload(
     const client = new S3Client({
         apiVersion: '2006-03-01',
         region: storageProvider.region,
-        endpoint: storageProvider.endpointUrl,
+        endpoint: storageProvider.endpoint_url,
         credentials: {
-            accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
-            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
+            accessKeyId: EncryptoMatic.decrypt(storageProvider.access_key_id),
+            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secret_access_key),
         },
     });
 
@@ -107,17 +111,17 @@ export async function FinalizeMultipartUpload(
 }
 
 export async function AbortMultipartUpload(
-    storageProvider: ObjectionStorageProvider,
+    storageProvider: KyselyStorageProvider,
     key: string,
     uploadId: string,
 ) {
     const client = new S3Client({
         apiVersion: '2006-03-01',
         region: storageProvider.region,
-        endpoint: storageProvider.endpointUrl,
+        endpoint: storageProvider.endpoint_url,
         credentials: {
-            accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
-            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
+            accessKeyId: EncryptoMatic.decrypt(storageProvider.access_key_id),
+            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secret_access_key),
         },
     });
 
@@ -131,7 +135,7 @@ export async function AbortMultipartUpload(
 }
 
 export async function ListObjects(
-    storageProvider: ObjectionStorageProvider,
+    storageProvider: KyselyStorageProvider,
     maxKeys: number,
     prefix: string,
     continuationToken?: string,
@@ -139,10 +143,10 @@ export async function ListObjects(
     const client = new S3Client({
         apiVersion: '2006-03-01',
         region: storageProvider.region,
-        endpoint: storageProvider.endpointUrl,
+        endpoint: storageProvider.endpoint_url,
         credentials: {
-            accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
-            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
+            accessKeyId: EncryptoMatic.decrypt(storageProvider.access_key_id),
+            secretAccessKey: EncryptoMatic.decrypt(storageProvider.secret_access_key),
         },
     });
 
