@@ -30,21 +30,9 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
-
       '@stylistic/semi': ['error', 'always'],
       '@stylistic/quotes': ['error', 'single'],
       '@stylistic/indent': ['error', 2],
-
-      'perfectionist/sort-imports': [
-        'error',
-        {
-          type: 'module',
-          order: 'asc',
-          'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-        },
-      ],
-      'perfectionist/sort-objects': ['warn', { order: 'asc' }],
-      'perfectionist/sort-array-includes': 'warn',
     },
   }
 )
