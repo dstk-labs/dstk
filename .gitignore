@@ -25,6 +25,7 @@
 !*.ts
 !*.jsx
 !*.js
+!*.cjs
 !*.css
 !*.svg
 !*.html
