@@ -25,6 +25,7 @@
 !*.ts
 !*.jsx
 !*.js
+!*.cjs
 !*.css
 !*.svg
 !*.html
@@ -35,6 +36,7 @@
 !.prettierignore
 !Dockerfile
 !*.config.mjs
+!pre-commit
 
 # And certain folders, regardless of content
 !*assets/*
