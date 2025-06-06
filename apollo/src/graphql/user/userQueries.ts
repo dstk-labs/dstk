@@ -39,4 +39,15 @@ builder.queryFields((t) => ({
             return users;
         },
     }),
+    getUser: t.field({
+        type: User,
+        async resolve(_root, _args, ctx) {
+            const user = await db
+                .selectFrom('dstk_user.user')
+                .selectAll()
+                .where('dstk_user.user.user_id', '=', ctx.user.user_id)
+                .executeTakeFirst();
+            return user;
+        },
+    }),
 }));
