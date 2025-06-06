@@ -35,6 +35,7 @@
 !.prettierignore
 !Dockerfile
 !*.config.mjs
+!pre-commit
 
 # And certain folders, regardless of content
 !*assets/*
