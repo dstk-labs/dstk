@@ -32,12 +32,6 @@ spec:
       containers:
         - name: dstk-web
           image: dstk-web
-          # env:
-          # - name: STORAGE_PROVIDER_KEY
-          #   valueFrom:
-          #     secretKeyRef:
-          #       name: storage-provider-key
-          #       key: enc-key
 
 ---
 apiVersion: v1
