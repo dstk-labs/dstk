@@ -26,11 +26,15 @@ Although some initial databases are created whenever the Postgres container is b
 ./bin/storage upgrade
 ```
 
-This will apply any new patches present in `postgres/patches`
+This will apply any new patches present in `postgres/patches`.
+
+**IMPORTANT**: You MUST apply all patches that exist as of the current version of DSTK that you are running. Bad things will happen if you just clone the repo and yolo it. The database will be very sad.
 
 ## Available Services
 
 The development cluster will automatically expose the following services and endpoints:
 
+- Apollo Explorer at `127.0.0.1:4000`
+- DSTK Web UI at `127.0.0.1:5173`
 - MinIO at `127.0.0.1:9001`; the default credentials are supplied in `src/minio/minio.k8s.yml`
 - Postgres at `127.0.0.1:5432`; the default credentials are supplied in `src/postgres/postgres.k8s.yml`. Note that you will need to install the appropriate Postgres utilities (`psql`, jdbc/odbc driver, whatever) on your host machine in order to connect.
