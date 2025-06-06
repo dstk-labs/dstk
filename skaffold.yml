@@ -5,6 +5,7 @@ metadata:
 manifests:
   rawYaml:
   - apollo/apollo.k8s.yml
+  - dstk-web/web.k8s.yml
   - minio/minio.k8s.yml
   - postgres/postgres.k8s.yml
 build:
@@ -17,6 +18,10 @@ build:
     context: apollo
     docker:
       dockerfile: Dockerfile
+  - image: dstk-web
+    context: dstk-web
+    docker:
+      dockerfile: Dockerfile
 deploy:
   kubectl: {}
   statusCheckDeadlineSeconds: 600
@@ -27,6 +32,10 @@ profiles:
       resourceName: dstk-apollo
       port: 4000
       localPort: 4000
+    - resourceType: service
+      resourceName: dstk-web
+      port: 5173
+      localPort: 5173
     - resourceType: service
       resourceName: dstk-minio
       port: 9001

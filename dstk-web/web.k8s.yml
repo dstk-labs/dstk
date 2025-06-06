@@ -1,0 +1,54 @@
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: storage-provider-key
+#   labels:
+#     io.kompose.service: dstk-apollo
+#     app.kubernetes.io/name: dstk-apollo
+# data:
+#   enc-key: SW1JbkRhbmdlcgo=
+
+---  
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: dstk-web
+    app.kubernetes.io/name: dstk-web
+  name: dstk-apolweblo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: dstk-web
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: dstk-web
+        app.kubernetes.io/name: dstk-web
+    spec:
+      containers:
+        - name: dstk-web
+          image: dstk-web
+          # env:
+          # - name: STORAGE_PROVIDER_KEY
+          #   valueFrom:
+          #     secretKeyRef:
+          #       name: storage-provider-key
+          #       key: enc-key
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: dstk-web
+  name: dstk-web
+spec:
+  ports:
+    - name: "5173"
+      port: 5173
+  selector:
+    io.kompose.service: dstk-web
