@@ -37,6 +37,7 @@
 !Dockerfile
 !*.config.mjs
 !pre-commit
+!*.png
 
 # And certain folders, regardless of content
 !*assets/*
