@@ -8,6 +8,21 @@ import { paths } from './config/paths';
 const createAppRouter = () =>
   createBrowserRouter([
     {
+      lazy: async () => {
+        const { AuthLayout } = await import('./layouts/auth/authLayout');
+        return { Component: AuthLayout };
+      },
+      children: [
+        {
+          path: paths.auth.login.path,
+          lazy: async () => {
+            const { LoginPage } = await import('./pages/auth/login/loginPage');
+            return { Component: LoginPage };
+          },
+        },
+      ]
+    },
+    {
       path: paths.root.landing.path,
       lazy: async () => {
         const { LandingPage } = await import('./pages/root/landing-page');
