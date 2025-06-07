@@ -5,7 +5,7 @@ import { apolloClient } from './lib/apollo';
 
 export const AppProvider = ({ children }: React.PropsWithChildren) => (
   <ApolloProvider client={apolloClient}>
-    <MantineProvider>
+    <MantineProvider defaultColorScheme='light'>
       <Notifications />
       {children}
     </MantineProvider>
