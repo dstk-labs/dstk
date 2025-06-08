@@ -443,3 +443,10 @@ export enum UserRole {
   Owner = 'owner',
   Viewer = 'viewer'
 }
+
+export type LoginMutationVariables = Exact<{
+  data: LoginInput;
+}>;
+
+
+export type LoginMutation = { __typename?: 'Mutation', login?: string | null };
