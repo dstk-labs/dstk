@@ -31,6 +31,21 @@ const createAppRouter = () =>
           ]
         },
         {
+          lazy: async () => {
+            const { DashboardLayout } = await import('./layouts/dashboard/dashboardLayout');
+            return { Component: DashboardLayout };
+          },
+          children: [
+            {
+              path: paths.dashboard.overview.path,
+              lazy: async () => {
+                const { OverviewPage } = await import('./pages/dashboard/overview/overviewPage');
+                return { Component: OverviewPage };
+              },
+            },
+          ]
+        },
+        {
           path: paths.root.landing.path,
           lazy: async () => {
             const { LandingPage } = await import('./pages/root/landing-page');
