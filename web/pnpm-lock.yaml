@@ -11,6 +11,9 @@ dependencies:
   '@mantine/core':
     specifier: ^8.0.2
     version: 8.0.2(@mantine/hooks@8.0.2)(@types/react@19.1.6)(react-dom@19.1.0)(react@19.1.0)
+  '@mantine/form':
+    specifier: ^8.0.2
+    version: 8.0.2(react@19.1.0)
   '@mantine/hooks':
     specifier: ^8.0.2
     version: 8.0.2(react@19.1.0)
@@ -20,6 +23,9 @@ dependencies:
   lucide-react:
     specifier: ^0.513.0
     version: 0.513.0(react@19.1.0)
+  mantine-form-zod-resolver:
+    specifier: ^1.2.1
+    version: 1.2.1(@mantine/form@8.0.2)(zod@3.25.56)
   react:
     specifier: ^19.1.0
     version: 19.1.0
@@ -1443,6 +1449,16 @@ packages:
       - '@types/react'
     dev: false
 
+  /@mantine/form@8.0.2(react@19.1.0):
+    resolution: {integrity: sha512-vSp9BfrhC9o7RMRYMaND2UAflXO4i6c5F1qPkiM2FID6ye2RJxW8YHaGa3kA0VfBbhDw9sFBbl8p7ttE4RPzcw==}
+    peerDependencies:
+      react: ^18.x || ^19.x
+    dependencies:
+      fast-deep-equal: 3.1.3
+      klona: 2.0.6
+      react: 19.1.0
+    dev: false
+
   /@mantine/hooks@8.0.2(react@19.1.0):
     resolution: {integrity: sha512-0jpEdC0KIAZ54D5kd9rJudrEm6vkvnrL9yYHnkuNbxokXSzDdYA/wpHnKR5WW+u6fW4JF6A6A7gN1vXKeC9MSw==}
     peerDependencies:
@@ -2660,7 +2676,6 @@ packages:
 
   /fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
-    dev: true
 
   /fast-glob@3.3.3:
     resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
@@ -3220,6 +3235,11 @@ packages:
       json-buffer: 3.0.1
     dev: true
 
+  /klona@2.0.6:
+    resolution: {integrity: sha512-dhG34DXATL5hSxJbIexCft8FChFXtmskoZYnoPWjXQuebWYCNkVeV3KkGegCK9CP1oswI/vQibS2GY7Em/sJJA==}
+    engines: {node: '>= 8'}
+    dev: false
+
   /levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
@@ -3365,6 +3385,17 @@ packages:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
     dependencies:
       react: 19.1.0
+    dev: false
+
+  /mantine-form-zod-resolver@1.2.1(@mantine/form@8.0.2)(zod@3.25.56):
+    resolution: {integrity: sha512-8Y7jX3ybZEhQeLzkbrzCS9gulnCX7sgjM5bCkRDxQHbmal8V5lLM9yZq583UEme8DuM77x/BJNTrBkYZo+JUFw==}
+    engines: {node: '>=16.6.0'}
+    peerDependencies:
+      '@mantine/form': '>=7.0.0'
+      zod: '>=3.25.0'
+    dependencies:
+      '@mantine/form': 8.0.2(react@19.1.0)
+      zod: 3.25.56
     dev: false
 
   /map-cache@0.2.2:

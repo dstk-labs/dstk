@@ -6,6 +6,7 @@ import { Fragment } from 'react/jsx-runtime';
 import { Logo } from '@/components/logo/logo';
 import { paths } from '@/config/paths';
 import styles from './authLayout.module.css';
+import { PublicRoute } from '@/features/auth/components/publicRoute';
 
 const footerLinks = [
   { link: paths.root.landing.path, label: `© ${new Date().getFullYear()} DSTK Labs.`},
@@ -19,59 +20,61 @@ export const AuthLayout = () => {
   const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   return (
-    <AppShell
-      header={{ height: 60 }}
-      footer={{ height: 60 }}
-      padding="md"
-    >
-      <AppShell.Header>
-        <Center h="100%">
-          <Logo h="auto" w="2rem" />
-        </Center>
-      </AppShell.Header>
-      <AppShell.Main>
-        <Center className={styles.main}>
-          <Outlet />
-        </Center>
-      </AppShell.Main>
-      <AppShell.Footer>
-        <Center h="100%">
-          <ScrollArea py="lg">
-            <Group px="lg" wrap="nowrap">
-              {footerLinks.map(footerLink => (
-                <Fragment key={footerLink.link}>
-                  <Anchor
-                    c="gray"
-                    className={styles.anchor}
-                    size="xs"
-                    to={footerLink.link}
-                  >
-                    {footerLink.label}
-                  </Anchor>
-                  <Anchor
-                    c="gray"
-                    component="li"
-                    underline="never"
-                  >
-                    <DotIcon size={14} />
-                  </Anchor>
-                </Fragment>
-              ))}
-              <Anchor
-                c="gray"
-                component="button"
-                underline="never"
-              >
-                {colorScheme === 'light' ? (
-                  <MoonIcon onClick={() => setColorScheme('dark')} size={14} />
-                ) : (
-                  <SunIcon onClick={() => setColorScheme('light')} size={14} />
-                )}
-              </Anchor>
-            </Group>
-          </ScrollArea>
-        </Center>
-      </AppShell.Footer>
-    </AppShell>
+    <PublicRoute>
+      <AppShell
+        header={{ height: 60 }}
+        footer={{ height: 60 }}
+        padding="md"
+      >
+        <AppShell.Header>
+          <Center h="100%">
+            <Logo h="auto" w="2rem" />
+          </Center>
+        </AppShell.Header>
+        <AppShell.Main>
+          <Center className={styles.main}>
+            <Outlet />
+          </Center>
+        </AppShell.Main>
+        <AppShell.Footer>
+          <Center h="100%">
+            <ScrollArea py="lg">
+              <Group px="lg" wrap="nowrap">
+                {footerLinks.map(footerLink => (
+                  <Fragment key={footerLink.link}>
+                    <Anchor
+                      c="gray"
+                      className={styles.anchor}
+                      size="xs"
+                      to={footerLink.link}
+                    >
+                      {footerLink.label}
+                    </Anchor>
+                    <Anchor
+                      c="gray"
+                      component="li"
+                      underline="never"
+                    >
+                      <DotIcon size={14} />
+                    </Anchor>
+                  </Fragment>
+                ))}
+                <Anchor
+                  c="gray"
+                  component="button"
+                  underline="never"
+                >
+                  {colorScheme === 'light' ? (
+                    <MoonIcon onClick={() => setColorScheme('dark')} size={14} />
+                  ) : (
+                    <SunIcon onClick={() => setColorScheme('light')} size={14} />
+                  )}
+                </Anchor>
+              </Group>
+            </ScrollArea>
+          </Center>
+        </AppShell.Footer>
+      </AppShell>
+    </PublicRoute>
   );
 };

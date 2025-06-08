@@ -5,6 +5,12 @@ export const paths = {
       path: '/auth/login',
     }
   },
+  dashboard: {
+    overview: {
+      getPath: () => '/dashboard/overview',
+      path: '/dashboard/overview',
+    },
+  },
   root: {
     about: {
       getPath: () => '/about',
