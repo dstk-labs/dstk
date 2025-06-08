@@ -8,6 +8,7 @@ import type { LoginInput } from '@/graphql/types';
 import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { useMutation } from '@apollo/client';
+import { GET_USER } from '@/features/auth/loaders/authLoader';
 
 const LOGIN = gql(`
     mutation Login($data: LoginInput!) {
@@ -42,7 +43,7 @@ export const LoginPage = () => {
     variables: {
       data: { ...values }
     },
-    refetchQueries: [],
+    refetchQueries: [{ query: GET_USER }],
   });
 
   return (

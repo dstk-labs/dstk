@@ -1,7 +1,7 @@
 import { gql } from '@/graphql';
 import { preloadQuery } from '@/lib/apollo';
 
-const GET_USER = gql(`
+export const GET_USER = gql(`
     query GetUser {
         getUser {
             userId
