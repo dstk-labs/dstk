@@ -444,6 +444,11 @@ export enum UserRole {
   Viewer = 'viewer'
 }
 
+export type GetUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUserQuery = { __typename?: 'Query', getUser?: { __typename?: 'User', userId?: string | null, image?: string | null, email?: string | null, userName?: string | null } | null };
+
 export type LoginMutationVariables = Exact<{
   data: LoginInput;
 }>;

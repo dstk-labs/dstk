@@ -14,9 +14,11 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n    query GetUser {\n        getUser {\n            userId\n            image\n            email\n            userName\n        }\n    }\n": typeof types.GetUserDocument,
     "\n    mutation Login($data: LoginInput!) {\n        login(data: $data)\n    }\n": typeof types.LoginDocument,
 };
 const documents: Documents = {
+    "\n    query GetUser {\n        getUser {\n            userId\n            image\n            email\n            userName\n        }\n    }\n": types.GetUserDocument,
     "\n    mutation Login($data: LoginInput!) {\n        login(data: $data)\n    }\n": types.LoginDocument,
 };
 
@@ -34,6 +36,10 @@ const documents: Documents = {
  */
 export function gql(source: string): unknown;
 
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    query GetUser {\n        getUser {\n            userId\n            image\n            email\n            userName\n        }\n    }\n"): (typeof documents)["\n    query GetUser {\n        getUser {\n            userId\n            image\n            email\n            userName\n        }\n    }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
