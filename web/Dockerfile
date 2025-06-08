@@ -12,4 +12,4 @@ RUN pnpm fetch
 
 ADD . ./
 RUN pnpm install -r
-CMD ["pnpm", "build"]
+CMD ["pnpm", "dev"]
