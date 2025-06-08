@@ -42,3 +42,4 @@
 # And certain folders, regardless of content
 !*assets/*
 !*public/*
+!*src/graphql/*
