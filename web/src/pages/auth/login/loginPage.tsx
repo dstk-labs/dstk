@@ -62,7 +62,7 @@ export const LoginPage = () => {
       <Divider label='OR' labelPosition='center' />
 
       <form onSubmit={loginForm.onSubmit(values => onSubmit(values))}>
-        <TextInput disabled={loading} label="Email" key={loginForm.key('email')} placeholder="you@mantine.dev" withAsterisk {...loginForm.getInputProps('email')} />
+        <TextInput disabled={loading} label="Email" key={loginForm.key('email')} placeholder="you@dstk.dev" withAsterisk {...loginForm.getInputProps('email')} />
         <PasswordInput disabled={loading} label="Password" placeholder="Shhhhhhh" key={loginForm.key('password')} withAsterisk mt="md" {...loginForm.getInputProps('password')} />
         <Group justify="space-between" mt="lg">
           <Checkbox disabled={loading} label="Remember me" key={loginForm.key('rememberMe')} {...loginForm.getInputProps('rememberMe', { type: 'checkbox' })} />
