@@ -3,7 +3,11 @@ export const paths = {
     login: {
       getPath: () => '/auth/login',
       path: '/auth/login',
-    }
+    },
+    register: {
+      getPath: () => '/auth/register',
+      path: '/auth/register',
+    },
   },
   dashboard: {
     overview: {
