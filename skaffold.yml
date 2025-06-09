@@ -5,7 +5,7 @@ metadata:
 manifests:
   rawYaml:
   - apollo/apollo.k8s.yml
-  - dstk-web/web.k8s.yml
+  - web/web.k8s.yml
   - minio/minio.k8s.yml
   - postgres/postgres.k8s.yml
 build:
@@ -18,8 +18,11 @@ build:
     context: apollo
     docker:
       dockerfile: Dockerfile
+    requires:
+    - image: dstk-postgres
+      alias: postgres
   - image: dstk-web
-    context: dstk-web
+    context: web
     docker:
       dockerfile: Dockerfile
 deploy:

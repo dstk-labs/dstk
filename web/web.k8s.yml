@@ -4,7 +4,7 @@ metadata:
   labels:
     io.kompose.service: dstk-web
     app.kubernetes.io/name: dstk-web
-  name: dstk-apolweblo
+  name: dstk-web
 spec:
   replicas: 1
   selector:

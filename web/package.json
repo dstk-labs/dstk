@@ -17,10 +17,12 @@
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@mantine/core": "^8.0.2",
     "@mantine/form": "^8.0.2",
     "@mantine/hooks": "^8.0.2",
     "@mantine/notifications": "^8.0.2",
+    "graphql": "^16.11.0",
     "lucide-react": "^0.513.0",
     "mantine-form-zod-resolver": "^1.2.1",
     "react": "^19.1.0",
