@@ -38,12 +38,6 @@
     }
 }
 
-.formWrapper {
-    display: flex; 
-    flex-direction: column; 
-    gap: 1.25rem; 
-}
-
 .signUp {
     color: var(--mantine-color-dimmed);
     font-size: var(--mantine-font-size-sm);
