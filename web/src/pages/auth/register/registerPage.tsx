@@ -85,9 +85,9 @@ export const RegisterPage = () => {
       <form onSubmit={registerForm.onSubmit(values => onSubmit(values))}>
         <TextInput disabled={loading} label="Name" key={registerForm.key('realName')} placeholder="Your name" withAsterisk {...registerForm.getInputProps('realName')} />
         <TextInput disabled={loading} label="Username" key={registerForm.key('userName')} mt='md' placeholder="Your username" withAsterisk {...registerForm.getInputProps('userName')} />
-        <Divider my='md' />
+        <Divider my='lg' />
         <TextInput disabled={loading} label="Email" key={registerForm.key('email')} placeholder="you@dstk.dev" withAsterisk {...registerForm.getInputProps('email')} />
-        <Divider my='md' />
+        <Divider my='lg' />
         <PasswordInput disabled={loading} label="Password" placeholder="Shhhhhhh" key={registerForm.key('password')} withAsterisk {...registerForm.getInputProps('password')} />
         <PasswordInput disabled={loading} label="Confirm Password" placeholder="Also Shhhhhhh" key={registerForm.key('confirmPassword')} mt='md' withAsterisk {...registerForm.getInputProps('confirmPassword')} />
         <Button loading={loading} fullWidth mt="xl" type='submit'>
