@@ -1,5 +1,6 @@
 import {
   Button,
+  CheckIcon,
   Divider,
   PasswordInput,
   Radio,
@@ -190,6 +191,7 @@ export const RegisterForm = () => {
             <Radio
               key={name}
               checked={passwordChecks[name]}
+              icon={CheckIcon}
               label={message}
               size="xs"
             />
