@@ -6,8 +6,8 @@
   "scripts": {
     "prepare": "cd .. && husky ./web/.husky",
     "codegen": "graphql-codegen --config ./src/config/codegen.ts",
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "pnpm codegen && vite",
+    "build": "tsc -b && pnpm codegen && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "preview": "vite preview"

@@ -28,6 +28,13 @@ const createAppRouter = () =>
                 return { Component: LoginPage };
               },
             },
+            {
+              path: paths.auth.register.path,
+              lazy: async () => {
+                const { RegisterPage } = await import('./pages/auth/register/registerPage');
+                return { Component: RegisterPage };
+              },
+            },
           ]
         },
         {

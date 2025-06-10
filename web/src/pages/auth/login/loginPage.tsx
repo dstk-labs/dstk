@@ -1,4 +1,4 @@
-import { Anchor, Button, Checkbox, Divider, Group, PasswordInput, Text, TextInput, Title } from '@mantine/core';
+import { Button, Checkbox, Divider, Group, PasswordInput, Text, TextInput, Title } from '@mantine/core';
 import styles from './loginPage.module.css';
 import { GoogleIcon } from '@/components/icons/google/googleIcon';
 import { GithubIcon } from '@/components/icons/github/githubIcon';
@@ -9,6 +9,8 @@ import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { useMutation } from '@apollo/client';
 import { GET_USER } from '@/features/auth/loaders/authLoader';
+import { Anchor } from '@/components/anchor/anchor';
+import { paths } from '@/config/paths';
 
 const LOGIN = gql(`
     mutation Login($data: LoginInput!) {
@@ -62,7 +64,7 @@ export const LoginPage = () => {
       <Divider label='OR' labelPosition='center' />
 
       <form onSubmit={loginForm.onSubmit(values => onSubmit(values))}>
-        <TextInput disabled={loading} label="Email" key={loginForm.key('email')} placeholder="you@dstk.dev" withAsterisk {...loginForm.getInputProps('email')} />
+        <TextInput disabled={loading} label="Email" key={loginForm.key('email')} placeholder="you@dstk.org" withAsterisk {...loginForm.getInputProps('email')} />
         <PasswordInput disabled={loading} label="Password" placeholder="Shhhhhhh" key={loginForm.key('password')} withAsterisk mt="md" {...loginForm.getInputProps('password')} />
         <Group justify="space-between" mt="lg">
           <Checkbox disabled={loading} label="Remember me" key={loginForm.key('rememberMe')} {...loginForm.getInputProps('rememberMe', { type: 'checkbox' })} />
@@ -76,7 +78,7 @@ export const LoginPage = () => {
       </form>
 
       <Text className={styles.signUp}>
-        New to DSTK? <Anchor size='sm'>Create account</Anchor>
+        New to DSTK? <Anchor size='sm' to={paths.auth.register.path}>Create account</Anchor>
       </Text>
     </div>
   );

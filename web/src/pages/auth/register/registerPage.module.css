@@ -28,17 +28,7 @@
     line-height: 1.25rem;
 }
 
-.oauthButtonWrapper {
-    display: flex; 
-    flex-direction: column; 
-    gap: 1.25rem; 
-
-    @media (min-width: 640px) { 
-        flex-direction: row; 
-    }
-}
-
-.signUp {
+.login {
     color: var(--mantine-color-dimmed);
     font-size: var(--mantine-font-size-sm);
     margin-top: 5px;
