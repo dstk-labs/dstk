@@ -166,7 +166,7 @@ export const RegisterForm = () => {
           disabled={loading}
           label="Email"
           key={registerForm.key('email')}
-          placeholder="you@dstk.dev"
+          placeholder="you@dstk.org"
           withAsterisk
           {...registerForm.getInputProps('email')}
         />
