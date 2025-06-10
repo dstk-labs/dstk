@@ -190,6 +190,7 @@ export const RegisterForm = () => {
           {passwordRules.map(({ name, message }) => (
             <Radio
               key={name}
+              color='green'
               checked={passwordChecks[name]}
               icon={CheckIcon}
               label={message}
