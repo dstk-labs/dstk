@@ -23,6 +23,9 @@ dependencies:
   '@mantine/notifications':
     specifier: ^8.0.2
     version: 8.0.2(@mantine/core@8.0.2)(@mantine/hooks@8.0.2)(react-dom@19.1.0)(react@19.1.0)
+  clsx:
+    specifier: ^2.1.1
+    version: 2.1.1
   graphql:
     specifier: ^16.11.0
     version: 16.11.0
