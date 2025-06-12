@@ -10,9 +10,33 @@ export const paths = {
     },
   },
   dashboard: {
+    deployments: {
+      getPath: () => '/dashboard/deployments',
+      path: '/dashboard/deployments',
+    },
+    models: {
+      getPath: () => '/dashboard/models',
+      path: '/dashboard/models',
+    },
     overview: {
       getPath: () => '/dashboard/overview',
       path: '/dashboard/overview',
+    },
+    projects: {
+      getPath: () => '/dashboard/projects',
+      path: '/dashboard/projects',
+    },
+    settings: {
+      getPath: () => '/dashboard/settings',
+      path: '/dashboard/settings',
+    },
+    storage: {
+      getPath: () => '/dashboard/storage',
+      path: '/dashboard/storage',
+    },
+    teams: {
+      getPath: () => '/dashboard/teams',
+      path: '/dashboard/teams',
     },
   },
   root: {
