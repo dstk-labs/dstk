@@ -22,6 +22,7 @@
     "@mantine/form": "^8.0.2",
     "@mantine/hooks": "^8.0.2",
     "@mantine/notifications": "^8.0.2",
+    "clsx": "^2.1.1",
     "graphql": "^16.11.0",
     "lucide-react": "^0.513.0",
     "mantine-form-zod-resolver": "^1.2.1",
