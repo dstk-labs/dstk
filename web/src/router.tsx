@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { createBrowserRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
-
 import { paths } from './config/paths';
 import { userLoader } from './features/auth/loaders/authLoader';
 
@@ -38,13 +37,23 @@ const createAppRouter = () =>
           ]
         },
         {
+          id: 'dashboard',
           lazy: async () => {
-            const { DashboardLayout } = await import('./layouts/dashboard/dashboardLayout');
+            const { DashboardLayout } = await import('./layouts/dashboard/DashboardLayout');
             return { Component: DashboardLayout };
+          },
+          loader: async () => {
+            const { teamsLoader } = await import('./features/teams/loaders/teamsLoader');
+
+            const queryRef = teamsLoader();
+            return queryRef;
           },
           children: [
             {
               path: paths.dashboard.overview.path,
+              handle: {
+                crumb: () => paths.dashboard.overview.getPath(),
+              },
               lazy: async () => {
                 const { OverviewPage } = await import('./pages/dashboard/overview/overviewPage');
                 return { Component: OverviewPage };
