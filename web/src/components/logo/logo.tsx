@@ -6,6 +6,13 @@ export const Logo = ({ ...props }: LogoProps) => {
   const { colorScheme } = useMantineColorScheme();
 
   return (
-    <Image src={colorScheme === 'light' ? '/images/dstkLogo.png' : '/images/dstkLogoInverted.png'} {...props } />
+    <Image
+      src={
+        colorScheme === 'light'
+          ? '/images/dstkLogo.png'
+          : '/images/dstkLogoInverted.png'
+      }
+      {...props}
+    />
   );
 };

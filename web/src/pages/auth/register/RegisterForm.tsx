@@ -1,3 +1,4 @@
+import { useMutation } from '@apollo/client';
 import {
   Button,
   CheckIcon,
@@ -7,17 +8,19 @@ import {
   Stack,
   TextInput,
 } from '@mantine/core';
-import styles from './RegisterForm.module.css';
-import { GoogleIcon } from '@/components/icons/google/googleIcon';
-import { GithubIcon } from '@/components/icons/github/githubIcon';
-import { z } from 'zod/v4';
-import type { AccountInput } from '@/graphql/types';
 import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
-import { useMutation } from '@apollo/client';
+import { useState } from 'react';
+import { z } from 'zod/v4';
+
+import type { AccountInput } from '@/graphql/types';
+
+import { GithubIcon } from '@/components/icons/github/GithubIcon';
+import { GoogleIcon } from '@/components/icons/google/GoogleIcon';
 import { GET_USER } from '@/features/auth/loaders/authLoader';
 import { gql } from '@/graphql';
-import { useState } from 'react';
+
+import styles from './RegisterForm.module.css';
 
 const CREATE_ACCOUNT = gql(`
     mutation CreateAccount($data: AccountInput!) {
@@ -29,28 +32,28 @@ const CREATE_ACCOUNT = gql(`
 
 const passwordRules = [
   {
-    name: 'length',
     message: 'Password must be at least 12 characters long',
+    name: 'length',
     test: (val: string) => val.length >= 12,
   },
   {
-    name: 'lowercase',
     message: 'Password must include at least one lowercase letter',
+    name: 'lowercase',
     test: (val: string) => /[a-z]/.test(val),
   },
   {
-    name: 'uppercase',
     message: 'Password must include at least one uppercase letter',
+    name: 'uppercase',
     test: (val: string) => /[A-Z]/.test(val),
   },
   {
-    name: 'number',
     message: 'Password must include at least one number',
+    name: 'number',
     test: (val: string) => /[0-9]/.test(val),
   },
   {
-    name: 'symbol',
     message: 'Password must include at least one symbol',
+    name: 'symbol',
     test: (val: string) => /[^A-Za-z0-9]/.test(val),
   },
 ] as const;
@@ -68,7 +71,7 @@ const registerSchema = z
         schema.refine(rule.test, {
           message: rule.message,
         }),
-      z.string()
+      z.string(),
     ),
     realName: z.string().min(1, 'Required'),
     userName: z.string().min(1, 'Required'),
@@ -77,8 +80,8 @@ const registerSchema = z
     if (ctx.value.confirmPassword !== ctx.value.password) {
       ctx.issues.push({
         code: 'custom',
-        message: 'Passwords must match',
         input: ctx.value.confirmPassword,
+        message: 'Passwords must match',
       });
     }
   }) satisfies z.ZodType<AccountInput>;
@@ -91,7 +94,6 @@ export const RegisterForm = () => {
   const [password, setPassword] = useState('');
 
   const registerForm = useForm({
-    mode: 'controlled',
     initialValues: {
       confirmPassword: '',
       email: '',
@@ -99,12 +101,13 @@ export const RegisterForm = () => {
       realName: '',
       userName: '',
     },
+    mode: 'controlled',
     validate: zod4Resolver(registerSchema),
   });
 
   const getPasswordValidationState = (password: string) => {
     return Object.fromEntries(
-      passwordRules.map((rule) => [rule.name, rule.test(password)])
+      passwordRules.map((rule) => [rule.name, rule.test(password)]),
     );
   };
 
@@ -112,6 +115,7 @@ export const RegisterForm = () => {
 
   const onSubmit = (values: RegisterSchema) =>
     register({
+      refetchQueries: [{ query: GET_USER }],
       variables: {
         data: {
           email: values.email,
@@ -120,25 +124,24 @@ export const RegisterForm = () => {
           userName: values.userName,
         },
       },
-      refetchQueries: [{ query: GET_USER }],
     });
-    
+
   return (
     <>
       <div className={styles.oauthButtonWrapper}>
         <Button
           disabled={loading}
-          leftSection={<GoogleIcon height={16} width={17} />}
-          variant="default"
           fullWidth
+          leftSection={<GoogleIcon height={16} width={17} />}
+          variant='default'
         >
           Register with Google
         </Button>
         <Button
           disabled={loading}
-          leftSection={<GithubIcon height={16} width={17} />}
-          variant="default"
           fullWidth
+          leftSection={<GithubIcon height={16} width={17} />}
+          variant='default'
         >
           Register with Github
         </Button>
@@ -146,68 +149,68 @@ export const RegisterForm = () => {
       <form onSubmit={registerForm.onSubmit((values) => onSubmit(values))}>
         <TextInput
           disabled={loading}
-          label="Name"
           key={registerForm.key('realName')}
-          placeholder="Your name"
+          label='Name'
+          placeholder='Your name'
           withAsterisk
           {...registerForm.getInputProps('realName')}
         />
         <TextInput
           disabled={loading}
-          label="Username"
           key={registerForm.key('userName')}
-          mt="md"
-          placeholder="Your username"
+          label='Username'
+          mt='md'
+          placeholder='Your username'
           withAsterisk
           {...registerForm.getInputProps('userName')}
         />
-        <Divider my="lg" />
+        <Divider my='lg' />
         <TextInput
           disabled={loading}
-          label="Email"
           key={registerForm.key('email')}
-          placeholder="you@dstk.org"
+          label='Email'
+          placeholder='you@dstk.org'
           withAsterisk
           {...registerForm.getInputProps('email')}
         />
-        <Divider my="lg" />
+        <Divider my='lg' />
         <PasswordInput
           disabled={loading}
-          label="Password"
-          mb="md"
-          placeholder="Shhhhhhh"
           key={registerForm.key('password')}
+          label='Password'
+          mb='md'
+          placeholder='Shhhhhhh'
           withAsterisk
           {...registerForm.getInputProps('password')}
-          value={password}
           onChange={(event) => {
             const val = event.currentTarget.value;
             setPassword(val);
             registerForm.setFieldValue('password', val);
           }}
+          value={password}
         />
         <Stack>
-          {passwordRules.map(({ name, message }) => (
+          {passwordRules.map(({ message, name }) => (
             <Radio
-              key={name}
-              color='green'
               checked={passwordChecks[name]}
+              color='green'
               icon={CheckIcon}
+              key={name}
               label={message}
-              size="xs"
+              size='xs'
             />
           ))}
         </Stack>
         <PasswordInput
           disabled={loading}
-          label="Confirm Password"
-          placeholder="Also Shhhhhhh"
           key={registerForm.key('confirmPassword')}
-          mt="md"
+          label='Confirm Password'
+          mt='md'
+          placeholder='Also Shhhhhhh'
           withAsterisk
           {...registerForm.getInputProps('confirmPassword')}
         />
-        <Button loading={loading} fullWidth mt="xl" type="submit">
+        <Button fullWidth loading={loading} mt='xl' type='submit'>
           Register
         </Button>
       </form>

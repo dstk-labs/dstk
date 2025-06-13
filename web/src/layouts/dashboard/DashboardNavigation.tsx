@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router';
+import { NavLink } from '@mantine/core';
 import {
   ArchiveIcon,
   FileBoxIcon,
@@ -7,9 +7,11 @@ import {
   RocketIcon,
   UsersRoundIcon,
 } from 'lucide-react';
+import { Link, useLocation } from 'react-router';
+
 import { paths } from '@/config/paths';
+
 import styles from './DashboardNavigation.module.css';
-import { NavLink } from '@mantine/core';
 
 const links = [
   { icon: GaugeIcon, label: 'Overview', to: paths.dashboard.overview.path },

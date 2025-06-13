@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { createBrowserRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
+
 import { paths } from './config/paths';
 import { userLoader } from './features/auth/loaders/authLoader';
 
@@ -8,68 +9,78 @@ import { userLoader } from './features/auth/loaders/authLoader';
 const createAppRouter = () =>
   createBrowserRouter([
     {
+      children: [
+        {
+          children: [
+            {
+              lazy: async () => {
+                const { LoginPage } = await import(
+                  './pages/auth/login/LoginPage'
+                );
+                return { Component: LoginPage };
+              },
+              path: paths.auth.login.path,
+            },
+            {
+              lazy: async () => {
+                const { RegisterPage } = await import(
+                  './pages/auth/register/RegisterPage'
+                );
+                return { Component: RegisterPage };
+              },
+              path: paths.auth.register.path,
+            },
+          ],
+          lazy: async () => {
+            const { AuthLayout } = await import('./layouts/auth/AuthLayout');
+            return { Component: AuthLayout };
+          },
+        },
+        {
+          children: [
+            {
+              handle: {
+                crumb: () => 'Overview',
+              },
+              lazy: async () => {
+                const { OverviewPage } = await import(
+                  './pages/dashboard/overview/OverviewPage'
+                );
+                return { Component: OverviewPage };
+              },
+              path: paths.dashboard.overview.path,
+            },
+          ],
+          id: 'dashboard',
+          lazy: async () => {
+            const { DashboardLayout } = await import(
+              './layouts/dashboard/DashboardLayout'
+            );
+            return { Component: DashboardLayout };
+          },
+          loader: async () => {
+            const { teamsLoader } = await import(
+              './features/teams/loaders/teamsLoader'
+            );
+
+            const queryRef = teamsLoader();
+            return queryRef;
+          },
+        },
+        {
+          lazy: async () => {
+            const { LandingPage } = await import('./pages/root/LandingPage');
+            return { Component: LandingPage };
+          },
+          path: paths.root.landing.path,
+        },
+      ],
       id: 'root',
       loader: async () => {
         const queryRef = await userLoader();
         return queryRef;
       },
-      children: [
-        {
-          lazy: async () => {
-            const { AuthLayout } = await import('./layouts/auth/authLayout');
-            return { Component: AuthLayout };
-          },
-          children: [
-            {
-              path: paths.auth.login.path,
-              lazy: async () => {
-                const { LoginPage } = await import('./pages/auth/login/loginPage');
-                return { Component: LoginPage };
-              },
-            },
-            {
-              path: paths.auth.register.path,
-              lazy: async () => {
-                const { RegisterPage } = await import('./pages/auth/register/registerPage');
-                return { Component: RegisterPage };
-              },
-            },
-          ]
-        },
-        {
-          id: 'dashboard',
-          lazy: async () => {
-            const { DashboardLayout } = await import('./layouts/dashboard/DashboardLayout');
-            return { Component: DashboardLayout };
-          },
-          loader: async () => {
-            const { teamsLoader } = await import('./features/teams/loaders/teamsLoader');
-
-            const queryRef = teamsLoader();
-            return queryRef;
-          },
-          children: [
-            {
-              path: paths.dashboard.overview.path,
-              handle: {
-                crumb: () => paths.dashboard.overview.getPath(),
-              },
-              lazy: async () => {
-                const { OverviewPage } = await import('./pages/dashboard/overview/overviewPage');
-                return { Component: OverviewPage };
-              },
-            },
-          ]
-        },
-        {
-          path: paths.root.landing.path,
-          lazy: async () => {
-            const { LandingPage } = await import('./pages/root/landing-page');
-            return { Component: LandingPage };
-          },
-        },
-      ]
-    }
+    },
   ]);
 
 export const AppRouter = () => {

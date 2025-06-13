@@ -1,19 +1,30 @@
+import {
+  AppShell,
+  Center,
+  Group,
+  ScrollArea,
+  useMantineColorScheme,
+} from '@mantine/core';
 import { DotIcon, MoonIcon, SunIcon } from 'lucide-react';
-import { AppShell, Center, Group, ScrollArea, useMantineColorScheme } from '@mantine/core';
-import { Anchor } from '@/components/anchor/anchor';
 import { Outlet } from 'react-router';
 import { Fragment } from 'react/jsx-runtime';
+
+import { Anchor } from '@/components/anchor/Anchor';
 import { Logo } from '@/components/logo/logo';
 import { paths } from '@/config/paths';
-import styles from './authLayout.module.css';
-import { PublicRoute } from '@/features/auth/components/publicRoute';
+import { PublicRoute } from '@/features/auth/components/PublicRoute';
+
+import styles from './AuthLayout.module.css';
 
 const footerLinks = [
-  { link: paths.root.landing.path, label: `© ${new Date().getFullYear()} DSTK Labs.`},
-  { link: paths.root.about.path, label: 'About' },
-  { link: paths.root.terms.path, label: 'Terms' },
-  { link: paths.root.privacy.path, label: 'Privacy' },
-  { link: paths.root.careers.path, label: 'Careers' },
+  {
+    label: `© ${new Date().getFullYear()} DSTK Labs.`,
+    link: paths.root.landing.path,
+  },
+  { label: 'About', link: paths.root.about.path },
+  { label: 'Terms', link: paths.root.terms.path },
+  { label: 'Privacy', link: paths.root.privacy.path },
+  { label: 'Careers', link: paths.root.careers.path },
 ];
 
 export const AuthLayout = () => {
@@ -21,53 +32,47 @@ export const AuthLayout = () => {
 
   return (
     <PublicRoute>
-      <AppShell
-        header={{ height: 60 }}
-        footer={{ height: 60 }}
-        padding="md"
-      >
+      <AppShell footer={{ height: 60 }} header={{ height: 60 }} padding='md'>
         <AppShell.Header>
-          <Center h="100%">
-            <Logo h="auto" w="2rem" />
+          <Center h='100%'>
+            <Logo h='auto' w='2rem' />
           </Center>
         </AppShell.Header>
         <AppShell.Main>
-          <Center className={styles.main}>
+          <Center className={styles.main} my='xl'>
             <Outlet />
           </Center>
         </AppShell.Main>
         <AppShell.Footer>
-          <Center h="100%">
-            <ScrollArea py="lg">
-              <Group px="lg" wrap="nowrap">
-                {footerLinks.map(footerLink => (
+          <Center h='100%'>
+            <ScrollArea py='lg'>
+              <Group px='lg' wrap='nowrap'>
+                {footerLinks.map((footerLink) => (
                   <Fragment key={footerLink.link}>
                     <Anchor
-                      c="gray"
+                      c='gray'
                       className={styles.anchor}
-                      size="xs"
+                      size='xs'
                       to={footerLink.link}
                     >
                       {footerLink.label}
                     </Anchor>
-                    <Anchor
-                      c="gray"
-                      component="li"
-                      underline="never"
-                    >
+                    <Anchor c='gray' component='li' underline='never'>
                       <DotIcon size={14} />
                     </Anchor>
                   </Fragment>
                 ))}
-                <Anchor
-                  c="gray"
-                  component="button"
-                  underline="never"
-                >
+                <Anchor c='gray' component='button' underline='never'>
                   {colorScheme === 'light' ? (
-                    <MoonIcon onClick={() => setColorScheme('dark')} size={14} />
+                    <MoonIcon
+                      onClick={() => setColorScheme('dark')}
+                      size={14}
+                    />
                   ) : (
-                    <SunIcon onClick={() => setColorScheme('light')} size={14} />
+                    <SunIcon
+                      onClick={() => setColorScheme('light')}
+                      size={14}
+                    />
                   )}
                 </Anchor>
               </Group>

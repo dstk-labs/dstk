@@ -7,6 +7,7 @@ import {
 } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 import { notifications } from '@mantine/notifications';
+
 import { API_URL } from '../config/env';
 
 const httpLink = createHttpLink({
@@ -18,25 +19,27 @@ const httpLink = createHttpLink({
 // TODO: 401 Errors should probably navigate to home
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
-    graphQLErrors.map(error => notifications.show({
-      title: 'Error',
-      message: error.message,
-      color: 'red',
-    }));
+    graphQLErrors.map((error) =>
+      notifications.show({
+        color: 'red',
+        message: error.message,
+        title: 'Error',
+      }),
+    );
   }
 
   if (networkError) {
     notifications.show({
-      title: networkError.name,
-      message: networkError.message,
       color: 'red',
+      message: networkError.message,
+      title: networkError.name,
     });
   }
 });
 
 export const apolloClient = new ApolloClient({
-  link: from([errorLink, httpLink]),
   cache: new InMemoryCache(),
+  link: from([errorLink, httpLink]),
 });
 
 export const preloadQuery = createQueryPreloader(apolloClient);

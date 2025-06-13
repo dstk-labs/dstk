@@ -1,12 +1,15 @@
-import { Anchor } from '@/components/anchor/anchor';
 import { ActionIcon, Breadcrumbs, Menu } from '@mantine/core';
 import { ChevronRightIcon, EllipsisIcon } from 'lucide-react';
-import { Link, useMatches, type UIMatch } from 'react-router';
+import { Link, type UIMatch, useMatches } from 'react-router';
+
+import { Anchor } from '@/components/anchor/Anchor';
+
 import styles from './DashboardBreadcrumbs.module.css';
 
 export const DashboardBreadcrumbs = () => {
   const matches = useMatches() as UIMatch<
-    unknown, { crumb: (data?: unknown) => string }
+    unknown,
+    { crumb: (data?: unknown) => string }
   >[];
 
   const crumbs = matches
@@ -18,20 +21,20 @@ export const DashboardBreadcrumbs = () => {
 
   return (
     <>
-      <Breadcrumbs visibleFrom='lg' separator={<ChevronRightIcon size={14} />}>
-        {crumbs.map(crumb => (
-          <Anchor to={crumb.href} key={crumb.href}>
+      <Breadcrumbs separator={<ChevronRightIcon size={14} />} visibleFrom='lg'>
+        {crumbs.map((crumb) => (
+          <Anchor key={crumb.href} to={crumb.href}>
             {crumb.label}
           </Anchor>
         ))}
       </Breadcrumbs>
       <Menu
-        trigger="click-hover"
         loop={false}
-        position='right-start'
-        withinPortal={false}
-        trapFocus={false}
         menuItemTabIndex={0}
+        position='right-start'
+        trapFocus={false}
+        trigger='click-hover'
+        withinPortal={false}
       >
         <Menu.Target>
           <ActionIcon
@@ -44,12 +47,12 @@ export const DashboardBreadcrumbs = () => {
           </ActionIcon>
         </Menu.Target>
         <Menu.Dropdown>
-          {crumbs.map(crumb => (
+          {crumbs.map((crumb) => (
             <Menu.Item
               component={Link}
               fw='bold'
-              to={crumb.href}
               key={crumb.href}
+              to={crumb.href}
             >
               {crumb.label}
             </Menu.Item>

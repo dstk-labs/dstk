@@ -1,6 +1,8 @@
 import { Navigate } from 'react-router';
-import { useUser } from '../hooks/authHooks';
+
 import { paths } from '@/config/paths';
+
+import { useUser } from '../hooks/authHooks';
 
 export const PublicRoute = ({ children }: React.PropsWithChildren) => {
   const { user } = useUser();
