@@ -40,7 +40,7 @@ const createAppRouter = () =>
           children: [
             {
               handle: {
-                crumb: () => paths.dashboard.overview.getPath(),
+                crumb: () => 'Overview',
               },
               lazy: async () => {
                 const { OverviewPage } = await import(
