@@ -15,7 +15,7 @@ const createAppRouter = () =>
             {
               lazy: async () => {
                 const { LoginPage } = await import(
-                  './pages/auth/login/loginPage'
+                  './pages/auth/login/LoginPage'
                 );
                 return { Component: LoginPage };
               },
@@ -24,7 +24,7 @@ const createAppRouter = () =>
             {
               lazy: async () => {
                 const { RegisterPage } = await import(
-                  './pages/auth/register/registerPage'
+                  './pages/auth/register/RegisterPage'
                 );
                 return { Component: RegisterPage };
               },
@@ -32,7 +32,7 @@ const createAppRouter = () =>
             },
           ],
           lazy: async () => {
-            const { AuthLayout } = await import('./layouts/auth/authLayout');
+            const { AuthLayout } = await import('./layouts/auth/AuthLayout');
             return { Component: AuthLayout };
           },
         },
@@ -44,7 +44,7 @@ const createAppRouter = () =>
               },
               lazy: async () => {
                 const { OverviewPage } = await import(
-                  './pages/dashboard/overview/overviewPage'
+                  './pages/dashboard/overview/OverviewPage'
                 );
                 return { Component: OverviewPage };
               },
@@ -69,7 +69,7 @@ const createAppRouter = () =>
         },
         {
           lazy: async () => {
-            const { LandingPage } = await import('./pages/root/landing-page');
+            const { LandingPage } = await import('./pages/root/LandingPage');
             return { Component: LandingPage };
           },
           path: paths.root.landing.path,

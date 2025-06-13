@@ -15,8 +15,8 @@ import { z } from 'zod/v4';
 
 import type { AccountInput } from '@/graphql/types';
 
-import { GithubIcon } from '@/components/icons/github/githubIcon';
-import { GoogleIcon } from '@/components/icons/google/googleIcon';
+import { GithubIcon } from '@/components/icons/github/GithubIcon';
+import { GoogleIcon } from '@/components/icons/google/GoogleIcon';
 import { GET_USER } from '@/features/auth/loaders/authLoader';
 import { gql } from '@/graphql';
 

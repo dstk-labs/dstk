@@ -15,14 +15,14 @@ import { z } from 'zod/v4';
 
 import type { LoginInput } from '@/graphql/types';
 
-import { Anchor } from '@/components/anchor/anchor';
-import { GithubIcon } from '@/components/icons/github/githubIcon';
-import { GoogleIcon } from '@/components/icons/google/googleIcon';
+import { Anchor } from '@/components/anchor/Anchor';
+import { GithubIcon } from '@/components/icons/github/GithubIcon';
+import { GoogleIcon } from '@/components/icons/google/GoogleIcon';
 import { paths } from '@/config/paths';
 import { GET_USER } from '@/features/auth/loaders/authLoader';
 import { gql } from '@/graphql';
 
-import styles from './loginPage.module.css';
+import styles from './LoginPage.module.css';
 
 const LOGIN = gql(`
     mutation Login($data: LoginInput!) {

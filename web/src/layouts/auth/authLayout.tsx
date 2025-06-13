@@ -9,12 +9,12 @@ import { DotIcon, MoonIcon, SunIcon } from 'lucide-react';
 import { Outlet } from 'react-router';
 import { Fragment } from 'react/jsx-runtime';
 
-import { Anchor } from '@/components/anchor/anchor';
+import { Anchor } from '@/components/anchor/Anchor';
 import { Logo } from '@/components/logo/logo';
 import { paths } from '@/config/paths';
-import { PublicRoute } from '@/features/auth/components/publicRoute';
+import { PublicRoute } from '@/features/auth/components/PublicRoute';
 
-import styles from './authLayout.module.css';
+import styles from './AuthLayout.module.css';
 
 const footerLinks = [
   {

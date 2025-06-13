@@ -13,7 +13,7 @@ import { Outlet, useRouteLoaderData } from 'react-router';
 
 import type { ListTeamsQuery } from '@/graphql/types';
 
-import { PrivateRoute } from '@/features/auth/components/privateRoute';
+import { PrivateRoute } from '@/features/auth/components/PrivateRoute';
 
 import { DashboardBreadcrumbs } from './DashboardBreadcrumbs';
 import styles from './DashboardLayout.module.css';

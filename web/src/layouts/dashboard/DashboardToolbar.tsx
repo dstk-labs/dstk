@@ -11,7 +11,7 @@ import cx from 'clsx';
 import { BookIcon, MoonIcon, SearchIcon, SunIcon } from 'lucide-react';
 
 import { DiscordIcon } from '@/components/icons/discord/DiscordIcon';
-import { GithubIcon } from '@/components/icons/github/githubIcon';
+import { GithubIcon } from '@/components/icons/github/GithubIcon';
 
 import styles from './DashboardToolbar.module.css';
 

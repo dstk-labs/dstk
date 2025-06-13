@@ -2,7 +2,7 @@ import { ActionIcon, Breadcrumbs, Menu } from '@mantine/core';
 import { ChevronRightIcon, EllipsisIcon } from 'lucide-react';
 import { Link, type UIMatch, useMatches } from 'react-router';
 
-import { Anchor } from '@/components/anchor/anchor';
+import { Anchor } from '@/components/anchor/Anchor';
 
 import styles from './DashboardBreadcrumbs.module.css';
 

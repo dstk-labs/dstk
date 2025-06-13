@@ -1,10 +1,10 @@
 import { Divider, Text, Title } from '@mantine/core';
 
-import { Anchor } from '@/components/anchor/anchor';
+import { Anchor } from '@/components/anchor/Anchor';
 import { paths } from '@/config/paths';
 
 import { RegisterForm } from './RegisterForm';
-import styles from './registerPage.module.css';
+import styles from './RegisterPage.module.css';
 
 export const RegisterPage = () => {
   return (
