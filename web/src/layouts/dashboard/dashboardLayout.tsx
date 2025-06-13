@@ -1,3 +1,4 @@
+import { type PreloadedQueryRef, useReadQuery } from '@apollo/client';
 import {
   AppShell,
   Box,
@@ -6,21 +7,19 @@ import {
   LoadingOverlay,
   Select,
 } from '@mantine/core';
-import { UserButton } from './UserButton';
-import { PrivateRoute } from '@/features/auth/components/privateRoute';
-import {
-  Outlet,
-  useRouteLoaderData
-} from 'react-router';
 import { useDisclosure } from '@mantine/hooks';
-import { useReadQuery, type PreloadedQueryRef } from '@apollo/client';
-import type { ListTeamsQuery } from '@/graphql/types';
 import { useState } from 'react';
-import { DashboardToolbar } from './DashboardToolbar';
-import { DashboardBreadcrumbs } from './DashboardBreadcrumbs';
-import { DashboardNavigation } from './DashboardNavigation';
-import styles from './DashboardLayout.module.css';
+import { Outlet, useRouteLoaderData } from 'react-router';
 
+import type { ListTeamsQuery } from '@/graphql/types';
+
+import { PrivateRoute } from '@/features/auth/components/privateRoute';
+
+import { DashboardBreadcrumbs } from './DashboardBreadcrumbs';
+import styles from './DashboardLayout.module.css';
+import { DashboardNavigation } from './DashboardNavigation';
+import { DashboardToolbar } from './DashboardToolbar';
+import { UserButton } from './UserButton';
 
 export const DashboardLayout = () => {
   const queryRef = useRouteLoaderData('dashboard') as PreloadedQueryRef<
@@ -34,30 +33,30 @@ export const DashboardLayout = () => {
 
   return (
     <PrivateRoute>
-      <Box pos="relative">
+      <Box pos='relative'>
         <LoadingOverlay
+          overlayProps={{ blur: 2, radius: 'sm' }}
           visible={visible}
           zIndex={1000}
-          overlayProps={{ radius: 'sm', blur: 2 }}
         />
         <AppShell
-          layout="alt"
           header={{ height: 71 }}
+          layout='alt'
           navbar={{
-            width: 300,
             breakpoint: 'md',
             collapsed: { mobile: !opened },
+            width: 300,
           }}
-          padding="md"
+          padding='md'
         >
           <AppShell.Header>
-            <Group h="100%" justify='space-between' px="md">
+            <Group h='100%' justify='space-between' px='md'>
               <Group>
                 <Burger
-                  opened={opened}
+                  hiddenFrom='md'
                   onClick={toggle}
-                  hiddenFrom="md"
-                  size="sm"
+                  opened={opened}
+                  size='sm'
                 />
                 <DashboardBreadcrumbs />
               </Group>
@@ -71,15 +70,15 @@ export const DashboardLayout = () => {
 
             <Select
               data={data.listTeams?.map((team) => team.name ?? '')}
-              mb="sm"
-              size="sm"
+              mb='sm'
+              size='sm'
             />
 
             <DashboardNavigation />
-            
-            <Box component="footer" className={styles.footer} hiddenFrom="md">
+
+            <Box className={styles.footer} component='footer' hiddenFrom='md'>
               <div className={styles.footerInner}>
-                <Burger opened={opened} onClick={toggle} size="sm" />
+                <Burger onClick={toggle} opened={opened} size='sm' />
               </div>
             </Box>
           </AppShell.Navbar>

@@ -60,5 +60,5 @@ export const paths = {
       getPath: () => '/terms',
       path: '/terms',
     },
-  }
+  },
 };

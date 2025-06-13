@@ -1,12 +1,10 @@
-import {
-  Divider,
-  Text,
-  Title,
-} from '@mantine/core';
-import styles from './registerPage.module.css';
+import { Divider, Text, Title } from '@mantine/core';
+
 import { Anchor } from '@/components/anchor/anchor';
 import { paths } from '@/config/paths';
+
 import { RegisterForm } from './RegisterForm';
+import styles from './registerPage.module.css';
 
 export const RegisterPage = () => {
   return (
@@ -18,13 +16,13 @@ export const RegisterPage = () => {
         </Text>
       </div>
 
-      <Divider label="OR" labelPosition="center" />
+      <Divider label='OR' labelPosition='center' />
 
       <RegisterForm />
 
       <Text className={styles.login}>
         Already have an account?{' '}
-        <Anchor to={paths.auth.login.path} size="sm">
+        <Anchor size='sm' to={paths.auth.login.path}>
           Log in
         </Anchor>
       </Text>
