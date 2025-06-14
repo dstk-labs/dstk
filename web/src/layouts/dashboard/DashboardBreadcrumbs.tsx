@@ -4,8 +4,6 @@ import { Link, type UIMatch, useMatches } from 'react-router';
 
 import { Anchor } from '@/components/anchor/Anchor';
 
-import styles from './DashboardBreadcrumbs.module.css';
-
 export const DashboardBreadcrumbs = () => {
   const matches = useMatches() as UIMatch<
     unknown,
@@ -37,12 +35,7 @@ export const DashboardBreadcrumbs = () => {
         withinPortal={false}
       >
         <Menu.Target>
-          <ActionIcon
-            className={styles.trigger}
-            hiddenFrom='lg'
-            size='lg'
-            variant='transparent'
-          >
+          <ActionIcon c='white' hiddenFrom='lg' size='lg' variant='transparent'>
             <EllipsisIcon />
           </ActionIcon>
         </Menu.Target>
