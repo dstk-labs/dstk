@@ -4,7 +4,7 @@
   padding-top: 0;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  border-right: 1px solid var(--mantine-color-dark-4);
 }
 
 .section {
@@ -13,7 +13,7 @@
   margin-bottom: var(--mantine-spacing-md);
 
   &:not(:last-of-type) {
-    border-bottom: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+    border-bottom: 1px solid var(--mantine-color-dark-4);
     margin-left: calc(var(--mantine-spacing-md) * -1);
     margin-right: calc(var(--mantine-spacing-md) * -1);
   }
@@ -21,7 +21,7 @@
 
 .mainLinkIcon {
   margin-right: var(--mantine-spacing-sm);
-  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
+  color: var(--mantine-color-dark-2);
 }
 
 .mainLinkBadge {
@@ -32,7 +32,7 @@
 }
 
 .footer {
-  border-top: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  border-top: 1px solid var(--mantine-color-dark-4);
   margin-left: calc(var(--mantine-spacing-md) * -1);
   margin-right: calc(var(--mantine-spacing-md) * -1);
   margin-top: auto;

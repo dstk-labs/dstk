@@ -11,6 +11,14 @@ const createAppRouter = () =>
     {
       children: [
         {
+          lazy: async () => {
+            const { RootLayout } = await import('./layouts/root/RootLayout');
+
+            return { Component: RootLayout };
+          },
+          path: paths.root.landing.path,
+        },
+        {
           children: [
             {
               lazy: async () => {
@@ -67,14 +75,9 @@ const createAppRouter = () =>
             return queryRef;
           },
         },
-        {
-          lazy: async () => {
-            const { LandingPage } = await import('./pages/root/LandingPage');
-            return { Component: LandingPage };
-          },
-          path: paths.root.landing.path,
-        },
       ],
+      // TODO: What is good UX for this?
+      hydrateFallbackElement: <div>Loading...</div>,
       id: 'root',
       loader: async () => {
         const queryRef = await userLoader();
