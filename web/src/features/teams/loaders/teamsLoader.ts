@@ -1,10 +1,11 @@
 import { gql } from '@/graphql';
 import { preloadQuery } from '@/lib/apollo';
 
-const LIST_TEAMS = gql(`
+export const LIST_TEAMS = gql(`
     query ListTeams {
         listTeams {
             name
+            teamId
         }
     }`);
 
