@@ -2,6 +2,7 @@ import { builder } from '../../builder.js';
 import { db } from '../../db/kysely.js';
 import { RegistryOperationError } from '../../utils/errors.js';
 import { userHasRole } from '../../utils/rls.js';
+import { createTeam } from '../../utils/teamUtils.js';
 import { Team } from './team.js';
 
 export const TeamInputType = builder.inputType('TeamInput', {
@@ -36,36 +37,13 @@ builder.mutationFields((t) => ({
             data: t.arg({ type: TeamInputType, required: true }),
         },
         async resolve(_root, args, ctx) {
-            const results = await db.transaction().execute(async (trx) => {
-                const team = await trx
-                    .insertInto('dstk_user.teams')
-                    .values({
-                        name: args.data.name,
-                        description: args.data.description,
-                        created_by_id: ctx.user.user_id,
-                        modified_by_id: ctx.user.user_id,
-                    })
-                    .returningAll()
-                    .executeTakeFirstOrThrow();
-
-                const ownerEdgeType = await trx
-                    .selectFrom('dstk_metadata.edge_relations')
-                    .select('dstk_metadata.edge_relations.id')
-                    .where('dstk_metadata.edge_relations.type', '=', 'owner')
-                    .executeTakeFirstOrThrow();
-
-                await trx
-                    .insertInto('dstk_user.team_edges')
-                    .values({
-                        team_id: team.team_id,
-                        user_id: ctx.user.user_id,
-                        edge_type: ownerEdgeType.id,
-                    })
-                    .execute();
-
-                return team;
+            const team = await createTeam({
+                description: args.data.description,
+                name: args.data.name,
+                userId: ctx.user.user_id,
             });
-            return results;
+
+            return team;
         },
     }),
     addToTeam: t.boolean({
