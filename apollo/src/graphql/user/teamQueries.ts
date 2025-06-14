@@ -30,6 +30,10 @@ builder.queryFields((t) => ({
                     return eb.and(ands);
                 })
                 .execute();
+            
+            if (userTeamEdges.length === 0) {
+                return [];
+            }
 
             const userTeams = await db
                 .selectFrom('dstk_user.teams')
