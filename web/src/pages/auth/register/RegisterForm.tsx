@@ -18,6 +18,7 @@ import type { AccountInput } from '@/graphql/types';
 import { GithubIcon } from '@/components/icons/github/GithubIcon';
 import { GoogleIcon } from '@/components/icons/google/GoogleIcon';
 import { GET_USER } from '@/features/auth/loaders/authLoader';
+import { LIST_TEAMS } from '@/features/teams/loaders/teamsLoader';
 import { gql } from '@/graphql';
 
 import styles from './RegisterForm.module.css';
@@ -115,7 +116,7 @@ export const RegisterForm = () => {
 
   const onSubmit = (values: RegisterSchema) =>
     register({
-      refetchQueries: [{ query: GET_USER }],
+      refetchQueries: [{ query: GET_USER }, { query: LIST_TEAMS }],
       variables: {
         data: {
           email: values.email,

@@ -3,6 +3,7 @@ import { auth } from '../../utils/auth.js';
 import { User } from '../user/user.js';
 import { db } from '../../db/kysely.js';
 import { AccountError } from '../../utils/errors.js';
+import { createTeam } from '../../utils/teamUtils.js';
 
 export const AccountInputType = builder.inputType('AccountInput', {
     fields: (t) => ({
@@ -65,6 +66,12 @@ builder.mutationFields((t) => ({
                 .selectAll()
                 .where('dstk_user.user.id', '=', response.user.id)
                 .executeTakeFirstOrThrow();
+            
+            await createTeam({
+                description: `${user.user_name}'s private team. Automatically created by DSTK.`,
+                name: 'Personal Team',
+                userId: user.user_id,
+            });
 
             return user;
         },
