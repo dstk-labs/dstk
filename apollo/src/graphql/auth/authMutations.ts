@@ -68,7 +68,7 @@ builder.mutationFields((t) => ({
                 .executeTakeFirstOrThrow();
             
             await createTeam({
-                description: 'Your private team. Automatically created by DSTK.',
+                description: `${user.user_name}'s private team. Automatically created by DSTK.`,
                 name: 'Personal Team',
                 userId: user.user_id,
             });
