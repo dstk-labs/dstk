@@ -3,6 +3,7 @@ import { builder } from '../../builder.js';
 import { RegistryOperationError } from '../../utils/errors.js';
 import { userHasRole } from '../../utils/rls.js';
 import { db } from '../../db/kysely.js';
+import type { Expression, SqlBool } from 'kysely';
 
 builder.queryFields((t) => ({
     listProjects: t.field({
@@ -11,6 +12,8 @@ builder.queryFields((t) => ({
             loggedIn: true,
         },
         args: {
+            includeArchived: t.arg.boolean({ required: true, defaultValue: false }),
+            projectName: t.arg.string(),
             teamId: t.arg.string({ required: true }),
         },
         async resolve(_root, args, ctx) {
@@ -23,7 +26,27 @@ builder.queryFields((t) => ({
             const projects = await db
                 .selectFrom('dstk_user.projects')
                 .selectAll()
-                .where('dstk_user.projects.team_id', '=', args.teamId)
+                .where((eb) => {
+                    const statements: Expression<SqlBool>[] = [];
+
+                    statements.push(eb(
+                        'dstk_user.projects.team_id', '=', args.teamId,
+                    ));
+
+                    if (!args.includeArchived) {
+                        statements.push(eb(
+                            'dstk_user.projects.is_archived', 'is', false
+                        ));
+                    }
+
+                    if (args.projectName) {
+                        statements.push(eb(
+                            'dstk_user.projects.name', 'ilike', `%${args.projectName}%`,
+                        ))
+                    }
+
+                    return eb.and(statements)
+                })
                 .execute();
 
             return projects;
