@@ -4,7 +4,6 @@ import { RegistryOperationError } from '../../utils/errors.js';
 import { userHasRole } from '../../utils/rls.js';
 import { db } from '../../db/kysely.js';
 import type { Expression, SqlBool } from 'kysely';
-import { Status } from '../misc/status.js';
 
 builder.queryFields((t) => ({
     listProjects: t.field({
@@ -13,12 +12,8 @@ builder.queryFields((t) => ({
             loggedIn: true,
         },
         args: {
+            includeArchived: t.arg.boolean({ required: true, defaultValue: false }),
             projectName: t.arg.string(),
-            projectStatus: t.arg({
-                type: Status,
-                required: true,
-                defaultValue: 'ALL',
-            }),
             teamId: t.arg.string({ required: true }),
         },
         async resolve(_root, args, ctx) {
@@ -38,15 +33,9 @@ builder.queryFields((t) => ({
                         'dstk_user.projects.team_id', '=', args.teamId,
                     ));
 
-                    if (args.projectStatus === 'ACTIVE_ONLY') {
+                    if (!args.includeArchived) {
                         statements.push(eb(
                             'dstk_user.projects.is_archived', 'is', false
-                        ));
-                    }
-
-                    if (args.projectStatus === 'ARCHIVED_ONLY') {
-                        statements.push(eb(
-                            'dstk_user.projects.is_archived', 'is', true
                         ));
                     }
 
