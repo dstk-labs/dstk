@@ -127,6 +127,8 @@ builder.mutationFields((t) => ({
                     .set({
                         description: args.data.description,
                         name: args.data.name,
+                        modified_by_id: ctx.user.user_id,
+                        date_modified: new Date(),
                     })
                     .where('dstk_user.projects.project_id', '=', args.data.projectId)
                     .returningAll()
