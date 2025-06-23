@@ -12,6 +12,14 @@ export const ProjectInputType = builder.inputType('ProjectInput', {
     }),
 });
 
+export const EditProjectInputType = builder.inputType('EditProjectInput', {
+    fields: (t) => ({
+        name: t.string({ required: true }),
+        description: t.string({ required: true }),
+        projectId: t.string({ required: true }),
+    }),
+});
+
 builder.mutationFields((t) => ({
     createProject: t.field({
         type: Project,
@@ -56,7 +64,6 @@ builder.mutationFields((t) => ({
         },
         async resolve(_root, args, ctx) {
             const results = await db.transaction().execute(async (trx) => {
-                // const project = await ObjectionProject.query().for(args.projectId).first();
                 const project = await trx
                     .selectFrom('dstk_user.projects')
                     .select(['dstk_user.projects.team_id', 'dstk_user.projects.is_archived'])
@@ -87,4 +94,49 @@ builder.mutationFields((t) => ({
             return results;
         },
     }),
+    editProject: t.field({
+        type: Project,
+        authScopes: {
+            loggedIn: true,
+        },
+        args: {
+            data: t.arg({ type: EditProjectInputType, required: true }),
+        },
+        async resolve(_root, args, ctx) {
+            const results = await db.transaction().execute(async (trx) => {
+                const project = await trx
+                    .selectFrom('dstk_user.projects')
+                    .select(['dstk_user.projects.team_id', 'dstk_user.projects.is_archived'])
+                    .where('dstk_user.projects.project_id', '=', args.data.projectId)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'PROJECT_PERMISSION_ERROR' }),
+                    );
+
+                await userHasRole({
+                    userId: ctx.user.user_id,
+                    teamId: project.team_id,
+                    roles: ['owner', 'member'],
+                });
+
+                if (project.is_archived) {
+                    new RegistryOperationError({ name: 'ARCHIVED_PROJECT_ERROR' });
+                }
+
+                const result = await trx
+                    .updateTable('dstk_user.projects')
+                    .set({
+                        description: args.data.description,
+                        name: args.data.name,
+                        modified_by_id: ctx.user.user_id,
+                        date_modified: new Date(),
+                    })
+                    .where('dstk_user.projects.project_id', '=', args.data.projectId)
+                    .returningAll()
+                    .executeTakeFirstOrThrow();
+
+                return result;
+            });
+        return results;
+        }
+    })
 }));
