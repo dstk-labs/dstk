@@ -58,6 +58,26 @@ const createAppRouter = () =>
               },
               path: paths.dashboard.overview.path,
             },
+            {
+              handle: {
+                crumb: () => 'Projects',
+              },
+              lazy: async () => {
+                const { ProjectsPage } = await import(
+                  './pages/dashboard/projects/ProjectsPage'
+                );
+                return { Component: ProjectsPage };
+              },
+              loader: async (params) => {
+                const { projectsLoader } = await import(
+                  './features/projects/loaders/projectsLoader'
+                );
+
+                const queryRef = await projectsLoader(params);
+                return queryRef;
+              },
+              path: paths.dashboard.projects.path,
+            },
           ],
           id: 'dashboard',
           lazy: async () => {
