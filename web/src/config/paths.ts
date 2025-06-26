@@ -38,6 +38,10 @@ export const paths = {
       getPath: () => '/dashboard/storage',
       path: '/dashboard/storage',
     },
+    storageItem: {
+      getPath: (providerId: string) => `/dashboard/storage/${providerId}`,
+      path: '/dashboard/storage/:providerId',
+    },
     teams: {
       getPath: () => '/dashboard/teams',
       path: '/dashboard/teams',
