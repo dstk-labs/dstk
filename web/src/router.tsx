@@ -78,6 +78,26 @@ const createAppRouter = () =>
               },
               path: paths.dashboard.projects.path,
             },
+            {
+              handle: {
+                crumb: () => 'Storage',
+              },
+              lazy: async () => {
+                const { StorageProvidersPage } = await import(
+                  './pages/dashboard/storage/StorageProvidersPage'
+                );
+                return { Component: StorageProvidersPage };
+              },
+              loader: async (params) => {
+                const { storageProvidersLoader } = await import(
+                  './features/storage/loaders/storageProvidersLoader'
+                );
+
+                const queryRef = await storageProvidersLoader(params);
+                return queryRef;
+              },
+              path: paths.dashboard.storage.path,
+            },
           ],
           id: 'dashboard',
           lazy: async () => {
