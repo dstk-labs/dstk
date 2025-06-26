@@ -22,6 +22,10 @@ export const paths = {
       getPath: () => '/dashboard/overview',
       path: '/dashboard/overview',
     },
+    project: {
+      getPath: (projectId: string) => `/dashboard/projects/${projectId}`,
+      path: '/dashboard/projects/:projectId',
+    },
     projects: {
       getPath: () => '/dashboard/projects',
       path: '/dashboard/projects',
