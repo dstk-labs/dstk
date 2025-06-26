@@ -5,6 +5,7 @@ import { StorageProviderObjectConnection } from '../storage-provider/storageProv
 import { RegistryOperationError } from '../../utils/errors.js';
 import { db } from '../../db/kysely.js';
 import { userHasRole } from '../../utils/rls.js';
+import type { Expression, SqlBool } from 'kysely';
 
 builder.queryFields((t) => ({
     listStorageProviders: t.field({
@@ -12,21 +13,42 @@ builder.queryFields((t) => ({
         authScopes: {
             loggedIn: true,
         },
-        async resolve(_root, _args, ctx) {
-            const userTeams = await db
-                .selectFrom('dstk_user.team_edges')
-                .select('dstk_user.team_edges.team_id')
-                .where('dstk_user.team_edges.user_id', '=', ctx.user.user_id)
-                .execute();
+        args: {
+            includeArchived: t.arg.boolean({ required: true, defaultValue: false }),
+            bucket: t.arg.string(),
+            teamId: t.arg.string({ required: true }),
+        },
+        async resolve(_root, args, ctx) {
+            await userHasRole({
+                userId: ctx.user.user_id,
+                teamId: args.teamId,
+                roles: ['owner', 'member', 'viewer'],
+            });
 
             const storageProviders = await db
                 .selectFrom('registry.storage_providers')
                 .selectAll()
-                .where(
-                    'registry.storage_providers.team_id',
-                    'in',
-                    userTeams.map((team) => team.team_id),
-                )
+                .where((eb) => {
+                    const statements: Expression<SqlBool>[] = [];
+
+                    statements.push(eb(
+                        'registry.storage_providers.team_id', '=', args.teamId,
+                    ));
+
+                    if (!args.includeArchived) {
+                        statements.push(eb(
+                            'registry.storage_providers.is_archived', 'is', false
+                        ));
+                    }
+
+                    if (args.bucket) {
+                        statements.push(eb(
+                            'registry.storage_providers.bucket', 'ilike', `%${args.bucket}%`,
+                        ))
+                    }
+
+                    return eb.and(statements)
+                })
                 .orderBy('registry.storage_providers.date_created')
                 .execute();
 
