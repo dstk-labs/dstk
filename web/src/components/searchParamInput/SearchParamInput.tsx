@@ -1,20 +1,18 @@
 import { TextInput } from '@mantine/core';
 import { SearchIcon } from 'lucide-react';
-import { SetURLSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router';
 
 type SearchParamTextInput = {
   param: string;
   placeholder?: string;
-  searchParams: URLSearchParams;
-  setSearchParams: SetURLSearchParams;
 };
 
 export const SearchParamTextInput = ({
   param,
   placeholder = 'Search...',
-  searchParams,
-  setSearchParams,
 }: SearchParamTextInput) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   return (
     <TextInput
       leftSection={<SearchIcon size={18} />}

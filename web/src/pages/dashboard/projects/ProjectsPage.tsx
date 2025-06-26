@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { useLoaderData, useSearchParams } from 'react-router';
+import { useLoaderData } from 'react-router';
 
 import type { ProjectsLoader } from '@/features/projects/loaders/projectsLoader';
 
@@ -12,17 +12,12 @@ import { ProjectsTable } from './ProjectsTable';
 
 export const ProjectsPage = () => {
   const queryRef = useLoaderData() as ProjectsLoader;
-  const [searchParams, setSearchParams] = useSearchParams();
 
   return (
     <>
       <header className={styles.header}>
         <div className={styles.searchContainer}>
-          <SearchParamTextInput
-            param='projectName'
-            searchParams={searchParams}
-            setSearchParams={setSearchParams}
-          />
+          <SearchParamTextInput param='projectName' />
         </div>
         <div className={styles.toolbar}>
           <IncludeArchivedSwitch />
