@@ -146,6 +146,7 @@ builder.mutationFields((t) => ({
                         date_modified: new Date(),
                         modified_by_id: ctx.user.user_id,
                     })
+                    .where('registry.models.model_id', '=', args.modelId)
                     .returningAll()
                     .executeTakeFirst();
 
