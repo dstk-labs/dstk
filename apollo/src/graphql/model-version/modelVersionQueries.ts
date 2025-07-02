@@ -110,7 +110,7 @@ builder.queryFields((t) => ({
                 const lastResult = edges[edges.length - 1];
 
                 const cursor =
-                    edges.length > 0
+                    edges.length > args.first
                         ? await trx
                               .selectFrom('dstk_metadata.cursors')
                               .select('dstk_metadata.cursors.cursor_id')
@@ -140,7 +140,7 @@ builder.queryFields((t) => ({
                           .where('dstk_metadata.cursors.cursor_id', '=', cursor.cursor_id)
                           .returning('dstk_metadata.cursors.cursor_token')
                           .executeTakeFirst()
-                    : edges.length > 0
+                    : edges.length > args.first
                       ? await trx
                             .insertInto('dstk_metadata.cursors')
                             .values({

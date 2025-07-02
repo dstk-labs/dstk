@@ -4,6 +4,7 @@ import { MLModelConnection } from './modelConnection.js';
 import { CursorError } from '../../utils/errors.js';
 import { Encoder } from '../../utils/encoder.js';
 import { db } from '../../db/kysely.js';
+import { userHasRole } from '../../utils/rls.js';
 
 const encoder = new Encoder();
 
@@ -14,6 +15,7 @@ builder.queryFields((t) => ({
             loggedIn: true,
         },
         args: {
+            includeArchived: t.arg.boolean({ required: true, defaultValue: false }),
             modelName: t.arg.string(),
             first: t.arg({
                 type: 'Limit',
@@ -21,26 +23,23 @@ builder.queryFields((t) => ({
                 required: true,
             }),
             after: t.arg.string(),
+            teamId: t.arg.string({ required: true }),
         },
         async resolve(_root, args, ctx) {
             const result = await db.transaction().execute(async (trx) => {
                 const now = new Date(Date.now());
                 const nowPlusFiveMins = new Date(Date.now() + 5 * 60 * 1000);
 
-                const userTeams = await trx
-                    .selectFrom('dstk_user.team_edges')
-                    .select('dstk_user.team_edges.team_id')
-                    .where('dstk_user.team_edges.user_id', '=', ctx.user.user_id)
-                    .execute();
+                await userHasRole({
+                    userId: ctx.user.user_id,
+                    teamId: args.teamId,
+                    roles: ['owner', 'member', 'viewer'],
+                });
 
                 const userProjects = await trx
                     .selectFrom('dstk_user.projects')
                     .select('dstk_user.projects.project_id')
-                    .where(
-                        'dstk_user.projects.team_id',
-                        'in',
-                        userTeams.map((edge) => edge.team_id),
-                    )
+                    .where('dstk_user.projects.team_id', '=', args.teamId)
                     .execute();
 
                 let query = trx
@@ -60,13 +59,18 @@ builder.queryFields((t) => ({
                     );
                 }
 
+                if (!args.includeArchived) {
+                    query = query.where(
+                        'registry.models.is_archived', 'is', false
+                    )
+                }
+
                 if (args.after) {
                     const cursor = await trx
                         .selectFrom('dstk_metadata.cursors')
                         .selectAll()
                         .where(({ eb, and }) =>
                             and([
-                                // TODO: Why is args.after not typing correctly?
                                 eb('dstk_metadata.cursors.cursor_token', '=', args.after!),
                                 eb('dstk_metadata.cursors.cursor_relation', '=', 'model'),
                             ]),
@@ -106,7 +110,7 @@ builder.queryFields((t) => ({
                 const lastResult = edges[edges.length - 1];
 
                 const cursor =
-                    edges.length > 0
+                    edges.length >= args.first
                         ? await trx
                               .selectFrom('dstk_metadata.cursors')
                               .select('dstk_metadata.cursors.cursor_id')
@@ -128,7 +132,7 @@ builder.queryFields((t) => ({
                           .where('dstk_metadata.cursors.cursor_id', '=', cursor.cursor_id)
                           .returning('dstk_metadata.cursors.cursor_token')
                           .executeTakeFirst()
-                    : edges.length > 0
+                    : edges.length >= args.first
                       ? await trx
                             .insertInto('dstk_metadata.cursors')
                             .values({
