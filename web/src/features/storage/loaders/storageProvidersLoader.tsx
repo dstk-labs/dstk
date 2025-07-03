@@ -48,7 +48,7 @@ export const storageProvidersLoader = async ({
 
   return preloadQuery(LIST_STORAGE_PROVIDERS_FOR_TABLE, {
     variables: { teamId: selectedTeam!, ...params },
-  });
+  }).toPromise();
 };
 
 export type StorageProvidersLoader = Awaited<

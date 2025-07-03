@@ -44,7 +44,7 @@ export const projectsLoader = async ({ request }: LoaderFunctionArgs) => {
 
   return preloadQuery(LIST_PROJECTS_FOR_TABLE, {
     variables: { teamId: selectedTeam!, ...params },
-  });
+  }).toPromise();
 };
 
 export type ProjectsLoader = Awaited<ReturnType<typeof projectsLoader>>;
