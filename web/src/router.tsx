@@ -48,6 +48,26 @@ const createAppRouter = () =>
           children: [
             {
               handle: {
+                crumb: () => 'Models',
+              },
+              lazy: async () => {
+                const { ModelsPage } = await import(
+                  './pages/dashboard/models/ModelsPage'
+                );
+                return { Component: ModelsPage };
+              },
+              loader: async (params) => {
+                const { modelsLoader } = await import(
+                  './features/models/loaders/modelsLoader'
+                );
+
+                const queryRef = await modelsLoader(params);
+                return queryRef;
+              },
+              path: paths.dashboard.models.path,
+            },
+            {
+              handle: {
                 crumb: () => 'Overview',
               },
               lazy: async () => {

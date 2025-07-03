@@ -14,6 +14,10 @@ export const paths = {
       getPath: () => '/dashboard/deployments',
       path: '/dashboard/deployments',
     },
+    model: {
+      getPath: (modelId: string) => `/dashboard/models/${modelId}`,
+      path: '/dashboard/models/:modelId',
+    },
     models: {
       getPath: () => '/dashboard/models',
       path: '/dashboard/models',
