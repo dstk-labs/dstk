@@ -38,7 +38,10 @@ export const ProjectsTable = ({ queryRef }: ProjectsTableProps) => {
             : project.description}
         </Table.Td>
         <Table.Td>
-          <Badge color={project.isArchived ? 'red' : 'blue'}>
+          <Badge
+            className={styles.badge}
+            color={project.isArchived ? 'red' : 'blue'}
+          >
             {project.isArchived ? 'Archived' : 'Active'}
           </Badge>
         </Table.Td>
