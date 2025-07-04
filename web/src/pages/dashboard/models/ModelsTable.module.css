@@ -8,6 +8,14 @@
     margin-top: 2rem;
 }
 
+.tableFooter {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    width: 100%;
+}
+
 .tableRow {
     white-space: nowrap;
     

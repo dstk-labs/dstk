@@ -45,6 +45,7 @@ export const DashboardNavigation = () => {
             active={link.to.startsWith(pathname)}
             className={styles.mainLink}
             component={Link}
+            key={link.to}
             label={link.label}
             leftSection={<link.icon size={16} />}
             to={link.to}

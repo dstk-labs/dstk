@@ -40,7 +40,10 @@ export const StorageProvidersTable = ({
         <Table.Td>{storageProvider.region}</Table.Td>
         <Table.Td>{storageProvider.endpointUrl}</Table.Td>
         <Table.Td>
-          <Badge color={storageProvider.isArchived ? 'red' : 'blue'}>
+          <Badge
+            className={styles.badge}
+            color={storageProvider.isArchived ? 'red' : 'blue'}
+          >
             {storageProvider.isArchived ? 'Archived' : 'Active'}
           </Badge>
         </Table.Td>
