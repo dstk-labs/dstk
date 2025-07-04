@@ -1,8 +1,9 @@
-import { type LoaderFunctionArgs, redirect } from 'react-router';
+import { type LoaderFunctionArgs } from 'react-router';
 import { z } from 'zod/v4';
 
 import { gql } from '@/graphql';
 import { preloadQuery } from '@/lib/apollo';
+import { ensureDefaultQueryParams } from '@/lib/ensureDefaultQueryParams';
 import { parseQueryParams } from '@/lib/parseQueryParams';
 import { useTeamStore } from '@/stores/teamStore';
 
@@ -38,11 +39,9 @@ export const storageProvidersLoader = async ({
 }: LoaderFunctionArgs) => {
   const { selectedTeam } = useTeamStore.getState();
 
-  const url = new URL(request.url);
-  if (!url.searchParams.has('includeArchived')) {
-    url.searchParams.set('includeArchived', 'false');
-    throw redirect(url.toString());
-  }
+  ensureDefaultQueryParams(request, {
+    includeArchived: 'false',
+  });
 
   const { ...params } = parseQueryParams(request, storageProvidersLoaderSchema);
 

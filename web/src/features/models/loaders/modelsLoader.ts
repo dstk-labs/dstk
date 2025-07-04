@@ -1,8 +1,9 @@
-import { type LoaderFunctionArgs, redirect } from 'react-router';
+import { type LoaderFunctionArgs } from 'react-router';
 import { z } from 'zod/v4';
 
 import { gql } from '@/graphql';
 import { preloadQuery } from '@/lib/apollo';
+import { ensureDefaultQueryParams } from '@/lib/ensureDefaultQueryParams';
 import { parseQueryParams } from '@/lib/parseQueryParams';
 import { limitSchema, useLimitStore } from '@/stores/limitStore';
 import { useTeamStore } from '@/stores/teamStore';
@@ -61,22 +62,10 @@ export const modelsLoader = async ({ request }: LoaderFunctionArgs) => {
   const { selectedTeam } = useTeamStore.getState();
   const { limit } = useLimitStore.getState();
 
-  const url = new URL(request.url);
-  let shouldModifyUrl = false;
-
-  if (!url.searchParams.has('includeArchived')) {
-    url.searchParams.set('includeArchived', 'false');
-    shouldModifyUrl = true;
-  }
-
-  if (!url.searchParams.has('first')) {
-    url.searchParams.set('first', limit.toString());
-    shouldModifyUrl = true;
-  }
-
-  if (shouldModifyUrl) {
-    throw redirect(url.toString());
-  }
+  ensureDefaultQueryParams(request, {
+    first: limit.toString(),
+    includeArchived: 'false',
+  });
 
   const { ...params } = parseQueryParams(request, modelsLoaderSchema);
 
