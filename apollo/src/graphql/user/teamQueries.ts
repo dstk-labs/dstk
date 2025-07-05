@@ -12,6 +12,8 @@ builder.queryFields((t) => ({
             loggedIn: true,
         },
         args: {
+            includeArchived: t.arg.boolean({ required: true, defaultValue: false }),
+            teamName: t.arg.string(),
             teamId: t.arg.string(),
         },
         async resolve(_root, args, ctx) {
@@ -38,11 +40,27 @@ builder.queryFields((t) => ({
             const userTeams = await db
                 .selectFrom('dstk_user.teams')
                 .selectAll()
-                .where(
-                    'dstk_user.teams.team_id',
-                    'in',
-                    userTeamEdges.map((edge) => edge.team_id),
-                )
+                .where((eb) => {
+                    const statements: Expression<SqlBool>[] = [];
+
+                    statements.push(eb(
+                        'dstk_user.teams.team_id', 'in', userTeamEdges.map((edge) => edge.team_id)
+                    ));
+
+                    if (!args.includeArchived) {
+                        statements.push(eb(
+                            'dstk_user.teams.is_archived', 'is', false
+                        ));
+                    }
+
+                    if (args.teamName) {
+                        statements.push(eb(
+                            'dstk_user.teams.name', 'ilike', `%${args.teamName}%`,
+                        ))
+                    }
+
+                    return eb.and(statements)
+                })
                 .execute();
 
             return userTeams;

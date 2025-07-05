@@ -27,6 +27,14 @@ export const AddTeamMemberInputType = builder.inputType('AddTeamMemberInput', {
     }),
 });
 
+export const EditTeamInputType = builder.inputType('EditTeamInput', {
+    fields: (t) => ({
+        name: t.string({ required: true }),
+        description: t.string({ required: true }),
+        teamId: t.string({ required: true }),
+    }),
+});
+
 builder.mutationFields((t) => ({
     createTeam: t.field({
         type: Team,
@@ -45,6 +53,92 @@ builder.mutationFields((t) => ({
 
             return team;
         },
+    }),
+    archiveTeam: t.field({
+        type: Team,
+        authScopes: {
+            loggedIn: true,
+        },
+        args: {
+            teamId: t.arg.string({ required: true }),
+        },
+        async resolve(_root, args, ctx) {
+            const results = await db.transaction().execute(async (trx) => {
+                await userHasRole({
+                    userId: ctx.user.user_id,
+                    teamId: args.teamId,
+                    roles: ['owner'],
+                });
+
+                const team = await trx
+                    .selectFrom('dstk_user.teams')
+                    .select(['dstk_user.teams.is_archived'])
+                    .where('dstk_user.teams.team_id', '=', args.teamId)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'TEAM_PERMISSION_ERROR' }),
+                    );
+
+                const result = await trx
+                    .updateTable('dstk_user.teams')
+                    .set({
+                        modified_by_id: ctx.user.user_id,
+                        date_modified: new Date(),
+                        is_archived: !team.is_archived,
+                    })
+                    .where('dstk_user.teams.team_id', '=', args.teamId)
+                    .returningAll()
+                    .executeTakeFirstOrThrow();
+
+                return result;
+            });
+            return results;
+        },
+    }),
+    editTeam: t.field({
+        type: Team,
+        authScopes: {
+            loggedIn: true,
+        },
+        args: {
+            data: t.arg({ type: EditTeamInputType, required: true }),
+        },
+        async resolve(_root, args, ctx) {
+            const results = await db.transaction().execute(async (trx) => {
+                await userHasRole({
+                    userId: ctx.user.user_id,
+                    teamId: args.data.teamId,
+                    roles: ['owner'],
+                });
+
+                const team = await trx
+                    .selectFrom('dstk_user.teams')
+                    .select(['dstk_user.teams.team_id', 'dstk_user.teams.is_archived'])
+                    .where('dstk_user.teams.team_id', '=', args.data.teamId)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'TEAM_PERMISSION_ERROR' }),
+                    );
+
+                if (team.is_archived) {
+                    new RegistryOperationError({ name: 'ARCHIVED_TEAM_ERROR' });
+                }
+
+                const result = await trx
+                    .updateTable('dstk_user.teams')
+                    .set({
+                        description: args.data.description,
+                        name: args.data.name,
+                        modified_by_id: ctx.user.user_id,
+                        date_modified: new Date(),
+                    })
+                    .where('dstk_user.teams.team_id', '=', args.data.teamId)
+                    .returningAll()
+                    .executeTakeFirstOrThrow();
+
+                return result;
+            });
+
+            return results;
+        }
     }),
     addToTeam: t.boolean({
         authScopes: {

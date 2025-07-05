@@ -26,6 +26,8 @@ builder.objectType(Team, {
                 return root.date_modified.toISOString();
             },
         }),
+        description: t.exposeString('description'),
+        isArchived: t.exposeBoolean('is_archived'),
         name: t.exposeString('name'),
     }),
 });

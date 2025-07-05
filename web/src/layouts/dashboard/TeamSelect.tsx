@@ -1,16 +1,14 @@
-import { PreloadedQueryRef, useReadQuery } from '@apollo/client';
+import { useReadQuery } from '@apollo/client';
 import { Select } from '@mantine/core';
 import { useEffect } from 'react';
 import { useRouteLoaderData } from 'react-router';
 
-import { ListTeamsQuery } from '@/graphql/graphql';
+import type { TeamsDropdownLoader } from '@/features/teams/loaders/teamsLoader';
+
 import { useTeamStore } from '@/stores/teamStore';
 
 export const TeamSelect = () => {
-  const queryRef = useRouteLoaderData('dashboard') as PreloadedQueryRef<
-    ListTeamsQuery,
-    undefined
-  >;
+  const queryRef = useRouteLoaderData('dashboard') as TeamsDropdownLoader;
   const { data } = useReadQuery(queryRef);
 
   const { selectedTeam, setSelectedTeam } = useTeamStore();

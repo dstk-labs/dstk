@@ -1,6 +1,7 @@
 type RegistryErrorName =
     | 'ARCHIVED_PROJECT_ERROR'
     | 'ARCHIVED_STORAGE_ERROR'
+    | 'ARCHIVED_TEAM_ERROR'
     | 'PROVIDER_NOT_FOUND_ERROR'
     | 'ARCHIVED_MODEL_ERROR'
     | 'ARCHIVED_MODEL_VERSION_ERROR'
@@ -17,6 +18,7 @@ type RegistryErrorName =
 const RegistryErrorMessages = {
     ARCHIVED_PROJECT_ERROR: 'Projects cannot be modified once archived',
     ARCHIVED_STORAGE_ERROR: 'New model versions cannot be added to an archived storage provider',
+    ARCHIVED_TEAM_ERROR: 'Teams cannot be modifed once archived',
     PROVIDER_NOT_FOUND_ERROR:
         "Either this storage provider doesn't exist or you don't have permission to take that action",
     ARCHIVED_MODEL_ERROR: 'New model versions cannot be added to archived models',
