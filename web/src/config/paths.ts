@@ -46,6 +46,10 @@ export const paths = {
       getPath: (providerId: string) => `/dashboard/storage/${providerId}`,
       path: '/dashboard/storage/:providerId',
     },
+    team: {
+      getPath: (teamId: string) => `/dashboard/teams/${teamId}`,
+      path: '/dashboard/teams/:teamId',
+    },
     teams: {
       getPath: () => '/dashboard/teams',
       path: '/dashboard/teams',
