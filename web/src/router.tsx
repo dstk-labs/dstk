@@ -118,6 +118,26 @@ const createAppRouter = () =>
               },
               path: paths.dashboard.storage.path,
             },
+            {
+              handle: {
+                crumb: () => 'Teams',
+              },
+              lazy: async () => {
+                const { TeamsPage } = await import(
+                  './pages/dashboard/teams/TeamsPage'
+                );
+                return { Component: TeamsPage };
+              },
+              loader: async (params) => {
+                const { teamsTableLoader } = await import(
+                  './features/teams/loaders/teamsLoader'
+                );
+
+                const queryRef = await teamsTableLoader(params);
+                return queryRef;
+              },
+              path: paths.dashboard.teams.path,
+            },
           ],
           id: 'dashboard',
           lazy: async () => {
@@ -127,11 +147,11 @@ const createAppRouter = () =>
             return { Component: DashboardLayout };
           },
           loader: async () => {
-            const { teamsLoader } = await import(
+            const { teamsDropdownLoader } = await import(
               './features/teams/loaders/teamsLoader'
             );
 
-            const queryRef = teamsLoader();
+            const queryRef = teamsDropdownLoader();
             return queryRef;
           },
         },
