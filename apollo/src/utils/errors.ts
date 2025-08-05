@@ -93,21 +93,3 @@ export class InputError extends Error {
         this.message = InputErrorMessages[name];
     }
 }
-
-type CursorErrorName = 'TOKEN_DOES_NOT_EXIST';
-
-const CursorErrorMessages = {
-    TOKEN_DOES_NOT_EXIST:
-        'The requested pagination token does not exist. Please refresh the client.',
-};
-
-export class CursorError extends Error {
-    name: CursorErrorName;
-    message: string;
-
-    constructor({ name }: { name: CursorErrorName }) {
-        super();
-        this.name = name;
-        this.message = CursorErrorMessages[name];
-    }
-}

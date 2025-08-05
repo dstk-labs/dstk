@@ -1,7 +1,6 @@
 import { MLModel } from './model.js';
 import { builder } from '../../builder.js';
 import { MLModelConnection } from './modelConnection.js';
-import { CursorError } from '../../utils/errors.js';
 import { Encoder } from '../../utils/encoder.js';
 import { db } from '../../db/kysely.js';
 import { userHasRole } from '../../utils/rls.js';
@@ -27,9 +26,6 @@ builder.queryFields((t) => ({
         },
         async resolve(_root, args, ctx) {
             const result = await db.transaction().execute(async (trx) => {
-                const now = new Date(Date.now());
-                const nowPlusFiveMins = new Date(Date.now() + 5 * 60 * 1000);
-
                 await userHasRole({
                     userId: ctx.user.user_id,
                     teamId: args.teamId,
@@ -66,35 +62,16 @@ builder.queryFields((t) => ({
                 }
 
                 if (args.after) {
-                    const cursor = await trx
-                        .selectFrom('dstk_metadata.cursors')
-                        .selectAll()
-                        .where(({ eb, and }) =>
+                    const [id, dateCreated] = encoder.decode(args.after);
+
+                    query = query.where(({ eb, and, or }) =>
+                        or([
+                            eb('registry.models.date_created', '>', new Date(dateCreated)),
                             and([
-                                eb('dstk_metadata.cursors.cursor_token', '=', args.after!),
-                                eb('dstk_metadata.cursors.cursor_relation', '=', 'model'),
+                                eb('registry.models.date_created', '=', new Date(dateCreated)),
+                                eb('registry.models.id', '>', Number.parseInt(id)),
                             ]),
-                        )
-                        .executeTakeFirstOrThrow(
-                            () => new CursorError({ name: 'TOKEN_DOES_NOT_EXIST' }),
-                        );
-
-                    if (cursor.expiration <= now) {
-                        await trx
-                            .updateTable('dstk_metadata.cursors')
-                            .set({
-                                expiration: nowPlusFiveMins,
-                            })
-                            .execute();
-                    }
-
-                    const [id, dateCreated] = encoder.decode(cursor.cursor_token);
-
-                    query = query.where(({ eb, and }) =>
-                        and([
-                            eb('registry.models.date_created', '>=', new Date(dateCreated)),
-                            eb('registry.models.id', '>', Number.parseInt(id)),
-                        ]),
+                        ])
                     );
                 }
 
@@ -105,55 +82,14 @@ builder.queryFields((t) => ({
 
                 const hasPreviousPage = !!args.after;
                 const hasNextPage = mlModels.length > 1 && mlModels.length > args.first;
-                const edges = mlModels.slice(0, args.first);
+                const edges = mlModels.slice(0, args.first + 1);
 
-                const lastResult = edges[edges.length - 1];
-
-                const cursor =
-                    edges.length >= args.first
-                        ? await trx
-                              .selectFrom('dstk_metadata.cursors')
-                              .select('dstk_metadata.cursors.cursor_id')
-                              .where(
-                                  'dstk_metadata.cursors.cursor_token',
-                                  '=',
-                                  encoder.encode(
-                                      lastResult.id.toString(),
-                                      lastResult.date_created.toISOString(),
-                                  ),
-                              )
-                              .executeTakeFirst()
-                        : undefined;
-
-                const result = cursor
-                    ? await trx
-                          .updateTable('dstk_metadata.cursors')
-                          .set({ expiration: nowPlusFiveMins })
-                          .where('dstk_metadata.cursors.cursor_id', '=', cursor.cursor_id)
-                          .returning('dstk_metadata.cursors.cursor_token')
-                          .executeTakeFirst()
-                    : edges.length >= args.first
-                      ? await trx
-                            .insertInto('dstk_metadata.cursors')
-                            .values({
-                                cursor_token: encoder.encode(
-                                    edges[edges.length - 1].id,
-                                    edges[edges.length - 1].date_created.toISOString(),
-                                ),
-                                cursor_relation: 'model',
-                            })
-                            .returning('dstk_metadata.cursors.cursor_token')
-                            .executeTakeFirst()
-                      : undefined;
-
-                const continuationToken = result?.cursor_token;
+                const lastResult = edges[edges.length - 2];
+                const continuationToken = hasNextPage ? encoder.encode(lastResult.id.toString(), lastResult.date_created.toISOString()) : undefined;
 
                 return {
-                    edges: edges.map((mlModel) => ({
-                        cursor: encoder.encode(
-                            mlModel.id.toString(),
-                            mlModel.date_created.toISOString(),
-                        ),
+                    edges: edges.slice(0, args.first).map((mlModel) => ({
+                        cursor: continuationToken,
                         node: mlModel,
                     })),
                     pageInfo: {
