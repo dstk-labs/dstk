@@ -82,13 +82,12 @@ builder.queryFields((t) => ({
 
                 const hasPreviousPage = !!args.after;
                 const hasNextPage = mlModels.length > 1 && mlModels.length > args.first;
-                const edges = mlModels.slice(0, args.first + 1);
 
-                const lastResult = edges[edges.length - 2];
+                const lastResult = mlModels[mlModels.length - 2];
                 const continuationToken = hasNextPage ? encoder.encode(lastResult.id.toString(), lastResult.date_created.toISOString()) : undefined;
 
                 return {
-                    edges: edges.slice(0, args.first).map((mlModel) => ({
+                    edges: mlModels.slice(0, args.first).map((mlModel) => ({
                         cursor: continuationToken,
                         node: mlModel,
                     })),

@@ -76,13 +76,12 @@ builder.queryFields((t) => ({
                 const hasPreviousPage = !!args.after;
                 const hasNextPage =
                     mlModelVersions.length > 1 && mlModelVersions.length > args.first;
-                const edges = mlModelVersions.slice(0, args.first + 1);
 
-                const lastResult = edges[edges.length - 2];
+                const lastResult = mlModelVersions[mlModelVersions.length - 2];
                 const continuationToken = hasNextPage ? encoder.encode(lastResult.numeric_version) : undefined;
 
                 return {
-                    edges: edges.slice(0, args.first).map((mlModelVersion) => ({
+                    edges: mlModelVersions.slice(0, args.first).map((mlModelVersion) => ({
                         cursor: continuationToken,
                         node: mlModelVersion,
                     })),
