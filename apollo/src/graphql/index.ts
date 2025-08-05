@@ -2,7 +2,6 @@
 import { builder } from '../builder.js';
 
 export * from './auth/authMutations.js';
-export * from './metadata/cursor.js';
 
 export * from './misc/index.js';
 export * from './model/index.js';
