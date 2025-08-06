@@ -5,7 +5,7 @@ export const MLModelEdge = builder.objectRef<MLModelEdgeClass>('MLModelEdge');
 
 builder.objectType(MLModelEdge, {
     fields: (t) => ({
-        cursor: t.exposeString('cursor'),
+        cursor: t.exposeString('cursor', { nullable: true }),
         node: t.field({
             type: MLModel,
             async resolve(root, _args, _ctx) {
@@ -16,6 +16,6 @@ builder.objectType(MLModelEdge, {
 });
 
 export class MLModelEdgeClass {
-    cursor!: string;
+    cursor?: string;
     node!: KyselyMLModel;
 }

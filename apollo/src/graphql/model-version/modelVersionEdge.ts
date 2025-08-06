@@ -5,7 +5,7 @@ export const MLModelVersionEdge = builder.objectRef<MLModelVersionEdgeClass>('ML
 
 builder.objectType(MLModelVersionEdge, {
     fields: (t) => ({
-        cursor: t.exposeString('cursor'),
+        cursor: t.exposeString('cursor', { nullable: true }),
         node: t.field({
             type: MLModelVersion,
             async resolve(root, _args, _ctx) {
@@ -16,6 +16,6 @@ builder.objectType(MLModelVersionEdge, {
 });
 
 export class MLModelVersionEdgeClass {
-    cursor!: string;
+    cursor?: string;
     node!: KyselyMLModelVersion;
 }
