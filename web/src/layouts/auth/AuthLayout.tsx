@@ -4,7 +4,7 @@ import { Navigate, Outlet } from 'react-router';
 import { Fragment } from 'react/jsx-runtime';
 
 import { Anchor } from '@/components/anchor/Anchor';
-import { Logo } from '@/components/logo/logo';
+import { Logo } from '@/components/logo/Logo';
 import { paths } from '@/config/paths';
 import { useUser } from '@/features/auth/hooks/authHooks';
 
