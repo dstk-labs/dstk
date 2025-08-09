@@ -18,6 +18,12 @@ export const ModelVersionInputType = builder.inputType('ModelVersionInput', {
     }),
 });
 
+export const EditModelVersionInputType = builder.inputType('EditModelVersion', {
+    fields: (t) => ({
+        description: t.string(),
+    }),
+});
+
 export const CompletedPartInputType = builder.inputType('CompletedPartInput', {
     fields: (t) => ({
         ETag: t.string({ required: true }),
@@ -128,6 +134,65 @@ builder.mutationFields((t) => ({
                     .execute();
 
                 return mlModelVersion;
+            });
+
+            return results;
+        },
+    }),
+    editModelVersion: t.field({
+        type: MLModelVersion,
+        authScopes: {
+            loggedIn: true,
+        },
+        args: {
+            modelVersionId: t.arg.string({ required: true }),
+            data: t.arg({ type: EditModelVersionInputType, required: true }),
+        },
+        async resolve(_root, args, ctx) {
+            const results = await db.transaction().execute(async (trx) => {
+                const mlModelVersion = await trx
+                    .selectFrom('registry.model_versions')
+                    .select(['registry.model_versions.is_archived', 'registry.model_versions.model_id'])
+                    .where('registry.model_versions.model_version_id', '=', args.modelVersionId)
+                    .executeTakeFirstOrThrow(() => new RegistryOperationError({ name: 'VERSION_PERMISSION_ERROR' }));
+
+                const parentModel = await trx
+                    .selectFrom('registry.models')
+                    .select(['registry.models.project_id'])
+                    .where('registry.models.model_id', '=', mlModelVersion.model_id)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'MODEL_PERMISSION_ERROR' }),
+                    );
+                
+                const project = await trx
+                    .selectFrom('dstk_user.projects')
+                    .select('dstk_user.projects.team_id')
+                    .where('dstk_user.projects.project_id', '=', parentModel.project_id)
+                    .executeTakeFirstOrThrow(
+                        () => new RegistryOperationError({ name: 'PROJECT_PERMISSION_ERROR' }),
+                    );
+
+                await userHasRole({
+                    userId: ctx.user.user_id,
+                    teamId: project.team_id,
+                    roles: ['owner', 'member'],
+                });
+
+                if (mlModelVersion.is_archived === true) {
+                    throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_VERSION_ERROR' });
+                }
+
+                // TODO: Add Date Modified and Modified By ID
+                const result = await trx
+                    .updateTable('registry.model_versions')
+                    .set({
+                        description: args.data.description,
+                    })
+                    .where('registry.model_versions.model_version_id', '=', args.modelVersionId)
+                    .returningAll()
+                    .executeTakeFirst();
+
+                return result;
             });
 
             return results;
