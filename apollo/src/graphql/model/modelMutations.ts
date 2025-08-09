@@ -114,7 +114,7 @@ builder.mutationFields((t) => ({
                 await userHasRole({
                     userId: ctx.user.user_id,
                     teamId: project.team_id,
-                    roles: ['owner', 'viewer'],
+                    roles: ['owner', 'member'],
                 });
 
                 const storageProvider = await trx
