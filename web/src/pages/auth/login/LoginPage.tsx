@@ -20,7 +20,7 @@ import { GithubIcon } from '@/components/icons/github/GithubIcon';
 import { GoogleIcon } from '@/components/icons/google/GoogleIcon';
 import { paths } from '@/config/paths';
 import { GET_USER } from '@/features/auth/loaders/authLoader';
-import { LIST_TEAMS } from '@/features/teams/loaders/teamsLoader';
+import { LIST_TEAMS_FOR_DROPDOWN } from '@/features/teams/loaders/teamsLoader';
 import { gql } from '@/graphql';
 
 import styles from './LoginPage.module.css';
@@ -58,7 +58,7 @@ export const LoginPage = () => {
 
   const onSubmit = (values: LoginSchema) =>
     login({
-      refetchQueries: [{ query: GET_USER }, { query: LIST_TEAMS }],
+      refetchQueries: [{ query: GET_USER }, { query: LIST_TEAMS_FOR_DROPDOWN }],
       variables: {
         data: { ...values },
       },

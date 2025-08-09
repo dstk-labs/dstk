@@ -1,19 +1,13 @@
 import { useMutation } from '@apollo/client';
-import {
-  ActionIcon,
-  Button,
-  Stack,
-  Text,
-  TextInput,
-  Tooltip,
-} from '@mantine/core';
+import { Button, Stack, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { ArchiveIcon } from 'lucide-react';
-import { useState } from 'react';
+import { cloneElement, useState } from 'react';
 
 import { Modal } from '@/components/modal/Modal';
 import { gql } from '@/graphql';
+
+import { GET_ML_MODEL } from '../loaders/modelLoader';
 
 const ARCHIVE_MODEL = gql(`
   mutation ArchiveModel($modelId: String!) {
@@ -27,12 +21,14 @@ type ArchiveModelProps = {
   isArchived: boolean;
   modelId: string;
   modelName: string;
+  trigger: React.ReactElement<{ disabled?: boolean; onClick?: () => void }>;
 };
 
 export const ArchiveModel = ({
   isArchived,
   modelId,
   modelName,
+  trigger,
 }: ArchiveModelProps) => {
   const [inputValue, setInputValue] = useState('');
 
@@ -50,7 +46,15 @@ export const ArchiveModel = ({
         close();
         setInputValue('');
       },
-      refetchQueries: ['ListMLModels'],
+      refetchQueries: [
+        'ListMLModels',
+        {
+          query: GET_ML_MODEL,
+          variables: {
+            modelId,
+          },
+        },
+      ],
       variables: {
         modelId,
       },
@@ -93,17 +97,10 @@ export const ArchiveModel = ({
           </Button>
         </Stack>
       </Modal>
-
-      <Tooltip disabled={isArchived} label='Archive'>
-        <ActionIcon
-          color='red'
-          disabled={isArchived}
-          onClick={open}
-          variant='subtle'
-        >
-          <ArchiveIcon size={14} />
-        </ActionIcon>
-      </Tooltip>
+      {cloneElement(trigger, {
+        disabled: isArchived || trigger.props.disabled,
+        onClick: open,
+      })}
     </>
   );
 };

@@ -22,6 +22,11 @@ export const paths = {
       getPath: () => '/dashboard/models',
       path: '/dashboard/models',
     },
+    modelVersion: {
+      getPath: (modelId: string, modelVersionId: string) =>
+        `/dashboard/models/${modelId}/${modelVersionId}`,
+      path: '/dashboard/models/:modelId/:modelVersionId',
+    },
     overview: {
       getPath: () => '/dashboard/overview',
       path: '/dashboard/overview',
