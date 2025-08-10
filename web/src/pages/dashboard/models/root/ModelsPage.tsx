@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { useLoaderData } from 'react-router';
+import { useRouteLoaderData } from 'react-router';
 
 import type { ModelsLoader } from '@/features/models/loaders/modelsLoader';
 
@@ -11,7 +11,7 @@ import styles from './ModelsPage.module.css';
 import { ModelsTable } from './ModelsTable';
 
 export const ModelsPage = () => {
-  const queryRef = useLoaderData() as ModelsLoader;
+  const queryRef = useRouteLoaderData('models') as ModelsLoader;
 
   return (
     <>

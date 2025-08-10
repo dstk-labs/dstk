@@ -4,6 +4,9 @@ import { RouterProvider } from 'react-router/dom';
 
 import { paths } from './config/paths';
 import { userLoader } from './features/auth/loaders/authLoader';
+import { GET_ML_MODEL } from './features/models/loaders/modelLoader';
+import { GetMlModelQuery } from './graphql/types';
+import { apolloClient } from './lib/apollo';
 
 // TODO: 404 and Error Boundaries
 const createAppRouter = () =>
@@ -47,22 +50,73 @@ const createAppRouter = () =>
         {
           children: [
             {
+              children: [
+                {
+                  id: 'models',
+                  index: true,
+                  lazy: async () => {
+                    const { ModelsPage } = await import(
+                      './pages/dashboard/models/root/ModelsPage'
+                    );
+                    return { Component: ModelsPage };
+                  },
+                  loader: async (params) => {
+                    const { modelsLoader } = await import(
+                      './features/models/loaders/modelsLoader'
+                    );
+
+                    const queryRef = await modelsLoader(params);
+                    return queryRef;
+                  },
+                },
+                {
+                  handle: {
+                    crumb: () => {
+                      // TODO: How the hell do I refetch this?
+                      const modelId = window.location.href
+                        .split('/')
+                        .at(-1)
+                        ?.split('?')
+                        .at(0);
+
+                      const result = apolloClient.readQuery({
+                        query: GET_ML_MODEL,
+                        variables: {
+                          modelId: modelId!,
+                        },
+                      }) as GetMlModelQuery;
+
+                      return result.getMLModel?.modelName;
+                    },
+                  },
+                  lazy: async () => {
+                    const { ModelVersionsPage } = await import(
+                      './pages/dashboard/models/modelVersions/ModelVersionsPage'
+                    );
+                    return { Component: ModelVersionsPage };
+                  },
+                  loader: async (params) => {
+                    const { modelVersionsLoader } = await import(
+                      './features/modelVersions/loaders/modelVersionsLoader'
+                    );
+
+                    const { modelLoader } = await import(
+                      './features/models/loaders/modelLoader'
+                    );
+
+                    const [modelVersionsQueryRef, modelQueryRef] =
+                      await Promise.all([
+                        await modelVersionsLoader(params),
+                        await modelLoader({ modelId: params.params.modelId! }),
+                      ]);
+
+                    return [modelVersionsQueryRef, modelQueryRef];
+                  },
+                  path: paths.dashboard.model.path,
+                },
+              ],
               handle: {
                 crumb: () => 'Models',
-              },
-              lazy: async () => {
-                const { ModelsPage } = await import(
-                  './pages/dashboard/models/ModelsPage'
-                );
-                return { Component: ModelsPage };
-              },
-              loader: async (params) => {
-                const { modelsLoader } = await import(
-                  './features/models/loaders/modelsLoader'
-                );
-
-                const queryRef = await modelsLoader(params);
-                return queryRef;
               },
               path: paths.dashboard.models.path,
             },

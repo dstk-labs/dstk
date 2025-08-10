@@ -42,7 +42,7 @@ export const DashboardNavigation = () => {
       <div className={styles.mainLinks}>
         {links.map((link) => (
           <NavLink
-            active={link.to.startsWith(pathname)}
+            active={pathname.startsWith(link.to)}
             className={styles.mainLink}
             component={Link}
             key={link.to}

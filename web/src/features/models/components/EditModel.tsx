@@ -1,27 +1,23 @@
 import { useMutation } from '@apollo/client';
-import {
-  ActionIcon,
-  Button,
-  Flex,
-  Group,
-  Stack,
-  Textarea,
-  TextInput,
-  Tooltip,
-} from '@mantine/core';
+import { Button, Flex, Group, Stack, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { EditIcon } from 'lucide-react';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
+import { cloneElement } from 'react';
+import { useNavigate } from 'react-router';
 import { z } from 'zod/v4';
 
 import type { EditModelMutationVariables } from '@/graphql/types';
 
 import { Modal } from '@/components/modal/Modal';
+import { GET_ML_MODEL } from '@/features/models/loaders/modelLoader';
 import { ProjectsSelect } from '@/features/projects/components/ProjectsSelect';
 import { StorageProviderSelect } from '@/features/storage/components/StorageProviderSelect';
 import { gql } from '@/graphql';
+import { apolloClient } from '@/lib/apollo';
+
+import { LIST_MODELS } from '../loaders/modelsLoader';
 
 const EDIT_MODEL = gql(`
   mutation EditModel($data: ModelInput!, $modelId: String!) {
@@ -45,6 +41,7 @@ type EditModelProps = {
   originalModelName: string;
   originalProjectId: string;
   originalStorageProviderId: string;
+  trigger: React.ReactElement<{ disabled?: boolean; onClick?: () => void }>;
 };
 
 type EditModelSchema = z.infer<typeof editModelSchema>;
@@ -56,7 +53,10 @@ export const EditModel = ({
   originalModelName,
   originalProjectId,
   originalStorageProviderId,
+  trigger,
 }: EditModelProps) => {
+  const navigate = useNavigate();
+
   const [editModel, { loading }] = useMutation(EDIT_MODEL);
 
   const [opened, { close, open }] = useDisclosure(false);
@@ -74,15 +74,25 @@ export const EditModel = ({
 
   const onSubmit = (values: EditModelSchema) =>
     editModel({
-      onCompleted: (data) => {
+      onCompleted: async (data) => {
         editModelForm.reset();
         notifications.show({
           message: `Successfully edited ${data.editModel?.modelName}`,
           title: 'Success',
         });
         close();
+
+        // Need to force reload so the breadcrumb value updates appropriately.
+        // TODO: Investigate using the breadcrumbs in a react context (always get data from loader)
+        // 🔥 Force reload of route to trigger crumb update
+
+        // We have to refetch the queries here, so the navigation happens AFTER
+        // the refetch
+        await apolloClient.refetchQueries({
+          include: [LIST_MODELS, GET_ML_MODEL],
+        });
+        navigate(location.pathname, { replace: true });
       },
-      refetchQueries: ['ListMLModels'],
       variables: {
         data: {
           description: values.description,
@@ -146,17 +156,10 @@ export const EditModel = ({
           </Flex>
         </form>
       </Modal>
-
-      <Tooltip disabled={isArchived} label='Edit'>
-        <ActionIcon
-          color='blue'
-          disabled={isArchived}
-          onClick={open}
-          variant='subtle'
-        >
-          <EditIcon size={14} />
-        </ActionIcon>
-      </Tooltip>
+      {cloneElement(trigger, {
+        disabled: isArchived || trigger.props.disabled,
+        onClick: open,
+      })}
     </>
   );
 };

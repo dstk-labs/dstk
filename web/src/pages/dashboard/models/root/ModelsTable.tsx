@@ -1,6 +1,7 @@
 import { useReadQuery } from '@apollo/client';
-import { Badge, Card, Flex, Table } from '@mantine/core';
+import { ActionIcon, Badge, Card, Flex, Table, Tooltip } from '@mantine/core';
 import dayjs from 'dayjs';
+import { ArchiveIcon, EditIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -10,9 +11,9 @@ import { LimitSelector } from '@/components/limitSelector/LimitSelector';
 import { NoResults } from '@/components/noResults/NoResults';
 import { Pagination } from '@/components/pagination/Pagination';
 import { paths } from '@/config/paths';
+import { ArchiveModel } from '@/features/models/components/ArchiveModel';
+import { EditModel } from '@/features/models/components/EditModel';
 
-import { ArchiveModel } from './ArchiveModel';
-import { EditModel } from './EditModel';
 import styles from './ModelsTable.module.css';
 
 type ModelsTableProps = {
@@ -79,11 +80,33 @@ export const ModelsTable = ({ queryRef }: ModelsTableProps) => {
               originalStorageProviderId={
                 mlModel.node?.storageProvider?.providerId ?? ''
               }
+              trigger={
+                <Tooltip disabled={!!mlModel.node?.isArchived} label='Edit'>
+                  <ActionIcon
+                    color='blue'
+                    disabled={!!mlModel.node?.isArchived}
+                    variant='subtle'
+                  >
+                    <EditIcon size={14} />
+                  </ActionIcon>
+                </Tooltip>
+              }
             />
             <ArchiveModel
               isArchived={!!mlModel.node?.isArchived}
               modelId={mlModel.node?.modelId ?? ''}
               modelName={mlModel.node?.modelName ?? ''}
+              trigger={
+                <Tooltip disabled={!!mlModel.node?.isArchived} label='Archive'>
+                  <ActionIcon
+                    color='red'
+                    disabled={!!mlModel.node?.isArchived}
+                    variant='subtle'
+                  >
+                    <ArchiveIcon size={14} />
+                  </ActionIcon>
+                </Tooltip>
+              }
             />
           </Flex>
         </Table.Td>

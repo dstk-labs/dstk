@@ -6,22 +6,19 @@ import { preloadQuery } from '@/lib/apollo';
 import { ensureDefaultQueryParams } from '@/lib/ensureDefaultQueryParams';
 import { parseQueryParams } from '@/lib/parseQueryParams';
 import { limitSchema, useLimitStore } from '@/stores/limitStore';
-import { useTeamStore } from '@/stores/teamStore';
 
-export const LIST_MODELS = gql(`
-  query ListMLModels(
+export const LIST_MODEL_VERSIONS = gql(`
+  query ListMLModelVersions(
+    $modelId: String!
     $after: String
     $first: Limit!
-    $modelName: String
     $includeArchived: Boolean!
-    $teamId: String!
   ) {
-    listMLModels(
+    listMLModelVersions(
+      modelId: $modelId
       after: $after
       first: $first
-      modelName: $modelName
       includeArchived: $includeArchived
-      teamId: $teamId
     ) {
       pageInfo {
         continuationToken
@@ -30,36 +27,34 @@ export const LIST_MODELS = gql(`
       }
       edges {
         node {
-          currentModelVersion {
-            numericVersion
+          modelVersionId
+          modelId {
+            description
+            isArchived
+            modelName
+            modelId
           }
-          dateModified
-          description
+          numericVersion
           isArchived
-          modelId
-          modelName
-          project {
-            projectId
-          }
-          storageProvider {
-            providerId
-          }
+          isFinalized
+          description
+          dateCreated
         }
       }
     }
   }
 `);
 
-const modelsLoaderSchema = z.object({
+const modelVersionsSchema = z.object({
   after: z.string().optional(),
-  bucket: z.string().optional(),
   first: limitSchema,
   includeArchived: z.string().transform((val) => val === 'true'),
-  modelName: z.string().optional(),
 });
 
-export const modelsLoader = async ({ request }: LoaderFunctionArgs) => {
-  const { selectedTeam } = useTeamStore.getState();
+export const modelVersionsLoader = async ({
+  params,
+  request,
+}: LoaderFunctionArgs) => {
   const { limit } = useLimitStore.getState();
 
   ensureDefaultQueryParams(request, {
@@ -67,12 +62,21 @@ export const modelsLoader = async ({ request }: LoaderFunctionArgs) => {
     includeArchived: 'false',
   });
 
-  const { ...params } = parseQueryParams(request, modelsLoaderSchema);
+  const { after, first, includeArchived } = parseQueryParams(
+    request,
+    modelVersionsSchema,
+  );
 
-  return preloadQuery(LIST_MODELS, {
-    fetchPolicy: 'cache-and-network',
-    variables: { teamId: selectedTeam!, ...params },
+  return preloadQuery(LIST_MODEL_VERSIONS, {
+    variables: {
+      after,
+      first,
+      includeArchived,
+      modelId: params.modelId!,
+    },
   }).toPromise();
 };
 
-export type ModelsLoader = Awaited<ReturnType<typeof modelsLoader>>;
+export type ModelVersionsLoader = Awaited<
+  ReturnType<typeof modelVersionsLoader>
+>;
