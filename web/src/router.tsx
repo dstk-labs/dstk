@@ -91,7 +91,7 @@ const createAppRouter = () =>
                   },
                   lazy: async () => {
                     const { ModelVersionsPage } = await import(
-                      './pages/dashboard/models/modelVersions/ModelVersionsPage'
+                      './pages/dashboard/models/modelVersions/root/ModelVersionsPage'
                     );
                     return { Component: ModelVersionsPage };
                   },
