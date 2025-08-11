@@ -5,9 +5,11 @@ import { RouterProvider } from 'react-router/dom';
 import { paths } from './config/paths';
 import { userLoader } from './features/auth/loaders/authLoader';
 import { GET_ML_MODEL } from './features/models/loaders/modelLoader';
+import { GET_ML_MODEL_VERSION } from './features/modelVersions/loaders/modelVersionLoader';
 import { GetMlModelQuery } from './graphql/types';
 import { apolloClient } from './lib/apollo';
 
+// TODO: This is getting hard to read. Need to refactor
 // TODO: 404 and Error Boundaries
 const createAppRouter = () =>
   createBrowserRouter([
@@ -101,13 +103,39 @@ const createAppRouter = () =>
                     },
                     {
                       handle: {
-                        crumb: () => 'Hi',
+                        crumb: () => {
+                          const modelVersionId = window.location.href
+                            .split('/')
+                            .at(6)
+                            ?.split('?')
+                            .at(0);
+
+                          const result = apolloClient.readQuery({
+                            query: GET_ML_MODEL_VERSION,
+                            variables: {
+                              modelVersionId: modelVersionId ?? '',
+                            },
+                          });
+
+                          return `v${result?.getMLModelVersion?.numericVersion}`;
+                        },
                       },
                       lazy: async () => {
                         const { ModelVersionPage } = await import(
                           './pages/dashboard/models/modelVersions/modelVersion/ModelVersionPage'
                         );
                         return { Component: ModelVersionPage };
+                      },
+                      loader: async (params) => {
+                        const { modelVersionLoader } = await import(
+                          './features/modelVersions/loaders/modelVersionLoader'
+                        );
+
+                        const queryRef = await modelVersionLoader({
+                          modelVersionId: params.params.modelVersionId!,
+                        });
+
+                        return queryRef;
                       },
                       path: paths.dashboard.modelVersion.path,
                     },
