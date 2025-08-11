@@ -70,12 +70,54 @@ const createAppRouter = () =>
                   },
                 },
                 {
+                  children: [
+                    {
+                      index: true,
+                      lazy: async () => {
+                        const { ModelVersionsPage } = await import(
+                          './pages/dashboard/models/modelVersions/root/ModelVersionsPage'
+                        );
+                        return { Component: ModelVersionsPage };
+                      },
+                      loader: async (params) => {
+                        const { modelVersionsLoader } = await import(
+                          './features/modelVersions/loaders/modelVersionsLoader'
+                        );
+
+                        const { modelLoader } = await import(
+                          './features/models/loaders/modelLoader'
+                        );
+
+                        const [modelVersionsQueryRef, modelQueryRef] =
+                          await Promise.all([
+                            await modelVersionsLoader(params),
+                            await modelLoader({
+                              modelId: params.params.modelId!,
+                            }),
+                          ]);
+
+                        return [modelVersionsQueryRef, modelQueryRef];
+                      },
+                    },
+                    {
+                      handle: {
+                        crumb: () => 'Hi',
+                      },
+                      lazy: async () => {
+                        const { ModelVersionPage } = await import(
+                          './pages/dashboard/models/modelVersions/modelVersion/ModelVersionPage'
+                        );
+                        return { Component: ModelVersionPage };
+                      },
+                      path: paths.dashboard.modelVersion.path,
+                    },
+                  ],
                   handle: {
                     crumb: () => {
                       // TODO: How the hell do I refetch this?
                       const modelId = window.location.href
                         .split('/')
-                        .at(-1)
+                        .at(5)
                         ?.split('?')
                         .at(0);
 
@@ -88,29 +130,6 @@ const createAppRouter = () =>
 
                       return result.getMLModel?.modelName;
                     },
-                  },
-                  lazy: async () => {
-                    const { ModelVersionsPage } = await import(
-                      './pages/dashboard/models/modelVersions/root/ModelVersionsPage'
-                    );
-                    return { Component: ModelVersionsPage };
-                  },
-                  loader: async (params) => {
-                    const { modelVersionsLoader } = await import(
-                      './features/modelVersions/loaders/modelVersionsLoader'
-                    );
-
-                    const { modelLoader } = await import(
-                      './features/models/loaders/modelLoader'
-                    );
-
-                    const [modelVersionsQueryRef, modelQueryRef] =
-                      await Promise.all([
-                        await modelVersionsLoader(params),
-                        await modelLoader({ modelId: params.params.modelId! }),
-                      ]);
-
-                    return [modelVersionsQueryRef, modelQueryRef];
                   },
                   path: paths.dashboard.model.path,
                 },
