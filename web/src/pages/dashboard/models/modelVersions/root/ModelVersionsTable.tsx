@@ -43,7 +43,7 @@ export const ModelVersionsTable = ({ queryRef }: ModelVersionsTableProps) => {
         key={mlModelVersion.node?.modelVersionId}
         onClick={() =>
           navigate(
-            paths.dashboard.modelVersion.getPath(
+            paths.dashboard.modelVersionCard.getPath(
               mlModelVersion.node?.modelId?.modelId ?? '',
               mlModelVersion.node?.modelVersionId ?? '',
             ),

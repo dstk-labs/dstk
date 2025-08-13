@@ -6,6 +6,9 @@ export const GET_ML_MODEL_VERSION = gql(`
   query GetMLModelVersion($modelVersionId: String!) {
     getMLModelVersion(modelVersionId: $modelVersionId) {
       numericVersion
+      isArchived
+      isFinalized
+      description
     }
   }
 `);

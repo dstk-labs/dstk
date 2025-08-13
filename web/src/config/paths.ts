@@ -22,10 +22,20 @@ export const paths = {
       getPath: () => '/dashboard/models',
       path: '/dashboard/models',
     },
-    modelVersion: {
+    modelVersionArtifacts: {
       getPath: (modelId: string, modelVersionId: string) =>
-        `/dashboard/models/${modelId}/${modelVersionId}`,
-      path: '/dashboard/models/:modelId/:modelVersionId',
+        `/dashboard/models/${modelId}/${modelVersionId}/artifacts`,
+      path: '/dashboard/models/:modelId/:modelVersionId/artifacts',
+    },
+    modelVersionCard: {
+      getPath: (modelId: string, modelVersionId: string) =>
+        `/dashboard/models/${modelId}/${modelVersionId}/card`,
+      path: '/dashboard/models/:modelId/:modelVersionId/card',
+    },
+    modelVersionLogs: {
+      getPath: (modelId: string, modelVersionId: string) =>
+        `/dashboard/models/${modelId}/${modelVersionId}/logs`,
+      path: '/dashboard/models/:modelId/:modelVersionId/logs',
     },
     overview: {
       getPath: () => '/dashboard/overview',

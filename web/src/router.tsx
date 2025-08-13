@@ -102,6 +102,35 @@ const createAppRouter = () =>
                       },
                     },
                     {
+                      children: [
+                        {
+                          lazy: async () => {
+                            const { ModelVersionArtifactsPage } = await import(
+                              './pages/dashboard/models/modelVersions/modelVersion/artifacts/ModelVersionArtifactsPage'
+                            );
+                            return { Component: ModelVersionArtifactsPage };
+                          },
+                          path: paths.dashboard.modelVersionArtifacts.path,
+                        },
+                        {
+                          lazy: async () => {
+                            const { ModelVersionCardPage } = await import(
+                              './pages/dashboard/models/modelVersions/modelVersion/card/ModelVersionCardPage'
+                            );
+                            return { Component: ModelVersionCardPage };
+                          },
+                          path: paths.dashboard.modelVersionCard.path,
+                        },
+                        {
+                          lazy: async () => {
+                            const { ModelVersionLogsPage } = await import(
+                              './pages/dashboard/models/modelVersions/modelVersion/logs/ModelVersionLogsPage'
+                            );
+                            return { Component: ModelVersionLogsPage };
+                          },
+                          path: paths.dashboard.modelVersionLogs.path,
+                        },
+                      ],
                       handle: {
                         crumb: () => {
                           const modelVersionId = window.location.href
@@ -121,10 +150,10 @@ const createAppRouter = () =>
                         },
                       },
                       lazy: async () => {
-                        const { ModelVersionPage } = await import(
-                          './pages/dashboard/models/modelVersions/modelVersion/ModelVersionPage'
+                        const { ModelVersionLayout } = await import(
+                          './layouts/model-version/ModelVersionLayout'
                         );
-                        return { Component: ModelVersionPage };
+                        return { Component: ModelVersionLayout };
                       },
                       loader: async (params) => {
                         const { modelVersionLoader } = await import(
@@ -137,7 +166,6 @@ const createAppRouter = () =>
 
                         return queryRef;
                       },
-                      path: paths.dashboard.modelVersion.path,
                     },
                   ],
                   handle: {

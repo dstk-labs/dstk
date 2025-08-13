@@ -15,6 +15,7 @@ import styles from './ModelVersionsPage.module.css';
 import { ModelVersionsTable } from './ModelVersionsTable';
 
 export const ModelVersionsPage = () => {
+  // TODO: Fix type inference on this
   const [modelVersionsQueryRef, modelQueryRef] = useLoaderData() as (
     | ModelLoader
     | ModelVersionsLoader
