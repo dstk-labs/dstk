@@ -110,6 +110,15 @@ const createAppRouter = () =>
                             );
                             return { Component: ModelVersionArtifactsPage };
                           },
+                          loader: async (params) => {
+                            const { modelVersionObjectsLoader } = await import(
+                              './features/modelVersions/loaders/modelVersionObjectsLoader'
+                            );
+
+                            const queryRef =
+                              await modelVersionObjectsLoader(params);
+                            return queryRef;
+                          },
                           path: paths.dashboard.modelVersionArtifacts.path,
                         },
                         {

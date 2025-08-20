@@ -328,6 +328,8 @@ builder.mutationFields((t) => ({
             return results;
         },
     }),
+    // TODO: Users must setup appropriate CORS permissions for these operations to work
+    // they must also expose the ETag header
     presignURL: t.field({
         type: PresignedURL,
         authScopes: {
@@ -337,6 +339,27 @@ builder.mutationFields((t) => ({
             data: t.arg({ type: PresignedURLInputType, required: true }),
         },
         async resolve(_root, args, ctx) {
+            const mlModelVersion = await db
+                .selectFrom('registry.model_versions')
+                .select([
+                    'registry.model_versions.model_id',
+                    'registry.model_versions.is_archived',
+                    'registry.model_versions.is_finalized',
+                    'registry.model_versions.s3_prefix',
+                ])
+                .where('registry.model_versions.model_version_id', '=', args.data.modelVersionId)
+                .executeTakeFirstOrThrow(
+                    () => new RegistryOperationError({ name: 'VERSION_PERMISSION_ERROR' }),
+                );
+            
+            if (mlModelVersion.is_archived) {
+                throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_VERSION_ERROR' });
+            }
+
+            if (mlModelVersion.is_finalized === true) {
+                throw new RegistryOperationError({ name: 'PUBLISHED_MODEL_VERSION_ERROR' });
+            }
+
             const parentModel = await db
                 .selectFrom('registry.models')
                 .select([
@@ -344,7 +367,7 @@ builder.mutationFields((t) => ({
                     'registry.models.project_id',
                     'registry.models.is_archived',
                 ])
-                .where('registry.models.current_model_version_id', '=', args.data.modelVersionId)
+                .where('registry.models.model_id', '=', mlModelVersion.model_id)
                 .executeTakeFirstOrThrow(
                     () => new RegistryOperationError({ name: 'MODEL_PERMISSION_ERROR' }),
                 );
@@ -385,25 +408,7 @@ builder.mutationFields((t) => ({
                 roles: ['owner', 'member'],
             });
 
-            const modelVersion = await db
-                .selectFrom('registry.model_versions')
-                .select([
-                    'registry.model_versions.s3_prefix',
-                    'registry.model_versions.is_archived',
-                    'registry.model_versions.is_finalized',
-                ])
-                .where('registry.model_versions.model_version_id', '=', args.data.modelVersionId)
-                .executeTakeFirstOrThrow(
-                    () => new RegistryOperationError({ name: 'VERSION_PERMISSION_ERROR' }),
-                );
-
-            if (modelVersion.is_archived === true) {
-                throw new RegistryOperationError({ name: 'ARCHIVED_MODEL_VERSION_ERROR' });
-            } else if (modelVersion.is_finalized === true) {
-                throw new RegistryOperationError({ name: 'PUBLISHED_MODEL_VERSION_ERROR' });
-            }
-
-            const key = `${modelVersion.s3_prefix}/${args.data.filename}`;
+            const key = `${mlModelVersion.s3_prefix}/${args.data.filename}`;
 
             if (args.data.method === 'createMultipartUpload') {
                 const result = await CreateMultipartUpload(modelStorageProvider, key);
@@ -417,10 +422,11 @@ builder.mutationFields((t) => ({
             if (!args.data.uploadId) {
                 throw new RegistryOperationError({ name: 'MISSING_UPLOAD_ID_ERROR' });
             }
-            if (!args.data.partNumber) {
-                throw new RegistryOperationError({ name: 'MISSING_PART_NUM_ERROR' });
-            }
             if (args.data.method === 'uploadPart') {
+                if (!args.data.partNumber) {
+                    throw new RegistryOperationError({ name: 'MISSING_PART_NUM_ERROR' });
+                }
+
                 const result = await CreatePresignedURLForPart(
                     modelStorageProvider,
                     key,
