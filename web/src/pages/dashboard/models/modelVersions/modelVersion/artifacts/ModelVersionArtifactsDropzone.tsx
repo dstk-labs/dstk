@@ -19,8 +19,7 @@ import { Modal } from '@/components/modal/Modal';
 import { gql } from '@/graphql';
 import { CompletedPartInput } from '@/graphql/types';
 
-const PART_SIZE = 5 * 1024 * 1024; // 5MB chunks
-const PART_CONCURRENCY = 5;
+const PART_SIZE = 5 * 1024 * 1024; // 5 MB
 
 type FileProgress = {
   progress: number;
@@ -45,7 +44,6 @@ type ModelVersionArtifactsDropzoneProps = {
   modelVersionId: string;
 };
 
-// TODO: Upload dialog should not open everytime modal opens
 export const ModelVersionArtifactsDropzone = ({
   modelVersionId,
 }: ModelVersionArtifactsDropzoneProps) => {
@@ -158,7 +156,6 @@ export const ModelVersionArtifactsDropzone = ({
       const createMultipartUploadResult = await createMultipartUpload(
         file.name,
       );
-
       uploadId = createMultipartUploadResult?.uploadId ?? '';
 
       const partsCount = Math.ceil(file.size / PART_SIZE);
@@ -167,38 +164,43 @@ export const ModelVersionArtifactsDropzone = ({
         (_, idx) => idx + 1,
       );
 
-      let uploadedParts: {
-        ETag: string;
-        PartNumber: number;
-      }[] = [];
+      const uploadedPartsResults = await Promise.allSettled(
+        partNumbers.map(async (partNumber) => {
+          const result = await uploadPart(
+            file,
+            createMultipartUploadResult?.uploadId ?? '',
+            createMultipartUploadResult?.key ?? '',
+            partNumber,
+          );
 
-      for (let i = 0; i < partNumbers.length; i += PART_CONCURRENCY) {
-        const batch = partNumbers.slice(i, i + PART_CONCURRENCY);
-        const results = await Promise.all(
-          batch.map((partNumber) =>
-            uploadPart(
-              file,
-              createMultipartUploadResult?.uploadId ?? '',
-              createMultipartUploadResult?.key ?? '',
-              partNumber,
-            ),
-          ),
-        );
-        uploadedParts = uploadedParts.concat(
-          results.map((result) => ({
-            ETag: result.ETag ?? '',
-            PartNumber: result.PartNumber,
-          })),
-        );
+          setFileProgress((prev) => {
+            const done = (prev[file.name]?.progress ?? 0) + 100 / partsCount;
+            return {
+              ...prev,
+              [file.name]: {
+                progress: Math.min(done, 100),
+                status: 'uploading',
+              },
+            };
+          });
 
-        const percent = Math.min(
-          (uploadedParts.length / partsCount) * 100,
-          100,
-        );
-        setFileProgress((prev) => ({
-          ...prev,
-          [file.name]: { progress: percent, status: 'uploading' },
-        }));
+          return { ETag: result.ETag ?? '', PartNumber: result.PartNumber };
+        }),
+      );
+
+      const uploadedParts = uploadedPartsResults
+        .filter(
+          (
+            result,
+          ): result is PromiseFulfilledResult<{
+            ETag: string;
+            PartNumber: number;
+          }> => result.status === 'fulfilled',
+        )
+        .map((r) => r.value);
+
+      if (uploadedParts.length !== partsCount) {
+        throw new Error('Some parts failed');
       }
 
       await finalizeMultipartUpload(
@@ -212,7 +214,16 @@ export const ModelVersionArtifactsDropzone = ({
         [file.name]: { progress: 100, status: 'success' },
       }));
     } catch {
-      await abortMultipartUpload(file.name, uploadId);
+      if (uploadId) {
+        await abortMultipartUpload(file.name, uploadId);
+      }
+      setFileProgress((prev) => ({
+        ...prev,
+        [file.name]: {
+          progress: prev[file.name]?.progress ?? 0,
+          status: 'error',
+        },
+      }));
       notifications.show({
         color: 'red',
         message: `Upload failed for ${file.name}`,
@@ -271,7 +282,6 @@ export const ModelVersionArtifactsDropzone = ({
     );
 
     if (!hasErrors) {
-      // everything good on retry
       close();
       notifications.show({
         message: 'All failed files uploaded successfully',
@@ -280,7 +290,6 @@ export const ModelVersionArtifactsDropzone = ({
       setFiles([]);
       setFileProgress({});
     } else {
-      // still some failures left
       const failedFiles = files.filter(
         (file) => fileProgress[file.name]?.status === 'error',
       );
@@ -289,7 +298,6 @@ export const ModelVersionArtifactsDropzone = ({
       notifications.show({
         color: 'red',
         message: `Some files are still failing (${failedFiles.length}).`,
-        title: 'Upload Issues',
       });
     }
   };
@@ -329,6 +337,7 @@ export const ModelVersionArtifactsDropzone = ({
           </Group>
           <ActionIcon
             color='gray'
+            disabled={uploading}
             onClick={() => {
               setFiles((prevState) =>
                 prevState.filter((prevState) => prevState.path !== file.path),
@@ -353,9 +362,9 @@ export const ModelVersionArtifactsDropzone = ({
         title='Add Files'
       >
         <Dropzone
+          loading={uploading}
           multiple
           onDrop={setFiles}
-          onReject={(files) => console.log('rejected files', files)}
           openRef={openRef}
         >
           <Group
@@ -401,14 +410,7 @@ export const ModelVersionArtifactsDropzone = ({
           )}
         </Flex>
       </Modal>
-      <Button
-        onClick={() => {
-          openRef.current?.();
-          open();
-        }}
-      >
-        Add Files
-      </Button>
+      <Button onClick={open}>Add Files</Button>
     </>
   );
 };
