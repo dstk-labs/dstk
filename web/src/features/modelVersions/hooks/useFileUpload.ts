@@ -44,6 +44,25 @@ export const useFileUpload = (modelVersionId: string) => {
     [],
   );
 
+  async function retryPart<T>(
+    fn: () => Promise<T>,
+    retries = 3,
+    delayMs = 1000,
+  ): Promise<T> {
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        return await fn();
+      } catch (err) {
+        lastError = err;
+        if (attempt < retries) {
+          await new Promise((res) => setTimeout(res, delayMs * attempt));
+        }
+      }
+    }
+    throw lastError;
+  }
+
   const uploadFile = useCallback(
     async (file: File) => {
       let uploadId = '';
@@ -66,11 +85,22 @@ export const useFileUpload = (modelVersionId: string) => {
           { length: partsCount },
           (_, idx) => idx + 1,
         ).map(async (partNumber) => {
-          const result = await uploadPart(
-            file,
-            uploadId,
-            createResult.key ?? '',
-            partNumber,
+          // const result = await uploadPart(
+          //   file,
+          //   uploadId,
+          //   createResult.key ?? '',
+          //   partNumber,
+          // );
+          const result = await retryPart(
+            () =>
+              uploadPart(
+                file,
+                uploadId ?? '',
+                createResult.key ?? '',
+                partNumber,
+              ),
+            3, // retry up to 3 times
+            1000, // 1s, 2s, 3s backoff
           );
 
           updateFileProgress(file.name, (prev) => ({
