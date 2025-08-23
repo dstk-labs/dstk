@@ -5,9 +5,11 @@ import { RouterProvider } from 'react-router/dom';
 import { paths } from './config/paths';
 import { userLoader } from './features/auth/loaders/authLoader';
 import { GET_ML_MODEL } from './features/models/loaders/modelLoader';
+import { GET_ML_MODEL_VERSION } from './features/modelVersions/loaders/modelVersionLoader';
 import { GetMlModelQuery } from './graphql/types';
 import { apolloClient } from './lib/apollo';
 
+// TODO: This is getting hard to read. Need to refactor
 // TODO: 404 and Error Boundaries
 const createAppRouter = () =>
   createBrowserRouter([
@@ -70,12 +72,98 @@ const createAppRouter = () =>
                   },
                 },
                 {
+                  children: [
+                    {
+                      index: true,
+                      lazy: async () => {
+                        const { ModelVersionsPage } = await import(
+                          './pages/dashboard/models/modelVersions/root/ModelVersionsPage'
+                        );
+                        return { Component: ModelVersionsPage };
+                      },
+                    },
+                    {
+                      children: [
+                        {
+                          lazy: async () => {
+                            const { ModelVersionArtifactsPage } = await import(
+                              './pages/dashboard/models/modelVersions/modelVersion/artifacts/ModelVersionArtifactsPage'
+                            );
+                            return { Component: ModelVersionArtifactsPage };
+                          },
+                          loader: async (params) => {
+                            const { modelVersionObjectsLoader } = await import(
+                              './features/modelVersions/loaders/modelVersionObjectsLoader'
+                            );
+
+                            const queryRef =
+                              await modelVersionObjectsLoader(params);
+                            return queryRef;
+                          },
+                          path: paths.dashboard.modelVersionArtifacts.path,
+                        },
+                        {
+                          lazy: async () => {
+                            const { ModelVersionCardPage } = await import(
+                              './pages/dashboard/models/modelVersions/modelVersion/card/ModelVersionCardPage'
+                            );
+                            return { Component: ModelVersionCardPage };
+                          },
+                          path: paths.dashboard.modelVersionCard.path,
+                        },
+                        {
+                          lazy: async () => {
+                            const { ModelVersionLogsPage } = await import(
+                              './pages/dashboard/models/modelVersions/modelVersion/logs/ModelVersionLogsPage'
+                            );
+                            return { Component: ModelVersionLogsPage };
+                          },
+                          path: paths.dashboard.modelVersionLogs.path,
+                        },
+                      ],
+                      handle: {
+                        crumb: () => {
+                          const modelVersionId = window.location.href
+                            .split('/')
+                            .at(6)
+                            ?.split('?')
+                            .at(0);
+
+                          const result = apolloClient.readQuery({
+                            query: GET_ML_MODEL_VERSION,
+                            variables: {
+                              modelVersionId: modelVersionId ?? '',
+                            },
+                          });
+
+                          return `v${result?.getMLModelVersion?.numericVersion}`;
+                        },
+                      },
+                      lazy: async () => {
+                        const { ModelVersionLayout } = await import(
+                          './layouts/model-version/ModelVersionLayout'
+                        );
+                        return { Component: ModelVersionLayout };
+                      },
+                      loader: async (params) => {
+                        const { modelVersionLoader } = await import(
+                          './features/modelVersions/loaders/modelVersionLoader'
+                        );
+
+                        const queryRef = await modelVersionLoader({
+                          modelVersionId: params.params.modelVersionId!,
+                        });
+
+                        return queryRef;
+                      },
+                    },
+                  ],
                   handle: {
                     crumb: () => {
-                      // TODO: How the hell do I refetch this?
+                      // TODO: This is causing issues
                       const modelId = window.location.href
                         .split('/')
-                        .at(-1)
+                        .at(5)
                         ?.split('?')
                         .at(0);
 
@@ -86,15 +174,10 @@ const createAppRouter = () =>
                         },
                       }) as GetMlModelQuery;
 
-                      return result.getMLModel?.modelName;
+                      return result?.getMLModel?.modelName ?? '';
                     },
                   },
-                  lazy: async () => {
-                    const { ModelVersionsPage } = await import(
-                      './pages/dashboard/models/modelVersions/ModelVersionsPage'
-                    );
-                    return { Component: ModelVersionsPage };
-                  },
+                  id: 'model',
                   loader: async (params) => {
                     const { modelVersionsLoader } = await import(
                       './features/modelVersions/loaders/modelVersionsLoader'
@@ -107,7 +190,9 @@ const createAppRouter = () =>
                     const [modelVersionsQueryRef, modelQueryRef] =
                       await Promise.all([
                         await modelVersionsLoader(params),
-                        await modelLoader({ modelId: params.params.modelId! }),
+                        await modelLoader({
+                          modelId: params.params.modelId!,
+                        }),
                       ]);
 
                     return [modelVersionsQueryRef, modelQueryRef];

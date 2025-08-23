@@ -1,7 +1,7 @@
 import { useReadQuery } from '@apollo/client';
 import { Badge, Button, Divider, Text, Title } from '@mantine/core';
 import { Suspense } from 'react';
-import { useLoaderData } from 'react-router';
+import { useRouteLoaderData } from 'react-router';
 
 import { IncludeArchivedSwitch } from '@/components/includeArchivedSwitch/IncludeArchivedSwitch';
 import { SearchParamTextInput } from '@/components/searchParamInput/SearchParamInput';
@@ -15,10 +15,10 @@ import styles from './ModelVersionsPage.module.css';
 import { ModelVersionsTable } from './ModelVersionsTable';
 
 export const ModelVersionsPage = () => {
-  const [modelVersionsQueryRef, modelQueryRef] = useLoaderData() as (
-    | ModelLoader
-    | ModelVersionsLoader
-  )[];
+  // TODO: Fix type inference on this
+  const [modelVersionsQueryRef, modelQueryRef] = useRouteLoaderData(
+    'model',
+  ) as (ModelLoader | ModelVersionsLoader)[];
 
   const { data: parentModel } = useReadQuery(modelQueryRef);
 
