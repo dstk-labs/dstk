@@ -81,25 +81,6 @@ const createAppRouter = () =>
                         );
                         return { Component: ModelVersionsPage };
                       },
-                      loader: async (params) => {
-                        const { modelVersionsLoader } = await import(
-                          './features/modelVersions/loaders/modelVersionsLoader'
-                        );
-
-                        const { modelLoader } = await import(
-                          './features/models/loaders/modelLoader'
-                        );
-
-                        const [modelVersionsQueryRef, modelQueryRef] =
-                          await Promise.all([
-                            await modelVersionsLoader(params),
-                            await modelLoader({
-                              modelId: params.params.modelId!,
-                            }),
-                          ]);
-
-                        return [modelVersionsQueryRef, modelQueryRef];
-                      },
                     },
                     {
                       children: [
@@ -179,7 +160,7 @@ const createAppRouter = () =>
                   ],
                   handle: {
                     crumb: () => {
-                      // TODO: How the hell do I refetch this?
+                      // TODO: This is causing issues
                       const modelId = window.location.href
                         .split('/')
                         .at(5)
@@ -193,8 +174,28 @@ const createAppRouter = () =>
                         },
                       }) as GetMlModelQuery;
 
-                      return result.getMLModel?.modelName;
+                      return result?.getMLModel?.modelName ?? '';
                     },
+                  },
+                  id: 'model',
+                  loader: async (params) => {
+                    const { modelVersionsLoader } = await import(
+                      './features/modelVersions/loaders/modelVersionsLoader'
+                    );
+
+                    const { modelLoader } = await import(
+                      './features/models/loaders/modelLoader'
+                    );
+
+                    const [modelVersionsQueryRef, modelQueryRef] =
+                      await Promise.all([
+                        await modelVersionsLoader(params),
+                        await modelLoader({
+                          modelId: params.params.modelId!,
+                        }),
+                      ]);
+
+                    return [modelVersionsQueryRef, modelQueryRef];
                   },
                   path: paths.dashboard.model.path,
                 },
