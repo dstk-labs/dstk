@@ -2,6 +2,8 @@ import { ActionIcon, Group, Paper, Progress, Text } from '@mantine/core';
 import { type FileWithPath } from '@mantine/dropzone';
 import { FileIcon, TrashIcon } from 'lucide-react';
 
+import { formatFileSize } from '@/utils/formatters';
+
 import { FILE_UPLOAD_STATUS } from '../constants';
 import { FileProgress } from '../types';
 
@@ -30,14 +32,6 @@ export const FilePreview = ({
       default:
         return 'blue';
     }
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (

@@ -8,6 +8,7 @@ import type { ModelVersionObjectsLoader } from '@/features/modelVersions/loaders
 import { LimitSelector } from '@/components/limitSelector/LimitSelector';
 import { NoResults } from '@/components/noResults/NoResults';
 import { Pagination } from '@/components/pagination/Pagination';
+import { formatFileSize } from '@/utils/formatters';
 
 import styles from './ModelVersionArtifactsTable.module.css';
 
@@ -37,7 +38,7 @@ export const ModelVersionArtifactsTable = ({
     data.listObjectsForModelVersion?.edges?.map((object) => (
       <Table.Tr className={styles.tableRow} key={object.node?.name}>
         <Table.Td>{object.node?.name}</Table.Td>
-        <Table.Td align='right'>{object.node?.size}</Table.Td>
+        <Table.Td>{formatFileSize(object.node?.size ?? 0)}</Table.Td>
         <Table.Td>
           {dayjs(object.node?.lastModified).format('YYYY-MM-DD')}
         </Table.Td>
@@ -52,7 +53,7 @@ export const ModelVersionArtifactsTable = ({
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Name</Table.Th>
-                <Table.Th align='right'>Size</Table.Th>
+                <Table.Th>Size</Table.Th>
                 <Table.Th>Last Modified</Table.Th>
               </Table.Tr>
             </Table.Thead>
