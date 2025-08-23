@@ -1,6 +1,7 @@
 import { type LoaderFunctionArgs } from 'react-router';
 import { z } from 'zod/v4';
 
+import { paths } from '@/config/paths';
 import { gql } from '@/graphql';
 import { preloadQuery } from '@/lib/apollo';
 import { ensureDefaultQueryParams } from '@/lib/ensureDefaultQueryParams';
@@ -62,6 +63,9 @@ export const modelVersionsLoader = async ({
     includeArchived: 'false',
   });
 
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+
   const { after, first, includeArchived } = parseQueryParams(
     request,
     modelVersionsSchema,
@@ -69,7 +73,10 @@ export const modelVersionsLoader = async ({
 
   return preloadQuery(LIST_MODEL_VERSIONS, {
     variables: {
-      after,
+      after:
+        pathname === paths.dashboard.model.getPath(params.modelId!)
+          ? after
+          : null,
       first,
       includeArchived,
       modelId: params.modelId!,
