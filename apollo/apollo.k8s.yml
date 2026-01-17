@@ -32,12 +32,11 @@ spec:
       containers:
         - name: dstk-apollo
           image: dstk-apollo
-          # env:
-          # - name: STORAGE_PROVIDER_KEY
-          #   valueFrom:
-          #     secretKeyRef:
-          #       name: storage-provider-key
-          #       key: enc-key
+          env:
+            - name: DATABASE_URL
+              value: postgresql://postgres:postgres@dstk-postgres:5432/postgres
+          ports:
+            - containerPort: 4000
 
 ---
 apiVersion: v1

@@ -21,6 +21,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/name: dstk-postgres
       io.kompose.service: dstk-postgres
   strategy:
     type: Recreate
@@ -44,6 +45,8 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: postgres-password
+          ports:
+            - containerPort: 5432
 
 ---
 apiVersion: v1
