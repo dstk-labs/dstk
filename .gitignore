@@ -14,6 +14,7 @@
 *dist
 
 # And permit certain files
+!.dockerignore
 !.gitignore
 !LICENSE
 
@@ -30,6 +31,7 @@
 !*.svg
 !*.html
 !*.md
+!*.sh
 !*.sql
 !*.graphql
 !.prettierrc
