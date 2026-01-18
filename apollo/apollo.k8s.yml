@@ -35,6 +35,10 @@ spec:
           env:
             - name: DATABASE_URL
               value: postgresql://postgres:postgres@dstk-postgres:5432/postgres
+            - name: SMTP_HOST
+              value: dstk-smtp
+            - name: SMTP_PORT
+              value: "25"
           ports:
             - containerPort: 4000
 

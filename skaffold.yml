@@ -8,6 +8,7 @@ manifests:
   - web/web.k8s.yml
   - minio/minio.k8s.yml
   - postgres/postgres.k8s.yml
+  - smtp/smtp.k8s.yml
 build:
   artifacts:
   - image: dstk-postgres
@@ -51,3 +52,7 @@ profiles:
       resourceName: dstk-postgres
       port: 5432
       localPort: 5432
+    - resourceType: service
+      resourceName: dstk-smtp
+      port: 80
+      localPort: 5000

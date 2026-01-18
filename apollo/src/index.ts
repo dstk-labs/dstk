@@ -9,9 +9,6 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import cookieparser from 'cookie-parser';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const PORT = 4000;
 
@@ -32,7 +29,11 @@ await server.start();
 app.use(
     '/graphql',
     cors<cors.CorsRequest>({
-        origin: ['https://sandbox.embed.apollographql.com', 'http://localhost:5173', 'http://127.0.0.1:5173'],
+        origin: [
+            'https://sandbox.embed.apollographql.com',
+            'http://localhost:5173',
+            'http://127.0.0.1:5173',
+        ],
         credentials: true,
     }),
     express.json(),
