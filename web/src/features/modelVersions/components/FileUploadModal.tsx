@@ -1,12 +1,13 @@
-import { Button, Flex, Group, SimpleGrid, Text } from '@mantine/core';
-import { Dropzone, type FileWithPath } from '@mantine/dropzone';
-import { RefObject } from 'react';
+import type { FileWithPath } from "@mantine/dropzone";
+import type { RefObject } from "react";
+import type { FileProgress } from "../types";
+import { Button, Flex, Group, SimpleGrid, Text } from "@mantine/core";
 
-import { Modal } from '@/components/modal/Modal';
+import { Dropzone } from "@mantine/dropzone";
 
-import { FILE_UPLOAD_STATUS } from '../constants';
-import { FileProgress } from '../types';
-import { FilePreview } from './FilePreview';
+import { Modal } from "@/components/modal/Modal";
+import { FILE_UPLOAD_STATUS } from "../constants";
+import { FilePreview } from "./FilePreview";
 
 type FileUploadModalProps = {
   fileProgress: Record<string, FileProgress>;
@@ -21,7 +22,7 @@ type FileUploadModalProps = {
   uploading: boolean;
 };
 
-export const FileUploadModal = ({
+export function FileUploadModal({
   fileProgress,
   files,
   onClose,
@@ -32,9 +33,9 @@ export const FileUploadModal = ({
   opened,
   openRef,
   uploading,
-}: FileUploadModalProps) => {
+}: FileUploadModalProps) {
   const hasErrors = files.some(
-    (file) => fileProgress[file.name]?.status === FILE_UPLOAD_STATUS.ERROR,
+    file => fileProgress[file.name]?.status === FILE_UPLOAD_STATUS.ERROR,
   );
 
   return (
@@ -42,8 +43,8 @@ export const FileUploadModal = ({
       disabled={uploading}
       onClose={onClose}
       opened={opened}
-      size='lg'
-      title='Add Files'
+      size="lg"
+      title="Add Files"
     >
       <Dropzone
         loading={uploading}
@@ -52,16 +53,16 @@ export const FileUploadModal = ({
         openRef={openRef}
       >
         <Group
-          gap='xl'
-          justify='center'
+          gap="xl"
+          justify="center"
           mih={110}
-          style={{ pointerEvents: 'none' }}
+          style={{ pointerEvents: "none" }}
         >
           <div>
-            <Text inline size='md'>
+            <Text inline size="md">
               Drag objects here or click to select files
             </Text>
-            <Text c='dimmed' inline mt={7} size='sm'>
+            <Text c="dimmed" inline mt={7} size="sm">
               We should probably check mime types
             </Text>
           </div>
@@ -69,8 +70,8 @@ export const FileUploadModal = ({
       </Dropzone>
 
       {files.length > 0 && (
-        <SimpleGrid mt='sm' w='100%'>
-          {files.map((file) => (
+        <SimpleGrid mt="sm" w="100%">
+          {files.map(file => (
             <FilePreview
               file={file}
               key={file.path}
@@ -82,24 +83,26 @@ export const FileUploadModal = ({
         </SimpleGrid>
       )}
 
-      <Flex align='center' justify='end' mt='xl'>
-        {hasErrors ? (
-          <Button color='red' loading={uploading} onClick={onRetry} radius='md'>
-            Retry Failed Files
-          </Button>
-        ) : (
-          <Button
-            color='blue'
-            disabled={files.length === 0}
-            loading={uploading}
-            onClick={onUpload}
-            radius='md'
-            type='submit'
-          >
-            Submit
-          </Button>
-        )}
+      <Flex align="center" justify="end" mt="xl">
+        {hasErrors
+          ? (
+              <Button color="red" loading={uploading} onClick={onRetry} radius="md">
+                Retry Failed Files
+              </Button>
+            )
+          : (
+              <Button
+                color="blue"
+                disabled={files.length === 0}
+                loading={uploading}
+                onClick={onUpload}
+                radius="md"
+                type="submit"
+              >
+                Submit
+              </Button>
+            )}
       </Flex>
     </Modal>
   );
-};
+}

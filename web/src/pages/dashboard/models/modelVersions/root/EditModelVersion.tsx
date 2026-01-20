@@ -1,16 +1,16 @@
-import { useMutation } from '@apollo/client';
-import { ActionIcon, Button, Flex, Textarea, Tooltip } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { useDisclosure } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
-import { EditIcon } from 'lucide-react';
-import { zod4Resolver } from 'mantine-form-zod-resolver';
-import { z } from 'zod/v4';
+import type { EditModelVersionMutationVariables } from "@/graphql/types";
+import { useMutation } from "@apollo/client";
+import { ActionIcon, Button, Flex, Textarea, Tooltip } from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import { EditIcon } from "lucide-react";
+import { zod4Resolver } from "mantine-form-zod-resolver";
 
-import type { EditModelVersionMutationVariables } from '@/graphql/types';
+import { z } from "zod/v4";
 
-import { Modal } from '@/components/modal/Modal';
-import { gql } from '@/graphql';
+import { Modal } from "@/components/modal/Modal";
+import { gql } from "@/graphql";
 
 const EDIT_MODEL_VERSION = gql(`
   mutation EditModelVersion(
@@ -27,9 +27,9 @@ const EDIT_MODEL_VERSION = gql(`
 `);
 
 const editModelVersionSchema = z.object({
-  description: z.string().min(1, 'Required'),
+  description: z.string().min(1, "Required"),
 }) satisfies z.ZodType<
-  Omit<EditModelVersionMutationVariables['data'], 'modelId'>
+  Omit<EditModelVersionMutationVariables["data"], "modelId">
 >;
 
 type EditModelVersionProps = {
@@ -41,12 +41,12 @@ type EditModelVersionProps = {
 
 type EditModelVersionSchema = z.infer<typeof editModelVersionSchema>;
 
-export const EditModelVersion = ({
+export function EditModelVersion({
   isArchived,
   modelVersionId,
   numericVersion,
   originalDescription,
-}: EditModelVersionProps) => {
+}: EditModelVersionProps) {
   const [editModelVersion, { loading }] = useMutation(EDIT_MODEL_VERSION);
 
   const [opened, { close, open }] = useDisclosure(false);
@@ -55,7 +55,7 @@ export const EditModelVersion = ({
     initialValues: {
       description: originalDescription,
     },
-    mode: 'uncontrolled',
+    mode: "uncontrolled",
     validate: zod4Resolver(editModelVersionSchema),
   });
 
@@ -64,12 +64,12 @@ export const EditModelVersion = ({
       onCompleted: async (data) => {
         notifications.show({
           message: `Successfully edited version ${data.editModelVersion?.numericVersion} for model ${data.editModelVersion?.modelId?.modelName}`,
-          title: 'Success',
+          title: "Success",
         });
         editModelVersionForm.reset();
         close();
       },
-      refetchQueries: ['ListMLModels', 'ListMLModelVersions'],
+      refetchQueries: ["ListMLModels", "ListMLModelVersions"],
       variables: {
         data: {
           description: values.description,
@@ -84,39 +84,39 @@ export const EditModelVersion = ({
         disabled={loading}
         onClose={close}
         opened={opened}
-        size='lg'
+        size="lg"
         title={`Edit Version ${numericVersion}`}
       >
         <form
-          onSubmit={editModelVersionForm.onSubmit((values) => onSubmit(values))}
+          onSubmit={editModelVersionForm.onSubmit(values => onSubmit(values))}
         >
           <Textarea
             disabled={loading}
-            key={editModelVersionForm.key('description')}
-            label='Description'
+            key={editModelVersionForm.key("description")}
+            label="Description"
             rows={4}
             withAsterisk
-            {...editModelVersionForm.getInputProps('description')}
+            {...editModelVersionForm.getInputProps("description")}
           />
 
-          <Flex align='center' justify='end' mt='xl'>
-            <Button color='blue' loading={loading} radius='md' type='submit'>
+          <Flex align="center" justify="end" mt="xl">
+            <Button color="blue" loading={loading} radius="md" type="submit">
               Submit
             </Button>
           </Flex>
         </form>
       </Modal>
 
-      <Tooltip disabled={isArchived} label='Edit'>
+      <Tooltip disabled={isArchived} label="Edit">
         <ActionIcon
-          color='blue'
+          color="blue"
           disabled={isArchived}
           onClick={open}
-          variant='subtle'
+          variant="subtle"
         >
           <EditIcon size={14} />
         </ActionIcon>
       </Tooltip>
     </>
   );
-};
+}

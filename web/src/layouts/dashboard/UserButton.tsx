@@ -1,4 +1,4 @@
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation } from "@apollo/client";
 import {
   Avatar,
   Badge,
@@ -6,7 +6,7 @@ import {
   Menu,
   Text,
   UnstyledButton,
-} from '@mantine/core';
+} from "@mantine/core";
 import {
   ActivityIcon,
   BellIcon,
@@ -15,15 +15,15 @@ import {
   LogOutIcon,
   SettingsIcon,
   UserRoundIcon,
-} from 'lucide-react';
-import { useEffect } from 'react';
-import { Link } from 'react-router';
+} from "lucide-react";
+import { useEffect } from "react";
+import { Link } from "react-router";
 
-import { paths } from '@/config/paths';
-import { useUser } from '@/features/auth/hooks/authHooks';
-import { GET_USER } from '@/features/auth/loaders/authLoader';
+import { paths } from "@/config/paths";
+import { useUser } from "@/features/auth/hooks/authHooks";
+import { GET_USER } from "@/features/auth/loaders/authLoader";
 
-import classes from './UserButton.module.css';
+import classes from "./UserButton.module.css";
 
 const LOGOUT = gql(`
   mutation Logout {
@@ -35,7 +35,7 @@ type UserButtonProps = {
   setIsLoading: (value: boolean) => void;
 };
 
-export const UserButton = ({ setIsLoading }: UserButtonProps) => {
+export function UserButton({ setIsLoading }: UserButtonProps) {
   const { user } = useUser();
 
   const [logout, { loading }] = useMutation(LOGOUT);
@@ -55,16 +55,16 @@ export const UserButton = ({ setIsLoading }: UserButtonProps) => {
             <Group>
               <Avatar
                 // TODO: Image
-                color='initials'
+                color="initials"
                 name={user.realName}
-                radius='xl'
+                radius="xl"
               />
               <div style={{ flex: 1 }}>
-                <Text fw={500} size='sm'>
+                <Text fw={500} size="sm">
                   {user.userName}
                 </Text>
 
-                <Text c='dimmed' size='xs'>
+                <Text c="dimmed" size="xs">
                   {user.email}
                 </Text>
               </div>
@@ -92,21 +92,21 @@ export const UserButton = ({ setIsLoading }: UserButtonProps) => {
 
           <Menu.Item
             leftSection={<BellIcon size={14} />}
-            rightSection={
-              <Badge circle color='red' size='xs'>
+            rightSection={(
+              <Badge circle color="red" size="xs">
                 5
               </Badge>
-            }
+            )}
           >
             Notifications
           </Menu.Item>
           <Menu.Item
             leftSection={<ActivityIcon size={14} />}
-            rightSection={
-              <Badge circle color='red' size='xs'>
+            rightSection={(
+              <Badge circle color="red" size="xs">
                 2
               </Badge>
-            }
+            )}
           >
             Activity
           </Menu.Item>
@@ -123,4 +123,4 @@ export const UserButton = ({ setIsLoading }: UserButtonProps) => {
       </Menu>
     );
   }
-};
+}

@@ -1,54 +1,54 @@
-import { useReadQuery } from '@apollo/client';
-import { Card, Table } from '@mantine/core';
-import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import type { ModelVersionObjectsLoader } from "@/features/modelVersions/loaders/modelVersionObjectsLoader";
+import { useReadQuery } from "@apollo/client";
+import { Card, Table } from "@mantine/core";
+import dayjs from "dayjs";
 
-import type { ModelVersionObjectsLoader } from '@/features/modelVersions/loaders/modelVersionObjectsLoader';
+import { useEffect, useState } from "react";
 
-import { LimitSelector } from '@/components/limitSelector/LimitSelector';
-import { NoResults } from '@/components/noResults/NoResults';
-import { Pagination } from '@/components/pagination/Pagination';
-import { formatFileSize } from '@/utils/formatters';
+import { LimitSelector } from "@/components/limitSelector/LimitSelector";
+import { NoResults } from "@/components/noResults/NoResults";
+import { Pagination } from "@/components/pagination/Pagination";
+import { formatFileSize } from "@/utils/formatters";
 
-import styles from './ModelVersionArtifactsTable.module.css';
+import styles from "./ModelVersionArtifactsTable.module.css";
 
 type ModelVersionArtifactsTableProps = {
   queryRef: ModelVersionObjectsLoader;
 };
 
-export const ModelVersionArtifactsTable = ({
+export function ModelVersionArtifactsTable({
   queryRef,
-}: ModelVersionArtifactsTableProps) => {
+}: ModelVersionArtifactsTableProps) {
   const { data } = useReadQuery(queryRef);
 
   const [continuationTokens, setContinuationTokens] = useState<
     (null | string)[]
   >([null]);
 
-  const continuationToken =
-    data.listObjectsForModelVersion?.pageInfo?.continuationToken ?? null;
+  const continuationToken
+    = data.listObjectsForModelVersion?.pageInfo?.continuationToken ?? null;
 
   useEffect(() => {
     if (continuationToken && !continuationTokens.includes(continuationToken)) {
-      setContinuationTokens((prev) => [...prev, continuationToken]);
+      setContinuationTokens(prev => [...prev, continuationToken]);
     }
   }, [continuationToken, continuationTokens]);
 
-  const rows =
-    data.listObjectsForModelVersion?.edges?.map((object) => (
+  const rows
+    = data.listObjectsForModelVersion?.edges?.map(object => (
       <Table.Tr className={styles.tableRow} key={object.node?.name}>
         <Table.Td>{object.node?.name}</Table.Td>
         <Table.Td>{formatFileSize(object.node?.size ?? 0)}</Table.Td>
         <Table.Td>
-          {dayjs(object.node?.lastModified).format('YYYY-MM-DD')}
+          {dayjs(object.node?.lastModified).format("YYYY-MM-DD")}
         </Table.Td>
       </Table.Tr>
     )) ?? [];
 
   return (
     <div className={styles.tableContainer}>
-      <Card bg='transparent' p={0} withBorder>
-        <Table.ScrollContainer minWidth={500} type='native'>
+      <Card bg="transparent" p={0} withBorder>
+        <Table.ScrollContainer minWidth={500} type="native">
           <Table highlightOnHover>
             <Table.Thead>
               <Table.Tr>
@@ -75,4 +75,4 @@ export const ModelVersionArtifactsTable = ({
       </div>
     </div>
   );
-};
+}

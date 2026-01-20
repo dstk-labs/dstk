@@ -1,34 +1,33 @@
-import { useReadQuery } from '@apollo/client';
-import { Badge, Card, Flex, Table } from '@mantine/core';
-import dayjs from 'dayjs';
-import { useNavigate } from 'react-router';
+import type { ProjectsLoader } from "@/features/projects/loaders/projectsLoader";
+import { useReadQuery } from "@apollo/client";
+import { Badge, Card, Flex, Table } from "@mantine/core";
+import dayjs from "dayjs";
 
-import type { ProjectsLoader } from '@/features/projects/loaders/projectsLoader';
+import { useNavigate } from "react-router";
 
-import { NoResults } from '@/components/noResults/NoResults';
-import { paths } from '@/config/paths';
+import { NoResults } from "@/components/noResults/NoResults";
+import { paths } from "@/config/paths";
 
-import { ArchiveProject } from './ArchiveProject';
-import { EditProject } from './EditProject';
-import styles from './ProjectsTable.module.css';
+import { ArchiveProject } from "./ArchiveProject";
+import { EditProject } from "./EditProject";
+import styles from "./ProjectsTable.module.css";
 
 type ProjectsTableProps = {
   queryRef: ProjectsLoader;
 };
 
-export const ProjectsTable = ({ queryRef }: ProjectsTableProps) => {
+export function ProjectsTable({ queryRef }: ProjectsTableProps) {
   const { data } = useReadQuery(queryRef);
 
   const navigate = useNavigate();
 
-  const rows =
-    data.listProjects?.map((project) => (
+  const rows
+    = data.listProjects?.map(project => (
       <Table.Tr
         className={styles.tableRow}
         key={project.projectId}
         onClick={() =>
-          navigate(paths.dashboard.project.getPath(project.projectId ?? ''))
-        }
+          navigate(paths.dashboard.project.getPath(project.projectId ?? ""))}
       >
         <Table.Td>{project.name}</Table.Td>
         {/* TODO: Probably make this reusable */}
@@ -40,24 +39,24 @@ export const ProjectsTable = ({ queryRef }: ProjectsTableProps) => {
         <Table.Td>
           <Badge
             className={styles.badge}
-            color={project.isArchived ? 'red' : 'blue'}
+            color={project.isArchived ? "red" : "blue"}
           >
-            {project.isArchived ? 'Archived' : 'Active'}
+            {project.isArchived ? "Archived" : "Active"}
           </Badge>
         </Table.Td>
-        <Table.Td>{dayjs(project.dateModified).format('YYYY-MM-DD')}</Table.Td>
-        <Table.Td onClick={(e) => e.stopPropagation()}>
+        <Table.Td>{dayjs(project.dateModified).format("YYYY-MM-DD")}</Table.Td>
+        <Table.Td onClick={e => e.stopPropagation()}>
           <Flex gap={2}>
             <EditProject
               isArchived={!!project.isArchived}
-              originalDescription={project.description ?? ''}
-              originalName={project.name ?? ''}
-              projectId={project.projectId ?? ''}
+              originalDescription={project.description ?? ""}
+              originalName={project.name ?? ""}
+              projectId={project.projectId ?? ""}
             />
             <ArchiveProject
               isArchived={!!project.isArchived}
-              projectId={project.projectId ?? ''}
-              projectName={project.name ?? ''}
+              projectId={project.projectId ?? ""}
+              projectName={project.name ?? ""}
             />
           </Flex>
         </Table.Td>
@@ -66,16 +65,16 @@ export const ProjectsTable = ({ queryRef }: ProjectsTableProps) => {
 
   return (
     <div className={styles.tableContainer}>
-      <Card bg='transparent' p={0} withBorder>
-        <Table.ScrollContainer minWidth={500} type='native'>
+      <Card bg="transparent" p={0} withBorder>
+        <Table.ScrollContainer minWidth={500} type="native">
           <Table highlightOnHover>
-            <Table.Thead style={{ whiteSpace: 'nowrap' }}>
+            <Table.Thead style={{ whiteSpace: "nowrap" }}>
               <Table.Tr>
                 <Table.Th>Name</Table.Th>
                 <Table.Th>Description</Table.Th>
                 <Table.Th>Status</Table.Th>
                 <Table.Th>Last Modified</Table.Th>
-                <Table.Th className='sr-only' />
+                <Table.Th className="sr-only" />
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -86,4 +85,4 @@ export const ProjectsTable = ({ queryRef }: ProjectsTableProps) => {
       </Card>
     </div>
   );
-};
+}

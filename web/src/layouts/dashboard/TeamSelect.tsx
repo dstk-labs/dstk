@@ -1,14 +1,14 @@
-import { useReadQuery } from '@apollo/client';
-import { Select } from '@mantine/core';
-import { useEffect } from 'react';
-import { useRouteLoaderData } from 'react-router';
+import type { TeamsDropdownLoader } from "@/features/teams/loaders/teamsLoader";
+import { useReadQuery } from "@apollo/client";
+import { Select } from "@mantine/core";
+import { useEffect } from "react";
 
-import type { TeamsDropdownLoader } from '@/features/teams/loaders/teamsLoader';
+import { useRouteLoaderData } from "react-router";
 
-import { useTeamStore } from '@/stores/teamStore';
+import { useTeamStore } from "@/stores/teamStore";
 
-export const TeamSelect = () => {
-  const queryRef = useRouteLoaderData('dashboard') as TeamsDropdownLoader;
+export function TeamSelect() {
+  const queryRef = useRouteLoaderData("dashboard") as TeamsDropdownLoader;
   const { data } = useReadQuery(queryRef);
 
   const { selectedTeam, setSelectedTeam } = useTeamStore();
@@ -16,7 +16,7 @@ export const TeamSelect = () => {
   useEffect(() => {
     if (data?.listTeams) {
       const personalTeam = data.listTeams.find(
-        (team) => team.name === 'Personal Team',
+        team => team.name === "Personal Team",
       );
       if (personalTeam && personalTeam.teamId) {
         setSelectedTeam(personalTeam.teamId);
@@ -26,16 +26,17 @@ export const TeamSelect = () => {
 
   return (
     <Select
-      data={data.listTeams?.map((team) => ({
-        label: team.name ?? '',
-        value: team.teamId ?? '',
+      data={data.listTeams?.map(team => ({
+        label: team.name ?? "",
+        value: team.teamId ?? "",
       }))}
-      mb='sm'
+      mb="sm"
       onChange={(value) => {
-        if (value) setSelectedTeam(value);
+        if (value)
+          setSelectedTeam(value);
       }}
-      size='sm'
+      size="sm"
       value={selectedTeam}
     />
   );
-};
+}

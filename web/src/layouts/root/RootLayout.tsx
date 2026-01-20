@@ -1,9 +1,9 @@
-import { Navigate } from 'react-router';
+import { Navigate } from "react-router";
 
-import { paths } from '@/config/paths';
-import { useUser } from '@/features/auth/hooks/authHooks';
+import { paths } from "@/config/paths";
+import { useUser } from "@/features/auth/hooks/authHooks";
 
-export const RootLayout = () => {
+export function RootLayout() {
   const { user } = useUser();
 
   if (user) {
@@ -11,4 +11,4 @@ export const RootLayout = () => {
   }
 
   return <Navigate to={paths.auth.login.path} />;
-};
+}

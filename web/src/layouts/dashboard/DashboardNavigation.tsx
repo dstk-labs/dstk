@@ -1,4 +1,4 @@
-import { NavLink } from '@mantine/core';
+import { NavLink } from "@mantine/core";
 import {
   ArchiveIcon,
   FileBoxIcon,
@@ -6,41 +6,41 @@ import {
   GaugeIcon,
   RocketIcon,
   UsersRoundIcon,
-} from 'lucide-react';
-import { Link, useLocation } from 'react-router';
+} from "lucide-react";
+import { Link, useLocation } from "react-router";
 
-import { paths } from '@/config/paths';
+import { paths } from "@/config/paths";
 
-import styles from './DashboardNavigation.module.css';
+import styles from "./DashboardNavigation.module.css";
 
 const links = [
-  { icon: GaugeIcon, label: 'Overview', to: paths.dashboard.overview.path },
+  { icon: GaugeIcon, label: "Overview", to: paths.dashboard.overview.path },
   {
     icon: FileBoxIcon,
-    label: 'Model Registry',
+    label: "Model Registry",
     to: paths.dashboard.models.path,
   },
   {
     icon: RocketIcon,
-    label: 'Deployments',
+    label: "Deployments",
     to: paths.dashboard.deployments.path,
   },
-  { icon: ArchiveIcon, label: 'Storage', to: paths.dashboard.storage.path },
-  { icon: UsersRoundIcon, label: 'Teams', to: paths.dashboard.teams.path },
+  { icon: ArchiveIcon, label: "Storage", to: paths.dashboard.storage.path },
+  { icon: UsersRoundIcon, label: "Teams", to: paths.dashboard.teams.path },
   {
     icon: FolderCodeIcon,
-    label: 'Projects',
+    label: "Projects",
     to: paths.dashboard.projects.path,
   },
 ];
 
-export const DashboardNavigation = () => {
+export function DashboardNavigation() {
   const { pathname } = useLocation();
 
   return (
     <div className={styles.section}>
       <div className={styles.mainLinks}>
-        {links.map((link) => (
+        {links.map(link => (
           <NavLink
             active={pathname.startsWith(link.to)}
             className={styles.mainLink}
@@ -54,4 +54,4 @@ export const DashboardNavigation = () => {
       </div>
     </div>
   );
-};
+}

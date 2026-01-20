@@ -1,14 +1,14 @@
-import { useMutation } from '@apollo/client';
-import { Button, Flex, Textarea } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { useDisclosure } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
-import { zod4Resolver } from 'mantine-form-zod-resolver';
-import { z } from 'zod/v4';
+import type { CreateModelVersionMutationVariables } from "@/graphql/types";
+import { useMutation } from "@apollo/client";
+import { Button, Flex, Textarea } from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import { zod4Resolver } from "mantine-form-zod-resolver";
 
-import { Modal } from '@/components/modal/Modal';
-import { gql } from '@/graphql';
-import { CreateModelVersionMutationVariables } from '@/graphql/types';
+import { z } from "zod/v4";
+import { Modal } from "@/components/modal/Modal";
+import { gql } from "@/graphql";
 
 const CREATE_MODEL_VERSION = gql(`
   mutation CreateModelVersion($data: ModelVersionInput!) {
@@ -22,9 +22,9 @@ const CREATE_MODEL_VERSION = gql(`
 `);
 
 const createModelVersionSchema = z.object({
-  description: z.string().min(1, 'Required'),
+  description: z.string().min(1, "Required"),
 }) satisfies z.ZodType<
-  Omit<CreateModelVersionMutationVariables['data'], 'modelId'>
+  Omit<CreateModelVersionMutationVariables["data"], "modelId">
 >;
 
 type AddModelVersionProps = {
@@ -34,19 +34,19 @@ type AddModelVersionProps = {
 
 type CreateModelVersionSchema = z.infer<typeof createModelVersionSchema>;
 
-export const AddModelVersion = ({
+export function AddModelVersion({
   disabled,
   modelId,
-}: AddModelVersionProps) => {
+}: AddModelVersionProps) {
   const [createModelVersion, { loading }] = useMutation(CREATE_MODEL_VERSION);
 
   const [opened, { close, open }] = useDisclosure(false);
 
   const createModelVersionForm = useForm({
     initialValues: {
-      description: '',
+      description: "",
     },
-    mode: 'uncontrolled',
+    mode: "uncontrolled",
     validate: zod4Resolver(createModelVersionSchema),
   });
 
@@ -55,13 +55,13 @@ export const AddModelVersion = ({
       onCompleted: (data) => {
         notifications.show({
           message: `Successfully created version ${data.createModelVersion?.numericVersion} for model ${data.createModelVersion?.modelId?.modelName}`,
-          title: 'Success',
+          title: "Success",
         });
         createModelVersionForm.reset();
         close();
       },
       // TODO: Eventually GetModelVersionById
-      refetchQueries: ['ListMLModels', 'ListMLModelVersions'],
+      refetchQueries: ["ListMLModels", "ListMLModelVersions"],
       variables: {
         data: {
           description: values.description,
@@ -77,25 +77,25 @@ export const AddModelVersion = ({
         disabled={loading}
         onClose={close}
         opened={opened}
-        size='lg'
-        title='Add Model Version'
+        size="lg"
+        title="Add Model Version"
       >
         <form
-          onSubmit={createModelVersionForm.onSubmit((values) =>
+          onSubmit={createModelVersionForm.onSubmit(values =>
             onSubmit(values),
           )}
         >
           <Textarea
             disabled={loading}
-            key={createModelVersionForm.key('description')}
-            label='Description'
+            key={createModelVersionForm.key("description")}
+            label="Description"
             rows={4}
             withAsterisk
-            {...createModelVersionForm.getInputProps('description')}
+            {...createModelVersionForm.getInputProps("description")}
           />
 
-          <Flex align='center' justify='end' mt='xl'>
-            <Button color='blue' loading={loading} radius='md' type='submit'>
+          <Flex align="center" justify="end" mt="xl">
+            <Button color="blue" loading={loading} radius="md" type="submit">
               Submit
             </Button>
           </Flex>
@@ -107,4 +107,4 @@ export const AddModelVersion = ({
       </Button>
     </>
   );
-};
+}

@@ -1,25 +1,25 @@
 .badge {
-    @mixin hover {
-        cursor: pointer;
-    }
+  @mixin hover {
+    cursor: pointer;
+  }
 }
 
 .tableContainer {
-    margin-top: 2rem;
+  margin-top: 2rem;
 }
 
 .tableFooter {
-    align-items: center;
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
-    width: 100%;
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  width: 100%;
 }
 
 .tableRow {
-    white-space: nowrap;
-    
-    @mixin hover {
-        cursor: pointer;
-    }
+  white-space: nowrap;
+
+  @mixin hover {
+    cursor: pointer;
+  }
 }

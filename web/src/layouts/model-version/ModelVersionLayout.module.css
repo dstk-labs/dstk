@@ -1,19 +1,19 @@
 .attributes {
-    display: flex; 
-    flex-direction: column;
-    gap: 0.5rem; 
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .header {
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 1rem; 
-    justify-content: space-between; 
-    align-items: flex-end; 
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
 .status {
-    display: flex; 
-    gap: 1rem; 
-    align-items: center; 
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }

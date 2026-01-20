@@ -1,7 +1,5 @@
 .husky
 dist
 node_modules
-.lintstagedrc
-.prettier*
 eslint.config.mjs
 README.md

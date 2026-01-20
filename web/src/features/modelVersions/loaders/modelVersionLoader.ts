@@ -1,6 +1,6 @@
-import { gql } from '@/graphql';
-import { GetMlModelVersionQueryVariables } from '@/graphql/types';
-import { preloadQuery } from '@/lib/apollo';
+import type { GetMlModelVersionQueryVariables } from "@/graphql/types";
+import { gql } from "@/graphql";
+import { preloadQuery } from "@/lib/apollo";
 
 export const GET_ML_MODEL_VERSION = gql(`
   query GetMLModelVersion($modelVersionId: String!) {
@@ -13,12 +13,12 @@ export const GET_ML_MODEL_VERSION = gql(`
   }
 `);
 
-export const modelVersionLoader = async ({
+export async function modelVersionLoader({
   modelVersionId,
-}: GetMlModelVersionQueryVariables) => {
+}: GetMlModelVersionQueryVariables) {
   return preloadQuery(GET_ML_MODEL_VERSION, {
     variables: { modelVersionId },
   }).toPromise();
-};
+}
 
 export type ModelVersionLoader = Awaited<ReturnType<typeof modelVersionLoader>>;

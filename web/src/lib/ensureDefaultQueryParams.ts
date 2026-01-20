@@ -1,4 +1,4 @@
-import { redirect } from 'react-router';
+import { redirect } from "react-router";
 
 export function ensureDefaultQueryParams(
   request: Request,

@@ -1,23 +1,23 @@
-import { Suspense } from 'react';
-import { useLoaderData } from 'react-router';
+import type { StorageProvidersLoader } from "@/features/storage/loaders/storageProvidersLoader";
+import { Suspense } from "react";
 
-import type { StorageProvidersLoader } from '@/features/storage/loaders/storageProvidersLoader';
+import { useLoaderData } from "react-router";
 
-import { IncludeArchivedSwitch } from '@/components/includeArchivedSwitch/IncludeArchivedSwitch';
-import { SearchParamTextInput } from '@/components/searchParamInput/SearchParamInput';
+import { IncludeArchivedSwitch } from "@/components/includeArchivedSwitch/IncludeArchivedSwitch";
+import { SearchParamTextInput } from "@/components/searchParamInput/SearchParamInput";
 
-import { AddStorageProvider } from './AddStorageProvider';
-import styles from './StorageProvidersPage.module.css';
-import { StorageProvidersTable } from './StorageProvidersTable';
+import { AddStorageProvider } from "./AddStorageProvider";
+import styles from "./StorageProvidersPage.module.css";
+import { StorageProvidersTable } from "./StorageProvidersTable";
 
-export const StorageProvidersPage = () => {
+export function StorageProvidersPage() {
   const queryRef = useLoaderData() as StorageProvidersLoader;
 
   return (
     <>
       <header className={styles.header}>
         <div className={styles.searchContainer}>
-          <SearchParamTextInput param='bucket' />
+          <SearchParamTextInput param="bucket" />
         </div>
         <div className={styles.toolbar}>
           <IncludeArchivedSwitch />
@@ -31,4 +31,4 @@ export const StorageProvidersPage = () => {
       </Suspense>
     </>
   );
-};
+}

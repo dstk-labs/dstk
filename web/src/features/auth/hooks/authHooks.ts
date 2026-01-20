@@ -1,10 +1,11 @@
-import { type PreloadedQueryRef, useReadQuery } from '@apollo/client';
-import { useRouteLoaderData } from 'react-router';
+import type { PreloadedQueryRef } from "@apollo/client";
+import type { GetUserQuery } from "@/graphql/types";
+import { useReadQuery } from "@apollo/client";
 
-import type { GetUserQuery } from '@/graphql/types';
+import { useRouteLoaderData } from "react-router";
 
-export const useUser = () => {
-  const queryRef = useRouteLoaderData('root') as PreloadedQueryRef<
+export function useUser() {
+  const queryRef = useRouteLoaderData("root") as PreloadedQueryRef<
     GetUserQuery,
     undefined
   >;
@@ -14,4 +15,4 @@ export const useUser = () => {
   return {
     user: data.getUser,
   };
-};
+}

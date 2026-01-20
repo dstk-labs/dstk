@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client";
 import {
   ActionIcon,
   Button,
@@ -6,14 +6,14 @@ import {
   Text,
   TextInput,
   Tooltip,
-} from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
-import { ArchiveIcon } from 'lucide-react';
-import { useState } from 'react';
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import { ArchiveIcon } from "lucide-react";
+import { useState } from "react";
 
-import { Modal } from '@/components/modal/Modal';
-import { gql } from '@/graphql';
+import { Modal } from "@/components/modal/Modal";
+import { gql } from "@/graphql";
 
 const ARCHIVE_STORAGE_PROVIDER = gql(`
   mutation ArchiveStorageProvider($providerId: String!) {
@@ -23,18 +23,18 @@ const ARCHIVE_STORAGE_PROVIDER = gql(`
   }
 `);
 
-type ArchiveStorageProvider = {
+type ArchiveStorageProviderProps = {
   bucket: string;
   isArchived: boolean;
   providerId: string;
 };
 
-export const ArchiveStorageProvider = ({
+export function ArchiveStorageProvider({
   bucket,
   isArchived,
   providerId,
-}: ArchiveStorageProvider) => {
-  const [inputValue, setInputValue] = useState('');
+}: ArchiveStorageProviderProps) {
+  const [inputValue, setInputValue] = useState("");
 
   const [archiveStorageProvider, { loading }] = useMutation(
     ARCHIVE_STORAGE_PROVIDER,
@@ -47,14 +47,14 @@ export const ArchiveStorageProvider = ({
       onCompleted: (data) => {
         notifications.show({
           message: `Successfully archived ${data.archiveStorageProvider?.bucket}`,
-          title: 'Success',
+          title: "Success",
         });
         close();
-        setInputValue('');
+        setInputValue("");
       },
       refetchQueries: [
-        'ListStorageProvidersForTable',
-        'ListStorageProvidersForSelect',
+        "ListStorageProvidersForTable",
+        "ListStorageProvidersForSelect",
       ],
       variables: {
         providerId,
@@ -67,48 +67,49 @@ export const ArchiveStorageProvider = ({
         disabled={loading}
         onClose={close}
         opened={opened}
-        size='lg'
+        size="lg"
         title={`Archive ${bucket}`}
       >
-        <Stack gap='md'>
-          <Text size='sm'>
-            This action is{' '}
-            <Text c='red' fw={500} span>
+        <Stack gap="md">
+          <Text size="sm">
+            This action is
+            {" "}
+            <Text c="red" fw={500} span>
               irreversible
             </Text>
             . Archiving this bucket will permanently prevent any further
             addition of resources.
           </Text>
           <TextInput
-            label='Please type in the name of the bucket to continue'
-            onChange={(e) => setInputValue(e.target.value)}
+            label="Please type in the name of the bucket to continue"
+            onChange={e => setInputValue(e.target.value)}
             placeholder={bucket}
             value={inputValue}
           />
           <Button
-            color='red'
+            color="red"
             disabled={inputValue !== bucket || loading}
             fullWidth
             loading={loading}
-            mt='sm'
+            mt="sm"
             onClick={() => onSubmit()}
-            radius='md'
+            radius="md"
           >
             I understand, archive this bucket
           </Button>
         </Stack>
       </Modal>
 
-      <Tooltip disabled={isArchived} label='Archive'>
+      <Tooltip disabled={isArchived} label="Archive">
         <ActionIcon
-          color='red'
+          color="red"
           disabled={isArchived}
           onClick={open}
-          variant='subtle'
+          variant="subtle"
         >
           <ArchiveIcon size={14} />
         </ActionIcon>
       </Tooltip>
     </>
   );
-};
+}

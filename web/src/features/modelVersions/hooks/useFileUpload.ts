@@ -1,12 +1,12 @@
-import { type FileWithPath } from '@mantine/dropzone';
-import { notifications } from '@mantine/notifications';
-import { useCallback, useState } from 'react';
+import type { FileWithPath } from "@mantine/dropzone";
+import type { FileProgress, FileUploadState } from "../types";
+import { notifications } from "@mantine/notifications";
 
-import { FILE_UPLOAD_STATUS, PART_SIZE } from '../constants';
-import { FileProgress, FileUploadState } from '../types';
-import { useMultipartUpload } from './useMultipartUpload';
+import { useCallback, useState } from "react";
+import { FILE_UPLOAD_STATUS, PART_SIZE } from "../constants";
+import { useMultipartUpload } from "./useMultipartUpload";
 
-export const useFileUpload = (modelVersionId: string) => {
+export function useFileUpload(modelVersionId: string) {
   const [state, setState] = useState<FileUploadState>({
     fileProgress: {},
     files: [],
@@ -25,12 +25,12 @@ export const useFileUpload = (modelVersionId: string) => {
       fileName: string,
       update: ((prev: FileProgress) => FileProgress) | Partial<FileProgress>,
     ) => {
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
         fileProgress: {
           ...prev.fileProgress,
           [fileName]:
-            typeof update === 'function'
+            typeof update === "function"
               ? update(
                   prev.fileProgress[fileName] || {
                     progress: 0,
@@ -53,10 +53,11 @@ export const useFileUpload = (modelVersionId: string) => {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         return await fn();
-      } catch (err) {
+      }
+      catch (err) {
         lastError = err;
         if (attempt < retries) {
-          await new Promise((res) => setTimeout(res, delayMs * attempt));
+          await new Promise(res => setTimeout(res, delayMs * attempt));
         }
       }
     }
@@ -65,7 +66,7 @@ export const useFileUpload = (modelVersionId: string) => {
 
   const uploadFile = useCallback(
     async (file: File) => {
-      let uploadId = '';
+      let uploadId = "";
 
       updateFileProgress(file.name, {
         progress: 0,
@@ -75,7 +76,7 @@ export const useFileUpload = (modelVersionId: string) => {
       try {
         const createResult = await createMultipartUpload(file.name);
         if (!createResult?.uploadId || !createResult?.key) {
-          throw new Error('Failed to create multipart upload');
+          throw new Error("Failed to create multipart upload");
         }
 
         uploadId = createResult.uploadId;
@@ -95,15 +96,15 @@ export const useFileUpload = (modelVersionId: string) => {
             () =>
               uploadPart(
                 file,
-                uploadId ?? '',
-                createResult.key ?? '',
+                uploadId ?? "",
+                createResult.key ?? "",
                 partNumber,
               ),
             3, // retry up to 3 times
             1000, // 1s, 2s, 3s backoff
           );
 
-          updateFileProgress(file.name, (prev) => ({
+          updateFileProgress(file.name, prev => ({
             progress: Math.min(prev.progress + 100 / partsCount, 100),
             status: FILE_UPLOAD_STATUS.UPLOADING,
           }));
@@ -120,12 +121,12 @@ export const useFileUpload = (modelVersionId: string) => {
             ): result is PromiseFulfilledResult<{
               ETag: string;
               PartNumber: number;
-            }> => result.status === 'fulfilled',
+            }> => result.status === "fulfilled",
           )
-          .map((r) => r.value);
+          .map(r => r.value);
 
         if (uploadedParts.length !== partsCount) {
-          throw new Error('Some parts failed to upload');
+          throw new Error("Some parts failed to upload");
         }
 
         await finalizeMultipartUpload(
@@ -137,18 +138,19 @@ export const useFileUpload = (modelVersionId: string) => {
           progress: 100,
           status: FILE_UPLOAD_STATUS.SUCCESS,
         });
-      } catch (error) {
+      }
+      catch (error) {
         if (uploadId) {
           await abortMultipartUpload(file.name, uploadId);
         }
 
-        updateFileProgress(file.name, (prev) => ({
+        updateFileProgress(file.name, prev => ({
           progress: prev.progress,
           status: FILE_UPLOAD_STATUS.ERROR,
         }));
 
         notifications.show({
-          color: 'red',
+          color: "red",
           message: `Upload failed for ${file.name}`,
         });
 
@@ -166,23 +168,23 @@ export const useFileUpload = (modelVersionId: string) => {
 
   const uploadAllFiles = useCallback(
     async (files: FileWithPath[]) => {
-      setState((prev) => ({ ...prev, uploading: true }));
+      setState(prev => ({ ...prev, uploading: true }));
 
-      await Promise.allSettled(files.map((file) => uploadFile(file)));
+      await Promise.allSettled(files.map(file => uploadFile(file)));
 
-      setState((prev) => ({ ...prev, uploading: false }));
+      setState(prev => ({ ...prev, uploading: false }));
     },
     [uploadFile],
   );
 
   const setFiles = useCallback((files: FileWithPath[]) => {
-    setState((prev) => ({ ...prev, files }));
+    setState(prev => ({ ...prev, files }));
   }, []);
 
   const removeFile = useCallback((filePath: string) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
-      files: prev.files.filter((f) => f.path !== filePath),
+      files: prev.files.filter(f => f.path !== filePath),
     }));
   }, []);
 
@@ -202,4 +204,4 @@ export const useFileUpload = (modelVersionId: string) => {
     uploadAllFiles,
     uploadFile,
   };
-};
+}

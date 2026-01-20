@@ -1,4 +1,5 @@
-import { useMutation } from '@apollo/client';
+import type { EditStorageProviderMutationVariables } from "@/graphql/types";
+import { useMutation } from "@apollo/client";
 import {
   ActionIcon,
   Button,
@@ -6,18 +7,17 @@ import {
   PasswordInput,
   Stack,
   Tooltip,
-} from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { useDisclosure } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
-import { EditIcon } from 'lucide-react';
-import { zod4Resolver } from 'mantine-form-zod-resolver';
-import { z } from 'zod/v4';
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import { EditIcon } from "lucide-react";
+import { zod4Resolver } from "mantine-form-zod-resolver";
 
-import type { EditStorageProviderMutationVariables } from '@/graphql/types';
+import { z } from "zod/v4";
 
-import { Modal } from '@/components/modal/Modal';
-import { gql } from '@/graphql';
+import { Modal } from "@/components/modal/Modal";
+import { gql } from "@/graphql";
 
 const EDIT_STORAGE_PROVIDER = gql(`
   mutation EditStorageProvider($data: EditStorageProviderInput!) {
@@ -28,10 +28,10 @@ const EDIT_STORAGE_PROVIDER = gql(`
 `);
 
 const editStorageProviderSchema = z.object({
-  accessKeyId: z.string().min(1, 'Required'),
-  secretAccessKey: z.string().min(1, 'Required'),
+  accessKeyId: z.string().min(1, "Required"),
+  secretAccessKey: z.string().min(1, "Required"),
 }) satisfies z.ZodType<
-  Omit<EditStorageProviderMutationVariables['data'], 'providerId'>
+  Omit<EditStorageProviderMutationVariables["data"], "providerId">
 >;
 
 type EditStorageProviderProps = {
@@ -43,12 +43,12 @@ type EditStorageProviderProps = {
 
 type EditStorageProviderSchema = z.infer<typeof editStorageProviderSchema>;
 
-export const EditStorageProvider = ({
+export function EditStorageProvider({
   bucket,
   isArchived,
   originalAccessKeyId,
   providerId,
-}: EditStorageProviderProps) => {
+}: EditStorageProviderProps) {
   const [editStorageProvider, { loading }] = useMutation(EDIT_STORAGE_PROVIDER);
 
   const [opened, { close, open }] = useDisclosure(false);
@@ -56,9 +56,9 @@ export const EditStorageProvider = ({
   const editProjectForm = useForm({
     initialValues: {
       accessKeyId: originalAccessKeyId,
-      secretAccessKey: '',
+      secretAccessKey: "",
     },
-    mode: 'uncontrolled',
+    mode: "uncontrolled",
     validate: zod4Resolver(editStorageProviderSchema),
   });
 
@@ -67,13 +67,13 @@ export const EditStorageProvider = ({
       onCompleted: (data) => {
         notifications.show({
           message: `Successfully edited ${data.editStorageProvider?.bucket}`,
-          title: 'Success',
+          title: "Success",
         });
         close();
       },
       refetchQueries: [
-        'ListStorageProvidersForTable',
-        'ListStorageProvidersForSelect',
+        "ListStorageProvidersForTable",
+        "ListStorageProvidersForSelect",
       ],
       variables: {
         data: {
@@ -90,46 +90,46 @@ export const EditStorageProvider = ({
         disabled={loading}
         onClose={close}
         opened={opened}
-        size='lg'
+        size="lg"
         title={`Edit ${bucket}`}
       >
-        <form onSubmit={editProjectForm.onSubmit((values) => onSubmit(values))}>
-          <Stack gap='md'>
+        <form onSubmit={editProjectForm.onSubmit(values => onSubmit(values))}>
+          <Stack gap="md">
             <PasswordInput
               disabled={loading}
-              key={editProjectForm.key('accessKeyId')}
-              label='Access Key'
+              key={editProjectForm.key("accessKeyId")}
+              label="Access Key"
               withAsterisk
-              {...editProjectForm.getInputProps('accessKeyId')}
+              {...editProjectForm.getInputProps("accessKeyId")}
             />
 
             <PasswordInput
               disabled={loading}
-              key={editProjectForm.key('secretAccessKey')}
-              label='Secret Access Key'
+              key={editProjectForm.key("secretAccessKey")}
+              label="Secret Access Key"
               withAsterisk
-              {...editProjectForm.getInputProps('secretAccessKey')}
+              {...editProjectForm.getInputProps("secretAccessKey")}
             />
           </Stack>
 
-          <Flex align='center' justify='end' mt='xl'>
-            <Button color='blue' loading={loading} radius='md' type='submit'>
+          <Flex align="center" justify="end" mt="xl">
+            <Button color="blue" loading={loading} radius="md" type="submit">
               Submit
             </Button>
           </Flex>
         </form>
       </Modal>
 
-      <Tooltip disabled={isArchived} label='Edit'>
+      <Tooltip disabled={isArchived} label="Edit">
         <ActionIcon
-          color='blue'
+          color="blue"
           disabled={isArchived}
           onClick={open}
-          variant='subtle'
+          variant="subtle"
         >
           <EditIcon size={14} />
         </ActionIcon>
       </Tooltip>
     </>
   );
-};
+}

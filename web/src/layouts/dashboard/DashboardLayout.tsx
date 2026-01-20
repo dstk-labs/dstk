@@ -1,19 +1,19 @@
-import { AppShell, Box, Burger, Group, LoadingOverlay } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { useState } from 'react';
-import { Navigate, Outlet } from 'react-router';
+import { AppShell, Box, Burger, Group, LoadingOverlay } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { useState } from "react";
+import { Navigate, Outlet } from "react-router";
 
-import { paths } from '@/config/paths';
-import { useUser } from '@/features/auth/hooks/authHooks';
+import { paths } from "@/config/paths";
+import { useUser } from "@/features/auth/hooks/authHooks";
 
-import { DashboardBreadcrumbs } from './DashboardBreadcrumbs';
-import styles from './DashboardLayout.module.css';
-import { DashboardNavigation } from './DashboardNavigation';
-import { DashboardToolbar } from './DashboardToolbar';
-import { TeamSelect } from './TeamSelect';
-import { UserButton } from './UserButton';
+import { DashboardBreadcrumbs } from "./DashboardBreadcrumbs";
+import styles from "./DashboardLayout.module.css";
+import { DashboardNavigation } from "./DashboardNavigation";
+import { DashboardToolbar } from "./DashboardToolbar";
+import { TeamSelect } from "./TeamSelect";
+import { UserButton } from "./UserButton";
 
-export const DashboardLayout = () => {
+export function DashboardLayout() {
   const { user } = useUser();
 
   const [opened, { toggle }] = useDisclosure();
@@ -24,30 +24,30 @@ export const DashboardLayout = () => {
   }
 
   return (
-    <Box pos='relative'>
+    <Box pos="relative">
       <LoadingOverlay
-        overlayProps={{ blur: 2, radius: 'sm' }}
+        overlayProps={{ blur: 2, radius: "sm" }}
         visible={visible}
         zIndex={1000}
       />
       <AppShell
         header={{ height: 71 }}
-        layout='alt'
+        layout="alt"
         navbar={{
-          breakpoint: 'md',
+          breakpoint: "md",
           collapsed: { mobile: !opened },
           width: 300,
         }}
-        padding='md'
+        padding="md"
       >
         <AppShell.Header>
-          <Group h='100%' justify='space-between' px='md'>
+          <Group h="100%" justify="space-between" px="md">
             <Group>
               <Burger
-                hiddenFrom='md'
+                hiddenFrom="md"
                 onClick={toggle}
                 opened={opened}
-                size='sm'
+                size="sm"
               />
               <DashboardBreadcrumbs />
             </Group>
@@ -63,9 +63,9 @@ export const DashboardLayout = () => {
 
           <DashboardNavigation />
 
-          <Box className={styles.footer} component='footer' hiddenFrom='md'>
+          <Box className={styles.footer} component="footer" hiddenFrom="md">
             <div className={styles.footerInner}>
-              <Burger onClick={toggle} opened={opened} size='sm' />
+              <Burger onClick={toggle} opened={opened} size="sm" />
             </div>
           </Box>
         </AppShell.Navbar>
@@ -75,4 +75,4 @@ export const DashboardLayout = () => {
       </AppShell>
     </Box>
   );
-};
+}

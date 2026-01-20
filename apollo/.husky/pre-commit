@@ -1,1 +1,1 @@
-cd ./apollo && pnpm dlx lint-staged
+cd ./apollo && pnpm exec lint-staged

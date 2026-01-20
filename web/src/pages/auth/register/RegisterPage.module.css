@@ -1,35 +1,35 @@
 .main {
-    display: flex; 
-    flex-direction: column; 
-    gap: 1.25rem; 
-    justify-content: center; 
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  justify-content: center;
 }
 
 .titleWrapper {
-    display: flex;
-    flex-direction: column;
-    margin-top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.25rem;
 }
 
 .title {
-    font-size: 1.25rem;
-    line-height: 1.75rem; 
-    font-weight: 600; 
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
 
-    @media (min-width: 640px) { 
-        font-size: 1.5rem;
-        line-height: 2rem; 
-    }
+  @media (min-width: 640px) {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
 }
 
 .subtitle {
-    color: var(--mantine-color-dimmed);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+  color: var(--mantine-color-dimmed);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 .login {
-    color: var(--mantine-color-dimmed);
-    font-size: var(--mantine-font-size-sm);
-    margin-top: 5px;
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-sm);
+  margin-top: 5px;
 }
