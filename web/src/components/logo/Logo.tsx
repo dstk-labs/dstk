@@ -1,7 +1,8 @@
-import { Image, type ImageProps } from '@mantine/core';
+import type { ImageProps } from "@mantine/core";
+import { Image } from "@mantine/core";
 
-type LogoProps = Omit<ImageProps, 'src'>;
+type LogoProps = Omit<ImageProps, "src">;
 
-export const Logo = ({ ...props }: LogoProps) => {
-  return <Image src='/images/dstkLogoInverted.png' {...props} />;
-};
+export function Logo({ ...props }: LogoProps) {
+  return <Image src="/images/dstkLogoInverted.png" {...props} />;
+}

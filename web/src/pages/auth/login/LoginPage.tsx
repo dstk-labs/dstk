@@ -1,4 +1,5 @@
-import { useMutation } from '@apollo/client';
+import type { LoginInput } from "@/graphql/types";
+import { useMutation } from "@apollo/client";
 import {
   Button,
   Checkbox,
@@ -8,22 +9,21 @@ import {
   Text,
   TextInput,
   Title,
-} from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { zod4Resolver } from 'mantine-form-zod-resolver';
-import { z } from 'zod/v4';
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { zod4Resolver } from "mantine-form-zod-resolver";
 
-import type { LoginInput } from '@/graphql/types';
+import { z } from "zod/v4";
 
-import { Anchor } from '@/components/anchor/Anchor';
-import { GithubIcon } from '@/components/icons/github/GithubIcon';
-import { GoogleIcon } from '@/components/icons/google/GoogleIcon';
-import { paths } from '@/config/paths';
-import { GET_USER } from '@/features/auth/loaders/authLoader';
-import { LIST_TEAMS_FOR_DROPDOWN } from '@/features/teams/loaders/teamsLoader';
-import { gql } from '@/graphql';
+import { Anchor } from "@/components/anchor/Anchor";
+import { GithubIcon } from "@/components/icons/github/GithubIcon";
+import { GoogleIcon } from "@/components/icons/google/GoogleIcon";
+import { paths } from "@/config/paths";
+import { GET_USER } from "@/features/auth/loaders/authLoader";
+import { LIST_TEAMS_FOR_DROPDOWN } from "@/features/teams/loaders/teamsLoader";
+import { gql } from "@/graphql";
 
-import styles from './LoginPage.module.css';
+import styles from "./LoginPage.module.css";
 
 const LOGIN = gql(`
     mutation Login($data: LoginInput!) {
@@ -34,25 +34,25 @@ const LOGIN = gql(`
 const loginSchema = z.object({
   email: z
     .email({
-      error: 'Please enter a valid email',
+      error: "Please enter a valid email",
     })
-    .min(1, 'Required'),
-  password: z.string().min(1, 'Required'),
-  rememberMe: z.boolean({ message: 'Required' }),
+    .min(1, "Required"),
+  password: z.string().min(1, "Required"),
+  rememberMe: z.boolean({ message: "Required" }),
 }) satisfies z.ZodType<LoginInput>;
 
 type LoginSchema = z.infer<typeof loginSchema>;
 
-export const LoginPage = () => {
+export function LoginPage() {
   const [login, { loading }] = useMutation(LOGIN);
 
   const loginForm = useForm({
     initialValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
       rememberMe: false,
     },
-    mode: 'uncontrolled',
+    mode: "uncontrolled",
     validate: zod4Resolver(loginSchema),
   });
 
@@ -78,7 +78,7 @@ export const LoginPage = () => {
           disabled={loading}
           fullWidth
           leftSection={<GoogleIcon height={16} width={17} />}
-          variant='default'
+          variant="default"
         >
           Sign in with Google
         </Button>
@@ -86,54 +86,55 @@ export const LoginPage = () => {
           disabled={loading}
           fullWidth
           leftSection={<GithubIcon height={16} width={17} />}
-          variant='default'
+          variant="default"
         >
           Sign in with Github
         </Button>
       </div>
 
-      <Divider label='OR' labelPosition='center' />
+      <Divider label="OR" labelPosition="center" />
 
-      <form onSubmit={loginForm.onSubmit((values) => onSubmit(values))}>
+      <form onSubmit={loginForm.onSubmit(values => onSubmit(values))}>
         <TextInput
           disabled={loading}
-          key={loginForm.key('email')}
-          label='Email'
-          placeholder='you@dstk.org'
+          key={loginForm.key("email")}
+          label="Email"
+          placeholder="you@dstk.org"
           withAsterisk
-          {...loginForm.getInputProps('email')}
+          {...loginForm.getInputProps("email")}
         />
         <PasswordInput
           disabled={loading}
-          key={loginForm.key('password')}
-          label='Password'
-          mt='md'
-          placeholder='Shhhhhhh'
+          key={loginForm.key("password")}
+          label="Password"
+          mt="md"
+          placeholder="Shhhhhhh"
           withAsterisk
-          {...loginForm.getInputProps('password')}
+          {...loginForm.getInputProps("password")}
         />
-        <Group justify='space-between' mt='lg'>
+        <Group justify="space-between" mt="lg">
           <Checkbox
             disabled={loading}
-            key={loginForm.key('rememberMe')}
-            label='Remember me'
-            {...loginForm.getInputProps('rememberMe', { type: 'checkbox' })}
+            key={loginForm.key("rememberMe")}
+            label="Remember me"
+            {...loginForm.getInputProps("rememberMe", { type: "checkbox" })}
           />
-          <Anchor component='button' disabled={loading} size='sm'>
+          <Anchor component="button" disabled={loading} size="sm">
             Forgot password?
           </Anchor>
         </Group>
-        <Button fullWidth loading={loading} mt='xl' type='submit'>
+        <Button fullWidth loading={loading} mt="xl" type="submit">
           Sign in
         </Button>
       </form>
 
       <Text className={styles.signUp}>
-        New to DSTK?{' '}
-        <Anchor size='sm' to={paths.auth.register.path}>
+        New to DSTK?
+        {" "}
+        <Anchor size="sm" to={paths.auth.register.path}>
           Create account
         </Anchor>
       </Text>
     </div>
   );
-};
+}

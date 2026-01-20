@@ -22,8 +22,8 @@ spec:
         - name: dstk-web
           image: dstk-web
           env:
-          - name: VITE_APP_API_URL
-            value: http://dstk-apollo:4000/graphql
+            - name: VITE_APP_API_URL
+              value: http://dstk-apollo:4000/graphql
           ports:
             - containerPort: 5173
 

@@ -4,14 +4,14 @@ import {
   createQueryPreloader,
   from,
   InMemoryCache,
-} from '@apollo/client';
-import { onError } from '@apollo/client/link/error';
-import { notifications } from '@mantine/notifications';
+} from "@apollo/client";
+import { onError } from "@apollo/client/link/error";
+import { notifications } from "@mantine/notifications";
 
-import { API_URL } from '../config/env';
+import { API_URL } from "../config/env";
 
 const httpLink = createHttpLink({
-  credentials: 'include',
+  credentials: "include",
   uri: API_URL,
 });
 
@@ -19,18 +19,18 @@ const httpLink = createHttpLink({
 // TODO: 401 Errors should probably navigate to home
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
-    graphQLErrors.map((error) =>
+    graphQLErrors.map(error =>
       notifications.show({
-        color: 'red',
+        color: "red",
         message: error.message,
-        title: 'Error',
+        title: "Error",
       }),
     );
   }
 
   if (networkError) {
     notifications.show({
-      color: 'red',
+      color: "red",
       message: networkError.message,
       title: networkError.name,
     });

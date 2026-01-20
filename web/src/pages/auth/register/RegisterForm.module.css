@@ -1,9 +1,9 @@
 .oauthButtonWrapper {
-    display: flex; 
-    flex-direction: column; 
-    gap: 1.25rem; 
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 
-    @media (min-width: 640px) { 
-        flex-direction: row; 
-    }
+  @media (min-width: 640px) {
+    flex-direction: row;
+  }
 }

@@ -1,12 +1,12 @@
-import { type LoaderFunctionArgs } from 'react-router';
-import { z } from 'zod/v4';
+import type { LoaderFunctionArgs } from "react-router";
+import { z } from "zod/v4";
 
-import { paths } from '@/config/paths';
-import { gql } from '@/graphql';
-import { preloadQuery } from '@/lib/apollo';
-import { ensureDefaultQueryParams } from '@/lib/ensureDefaultQueryParams';
-import { parseQueryParams } from '@/lib/parseQueryParams';
-import { limitSchema, useLimitStore } from '@/stores/limitStore';
+import { paths } from "@/config/paths";
+import { gql } from "@/graphql";
+import { preloadQuery } from "@/lib/apollo";
+import { ensureDefaultQueryParams } from "@/lib/ensureDefaultQueryParams";
+import { parseQueryParams } from "@/lib/parseQueryParams";
+import { limitSchema, useLimitStore } from "@/stores/limitStore";
 
 export const LIST_MODEL_VERSIONS = gql(`
   query ListMLModelVersions(
@@ -49,18 +49,18 @@ export const LIST_MODEL_VERSIONS = gql(`
 const modelVersionsSchema = z.object({
   after: z.string().optional(),
   first: limitSchema,
-  includeArchived: z.string().transform((val) => val === 'true'),
+  includeArchived: z.string().transform(val => val === "true"),
 });
 
-export const modelVersionsLoader = async ({
+export async function modelVersionsLoader({
   params,
   request,
-}: LoaderFunctionArgs) => {
+}: LoaderFunctionArgs) {
   const { limit } = useLimitStore.getState();
 
   ensureDefaultQueryParams(request, {
     first: limit.toString(),
-    includeArchived: 'false',
+    includeArchived: "false",
   });
 
   const url = new URL(request.url);
@@ -82,7 +82,7 @@ export const modelVersionsLoader = async ({
       modelId: params.modelId!,
     },
   }).toPromise();
-};
+}
 
 export type ModelVersionsLoader = Awaited<
   ReturnType<typeof modelVersionsLoader>

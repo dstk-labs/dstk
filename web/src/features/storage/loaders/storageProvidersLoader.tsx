@@ -1,11 +1,11 @@
-import { type LoaderFunctionArgs } from 'react-router';
-import { z } from 'zod/v4';
+import type { LoaderFunctionArgs } from "react-router";
+import { z } from "zod/v4";
 
-import { gql } from '@/graphql';
-import { preloadQuery } from '@/lib/apollo';
-import { ensureDefaultQueryParams } from '@/lib/ensureDefaultQueryParams';
-import { parseQueryParams } from '@/lib/parseQueryParams';
-import { useTeamStore } from '@/stores/teamStore';
+import { gql } from "@/graphql";
+import { preloadQuery } from "@/lib/apollo";
+import { ensureDefaultQueryParams } from "@/lib/ensureDefaultQueryParams";
+import { parseQueryParams } from "@/lib/parseQueryParams";
+import { useTeamStore } from "@/stores/teamStore";
 
 export const LIST_STORAGE_PROVIDERS_FOR_TABLE = gql(`
   query ListStorageProvidersForTable(
@@ -31,16 +31,16 @@ export const LIST_STORAGE_PROVIDERS_FOR_TABLE = gql(`
 
 const storageProvidersLoaderSchema = z.object({
   bucket: z.string().optional(),
-  includeArchived: z.string().transform((val) => val === 'true'),
+  includeArchived: z.string().transform(val => val === "true"),
 });
 
-export const storageProvidersLoader = async ({
+export async function storageProvidersLoader({
   request,
-}: LoaderFunctionArgs) => {
+}: LoaderFunctionArgs) {
   const { selectedTeam } = useTeamStore.getState();
 
   ensureDefaultQueryParams(request, {
-    includeArchived: 'false',
+    includeArchived: "false",
   });
 
   const { ...params } = parseQueryParams(request, storageProvidersLoaderSchema);
@@ -48,7 +48,7 @@ export const storageProvidersLoader = async ({
   return preloadQuery(LIST_STORAGE_PROVIDERS_FOR_TABLE, {
     variables: { teamId: selectedTeam!, ...params },
   }).toPromise();
-};
+}
 
 export type StorageProvidersLoader = Awaited<
   ReturnType<typeof storageProvidersLoader>

@@ -1,4 +1,5 @@
-import { useMutation } from '@apollo/client';
+import type { CreateStorageProviderMutationVariables } from "@/graphql/types";
+import { useMutation } from "@apollo/client";
 import {
   Button,
   Flex,
@@ -6,19 +7,18 @@ import {
   PasswordInput,
   Stack,
   TextInput,
-} from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { useDisclosure } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
-import { zod4Resolver } from 'mantine-form-zod-resolver';
-import { z } from 'zod/v4';
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import { zod4Resolver } from "mantine-form-zod-resolver";
 
-import type { CreateStorageProviderMutationVariables } from '@/graphql/types';
+import { z } from "zod/v4";
 
-import { AwsRegionsSelect } from '@/components/awsRegionSelect/AwsRegionSelect';
-import { Modal } from '@/components/modal/Modal';
-import { gql } from '@/graphql';
-import { useTeamStore } from '@/stores/teamStore';
+import { AwsRegionsSelect } from "@/components/awsRegionSelect/AwsRegionSelect";
+import { Modal } from "@/components/modal/Modal";
+import { gql } from "@/graphql";
+import { useTeamStore } from "@/stores/teamStore";
 
 const CREATE_STORAGE_PROVIDER = gql(`
   mutation CreateStorageProvider($data: StorageProviderInput!) {
@@ -28,19 +28,19 @@ const CREATE_STORAGE_PROVIDER = gql(`
 }`);
 
 const createStorageProviderSchema = z.object({
-  accessKeyId: z.string().min(1, 'Required'),
-  bucket: z.string().min(1, 'Required'),
-  endpointUrl: z.string().min(1, 'Required'),
+  accessKeyId: z.string().min(1, "Required"),
+  bucket: z.string().min(1, "Required"),
+  endpointUrl: z.string().min(1, "Required"),
   //   TODO: Enum with literals
-  region: z.string().min(1, 'Required'),
-  secretAccessKey: z.string().min(1, 'Required'),
+  region: z.string().min(1, "Required"),
+  secretAccessKey: z.string().min(1, "Required"),
 }) satisfies z.ZodType<
-  Omit<CreateStorageProviderMutationVariables['data'], 'teamId'>
+  Omit<CreateStorageProviderMutationVariables["data"], "teamId">
 >;
 
 type CreateStorageProviderSchema = z.infer<typeof createStorageProviderSchema>;
 
-export const AddStorageProvider = () => {
+export function AddStorageProvider() {
   const { selectedTeam } = useTeamStore();
 
   const [createStorageProvider, { loading }] = useMutation(
@@ -51,13 +51,13 @@ export const AddStorageProvider = () => {
 
   const createStorageProviderForm = useForm({
     initialValues: {
-      accessKeyId: '',
-      bucket: '',
-      endpointUrl: '',
-      region: '',
-      secretAccessKey: '',
+      accessKeyId: "",
+      bucket: "",
+      endpointUrl: "",
+      region: "",
+      secretAccessKey: "",
     },
-    mode: 'uncontrolled',
+    mode: "uncontrolled",
     validate: zod4Resolver(createStorageProviderSchema),
   });
 
@@ -66,13 +66,13 @@ export const AddStorageProvider = () => {
       onCompleted: (data) => {
         notifications.show({
           message: `Successfully added ${data.createStorageProvider?.bucket}`,
-          title: 'Success',
+          title: "Success",
         });
         close();
       },
       refetchQueries: [
-        'ListStorageProvidersForTable',
-        'ListStorageProvidersForSelect',
+        "ListStorageProvidersForTable",
+        "ListStorageProvidersForSelect",
       ],
       variables: {
         data: {
@@ -92,37 +92,37 @@ export const AddStorageProvider = () => {
         disabled={loading}
         onClose={close}
         opened={opened}
-        size='lg'
-        title='Add Storage Provider'
+        size="lg"
+        title="Add Storage Provider"
       >
         <form
-          onSubmit={createStorageProviderForm.onSubmit((values) =>
+          onSubmit={createStorageProviderForm.onSubmit(values =>
             onSubmit(values),
           )}
         >
-          <Stack gap='md'>
+          <Stack gap="md">
             <TextInput
               disabled={loading}
-              key={createStorageProviderForm.key('bucket')}
-              label='Bucket Name'
+              key={createStorageProviderForm.key("bucket")}
+              label="Bucket Name"
               withAsterisk
-              {...createStorageProviderForm.getInputProps('bucket')}
+              {...createStorageProviderForm.getInputProps("bucket")}
             />
 
             {/* TODO: Stack on sm */}
             <Group grow>
               <AwsRegionsSelect
                 disabled={loading}
-                key={createStorageProviderForm.key('region')}
+                key={createStorageProviderForm.key("region")}
                 withAsterisk
-                {...createStorageProviderForm.getInputProps('region')}
+                {...createStorageProviderForm.getInputProps("region")}
               />
               <TextInput
                 disabled={loading}
-                key={createStorageProviderForm.key('endpointUrl')}
-                label='Endpoint URL'
+                key={createStorageProviderForm.key("endpointUrl")}
+                label="Endpoint URL"
                 withAsterisk
-                {...createStorageProviderForm.getInputProps('endpointUrl')}
+                {...createStorageProviderForm.getInputProps("endpointUrl")}
               />
             </Group>
 
@@ -130,23 +130,23 @@ export const AddStorageProvider = () => {
             <Group grow>
               <PasswordInput
                 disabled={loading}
-                key={createStorageProviderForm.key('accessKeyId')}
-                label='Access Key'
+                key={createStorageProviderForm.key("accessKeyId")}
+                label="Access Key"
                 withAsterisk
-                {...createStorageProviderForm.getInputProps('accessKeyId')}
+                {...createStorageProviderForm.getInputProps("accessKeyId")}
               />
               <PasswordInput
                 disabled={loading}
-                key={createStorageProviderForm.key('secretAccessKey')}
-                label='Secret Access Key'
+                key={createStorageProviderForm.key("secretAccessKey")}
+                label="Secret Access Key"
                 withAsterisk
-                {...createStorageProviderForm.getInputProps('secretAccessKey')}
+                {...createStorageProviderForm.getInputProps("secretAccessKey")}
               />
             </Group>
           </Stack>
 
-          <Flex align='center' justify='end' mt='xl'>
-            <Button color='blue' loading={loading} radius='md' type='submit'>
+          <Flex align="center" justify="end" mt="xl">
+            <Button color="blue" loading={loading} radius="md" type="submit">
               Submit
             </Button>
           </Flex>
@@ -158,4 +158,4 @@ export const AddStorageProvider = () => {
       </Button>
     </>
   );
-};
+}

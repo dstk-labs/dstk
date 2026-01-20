@@ -1,4 +1,5 @@
-import { useMutation } from '@apollo/client';
+import type { AccountInput } from "@/graphql/types";
+import { useMutation } from "@apollo/client";
 import {
   Button,
   CheckIcon,
@@ -7,24 +8,23 @@ import {
   Radio,
   Stack,
   TextInput,
-} from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { zod4Resolver } from 'mantine-form-zod-resolver';
-import { useState } from 'react';
-import { z } from 'zod/v4';
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { zod4Resolver } from "mantine-form-zod-resolver";
+import { useState } from "react";
 
-import type { AccountInput } from '@/graphql/types';
+import { z } from "zod/v4";
 
-import { GithubIcon } from '@/components/icons/github/GithubIcon';
-import { GoogleIcon } from '@/components/icons/google/GoogleIcon';
-import { GET_USER } from '@/features/auth/loaders/authLoader';
+import { GithubIcon } from "@/components/icons/github/GithubIcon";
+import { GoogleIcon } from "@/components/icons/google/GoogleIcon";
+import { GET_USER } from "@/features/auth/loaders/authLoader";
 import {
   LIST_TEAMS_FOR_DROPDOWN,
   LIST_TEAMS_FOR_TABLE,
-} from '@/features/teams/loaders/teamsLoader';
-import { gql } from '@/graphql';
+} from "@/features/teams/loaders/teamsLoader";
+import { gql } from "@/graphql";
 
-import styles from './RegisterForm.module.css';
+import styles from "./RegisterForm.module.css";
 
 const CREATE_ACCOUNT = gql(`
     mutation CreateAccount($data: AccountInput!) {
@@ -36,40 +36,40 @@ const CREATE_ACCOUNT = gql(`
 
 const passwordRules = [
   {
-    message: 'Password must be at least 12 characters long',
-    name: 'length',
+    message: "Password must be at least 12 characters long",
+    name: "length",
     test: (val: string) => val.length >= 12,
   },
   {
-    message: 'Password must include at least one lowercase letter',
-    name: 'lowercase',
+    message: "Password must include at least one lowercase letter",
+    name: "lowercase",
     test: (val: string) => /[a-z]/.test(val),
   },
   {
-    message: 'Password must include at least one uppercase letter',
-    name: 'uppercase',
+    message: "Password must include at least one uppercase letter",
+    name: "uppercase",
     test: (val: string) => /[A-Z]/.test(val),
   },
   {
-    message: 'Password must include at least one number',
-    name: 'number',
-    test: (val: string) => /[0-9]/.test(val),
+    message: "Password must include at least one number",
+    name: "number",
+    test: (val: string) => /\d/.test(val),
   },
   {
-    message: 'Password must include at least one symbol',
-    name: 'symbol',
-    test: (val: string) => /[^A-Za-z0-9]/.test(val),
+    message: "Password must include at least one symbol",
+    name: "symbol",
+    test: (val: string) => /[^A-Z0-9]/i.test(val),
   },
 ] as const;
 
 const registerSchema = z
   .object({
-    confirmPassword: z.string().min(1, 'Required'),
+    confirmPassword: z.string().min(1, "Required"),
     email: z
       .email({
-        error: 'Please enter a valid email',
+        error: "Please enter a valid email",
       })
-      .min(1, 'Required'),
+      .min(1, "Required"),
     password: passwordRules.reduce(
       (schema, rule) =>
         schema.refine(rule.test, {
@@ -77,41 +77,41 @@ const registerSchema = z
         }),
       z.string(),
     ),
-    realName: z.string().min(1, 'Required'),
-    userName: z.string().min(1, 'Required'),
+    realName: z.string().min(1, "Required"),
+    userName: z.string().min(1, "Required"),
   })
   .check((ctx) => {
     if (ctx.value.confirmPassword !== ctx.value.password) {
       ctx.issues.push({
-        code: 'custom',
+        code: "custom",
         input: ctx.value.confirmPassword,
-        message: 'Passwords must match',
+        message: "Passwords must match",
       });
     }
   }) satisfies z.ZodType<AccountInput>;
 
 type RegisterSchema = z.infer<typeof registerSchema>;
 
-export const RegisterForm = () => {
+export function RegisterForm() {
   const [register, { loading }] = useMutation(CREATE_ACCOUNT);
 
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState("");
 
   const registerForm = useForm({
     initialValues: {
-      confirmPassword: '',
-      email: '',
-      password: '',
-      realName: '',
-      userName: '',
+      confirmPassword: "",
+      email: "",
+      password: "",
+      realName: "",
+      userName: "",
     },
-    mode: 'controlled',
+    mode: "controlled",
     validate: zod4Resolver(registerSchema),
   });
 
   const getPasswordValidationState = (password: string) => {
     return Object.fromEntries(
-      passwordRules.map((rule) => [rule.name, rule.test(password)]),
+      passwordRules.map(rule => [rule.name, rule.test(password)]),
     );
   };
 
@@ -141,7 +141,7 @@ export const RegisterForm = () => {
           disabled={loading}
           fullWidth
           leftSection={<GoogleIcon height={16} width={17} />}
-          variant='default'
+          variant="default"
         >
           Register with Google
         </Button>
@@ -149,51 +149,51 @@ export const RegisterForm = () => {
           disabled={loading}
           fullWidth
           leftSection={<GithubIcon height={16} width={17} />}
-          variant='default'
+          variant="default"
         >
           Register with Github
         </Button>
       </div>
-      <form onSubmit={registerForm.onSubmit((values) => onSubmit(values))}>
+      <form onSubmit={registerForm.onSubmit(values => onSubmit(values))}>
         <TextInput
           disabled={loading}
-          key={registerForm.key('realName')}
-          label='Name'
-          placeholder='Your name'
+          key={registerForm.key("realName")}
+          label="Name"
+          placeholder="Your name"
           withAsterisk
-          {...registerForm.getInputProps('realName')}
+          {...registerForm.getInputProps("realName")}
         />
         <TextInput
           disabled={loading}
-          key={registerForm.key('userName')}
-          label='Username'
-          mt='md'
-          placeholder='Your username'
+          key={registerForm.key("userName")}
+          label="Username"
+          mt="md"
+          placeholder="Your username"
           withAsterisk
-          {...registerForm.getInputProps('userName')}
+          {...registerForm.getInputProps("userName")}
         />
-        <Divider my='lg' />
+        <Divider my="lg" />
         <TextInput
           disabled={loading}
-          key={registerForm.key('email')}
-          label='Email'
-          placeholder='you@dstk.org'
+          key={registerForm.key("email")}
+          label="Email"
+          placeholder="you@dstk.org"
           withAsterisk
-          {...registerForm.getInputProps('email')}
+          {...registerForm.getInputProps("email")}
         />
-        <Divider my='lg' />
+        <Divider my="lg" />
         <PasswordInput
           disabled={loading}
-          key={registerForm.key('password')}
-          label='Password'
-          mb='md'
-          placeholder='Shhhhhhh'
+          key={registerForm.key("password")}
+          label="Password"
+          mb="md"
+          placeholder="Shhhhhhh"
           withAsterisk
-          {...registerForm.getInputProps('password')}
+          {...registerForm.getInputProps("password")}
           onChange={(event) => {
             const val = event.currentTarget.value;
             setPassword(val);
-            registerForm.setFieldValue('password', val);
+            registerForm.setFieldValue("password", val);
           }}
           value={password}
         />
@@ -201,27 +201,27 @@ export const RegisterForm = () => {
           {passwordRules.map(({ message, name }) => (
             <Radio
               checked={passwordChecks[name]}
-              color='green'
+              color="green"
               icon={CheckIcon}
               key={name}
               label={message}
-              size='xs'
+              size="xs"
             />
           ))}
         </Stack>
         <PasswordInput
           disabled={loading}
-          key={registerForm.key('confirmPassword')}
-          label='Confirm Password'
-          mt='md'
-          placeholder='Also Shhhhhhh'
+          key={registerForm.key("confirmPassword")}
+          label="Confirm Password"
+          mt="md"
+          placeholder="Also Shhhhhhh"
           withAsterisk
-          {...registerForm.getInputProps('confirmPassword')}
+          {...registerForm.getInputProps("confirmPassword")}
         />
-        <Button fullWidth loading={loading} mt='xl' type='submit'>
+        <Button fullWidth loading={loading} mt="xl" type="submit">
           Register
         </Button>
       </form>
     </>
   );
-};
+}

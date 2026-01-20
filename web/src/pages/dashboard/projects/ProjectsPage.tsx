@@ -1,23 +1,23 @@
-import { Suspense } from 'react';
-import { useLoaderData } from 'react-router';
+import type { ProjectsLoader } from "@/features/projects/loaders/projectsLoader";
+import { Suspense } from "react";
 
-import type { ProjectsLoader } from '@/features/projects/loaders/projectsLoader';
+import { useLoaderData } from "react-router";
 
-import { IncludeArchivedSwitch } from '@/components/includeArchivedSwitch/IncludeArchivedSwitch';
-import { SearchParamTextInput } from '@/components/searchParamInput/SearchParamInput';
+import { IncludeArchivedSwitch } from "@/components/includeArchivedSwitch/IncludeArchivedSwitch";
+import { SearchParamTextInput } from "@/components/searchParamInput/SearchParamInput";
 
-import { AddProject } from './AddProject';
-import styles from './ProjectsPage.module.css';
-import { ProjectsTable } from './ProjectsTable';
+import { AddProject } from "./AddProject";
+import styles from "./ProjectsPage.module.css";
+import { ProjectsTable } from "./ProjectsTable";
 
-export const ProjectsPage = () => {
+export function ProjectsPage() {
   const queryRef = useLoaderData() as ProjectsLoader;
 
   return (
     <>
       <header className={styles.header}>
         <div className={styles.searchContainer}>
-          <SearchParamTextInput param='projectName' />
+          <SearchParamTextInput param="projectName" />
         </div>
         <div className={styles.toolbar}>
           <IncludeArchivedSwitch />
@@ -31,4 +31,4 @@ export const ProjectsPage = () => {
       </Suspense>
     </>
   );
-};
+}

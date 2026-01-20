@@ -1,40 +1,39 @@
-import { useReadQuery } from '@apollo/client';
-import { Badge, Card, Flex, Table } from '@mantine/core';
-import dayjs from 'dayjs';
-import { useNavigate } from 'react-router';
+import type { StorageProvidersLoader } from "@/features/storage/loaders/storageProvidersLoader";
+import { useReadQuery } from "@apollo/client";
+import { Badge, Card, Flex, Table } from "@mantine/core";
+import dayjs from "dayjs";
 
-import type { StorageProvidersLoader } from '@/features/storage/loaders/storageProvidersLoader';
+import { useNavigate } from "react-router";
 
-import { NoResults } from '@/components/noResults/NoResults';
-import { paths } from '@/config/paths';
+import { NoResults } from "@/components/noResults/NoResults";
+import { paths } from "@/config/paths";
 
-import { ArchiveStorageProvider } from './ArchiveStorageProvider';
-import { EditStorageProvider } from './EditStorageProvider';
-import styles from './StorageProvidersTable.module.css';
+import { ArchiveStorageProvider } from "./ArchiveStorageProvider";
+import { EditStorageProvider } from "./EditStorageProvider";
+import styles from "./StorageProvidersTable.module.css";
 
 type StorageProvidersTableProps = {
   queryRef: StorageProvidersLoader;
 };
 
-export const StorageProvidersTable = ({
+export function StorageProvidersTable({
   queryRef,
-}: StorageProvidersTableProps) => {
+}: StorageProvidersTableProps) {
   const { data } = useReadQuery(queryRef);
 
   const navigate = useNavigate();
 
-  const rows =
-    data.listStorageProviders?.map((storageProvider) => (
+  const rows
+    = data.listStorageProviders?.map(storageProvider => (
       <Table.Tr
         className={styles.tableRow}
         key={storageProvider.providerId}
         onClick={() =>
           navigate(
             paths.dashboard.storageItem.getPath(
-              storageProvider.providerId ?? '',
+              storageProvider.providerId ?? "",
             ),
-          )
-        }
+          )}
       >
         <Table.Td>{storageProvider.bucket}</Table.Td>
         <Table.Td>{storageProvider.region}</Table.Td>
@@ -42,26 +41,26 @@ export const StorageProvidersTable = ({
         <Table.Td>
           <Badge
             className={styles.badge}
-            color={storageProvider.isArchived ? 'red' : 'blue'}
+            color={storageProvider.isArchived ? "red" : "blue"}
           >
-            {storageProvider.isArchived ? 'Archived' : 'Active'}
+            {storageProvider.isArchived ? "Archived" : "Active"}
           </Badge>
         </Table.Td>
         <Table.Td>
-          {dayjs(storageProvider.dateModified).format('YYYY-MM-DD')}
+          {dayjs(storageProvider.dateModified).format("YYYY-MM-DD")}
         </Table.Td>
-        <Table.Td onClick={(e) => e.stopPropagation()}>
+        <Table.Td onClick={e => e.stopPropagation()}>
           <Flex gap={2}>
             <EditStorageProvider
-              bucket={storageProvider.bucket ?? ''}
+              bucket={storageProvider.bucket ?? ""}
               isArchived={!!storageProvider.isArchived}
-              originalAccessKeyId={storageProvider.accessKeyId ?? ''}
-              providerId={storageProvider.providerId ?? ''}
+              originalAccessKeyId={storageProvider.accessKeyId ?? ""}
+              providerId={storageProvider.providerId ?? ""}
             />
             <ArchiveStorageProvider
-              bucket={storageProvider.bucket ?? ''}
+              bucket={storageProvider.bucket ?? ""}
               isArchived={!!storageProvider.isArchived}
-              providerId={storageProvider.providerId ?? ''}
+              providerId={storageProvider.providerId ?? ""}
             />
           </Flex>
         </Table.Td>
@@ -70,8 +69,8 @@ export const StorageProvidersTable = ({
 
   return (
     <div className={styles.tableContainer}>
-      <Card bg='transparent' p={0} withBorder>
-        <Table.ScrollContainer minWidth={500} type='native'>
+      <Card bg="transparent" p={0} withBorder>
+        <Table.ScrollContainer minWidth={500} type="native">
           <Table highlightOnHover>
             <Table.Thead>
               <Table.Tr>
@@ -90,4 +89,4 @@ export const StorageProvidersTable = ({
       </Card>
     </div>
   );
-};
+}

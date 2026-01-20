@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client";
 import {
   ActionIcon,
   Button,
@@ -6,14 +6,14 @@ import {
   Text,
   TextInput,
   Tooltip,
-} from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
-import { ArchiveIcon } from 'lucide-react';
-import { useState } from 'react';
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import { ArchiveIcon } from "lucide-react";
+import { useState } from "react";
 
-import { Modal } from '@/components/modal/Modal';
-import { gql } from '@/graphql';
+import { Modal } from "@/components/modal/Modal";
+import { gql } from "@/graphql";
 
 const ARCHIVE_PROJECT = gql(`
   mutation ArchiveProject($projectId: String!) {
@@ -29,12 +29,12 @@ type ArchiveProjectProps = {
   projectName: string;
 };
 
-export const ArchiveProject = ({
+export function ArchiveProject({
   isArchived,
   projectId,
   projectName,
-}: ArchiveProjectProps) => {
-  const [inputValue, setInputValue] = useState('');
+}: ArchiveProjectProps) {
+  const [inputValue, setInputValue] = useState("");
 
   const [archiveProject, { loading }] = useMutation(ARCHIVE_PROJECT);
 
@@ -45,12 +45,12 @@ export const ArchiveProject = ({
       onCompleted: (data) => {
         notifications.show({
           message: `Successfully archived ${data.archiveProject?.name}`,
-          title: 'Success',
+          title: "Success",
         });
         close();
-        setInputValue('');
+        setInputValue("");
       },
-      refetchQueries: ['ListProjectsForTable', 'ListProjectsForSelect'],
+      refetchQueries: ["ListProjectsForTable", "ListProjectsForSelect"],
       variables: {
         projectId,
       },
@@ -62,48 +62,49 @@ export const ArchiveProject = ({
         disabled={loading}
         onClose={close}
         opened={opened}
-        size='lg'
+        size="lg"
         title={`Archive ${projectName}`}
       >
-        <Stack gap='md'>
-          <Text size='sm'>
-            This action is{' '}
-            <Text c='red' fw={500} span>
+        <Stack gap="md">
+          <Text size="sm">
+            This action is
+            {" "}
+            <Text c="red" fw={500} span>
               irreversible
             </Text>
             . Archiving this project will permanently prevent any further
             modifications or the addition of new models.
           </Text>
           <TextInput
-            label='Please type in the name of the project to continue'
-            onChange={(e) => setInputValue(e.target.value)}
+            label="Please type in the name of the project to continue"
+            onChange={e => setInputValue(e.target.value)}
             placeholder={projectName}
             value={inputValue}
           />
           <Button
-            color='red'
+            color="red"
             disabled={inputValue !== projectName || loading}
             fullWidth
             loading={loading}
-            mt='sm'
+            mt="sm"
             onClick={() => onSubmit()}
-            radius='md'
+            radius="md"
           >
             I understand, archive this project
           </Button>
         </Stack>
       </Modal>
 
-      <Tooltip disabled={isArchived} label='Archive'>
+      <Tooltip disabled={isArchived} label="Archive">
         <ActionIcon
-          color='red'
+          color="red"
           disabled={isArchived}
           onClick={open}
-          variant='subtle'
+          variant="subtle"
         >
           <ArchiveIcon size={14} />
         </ActionIcon>
       </Tooltip>
     </>
   );
-};
+}

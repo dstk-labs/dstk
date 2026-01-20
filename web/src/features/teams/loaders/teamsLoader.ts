@@ -1,11 +1,11 @@
-import type { LoaderFunctionArgs } from 'react-router';
+import type { LoaderFunctionArgs } from "react-router";
 
-import { z } from 'zod/v4';
+import { z } from "zod/v4";
 
-import { gql } from '@/graphql';
-import { preloadQuery } from '@/lib/apollo';
-import { ensureDefaultQueryParams } from '@/lib/ensureDefaultQueryParams';
-import { parseQueryParams } from '@/lib/parseQueryParams';
+import { gql } from "@/graphql";
+import { preloadQuery } from "@/lib/apollo";
+import { ensureDefaultQueryParams } from "@/lib/ensureDefaultQueryParams";
+import { parseQueryParams } from "@/lib/parseQueryParams";
 
 export const LIST_TEAMS_FOR_DROPDOWN = gql(`
   query ListTeamsForDropdown {
@@ -16,8 +16,9 @@ export const LIST_TEAMS_FOR_DROPDOWN = gql(`
   }
 `);
 
-export const teamsDropdownLoader = async () =>
-  preloadQuery(LIST_TEAMS_FOR_DROPDOWN).toPromise();
+export async function teamsDropdownLoader() {
+  return preloadQuery(LIST_TEAMS_FOR_DROPDOWN).toPromise();
+}
 
 export type TeamsDropdownLoader = Awaited<
   ReturnType<typeof teamsDropdownLoader>
@@ -36,13 +37,13 @@ export const LIST_TEAMS_FOR_TABLE = gql(`
 `);
 
 const teamsTableSchema = z.object({
-  includeArchived: z.string().transform((val) => val === 'true'),
+  includeArchived: z.string().transform(val => val === "true"),
   teamName: z.string().optional(),
 });
 
-export const teamsTableLoader = async ({ request }: LoaderFunctionArgs) => {
+export async function teamsTableLoader({ request }: LoaderFunctionArgs) {
   ensureDefaultQueryParams(request, {
-    includeArchived: 'false',
+    includeArchived: "false",
   });
 
   const { ...params } = parseQueryParams(request, teamsTableSchema);
@@ -50,6 +51,6 @@ export const teamsTableLoader = async ({ request }: LoaderFunctionArgs) => {
   return preloadQuery(LIST_TEAMS_FOR_TABLE, {
     variables: { ...params },
   }).toPromise();
-};
+}
 
 export type TeamsTableLoader = Awaited<ReturnType<typeof teamsTableLoader>>;

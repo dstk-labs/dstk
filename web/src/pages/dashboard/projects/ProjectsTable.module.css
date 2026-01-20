@@ -1,17 +1,17 @@
 .badge {
-    @mixin hover {
-        cursor: pointer;
-    }
+  @mixin hover {
+    cursor: pointer;
+  }
 }
 
 .tableContainer {
-    margin-top: 2rem;
+  margin-top: 2rem;
 }
 
 .tableRow {
-    white-space: nowrap;
-    
-    @mixin hover {
-        cursor: pointer;
-    }
+  white-space: nowrap;
+
+  @mixin hover {
+    cursor: pointer;
+  }
 }

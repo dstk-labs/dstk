@@ -1,22 +1,22 @@
-import { Switch } from '@mantine/core';
-import { useSearchParams } from 'react-router';
+import { Switch } from "@mantine/core";
+import { useSearchParams } from "react-router";
 
-export const IncludeArchivedSwitch = () => {
+export function IncludeArchivedSwitch() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const archived = searchParams.get('includeArchived') === 'true';
+  const archived = searchParams.get("includeArchived") === "true";
 
   const handleArchiveSwitch = () => {
     const next = new URLSearchParams(searchParams);
-    next.set('includeArchived', String(!archived));
+    next.set("includeArchived", String(!archived));
     setSearchParams(next, { replace: true });
   };
 
   return (
     <Switch
       checked={archived}
-      label='Include Archived'
-      labelPosition='left'
+      label="Include Archived"
+      labelPosition="left"
       onChange={handleArchiveSwitch}
     />
   );
-};
+}

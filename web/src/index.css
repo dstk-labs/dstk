@@ -3,11 +3,11 @@
 @import "@mantine/dropzone/styles.css";
 
 body {
-    background-color: var(--mantine-color-body);
-    -webkit-font-smoothing: var(--mantine-webkit-font-smoothing);
-    -moz-osx-font-smoothing: var(--mantine-moz-font-smoothing);
+  background-color: var(--mantine-color-body);
+  -webkit-font-smoothing: var(--mantine-webkit-font-smoothing);
+  -moz-osx-font-smoothing: var(--mantine-moz-font-smoothing);
 }
 
 svg {
-    flex-shrink: 0;
+  flex-shrink: 0;
 }

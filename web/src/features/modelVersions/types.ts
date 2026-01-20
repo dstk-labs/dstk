@@ -1,6 +1,6 @@
-import { type FileWithPath } from '@mantine/dropzone';
+import type { FileWithPath } from "@mantine/dropzone";
 
-import { FILE_UPLOAD_STATUS } from './constants';
+import type { FILE_UPLOAD_STATUS } from "./constants";
 
 export type FileProgress = {
   progress: number;
@@ -13,11 +13,11 @@ export type FileUploadState = {
   uploading: boolean;
 };
 
-export type FileUploadStatus =
-  (typeof FILE_UPLOAD_STATUS)[keyof typeof FILE_UPLOAD_STATUS];
+export type FileUploadStatus
+  = (typeof FILE_UPLOAD_STATUS)[keyof typeof FILE_UPLOAD_STATUS];
 
-export type MultipartUploadMethods =
-  | 'abortMultipartUpload'
-  | 'createMultipartUpload'
-  | 'finalizeMultipartUpload'
-  | 'uploadPart';
+export type MultipartUploadMethods
+  = | "abortMultipartUpload"
+    | "createMultipartUpload"
+    | "finalizeMultipartUpload"
+    | "uploadPart";

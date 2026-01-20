@@ -1,23 +1,23 @@
-import { useMutation } from '@apollo/client';
-import { Button, Flex, Group, Stack, Textarea, TextInput } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { useDisclosure } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
-import { zod4Resolver } from 'mantine-form-zod-resolver';
-import { cloneElement } from 'react';
-import { useNavigate } from 'react-router';
-import { z } from 'zod/v4';
+import type { EditModelMutationVariables } from "@/graphql/types";
+import { useMutation } from "@apollo/client";
+import { Button, Flex, Group, Stack, Textarea, TextInput } from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import { zod4Resolver } from "mantine-form-zod-resolver";
+import { cloneElement } from "react";
+import { useNavigate } from "react-router";
 
-import type { EditModelMutationVariables } from '@/graphql/types';
+import { z } from "zod/v4";
 
-import { Modal } from '@/components/modal/Modal';
-import { GET_ML_MODEL } from '@/features/models/loaders/modelLoader';
-import { ProjectsSelect } from '@/features/projects/components/ProjectsSelect';
-import { StorageProviderSelect } from '@/features/storage/components/StorageProviderSelect';
-import { gql } from '@/graphql';
-import { apolloClient } from '@/lib/apollo';
+import { Modal } from "@/components/modal/Modal";
+import { GET_ML_MODEL } from "@/features/models/loaders/modelLoader";
+import { ProjectsSelect } from "@/features/projects/components/ProjectsSelect";
+import { StorageProviderSelect } from "@/features/storage/components/StorageProviderSelect";
+import { gql } from "@/graphql";
+import { apolloClient } from "@/lib/apollo";
 
-import { LIST_MODELS } from '../loaders/modelsLoader';
+import { LIST_MODELS } from "../loaders/modelsLoader";
 
 const EDIT_MODEL = gql(`
   mutation EditModel($data: ModelInput!, $modelId: String!) {
@@ -28,11 +28,11 @@ const EDIT_MODEL = gql(`
 `);
 
 const editModelSchema = z.object({
-  description: z.string().min(1, 'Required'),
-  modelName: z.string().min(1, 'Required'),
-  projectId: z.string().min(1, 'Required'),
-  storageProviderId: z.string().min(1, 'Required'),
-}) satisfies z.ZodType<Omit<EditModelMutationVariables['data'], 'modelId'>>;
+  description: z.string().min(1, "Required"),
+  modelName: z.string().min(1, "Required"),
+  projectId: z.string().min(1, "Required"),
+  storageProviderId: z.string().min(1, "Required"),
+}) satisfies z.ZodType<Omit<EditModelMutationVariables["data"], "modelId">>;
 
 type EditModelProps = {
   isArchived: boolean;
@@ -46,7 +46,7 @@ type EditModelProps = {
 
 type EditModelSchema = z.infer<typeof editModelSchema>;
 
-export const EditModel = ({
+export function EditModel({
   isArchived,
   modelId,
   originalDescription,
@@ -54,7 +54,7 @@ export const EditModel = ({
   originalProjectId,
   originalStorageProviderId,
   trigger,
-}: EditModelProps) => {
+}: EditModelProps) {
   const navigate = useNavigate();
 
   const [editModel, { loading }] = useMutation(EDIT_MODEL);
@@ -68,7 +68,7 @@ export const EditModel = ({
       projectId: originalProjectId,
       storageProviderId: originalStorageProviderId,
     },
-    mode: 'uncontrolled',
+    mode: "uncontrolled",
     validate: zod4Resolver(editModelSchema),
   });
 
@@ -78,7 +78,7 @@ export const EditModel = ({
         editModelForm.reset();
         notifications.show({
           message: `Successfully edited ${data.editModel?.modelName}`,
-          title: 'Success',
+          title: "Success",
         });
         close();
 
@@ -110,47 +110,47 @@ export const EditModel = ({
         disabled={loading}
         onClose={close}
         opened={opened}
-        size='lg'
+        size="lg"
         title={`Edit ${originalModelName}`}
       >
-        <form onSubmit={editModelForm.onSubmit((values) => onSubmit(values))}>
-          <Stack gap='md'>
+        <form onSubmit={editModelForm.onSubmit(values => onSubmit(values))}>
+          <Stack gap="md">
             <TextInput
               disabled={loading}
-              key={editModelForm.key('modelName')}
-              label='Model Name'
+              key={editModelForm.key("modelName")}
+              label="Model Name"
               withAsterisk
-              {...editModelForm.getInputProps('modelName')}
+              {...editModelForm.getInputProps("modelName")}
             />
 
             {/* TODO: Stack on sm */}
             <Group grow>
               <StorageProviderSelect
                 disabled={loading}
-                key={editModelForm.key('storageProviderId')}
+                key={editModelForm.key("storageProviderId")}
                 withAsterisk
-                {...editModelForm.getInputProps('storageProviderId')}
+                {...editModelForm.getInputProps("storageProviderId")}
               />
               <ProjectsSelect
                 disabled={loading}
-                key={editModelForm.key('projectId')}
+                key={editModelForm.key("projectId")}
                 withAsterisk
-                {...editModelForm.getInputProps('projectId')}
+                {...editModelForm.getInputProps("projectId")}
               />
             </Group>
 
             <Textarea
               disabled={loading}
-              key={editModelForm.key('description')}
-              label='Description'
+              key={editModelForm.key("description")}
+              label="Description"
               rows={4}
               withAsterisk
-              {...editModelForm.getInputProps('description')}
+              {...editModelForm.getInputProps("description")}
             />
           </Stack>
 
-          <Flex align='center' justify='end' mt='xl'>
-            <Button color='blue' loading={loading} radius='md' type='submit'>
+          <Flex align="center" justify="end" mt="xl">
+            <Button color="blue" loading={loading} radius="md" type="submit">
               Submit
             </Button>
           </Flex>
@@ -162,4 +162,4 @@ export const EditModel = ({
       })}
     </>
   );
-};
+}

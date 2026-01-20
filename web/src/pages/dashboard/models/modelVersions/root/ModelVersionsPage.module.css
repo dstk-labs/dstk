@@ -1,71 +1,71 @@
 .header {
-    @media (min-width: 768px) { 
-        display: flex; 
-        gap: 2rem; 
-        justify-content: space-between; 
-        align-items: center; 
-    }
+  @media (min-width: 768px) {
+    display: flex;
+    gap: 2rem;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
 
 .modelActionsContainer {
-    display: flex; 
-    gap: 0.5rem; 
-    align-items: center; 
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .modelAttributesContainer {
-    display: flex; 
-    flex-direction: column;
-    gap: 0.5rem; 
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .modelHeader {
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 1rem; 
-    justify-content: space-between; 
-    align-items: flex-end; 
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
 .modelStatusContainer {
-    display: flex; 
-    gap: 1rem; 
-    align-items: center; 
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 .searchContainer {
-    width: 100%; 
+  width: 100%;
 
-    @media (min-width: 768px) { 
-        width: 50%; 
-    }
+  @media (min-width: 768px) {
+    width: 50%;
+  }
 }
 
 .toolbar {
-    display: flex; 
-    gap: 1rem;
-    margin-top: 0.5rem; 
-    flex-direction: column-reverse; 
-    justify-content: flex-end; 
-    align-items: stretch; 
-    width: 100%;
-    margin-top: 0.5rem;
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  align-items: stretch;
+  width: 100%;
+  margin-top: 0.5rem;
 
-    @media (min-width: 768px) {
-        gap: 0;
-        margin-left: 0.75rem;
-        margin-top: 0; 
-        flex-direction: row; 
-        align-items: center; 
-        width: auto; 
-    }
+  @media (min-width: 768px) {
+    gap: 0;
+    margin-left: 0.75rem;
+    margin-top: 0;
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+  }
 }
 
 .buttonContainer {
-    margin-top: 0.5rem;
+  margin-top: 0.5rem;
 
-    @media (min-width: 768px) { 
-        margin-top: 0;
-        margin-left: 0.75rem;
-    }
+  @media (min-width: 768px) {
+    margin-top: 0;
+    margin-left: 0.75rem;
+  }
 }

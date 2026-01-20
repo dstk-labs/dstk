@@ -1,6 +1,6 @@
-import { gql } from '@/graphql';
-import { GetMlModelQueryVariables } from '@/graphql/types';
-import { preloadQuery } from '@/lib/apollo';
+import type { GetMlModelQueryVariables } from "@/graphql/types";
+import { gql } from "@/graphql";
+import { preloadQuery } from "@/lib/apollo";
 
 export const GET_ML_MODEL = gql(`
   query GetMLModel($modelId: String!) {
@@ -19,10 +19,10 @@ export const GET_ML_MODEL = gql(`
   }
 `);
 
-export const modelLoader = async ({ modelId }: GetMlModelQueryVariables) => {
+export async function modelLoader({ modelId }: GetMlModelQueryVariables) {
   return preloadQuery(GET_ML_MODEL, {
     variables: { modelId },
   }).toPromise();
-};
+}
 
 export type ModelLoader = Awaited<ReturnType<typeof modelLoader>>;

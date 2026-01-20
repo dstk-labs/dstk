@@ -1,23 +1,23 @@
-import { Suspense } from 'react';
-import { useRouteLoaderData } from 'react-router';
+import type { ModelsLoader } from "@/features/models/loaders/modelsLoader";
+import { Suspense } from "react";
 
-import type { ModelsLoader } from '@/features/models/loaders/modelsLoader';
+import { useRouteLoaderData } from "react-router";
 
-import { IncludeArchivedSwitch } from '@/components/includeArchivedSwitch/IncludeArchivedSwitch';
-import { SearchParamTextInput } from '@/components/searchParamInput/SearchParamInput';
+import { IncludeArchivedSwitch } from "@/components/includeArchivedSwitch/IncludeArchivedSwitch";
+import { SearchParamTextInput } from "@/components/searchParamInput/SearchParamInput";
 
-import { AddModel } from './AddModel';
-import styles from './ModelsPage.module.css';
-import { ModelsTable } from './ModelsTable';
+import { AddModel } from "./AddModel";
+import styles from "./ModelsPage.module.css";
+import { ModelsTable } from "./ModelsTable";
 
-export const ModelsPage = () => {
-  const queryRef = useRouteLoaderData('models') as ModelsLoader;
+export function ModelsPage() {
+  const queryRef = useRouteLoaderData("models") as ModelsLoader;
 
   return (
     <>
       <header className={styles.header}>
         <div className={styles.searchContainer}>
-          <SearchParamTextInput param='modelName' />
+          <SearchParamTextInput param="modelName" />
         </div>
         <div className={styles.toolbar}>
           <IncludeArchivedSwitch />
@@ -31,4 +31,4 @@ export const ModelsPage = () => {
       </Suspense>
     </>
   );
-};
+}
