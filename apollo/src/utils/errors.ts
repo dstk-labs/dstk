@@ -1,95 +1,95 @@
-type RegistryErrorName =
-    | 'ARCHIVED_PROJECT_ERROR'
-    | 'ARCHIVED_STORAGE_ERROR'
-    | 'ARCHIVED_TEAM_ERROR'
-    | 'PROVIDER_NOT_FOUND_ERROR'
-    | 'ARCHIVED_MODEL_ERROR'
-    | 'ARCHIVED_MODEL_VERSION_ERROR'
-    | 'PUBLISHED_MODEL_VERSION_ERROR'
-    | 'MISSING_UPLOAD_ID_ERROR'
-    | 'MISSING_PART_NUM_ERROR'
-    | 'MODEL_PERMISSION_ERROR'
-    | 'MULTIPART_FINALIZATION_ERROR'
-    | 'ROLE_NOT_FOUND_ERROR'
-    | 'TEAM_PERMISSION_ERROR'
-    | 'PROJECT_PERMISSION_ERROR'
-    | 'VERSION_PERMISSION_ERROR';
+type RegistryErrorName
+  = | "ARCHIVED_PROJECT_ERROR"
+    | "ARCHIVED_STORAGE_ERROR"
+    | "ARCHIVED_TEAM_ERROR"
+    | "PROVIDER_NOT_FOUND_ERROR"
+    | "ARCHIVED_MODEL_ERROR"
+    | "ARCHIVED_MODEL_VERSION_ERROR"
+    | "PUBLISHED_MODEL_VERSION_ERROR"
+    | "MISSING_UPLOAD_ID_ERROR"
+    | "MISSING_PART_NUM_ERROR"
+    | "MODEL_PERMISSION_ERROR"
+    | "MULTIPART_FINALIZATION_ERROR"
+    | "ROLE_NOT_FOUND_ERROR"
+    | "TEAM_PERMISSION_ERROR"
+    | "PROJECT_PERMISSION_ERROR"
+    | "VERSION_PERMISSION_ERROR";
 
 const RegistryErrorMessages = {
-    ARCHIVED_PROJECT_ERROR: 'Projects cannot be modified once archived',
-    ARCHIVED_STORAGE_ERROR: 'New model versions cannot be added to an archived storage provider',
-    ARCHIVED_TEAM_ERROR: 'Teams cannot be modifed once archived',
-    PROVIDER_NOT_FOUND_ERROR:
+  ARCHIVED_PROJECT_ERROR: "Projects cannot be modified once archived",
+  ARCHIVED_STORAGE_ERROR: "New model versions cannot be added to an archived storage provider",
+  ARCHIVED_TEAM_ERROR: "Teams cannot be modifed once archived",
+  PROVIDER_NOT_FOUND_ERROR:
         "Either this storage provider doesn't exist or you don't have permission to take that action",
-    ARCHIVED_MODEL_ERROR: 'New model versions cannot be added to archived models',
-    ARCHIVED_MODEL_VERSION_ERROR: 'An archived model version cannot be modified',
-    PUBLISHED_MODEL_VERSION_ERROR: 'Published model versions cannot be modified',
-    MISSING_UPLOAD_ID_ERROR: 'An Upload ID must be supplied for this operation',
-    MISSING_PART_NUM_ERROR: 'A Part Number must be supplied for this operation',
-    MODEL_PERMISSION_ERROR:
+  ARCHIVED_MODEL_ERROR: "New model versions cannot be added to archived models",
+  ARCHIVED_MODEL_VERSION_ERROR: "An archived model version cannot be modified",
+  PUBLISHED_MODEL_VERSION_ERROR: "Published model versions cannot be modified",
+  MISSING_UPLOAD_ID_ERROR: "An Upload ID must be supplied for this operation",
+  MISSING_PART_NUM_ERROR: "A Part Number must be supplied for this operation",
+  MODEL_PERMISSION_ERROR:
         "Either this model doesn't exist or you don't have permission to take that action",
-    MULTIPART_FINALIZATION_ERROR:
-        'Uploaded parts and their ETags must be supplied to finalize a MPU',
-    ROLE_NOT_FOUND_ERROR:
+  MULTIPART_FINALIZATION_ERROR:
+        "Uploaded parts and their ETags must be supplied to finalize a MPU",
+  ROLE_NOT_FOUND_ERROR:
         "Either this role doesn't exist or you don't have permission to take that action",
-    TEAM_PERMISSION_ERROR:
+  TEAM_PERMISSION_ERROR:
         "Either this team doesn't exist or you don't have permission to take that action",
-    PROJECT_PERMISSION_ERROR:
+  PROJECT_PERMISSION_ERROR:
         "Either this project doesn't exist or you don't have permission to take that action",
-    VERSION_PERMISSION_ERROR:
+  VERSION_PERMISSION_ERROR:
         "Either this model version doesn't exist or you don't have permission to take that action",
 };
 
 export class RegistryOperationError extends Error {
-    name: RegistryErrorName;
-    message: string;
+  name: RegistryErrorName;
+  message: string;
 
-    constructor({ name }: { name: RegistryErrorName }) {
-        super();
-        this.name = name;
-        this.message = RegistryErrorMessages[name];
-    }
+  constructor({ name }: { name: RegistryErrorName }) {
+    super();
+    this.name = name;
+    this.message = RegistryErrorMessages[name];
+  }
 }
 
-type AccountErrorName =
-    | 'ACCOUNT_REGISTRATION_ERROR'
-    | 'USERNAME_IN_USE_ERROR'
-    | 'LOGIN_ERROR'
-    | 'DISABLED_ERROR'
-    | 'INVALID_REFRESH_TOKEN';
+type AccountErrorName
+  = | "ACCOUNT_REGISTRATION_ERROR"
+    | "USERNAME_IN_USE_ERROR"
+    | "LOGIN_ERROR"
+    | "DISABLED_ERROR"
+    | "INVALID_REFRESH_TOKEN";
 
 const AccountErrorMessages = {
-    ACCOUNT_REGISTRATION_ERROR: 'Something went wrong and we were not able to complete this action',
-    USERNAME_IN_USE_ERROR: 'An account already exists with this username',
-    LOGIN_ERROR: 'The username or password supplied was incorrect',
-    DISABLED_ERROR: 'This account has been disabled',
-    INVALID_REFRESH_TOKEN: 'The refresh token provided was invalid. Please log in again',
+  ACCOUNT_REGISTRATION_ERROR: "Something went wrong and we were not able to complete this action",
+  USERNAME_IN_USE_ERROR: "An account already exists with this username",
+  LOGIN_ERROR: "The username or password supplied was incorrect",
+  DISABLED_ERROR: "This account has been disabled",
+  INVALID_REFRESH_TOKEN: "The refresh token provided was invalid. Please log in again",
 };
 
 export class AccountError extends Error {
-    name: AccountErrorName;
-    message: string;
+  name: AccountErrorName;
+  message: string;
 
-    constructor({ name }: { name: AccountErrorName }) {
-        super();
-        this.name = name;
-        this.message = AccountErrorMessages[name];
-    }
+  constructor({ name }: { name: AccountErrorName }) {
+    super();
+    this.name = name;
+    this.message = AccountErrorMessages[name];
+  }
 }
 
-type InputErrorName = 'INVALID_LIMIT_ERROR';
+type InputErrorName = "INVALID_LIMIT_ERROR";
 
 const InputErrorMessages = {
-    INVALID_LIMIT_ERROR: 'Limit argument must be 10, 25, or 50',
+  INVALID_LIMIT_ERROR: "Limit argument must be 10, 25, or 50",
 };
 
 export class InputError extends Error {
-    name: InputErrorName;
-    message: string;
+  name: InputErrorName;
+  message: string;
 
-    constructor({ name }: { name: InputErrorName }) {
-        super();
-        this.name = name;
-        this.message = InputErrorMessages[name];
-    }
+  constructor({ name }: { name: InputErrorName }) {
+    super();
+    this.name = name;
+    this.message = InputErrorMessages[name];
+  }
 }

@@ -1,34 +1,23 @@
-import { defineConfig } from "eslint/config";
-import tsParser from "@typescript-eslint/parser";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
+import antfu from "@antfu/eslint-config";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
+export default antfu({
+  type: "app",
+  typescript: true,
+  formatters: true,
+  stylistic: {
+    indent: 2,
+    semi: true,
+    quotes: "double",
+  },
+  ignores: ["./src/db/db.d.ts"],
+}, {
+  rules: {
+    "ts/consistent-type-definitions": ["error", "type"],
+    "no-console": ["warn"],
+    "node/prefer-global/process": ["off"],
+    "node/prefer-global/buffer": ["off"],
+    "antfu/no-top-level-await": ["off"],
+    "no-new": ["off"],
+    "perfectionist/sort-imports": ["error"],
+  },
 });
-
-export default defineConfig([{
-    extends: compat.extends("plugin:@typescript-eslint/recommended"),
-
-    languageOptions: {
-        parser: tsParser,
-        ecmaVersion: 2018,
-        sourceType: "module",
-    },
-
-    ignores: ["db.d.ts"],
-
-    rules: {
-        "@typescript-eslint/no-unused-vars": ["warn", {
-            argsIgnorePattern: "^_",
-            varsIgnorePattern: "^_",
-            caughtErrorsIgnorePattern: "^_",
-        }],
-    },
-}]);

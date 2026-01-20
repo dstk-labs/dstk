@@ -1,23 +1,24 @@
-import { builder } from '../../builder.js';
-import { StorageProviderObject, type StorageProviderObjectClass } from './storageProviderObject.js';
+import type { StorageProviderObjectClass } from "./storageProviderObject.js";
+import { builder } from "../../builder.js";
+import { StorageProviderObject } from "./storageProviderObject.js";
 
 export const StorageProviderObjectEdge = builder.objectRef<StorageProviderObjectEdgeClass>(
-    'StorageProviderObjectEdge',
+  "StorageProviderObjectEdge",
 );
 
 builder.objectType(StorageProviderObjectEdge, {
-    fields: (t) => ({
-        cursor: t.exposeString('cursor'),
-        node: t.field({
-            type: StorageProviderObject,
-            async resolve(root, _args, _ctx) {
-                return root.node;
-            },
-        }),
+  fields: t => ({
+    cursor: t.exposeString("cursor"),
+    node: t.field({
+      type: StorageProviderObject,
+      async resolve(root, _args, _ctx) {
+        return root.node;
+      },
     }),
+  }),
 });
 
 export class StorageProviderObjectEdgeClass {
-    cursor!: string;
-    node!: StorageProviderObjectClass;
+  cursor!: string;
+  node!: StorageProviderObjectClass;
 }

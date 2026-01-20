@@ -1,1 +1,1 @@
-export * from './smtpMutations.js';
+export * from "./smtpMutations.js";
