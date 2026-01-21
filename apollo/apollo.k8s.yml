@@ -34,7 +34,7 @@ spec:
           image: dstk-apollo
           env:
             - name: DATABASE_URL
-              value: postgresql://postgres:postgres@dstk-postgres:5432/postgres
+              value: postgresql://postgres:postgres@dstk-postgres:5432/dstk
             - name: SMTP_HOST
               value: dstk-smtp
             - name: SMTP_PORT
