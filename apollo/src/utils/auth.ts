@@ -1,12 +1,24 @@
 import { betterAuth } from "better-auth";
 import { pool } from "../db/kysely.js";
+import { transporter } from "./smtp.js";
 
 export const auth = betterAuth({
   database: pool,
   emailAndPassword: {
     enabled: true,
   },
-  // emailVerification: { ... },
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await transporter.sendMail({
+        from: "no-reply@dstk.org",
+        to: user.email,
+        subject: "DSTK | Email Verification",
+        html: `Click the link to verify your email: http://localhost:5173/auth${url}`,
+      });
+    },
+  },
   appName: "dstk",
   user: {
     modelName: "dstk_user.user",

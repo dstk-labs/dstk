@@ -13,16 +13,17 @@ import {
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 
-import { z } from "zod/v4";
+import { useNavigate } from "react-router";
 
+import { z } from "zod/v4";
 import { Anchor } from "@/components/anchor/Anchor";
 import { GithubIcon } from "@/components/icons/github/GithubIcon";
 import { GoogleIcon } from "@/components/icons/google/GoogleIcon";
 import { paths } from "@/config/paths";
 import { GET_USER } from "@/features/auth/loaders/authLoader";
 import { LIST_TEAMS_FOR_DROPDOWN } from "@/features/teams/loaders/teamsLoader";
-import { gql } from "@/graphql";
 
+import { gql } from "@/graphql";
 import styles from "./LoginPage.module.css";
 
 const LOGIN = gql(`
@@ -45,6 +46,7 @@ type LoginSchema = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
   const [login, { loading }] = useMutation(LOGIN);
+  const navigate = useNavigate();
 
   const loginForm = useForm({
     initialValues: {
@@ -62,6 +64,7 @@ export function LoginPage() {
       variables: {
         data: { ...values },
       },
+      onCompleted: () => navigate(paths.dashboard.overview.path),
     });
 
   return (

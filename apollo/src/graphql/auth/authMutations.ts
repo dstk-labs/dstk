@@ -22,6 +22,12 @@ export const LoginInputType = builder.inputType("LoginInput", {
   }),
 });
 
+export const VerifyEmailInputType = builder.inputType("VerifyEmailInput", {
+  fields: t => ({
+    token: t.string({ required: true }),
+  }),
+});
+
 builder.mutationFields(t => ({
   createAccount: t.field({
     type: User,
@@ -78,6 +84,9 @@ builder.mutationFields(t => ({
   }),
   login: t.field({
     type: "String",
+    authScopes: {
+      anonymousRequest: true,
+    },
     args: {
       data: t.arg({ type: LoginInputType, required: true }),
     },
@@ -108,11 +117,57 @@ builder.mutationFields(t => ({
   logout: t.field({
     type: "Boolean",
     async resolve(_root, _args, ctx) {
-      const { success } = await auth.api.signOut({
+      const { headers, response } = await auth.api.signOut({
         headers: ctx.headers,
+        returnHeaders: true,
       });
 
-      return success;
+      const cookies = headers.get("set-cookie");
+      if (cookies) {
+        ctx.res.set("Set-Cookie", cookies);
+      }
+
+      return response.success;
+    },
+  }),
+  sendVerificationEmail: t.field({
+    type: "Boolean",
+    async resolve(_root, _args, ctx) {
+      try {
+        await auth.api.sendVerificationEmail({
+          headers: ctx.headers,
+          body: {
+            email: ctx.user.email,
+          },
+          returnStatus: true,
+        });
+
+        return true;
+      }
+      catch {
+        throw new AccountError({ name: "EMAIL_VERIFICATION_SEND_ERROR" });
+      }
+    },
+  }),
+  verifyEmail: t.field({
+    type: "Boolean",
+    args: {
+      data: t.arg({ type: VerifyEmailInputType, required: true }),
+    },
+    async resolve(_root, args, ctx) {
+      try {
+        await auth.api.verifyEmail({
+          headers: ctx.headers,
+          query: {
+            token: args.data.token,
+          },
+        });
+
+        return true;
+      }
+      catch {
+        throw new AccountError({ name: "EMAIL_VERIFICATION_ERROR" });
+      }
     },
   }),
 }));
