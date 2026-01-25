@@ -43,6 +43,24 @@ function createAppRouter() {
               },
               path: paths.auth.register.path,
             },
+            {
+              lazy: async () => {
+                const { VerifyPage } = await import(
+                  "./pages/auth/verify/VerifyPage",
+                );
+                return { Component: VerifyPage };
+              },
+              path: paths.auth.verify.path,
+            },
+            {
+              lazy: async () => {
+                const { VerifyEmailPage } = await import(
+                  "./pages/auth/verifyEmail/VerifyEmailPage",
+                );
+                return { Component: VerifyEmailPage };
+              },
+              path: paths.auth.verifyEmail.path,
+            },
           ],
           lazy: async () => {
             const { AuthLayout } = await import("./layouts/auth/AuthLayout");
