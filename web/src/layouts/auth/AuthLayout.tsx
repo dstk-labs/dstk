@@ -24,7 +24,7 @@ const footerLinks = [
 export function AuthLayout() {
   const { user } = useUser();
 
-  if (user && user.isEmailVerified) {
+  if (user) {
     return <Navigate to={paths.dashboard.overview.path} />;
   }
 
