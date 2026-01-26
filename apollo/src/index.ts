@@ -3,7 +3,7 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
-import { fromNodeHeaders } from "better-auth/node";
+import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import cookieparser from "cookie-parser";
 import cors from "cors";
 import express from "express";
@@ -25,6 +25,16 @@ const server = new ApolloServer({
 });
 
 await server.start();
+
+// Use better-auth rest API endpoints for OAuth callbacks
+app.use(
+  "/api/auth/callback/*",
+  cors({
+    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    credentials: true,
+  }),
+);
+app.all("/api/auth/callback/*", toNodeHandler(auth));
 
 app.use(
   "/graphql",

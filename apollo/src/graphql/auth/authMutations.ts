@@ -2,7 +2,6 @@ import { builder } from "../../builder.js";
 import { db } from "../../db/kysely.js";
 import { auth } from "../../utils/auth.js";
 import { AccountError } from "../../utils/errors.js";
-import { createTeam } from "../../utils/teamUtils.js";
 import { User } from "../user/user.js";
 
 export const AccountInputType = builder.inputType("AccountInput", {
@@ -73,12 +72,6 @@ builder.mutationFields(t => ({
         .where("dstk_user.user.id", "=", response.user.id)
         .executeTakeFirstOrThrow();
 
-      await createTeam({
-        description: `${user.user_name}'s private team. Automatically created by DSTK.`,
-        name: "Personal Team",
-        userId: user.user_id,
-      });
-
       return user;
     },
   }),
@@ -112,6 +105,32 @@ builder.mutationFields(t => ({
       ctx.res.set("Set-Cookie", cookies);
 
       return response.token;
+    },
+  }),
+  generateGoogleOAuthUrl: t.field({
+    type: "String",
+    authScopes: {
+      anonymousRequest: true,
+    },
+    args: {
+      callbackURL: t.arg.string({ required: true }),
+    },
+    async resolve(_args, args, ctx) {
+      const { response, headers } = await auth.api.signInSocial({
+        body: {
+          provider: "google",
+          callbackURL: args.callbackURL,
+        },
+        headers: ctx.headers,
+        returnHeaders: true,
+      });
+
+      const cookies = headers.get("set-cookie");
+      if (cookies) {
+        ctx.res.set("Set-Cookie", cookies);
+      }
+
+      return response.url;
     },
   }),
   logout: t.field({

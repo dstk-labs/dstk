@@ -5,6 +5,8 @@ config();
 
 const envVariables = z.object({
   DATABASE_URL: z.string(),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
   SMTP_HOST: z.string(),
   SMTP_PORT: z.coerce.number(),
 });
