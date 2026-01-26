@@ -25,6 +25,9 @@ export function AuthLayout() {
   const { user } = useUser();
 
   if (user) {
+    if (!user.isEmailVerified) {
+      return <Navigate to={paths.auth.verify.path} />;
+    }
     return <Navigate to={paths.dashboard.overview.path} />;
   }
 
