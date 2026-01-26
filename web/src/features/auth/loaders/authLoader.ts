@@ -7,6 +7,7 @@ export const GET_USER = gql(`
             userId
             image
             email
+            isEmailVerified
             realName
             userName
         }

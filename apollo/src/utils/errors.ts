@@ -56,7 +56,9 @@ type AccountErrorName
     | "USERNAME_IN_USE_ERROR"
     | "LOGIN_ERROR"
     | "DISABLED_ERROR"
-    | "INVALID_REFRESH_TOKEN";
+    | "INVALID_REFRESH_TOKEN"
+    | "EMAIL_VERIFICATION_SEND_ERROR"
+    | "EMAIL_VERIFICATION_ERROR";
 
 const AccountErrorMessages = {
   ACCOUNT_REGISTRATION_ERROR: "Something went wrong and we were not able to complete this action",
@@ -64,6 +66,8 @@ const AccountErrorMessages = {
   LOGIN_ERROR: "The username or password supplied was incorrect",
   DISABLED_ERROR: "This account has been disabled",
   INVALID_REFRESH_TOKEN: "The refresh token provided was invalid. Please log in again",
+  EMAIL_VERIFICATION_SEND_ERROR: "Failed to send verification email. Please try again",
+  EMAIL_VERIFICATION_ERROR: "Unable to verify email. The verification link may be invalid or expired",
 };
 
 export class AccountError extends Error {

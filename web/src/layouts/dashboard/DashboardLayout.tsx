@@ -23,6 +23,10 @@ export function DashboardLayout() {
     return <Navigate to={paths.auth.login.path} />;
   }
 
+  if (!user.isEmailVerified) {
+    return <Navigate to={paths.auth.verify.path} />;
+  }
+
   return (
     <Box pos="relative">
       <LoadingOverlay

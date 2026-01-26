@@ -8,6 +8,14 @@ export const paths = {
       getPath: () => "/auth/register",
       path: "/auth/register",
     },
+    verify: {
+      getPath: () => "/auth/verify",
+      path: "/auth/verify",
+    },
+    verifyEmail: {
+      getPath: () => "/auth/verify-email",
+      path: "/auth/verify-email",
+    },
   },
   dashboard: {
     deployments: {
