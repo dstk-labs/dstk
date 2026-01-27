@@ -12,17 +12,14 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-
-import { useState } from "react";
-
 import { useNavigate } from "react-router";
 import { z } from "zod/v4";
 import { Anchor } from "@/components/anchor/Anchor";
-import { GithubIcon } from "@/components/icons/github/GithubIcon";
+import { GithubIcon } from "@/components/icons/github/GitHubIcon";
 import { GoogleIcon } from "@/components/icons/google/GoogleIcon";
 import { paths } from "@/config/paths";
+import { useGoogleOAuth } from "@/features/auth/hooks/oauthHooks";
 import { GET_USER } from "@/features/auth/loaders/authLoader";
-
 import { LIST_TEAMS_FOR_DROPDOWN } from "@/features/teams/loaders/teamsLoader";
 import { gql } from "@/graphql";
 import styles from "./LoginPage.module.css";
@@ -30,12 +27,6 @@ import styles from "./LoginPage.module.css";
 const LOGIN = gql(`
     mutation Login($data: LoginInput!) {
         login(data: $data)
-    }
-`);
-
-const GENERATE_GOOGLE_OAUTH_URL = gql(`
-    mutation GenerateGoogleOAuthUrl($callbackURL: String!) {
-        generateGoogleOAuthUrl(callbackURL: $callbackURL)
     }
 `);
 
@@ -53,20 +44,10 @@ type LoginSchema = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
   const [login, { loading: loginLoading }] = useMutation(LOGIN);
-  const [generateGoogleOAuthUrl, { loading: generateGoogleOAuthUrlLoading }] = useMutation(GENERATE_GOOGLE_OAUTH_URL);
 
-  /* The GraphQL mutation completes and returns `loading: false` as soon as the
-     OAuth URL is received, but `window.location.href` takes additional time to
-     actually navigate away. This creates a UX gap where buttons re-enable and
-     loading indicators disappear even though the redirect is still happening.
+  const { redirect: loginWithGoogle, loading: googleLoading } = useGoogleOAuth();
 
-     Therefore, we track the state locally to maintain loading indicators and
-     disabled states until the browser navigation completes.
-   */
-  const [isRedirecting, setIsRedirecting] = useState(false);
-
-  const loading = loginLoading || generateGoogleOAuthUrlLoading || isRedirecting;
-
+  const loading = loginLoading || googleLoading;
   const navigate = useNavigate();
 
   const loginForm = useForm({
@@ -88,21 +69,6 @@ export function LoginPage() {
       onCompleted: () => navigate(paths.dashboard.overview.path),
     });
 
-  const handleGoogleSignin = async () => {
-    await generateGoogleOAuthUrl({
-      variables: {
-        callbackURL: `${window.location.origin}${paths.dashboard.overview.path}`,
-      },
-      onCompleted: (data) => {
-        const url = data.generateGoogleOAuthUrl;
-        if (url) {
-          setIsRedirecting(true);
-          window.location.href = url;
-        }
-      },
-    });
-  };
-
   return (
     <div className={styles.main}>
       <div className={styles.titleWrapper}>
@@ -115,7 +81,7 @@ export function LoginPage() {
       <div className={styles.oauthButtonWrapper}>
         <Button
           disabled={loading}
-          onClick={handleGoogleSignin}
+          onClick={loginWithGoogle}
           fullWidth
           leftSection={<GoogleIcon height={16} width={17} />}
           variant="default"
