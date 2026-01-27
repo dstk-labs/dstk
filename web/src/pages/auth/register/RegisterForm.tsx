@@ -12,15 +12,13 @@ import {
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { useState } from "react";
-
 import { useNavigate } from "react-router";
-
 import { z } from "zod/v4";
-import { GithubIcon } from "@/components/icons/github/GithubIcon";
+import { GithubIcon } from "@/components/icons/github/GitHubIcon";
 import { GoogleIcon } from "@/components/icons/google/GoogleIcon";
 import { paths } from "@/config/paths";
+import { useGoogleOAuth } from "@/features/auth/hooks/oauthHooks";
 import { GET_USER } from "@/features/auth/loaders/authLoader";
-
 import {
   LIST_TEAMS_FOR_DROPDOWN,
   LIST_TEAMS_FOR_TABLE,
@@ -96,8 +94,11 @@ type RegisterSchema = z.infer<typeof registerSchema>;
 
 export function RegisterForm() {
   const navigate = useNavigate();
-  const [register, { loading }] = useMutation(CREATE_ACCOUNT);
+  const [register, { loading: registerLoading }] = useMutation(CREATE_ACCOUNT);
 
+  const { redirect: registerWithGoogle, loading: googleLoading } = useGoogleOAuth();
+
+  const loading = registerLoading || googleLoading;
   const [password, setPassword] = useState("");
 
   const registerForm = useForm({
@@ -143,6 +144,7 @@ export function RegisterForm() {
       <div className={styles.oauthButtonWrapper}>
         <Button
           disabled={loading}
+          onClick={registerWithGoogle}
           fullWidth
           leftSection={<GoogleIcon height={16} width={17} />}
           variant="default"
