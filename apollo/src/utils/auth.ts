@@ -1,9 +1,27 @@
 import { betterAuth } from "better-auth";
+import { env } from "../config/env.js";
 import { pool } from "../db/kysely.js";
 import { transporter } from "./smtp.js";
+import { createTeam } from "./teamUtils.js";
 
 export const auth = betterAuth({
+  /* 🚨 NOTE 🚨
+     You must set the baseURL when using oauth providers to
+     avoid `redirect_uri_mismatch` errors.
+  */
+  baseURL: "http://localhost:4000",
   database: pool,
+  socialProviders: {
+    google: {
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      mapProfileToUser: (profile) => {
+        return {
+          user_name: profile.email.split("@")[0],
+        };
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
   },
@@ -77,6 +95,23 @@ export const auth = betterAuth({
     defaultCookieAttributes: {
       sameSite: process.env.NODE_ENV === "dev" ? "none" : "Lax",
       secure: true,
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          await createTeam({
+            description: `${user.user_name}'s private team. Automatically created by DSTK.`,
+            name: "Personal Team",
+            /* According to docs: https://www.better-auth.com/docs/concepts/database#database-hooks
+                Additional fields are supported, however full type inference for these fields isn't yet supported.
+                Improved type support is planned
+            */
+            userId: user.user_id as string,
+          });
+        },
+      },
     },
   },
 });

@@ -1,12 +1,17 @@
+# 🚨 This is a placeholder for the secret that needs to be created manually
+# Idk how you actually commit secrets stuff with k8s configs cause I'm a pleb
+# TODO: Probably throw actual important things into a secrets manager
+
 # apiVersion: v1
 # kind: Secret
 # metadata:
-#   name: storage-provider-key
+#   name: apollo-secret
 #   labels:
 #     io.kompose.service: dstk-apollo
 #     app.kubernetes.io/name: dstk-apollo
 # data:
-#   enc-key: SW1JbkRhbmdlcgo=
+#   google-client-id:
+#   google-client-secret:
 
 ---
 apiVersion: apps/v1
@@ -35,6 +40,16 @@ spec:
           env:
             - name: DATABASE_URL
               value: postgresql://postgres:postgres@dstk-postgres:5432/dstk
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: apollo-secret
+                  key: google-client-id
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: apollo-secret
+                  key: google-client-secret
             - name: SMTP_HOST
               value: dstk-smtp
             - name: SMTP_PORT
