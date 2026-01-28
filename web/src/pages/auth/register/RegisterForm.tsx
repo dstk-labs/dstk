@@ -17,7 +17,7 @@ import { z } from "zod/v4";
 import { GithubIcon } from "@/components/icons/github/GitHubIcon";
 import { GoogleIcon } from "@/components/icons/google/GoogleIcon";
 import { paths } from "@/config/paths";
-import { useGoogleOAuth } from "@/features/auth/hooks/oauthHooks";
+import { useGithubOAuth, useGoogleOAuth } from "@/features/auth/hooks/oauthHooks";
 import { GET_USER } from "@/features/auth/loaders/authLoader";
 import {
   LIST_TEAMS_FOR_DROPDOWN,
@@ -97,8 +97,9 @@ export function RegisterForm() {
   const [register, { loading: registerLoading }] = useMutation(CREATE_ACCOUNT);
 
   const { redirect: registerWithGoogle, loading: googleLoading } = useGoogleOAuth();
+  const { redirect: registerWithGithub, loading: githubLoading } = useGithubOAuth();
 
-  const loading = registerLoading || googleLoading;
+  const loading = registerLoading || googleLoading || githubLoading;
   const [password, setPassword] = useState("");
 
   const registerForm = useForm({
@@ -153,6 +154,7 @@ export function RegisterForm() {
         </Button>
         <Button
           disabled={loading}
+          onClick={registerWithGithub}
           fullWidth
           leftSection={<GithubIcon height={16} width={17} />}
           variant="default"

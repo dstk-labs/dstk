@@ -4,6 +4,10 @@ import { auth } from "../../utils/auth.js";
 import { AccountError } from "../../utils/errors.js";
 import { User } from "../user/user.js";
 
+export const OAuthProviderEnum = builder.enumType("OAuthProvider", {
+  values: ["google", "github"] as const,
+});
+
 export const AccountInputType = builder.inputType("AccountInput", {
   fields: t => ({
     userName: t.string({ required: true }),
@@ -107,18 +111,19 @@ builder.mutationFields(t => ({
       return response.token;
     },
   }),
-  generateGoogleOAuthUrl: t.field({
+  generateOAuthUrl: t.field({
     type: "String",
     authScopes: {
       anonymousRequest: true,
     },
     args: {
+      provider: t.arg({ type: OAuthProviderEnum, required: true }),
       callbackURL: t.arg.string({ required: true }),
     },
     async resolve(_args, args, ctx) {
       const { response, headers } = await auth.api.signInSocial({
         body: {
-          provider: "google",
+          provider: args.provider,
           callbackURL: args.callbackURL,
         },
         headers: ctx.headers,
@@ -126,9 +131,10 @@ builder.mutationFields(t => ({
       });
 
       const cookies = headers.get("set-cookie");
-      if (cookies) {
-        ctx.res.set("Set-Cookie", cookies);
+      if (cookies === null) {
+        throw new AccountError({ name: "LOGIN_ERROR" });
       }
+      ctx.res.set("Set-Cookie", cookies);
 
       return response.url;
     },

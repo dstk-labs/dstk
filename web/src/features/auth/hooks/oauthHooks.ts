@@ -1,24 +1,24 @@
-import type { DocumentNode } from "@apollo/client";
+import type { GenerateOAuthUrlMutationVariables } from "@/graphql/types";
 import { useMutation } from "@apollo/client";
 import { useState } from "react";
 import { paths } from "@/config/paths";
 import { gql } from "@/graphql";
 
-export const GENERATE_GOOGLE_OAUTH_URL = gql(`
-    mutation GenerateGoogleOAuthUrl($callbackURL: String!) {
-        generateGoogleOAuthUrl(callbackURL: $callbackURL)
+export const GENERATE_OAUTH_URL = gql(`
+    mutation GenerateOAuthUrl($provider: OAuthProvider!, $callbackURL: String!) {
+        generateOAuthUrl(provider: $provider, callbackURL: $callbackURL)
     }
 `);
 
 type UseOAuthRedirectOptions = {
-  mutation: DocumentNode;
+  provider: GenerateOAuthUrlMutationVariables["provider"];
 };
 
 export function useOAuthRedirect({
-  mutation,
+  provider,
 }: UseOAuthRedirectOptions) {
   const [executeMutation, { loading: mutationLoading }]
-    = useMutation<string>(mutation);
+    = useMutation<{ generateOAuthUrl: string }>(GENERATE_OAUTH_URL);
 
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -27,12 +27,12 @@ export function useOAuthRedirect({
   const redirect = async () => {
     await executeMutation({
       variables: {
-        callbackURL: `${window.location.origin}${paths.dashboard.overview}`,
+        provider,
+        callbackURL: `${window.location.origin}${paths.dashboard.overview.path}`,
       },
       onCompleted: (data) => {
-        const url = Object.values(data)[0];
         setIsRedirecting(true);
-        window.location.href = url;
+        window.location.href = data.generateOAuthUrl;
       },
     });
   };
@@ -42,6 +42,12 @@ export function useOAuthRedirect({
 
 export function useGoogleOAuth() {
   return useOAuthRedirect({
-    mutation: GENERATE_GOOGLE_OAUTH_URL,
+    provider: "google",
+  });
+}
+
+export function useGithubOAuth() {
+  return useOAuthRedirect({
+    provider: "github",
   });
 }
