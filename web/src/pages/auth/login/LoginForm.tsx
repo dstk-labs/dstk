@@ -16,7 +16,7 @@ import { Anchor } from "@/components/anchor/Anchor";
 import { GithubIcon } from "@/components/icons/github/GitHubIcon";
 import { GoogleIcon } from "@/components/icons/google/GoogleIcon";
 import { paths } from "@/config/paths";
-import { useGoogleOAuth } from "@/features/auth/hooks/oauthHooks";
+import { useGithubOAuth, useGoogleOAuth } from "@/features/auth/hooks/oauthHooks";
 import { GET_USER } from "@/features/auth/loaders/authLoader";
 import { LIST_TEAMS_FOR_DROPDOWN } from "@/features/teams/loaders/teamsLoader";
 import { gql } from "@/graphql";
@@ -44,8 +44,9 @@ export function LoginForm() {
   const [login, { loading: loginLoading }] = useMutation(LOGIN);
 
   const { redirect: loginWithGoogle, loading: googleLoading } = useGoogleOAuth();
+  const { redirect: loginWithGithub, loading: githubLoading } = useGithubOAuth();
 
-  const loading = loginLoading || googleLoading;
+  const loading = loginLoading || googleLoading || githubLoading;
   const navigate = useNavigate();
 
   const loginForm = useForm({
@@ -81,6 +82,7 @@ export function LoginForm() {
         </Button>
         <Button
           disabled={loading}
+          onClick={loginWithGithub}
           fullWidth
           leftSection={<GithubIcon height={16} width={17} />}
           variant="default"

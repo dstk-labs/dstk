@@ -27,13 +27,6 @@ const server = new ApolloServer({
 await server.start();
 
 // Use better-auth rest API endpoints for OAuth callbacks
-app.use(
-  "/api/auth/callback/*",
-  cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
-    credentials: true,
-  }),
-);
 app.all("/api/auth/callback/*", toNodeHandler(auth));
 
 app.use(

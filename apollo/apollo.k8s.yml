@@ -12,6 +12,8 @@
 # data:
 #   google-client-id:
 #   google-client-secret:
+#   github-client-id:
+#   github-client-secret:
 
 ---
 apiVersion: apps/v1
@@ -50,6 +52,16 @@ spec:
                 secretKeyRef:
                   name: apollo-secret
                   key: google-client-secret
+            - name: GITHUB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: apollo-secret
+                  key: github-client-id
+            - name: GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: apollo-secret
+                  key: github-client-secret
             - name: SMTP_HOST
               value: dstk-smtp
             - name: SMTP_PORT
