@@ -7,10 +7,12 @@ import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import cookieparser from "cookie-parser";
 import cors from "cors";
 import express from "express";
+import { env } from "./config/env.js";
 import { schema } from "./graphql/index.js";
 import { auth } from "./utils/auth.js";
 
-const PORT = 4000;
+const PORT = env.PORT;
+const corsOrigins = env.CORS_ORIGIN.split(",").map(o => o.trim());
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -32,11 +34,7 @@ app.all("/api/auth/callback/*", toNodeHandler(auth));
 app.use(
   "/graphql",
   cors<cors.CorsRequest>({
-    origin: [
-      "https://sandbox.embed.apollographql.com",
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-    ],
+    origin: corsOrigins,
     credentials: true,
   }),
   express.json(),
@@ -64,7 +62,7 @@ app.use(
         res,
         session: undefined,
         user: {
-          userId: undefined,
+          id: undefined,
         },
       };
     },
@@ -72,4 +70,5 @@ app.use(
 );
 
 await new Promise<void>(resolve => httpServer.listen({ port: PORT }, resolve));
+// eslint-disable-next-line no-console
 console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);

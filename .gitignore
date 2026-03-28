@@ -15,6 +15,7 @@
 
 # And permit certain files
 !.dockerignore
+!.env.example
 !.gitignore
 !LICENSE
 
