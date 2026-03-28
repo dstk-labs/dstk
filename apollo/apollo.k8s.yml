@@ -66,6 +66,28 @@ spec:
               value: dstk-smtp
             - name: SMTP_PORT
               value: "25"
+            - name: PORT
+              value: "4000"
+            - name: CORS_ORIGIN
+              valueFrom:
+                secretKeyRef:
+                  name: apollo-secret
+                  key: cors-origin
+            - name: BETTER_AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: apollo-secret
+                  key: better-auth-secret
+            - name: BETTER_AUTH_URL
+              valueFrom:
+                secretKeyRef:
+                  name: apollo-secret
+                  key: better-auth-url
+            - name: APP_URL
+              valueFrom:
+                secretKeyRef:
+                  name: apollo-secret
+                  key: app-url
           ports:
             - containerPort: 4000
 
