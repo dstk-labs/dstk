@@ -48,7 +48,7 @@ builder.mutationFields(t => ({
         .where(
           ({ fn }) => fn("lower", ["dstk_user.users.user_name"]),
           "=",
-          args.data.userName.toLowerCase(),
+          args.data.userName,
         )
         .executeTakeFirst();
       if (userName) {
