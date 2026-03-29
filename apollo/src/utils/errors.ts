@@ -8,12 +8,16 @@ type RegistryErrorName
     | "PUBLISHED_MODEL_VERSION_ERROR"
     | "MISSING_UPLOAD_ID_ERROR"
     | "MISSING_PART_NUM_ERROR"
+    | "MISSING_FILENAME_ERROR"
     | "MODEL_PERMISSION_ERROR"
     | "MULTIPART_FINALIZATION_ERROR"
     | "ROLE_NOT_FOUND_ERROR"
+    | "PROVIDER_PERMISSION_ERROR"
     | "TEAM_PERMISSION_ERROR"
     | "PROJECT_PERMISSION_ERROR"
-    | "VERSION_PERMISSION_ERROR";
+    | "VERSION_PERMISSION_ERROR"
+    | "MODEL_WRITE_ERROR"
+    | "MODEL_VERSION_WRITE_ERROR";
 
 const RegistryErrorMessages = {
   ARCHIVED_PROJECT_ERROR: "Projects cannot be modified once archived",
@@ -26,18 +30,23 @@ const RegistryErrorMessages = {
   PUBLISHED_MODEL_VERSION_ERROR: "Published model versions cannot be modified",
   MISSING_UPLOAD_ID_ERROR: "An Upload ID must be supplied for this operation",
   MISSING_PART_NUM_ERROR: "A Part Number must be supplied for this operation",
+  MISSING_FILENAME_ERROR: "A filename must be supplied for this operation",
   MODEL_PERMISSION_ERROR:
         "Either this model doesn't exist or you don't have permission to take that action",
   MULTIPART_FINALIZATION_ERROR:
         "Uploaded parts and their ETags must be supplied to finalize a MPU",
   ROLE_NOT_FOUND_ERROR:
         "Either this role doesn't exist or you don't have permission to take that action",
+  PROVIDER_PERMISSION_ERROR:
+        "Either this storage provider doesn't exist or you don't have permission to take that action",
   TEAM_PERMISSION_ERROR:
         "Either this team doesn't exist or you don't have permission to take that action",
   PROJECT_PERMISSION_ERROR:
         "Either this project doesn't exist or you don't have permission to take that action",
   VERSION_PERMISSION_ERROR:
         "Either this model version doesn't exist or you don't have permission to take that action",
+  MODEL_WRITE_ERROR: "Something went wrong and we were not able to save this model",
+  MODEL_VERSION_WRITE_ERROR: "Something went wrong and we were not able to save this model version",
 };
 
 export class RegistryOperationError extends Error {
@@ -56,18 +65,22 @@ type AccountErrorName
     | "USERNAME_IN_USE_ERROR"
     | "LOGIN_ERROR"
     | "DISABLED_ERROR"
+    | "FAILED_TO_CREATE_SESSION"
     | "INVALID_REFRESH_TOKEN"
     | "EMAIL_VERIFICATION_SEND_ERROR"
-    | "EMAIL_VERIFICATION_ERROR";
+    | "EMAIL_VERIFICATION_ERROR"
+    | "INVALID_SESSION_ERROR";
 
 const AccountErrorMessages = {
   ACCOUNT_REGISTRATION_ERROR: "Something went wrong and we were not able to complete this action",
   USERNAME_IN_USE_ERROR: "An account already exists with this username",
   LOGIN_ERROR: "The username or password supplied was incorrect",
   DISABLED_ERROR: "This account has been disabled",
+  FAILED_TO_CREATE_SESSION: "Failed to create a session. Please try again",
   INVALID_REFRESH_TOKEN: "The refresh token provided was invalid. Please log in again",
   EMAIL_VERIFICATION_SEND_ERROR: "Failed to send verification email. Please try again",
   EMAIL_VERIFICATION_ERROR: "Unable to verify email. The verification link may be invalid or expired",
+  INVALID_SESSION_ERROR: "Your session is invalid or has expired. Please log in again",
 };
 
 export class AccountError extends Error {
