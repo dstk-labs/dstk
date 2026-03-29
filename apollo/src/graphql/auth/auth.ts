@@ -20,9 +20,9 @@ builder.objectType(ApiKey, {
       type: User,
       async resolve(root: KyselyApiKey, _args, _ctx) {
         const result = await db
-          .selectFrom("dstk_user.user")
+          .selectFrom("dstk_user.users")
           .selectAll()
-          .where("dstk_user.user.user_id", "=", root.user_id)
+          .where("dstk_user.users.id", "=", root.user_id)
           .executeTakeFirstOrThrow();
 
         return result;
