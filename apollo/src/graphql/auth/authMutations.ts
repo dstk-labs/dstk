@@ -1,6 +1,7 @@
 import { builder } from "../../builder.js";
 import { db } from "../../db/kysely.js";
 import { auth } from "../../utils/auth.js";
+import { handleAuthCookies } from "../../utils/cookie-monster.js";
 import { AccountError } from "../../utils/errors.js";
 import { User } from "../user/user.js";
 
@@ -42,10 +43,10 @@ builder.mutationFields(t => ({
     },
     async resolve(_root, args, ctx) {
       const userName = await db
-        .selectFrom("dstk_user.user")
-        .select("dstk_user.user.user_name")
+        .selectFrom("dstk_user.users")
+        .select("dstk_user.users.user_name")
         .where(
-          ({ fn }) => fn("lower", ["dstk_user.user.user_name"]),
+          ({ fn }) => fn("lower", ["dstk_user.users.user_name"]),
           "=",
           args.data.userName,
         )
@@ -64,16 +65,12 @@ builder.mutationFields(t => ({
         },
       });
 
-      const cookies = headers.get("set-cookie");
-      if (cookies === null) {
-        throw new AccountError({ name: "ACCOUNT_REGISTRATION_ERROR" });
-      }
-      ctx.res.set("Set-Cookie", cookies);
+      await handleAuthCookies({ headers, ctx });
 
       const user = await db
-        .selectFrom("dstk_user.user")
+        .selectFrom("dstk_user.users")
         .selectAll()
-        .where("dstk_user.user.id", "=", response.user.id)
+        .where("dstk_user.users.id", "=", response.user.id)
         .executeTakeFirstOrThrow();
 
       return user;
@@ -87,7 +84,7 @@ builder.mutationFields(t => ({
     args: {
       data: t.arg({ type: LoginInputType, required: true }),
     },
-    async resolve(_args, args, ctx) {
+    async resolve(_root, args, ctx) {
       let body = {
         email: args.data.email,
         password: args.data.password,
@@ -102,11 +99,7 @@ builder.mutationFields(t => ({
         body,
       });
 
-      const cookies = headers.get("set-cookie");
-      if (cookies === null) {
-        throw new AccountError({ name: "LOGIN_ERROR" });
-      }
-      ctx.res.set("Set-Cookie", cookies);
+      await handleAuthCookies({ headers, ctx });
 
       return response.token;
     },
@@ -120,7 +113,7 @@ builder.mutationFields(t => ({
       provider: t.arg({ type: OAuthProviderEnum, required: true }),
       callbackURL: t.arg.string({ required: true }),
     },
-    async resolve(_args, args, ctx) {
+    async resolve(_root, args, ctx) {
       const { response, headers } = await auth.api.signInSocial({
         body: {
           provider: args.provider,
@@ -130,17 +123,16 @@ builder.mutationFields(t => ({
         returnHeaders: true,
       });
 
-      const cookies = headers.get("set-cookie");
-      if (cookies === null) {
-        throw new AccountError({ name: "LOGIN_ERROR" });
-      }
-      ctx.res.set("Set-Cookie", cookies);
+      await handleAuthCookies({ headers, ctx });
 
       return response.url;
     },
   }),
   logout: t.field({
     type: "Boolean",
+    authScopes: {
+      loggedIn: true,
+    },
     async resolve(_root, _args, ctx) {
       const { headers, response } = await auth.api.signOut({
         headers: ctx.headers,
@@ -157,6 +149,9 @@ builder.mutationFields(t => ({
   }),
   sendVerificationEmail: t.field({
     type: "Boolean",
+    authScopes: {
+      loggedIn: true,
+    },
     async resolve(_root, _args, ctx) {
       try {
         await auth.api.sendVerificationEmail({
