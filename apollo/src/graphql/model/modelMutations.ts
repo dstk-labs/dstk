@@ -1,7 +1,7 @@
 import { builder } from "../../builder.js";
 import { db } from "../../db/kysely.js";
+import { auth } from "../../utils/auth.js";
 import { RegistryOperationError } from "../../utils/errors.js";
-import { userHasRole } from "../../utils/rls.js";
 import { MLModel } from "./model.js";
 
 export const ModelInputType = builder.inputType("ModelInput", {
@@ -32,11 +32,19 @@ builder.mutationFields(t => ({
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
 
-        await userHasRole({
-          userId: ctx.user.user_id,
-          teamId: project.team_id,
-          roles: ["owner", "member"],
+        const { success } = await auth.api.hasPermission({
+          headers: ctx.headers,
+          body: {
+            permissions: {
+              model: ["create"],
+            },
+            organizationId: project.team_id,
+          },
         });
+
+        if (!success) {
+          throw new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" });
+        }
 
         const storageProvider = await trx
           .selectFrom("registry.storage_providers")
@@ -69,11 +77,13 @@ builder.mutationFields(t => ({
             project_id: project.project_id,
             model_name: args.data.modelName,
             description: args.data.description,
-            created_by_id: ctx.user.user_id,
-            modified_by_id: ctx.user.user_id,
+            created_by_id: ctx.user.id,
+            modified_by_id: ctx.user.id,
           })
           .returningAll()
-          .executeTakeFirst();
+          .executeTakeFirstOrThrow(
+            () => new RegistryOperationError({ name: "MODEL_WRITE_ERROR" }),
+          );
 
         return mlModel;
       });
@@ -111,11 +121,19 @@ builder.mutationFields(t => ({
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
 
-        await userHasRole({
-          userId: ctx.user.user_id,
-          teamId: project.team_id,
-          roles: ["owner", "member"],
+        const { success } = await auth.api.hasPermission({
+          headers: ctx.headers,
+          body: {
+            permissions: {
+              model: ["edit"],
+            },
+            organizationId: project.team_id,
+          },
         });
+
+        if (!success) {
+          throw new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" });
+        }
 
         const storageProvider = await trx
           .selectFrom("registry.storage_providers")
@@ -143,12 +161,16 @@ builder.mutationFields(t => ({
           .set({
             model_name: args.data.modelName,
             description: args.data.description,
+            storage_provider_id: args.data.storageProviderId,
+            project_id: args.data.projectId,
             date_modified: new Date(),
-            modified_by_id: ctx.user.user_id,
+            modified_by_id: ctx.user.id,
           })
           .where("registry.models.model_id", "=", args.modelId)
           .returningAll()
-          .executeTakeFirst();
+          .executeTakeFirstOrThrow(
+            () => new RegistryOperationError({ name: "MODEL_WRITE_ERROR" }),
+          );
 
         return result;
       });
@@ -164,7 +186,7 @@ builder.mutationFields(t => ({
     args: {
       modelId: t.arg.string({ required: true }),
     },
-    async resolve(root, args, ctx) {
+    async resolve(_root, args, ctx) {
       const results = await db.transaction().execute(async (trx) => {
         const mlModel = await trx
           .selectFrom("registry.models")
@@ -182,11 +204,19 @@ builder.mutationFields(t => ({
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
 
-        await userHasRole({
-          userId: ctx.user.user_id,
-          teamId: project.team_id,
-          roles: ["owner", "viewer"],
+        const { success } = await auth.api.hasPermission({
+          headers: ctx.headers,
+          body: {
+            permissions: {
+              model: ["archive"],
+            },
+            organizationId: project.team_id,
+          },
         });
+
+        if (!success) {
+          throw new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" });
+        }
 
         // Intentionally don't throw an error here on archived storage
         // providers. It's not unreasonable to want to mark old assets
@@ -196,11 +226,13 @@ builder.mutationFields(t => ({
           .set({
             is_archived: !mlModel.is_archived,
             date_modified: new Date(),
-            modified_by_id: ctx.user.user_id,
+            modified_by_id: ctx.user.id,
           })
           .where("registry.models.model_id", "=", args.modelId)
           .returningAll()
-          .executeTakeFirst();
+          .executeTakeFirstOrThrow(
+            () => new RegistryOperationError({ name: "MODEL_WRITE_ERROR" }),
+          );
 
         return result;
       });
