@@ -3,8 +3,8 @@ import type { RegistryModels } from "../../db/db.js";
 import { builder } from "../../builder.js";
 import { db } from "../../db/kysely.js";
 import { MLModelVersion } from "../model-version/modelVersion.js";
+import { Project } from "../project/project.js";
 import { StorageProvider } from "../storage-provider/storageProvider.js";
-import { Project } from "../user/project.js";
 import { User } from "../user/user.js";
 
 export type KyselyMLModel = Selectable<RegistryModels>;
@@ -76,9 +76,9 @@ builder.objectType(MLModel, {
       type: User,
       async resolve(root: KyselyMLModel, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.user")
+          .selectFrom("dstk_user.users")
           .selectAll()
-          .where("dstk_user.user.user_id", "=", root.created_by_id)
+          .where("dstk_user.users.id", "=", root.created_by_id)
           .executeTakeFirstOrThrow();
         return user;
       },
@@ -87,9 +87,9 @@ builder.objectType(MLModel, {
       type: User,
       async resolve(root: KyselyMLModel, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.user")
+          .selectFrom("dstk_user.users")
           .selectAll()
-          .where("dstk_user.user.user_id", "=", root.modified_by_id)
+          .where("dstk_user.users.id", "=", root.modified_by_id)
           .executeTakeFirstOrThrow();
         return user;
       },

@@ -1,7 +1,7 @@
 import { builder } from "../../builder.js";
 import { db } from "../../db/kysely.js";
 import { Encoder } from "../../utils/encoder.js";
-import { userHasRole } from "../../utils/rls.js";
+import { RegistryOperationError } from "../../utils/errors.js";
 import { MLModel } from "./model.js";
 import { MLModelConnection } from "./modelConnection.js";
 
@@ -25,83 +25,87 @@ builder.queryFields(t => ({
       teamId: t.arg.string({ required: true }),
     },
     async resolve(_root, args, ctx) {
-      const result = await db.transaction().execute(async (trx) => {
-        await userHasRole({
-          userId: ctx.user.user_id,
-          teamId: args.teamId,
-          roles: ["owner", "member", "viewer"],
-        });
+      const membership = await db
+        .selectFrom("dstk_user.members")
+        .select("dstk_user.members.id")
+        .where("dstk_user.members.user_id", "=", ctx.user.id)
+        .where("dstk_user.members.team_id", "=", args.teamId)
+        .executeTakeFirst();
 
-        const userProjects = await trx
-          .selectFrom("dstk_user.projects")
-          .select("dstk_user.projects.project_id")
-          .where("dstk_user.projects.team_id", "=", args.teamId)
-          .execute();
+      if (!membership) {
+        throw new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" });
+      }
 
-        let query = trx
-          .selectFrom("registry.models")
-          .selectAll()
-          .where(
-            "registry.models.project_id",
-            "in",
-            userProjects.map(project => project.project_id),
-          );
+      const userProjects = await db
+        .selectFrom("dstk_user.projects")
+        .select("dstk_user.projects.project_id")
+        .where("dstk_user.projects.team_id", "=", args.teamId)
+        .execute();
 
-        if (args.modelName) {
-          query = query.where(
-            "registry.models.model_name",
-            "ilike",
-            `%${args.modelName}%`,
-          );
-        }
+      let query = db
+        .selectFrom("registry.models")
+        .selectAll()
+        .where(
+          "registry.models.project_id",
+          "in",
+          userProjects.map(project => project.project_id),
+        );
 
-        if (!args.includeArchived) {
-          query = query.where(
-            "registry.models.is_archived",
-            "is",
-            false,
-          );
-        }
+      if (args.modelName) {
+        query = query.where(
+          "registry.models.model_name",
+          "ilike",
+          `%${args.modelName}%`,
+        );
+      }
 
-        if (args.after) {
-          const [id, dateCreated] = encoder.decode(args.after);
+      if (!args.includeArchived) {
+        query = query.where(
+          "registry.models.is_archived",
+          "is",
+          false,
+        );
+      }
 
-          query = query.where(({ eb, and, or }) =>
-            or([
-              eb("registry.models.date_created", ">", new Date(dateCreated)),
-              and([
-                eb("registry.models.date_created", "=", new Date(dateCreated)),
-                eb("registry.models.id", ">", Number.parseInt(id)),
-              ]),
+      if (args.after) {
+        const [id, dateCreated] = encoder.decode(args.after);
+
+        query = query.where(({ eb, and, or }) =>
+          or([
+            eb("registry.models.date_created", ">", new Date(dateCreated)),
+            and([
+              eb("registry.models.date_created", "=", new Date(dateCreated)),
+              eb("registry.models.id", ">", Number.parseInt(id)),
             ]),
-          );
-        }
+          ]),
+        );
+      }
 
-        const mlModels = await query
-          .limit(args.first + 1)
-          .orderBy(["registry.models.date_created", "registry.models.id"])
-          .execute();
+      const mlModels = await query
+        .limit(args.first + 1)
+        .orderBy("registry.models.date_created", "asc")
+        .orderBy("registry.models.id", "asc")
+        .execute();
 
-        const hasPreviousPage = !!args.after;
-        const hasNextPage = mlModels.length > 1 && mlModels.length > args.first;
+      const hasPreviousPage = !!args.after;
+      const hasNextPage = mlModels.length > args.first;
 
-        const lastResult = mlModels[mlModels.length - 2];
-        const continuationToken = hasNextPage ? encoder.encode(lastResult.id.toString(), lastResult.date_created.toISOString()) : undefined;
+      const lastResult = mlModels[mlModels.length - 2];
+      const continuationToken = hasNextPage
+        ? encoder.encode(lastResult.id.toString(), lastResult.date_created.toISOString())
+        : undefined;
 
-        return {
-          edges: mlModels.slice(0, args.first).map(mlModel => ({
-            cursor: continuationToken,
-            node: mlModel,
-          })),
-          pageInfo: {
-            hasPreviousPage,
-            hasNextPage,
-            continuationToken,
-          },
-        };
-      });
-
-      return result;
+      return {
+        edges: mlModels.slice(0, args.first).map(mlModel => ({
+          cursor: continuationToken,
+          node: mlModel,
+        })),
+        pageInfo: {
+          hasPreviousPage,
+          hasNextPage,
+          continuationToken,
+        },
+      };
     },
   }),
   getMLModel: t.field({
@@ -114,9 +118,9 @@ builder.queryFields(t => ({
     },
     async resolve(_root, args, ctx) {
       const userTeams = await db
-        .selectFrom("dstk_user.team_edges")
-        .select("dstk_user.team_edges.team_id")
-        .where("dstk_user.team_edges.user_id", "=", ctx.user.user_id)
+        .selectFrom("dstk_user.members")
+        .select("dstk_user.members.team_id")
+        .where("dstk_user.members.user_id", "=", ctx.user.id)
         .execute();
 
       const userProjects = await db
@@ -129,7 +133,7 @@ builder.queryFields(t => ({
         )
         .execute();
 
-      const mlModel = await db
+      return db
         .selectFrom("registry.models")
         .selectAll()
         .where(({ eb, and }) =>
@@ -142,9 +146,9 @@ builder.queryFields(t => ({
             eb("registry.models.model_id", "=", args.modelId),
           ]),
         )
-        .executeTakeFirst();
-
-      return mlModel;
+        .executeTakeFirstOrThrow(
+          () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
+        );
     },
   }),
 }));
