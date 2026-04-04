@@ -25,16 +25,14 @@ builder.queryFields(t => ({
       teamId: t.arg.string({ required: true }),
     },
     async resolve(_root, args, ctx) {
-      const membership = await db
+      await db
         .selectFrom("dstk_user.members")
         .select("dstk_user.members.id")
         .where("dstk_user.members.user_id", "=", ctx.user.id)
         .where("dstk_user.members.team_id", "=", args.teamId)
-        .executeTakeFirst();
-
-      if (!membership) {
-        throw new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" });
-      }
+        .executeTakeFirstOrThrow(
+          () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
+        );
 
       const userProjects = await db
         .selectFrom("dstk_user.projects")
