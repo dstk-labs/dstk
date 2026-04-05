@@ -1,7 +1,7 @@
 import { builder } from "../../builder.js";
 import { db } from "../../db/kysely.js";
+import { auth } from "../../utils/auth.js";
 import { RegistryOperationError } from "../../utils/errors.js";
-import { userHasRole } from "../../utils/rls.js";
 import {
   AbortMultipartUpload,
   CreateMultipartUpload,
@@ -86,32 +86,39 @@ builder.mutationFields(t => ({
 
         const project = await trx
           .selectFrom("dstk_user.projects")
-          .select("dstk_user.projects.team_id")
+          .select(["dstk_user.projects.team_id", "dstk_user.projects.project_id"])
           .where("dstk_user.projects.project_id", "=", parentModel.project_id)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
 
-        await userHasRole({
-          userId: ctx.user.user_id,
-          teamId: project.team_id,
-          roles: ["owner", "member"],
-        });
-
         if (parentModel.is_archived === true) {
           throw new RegistryOperationError({ name: "ARCHIVED_MODEL_ERROR" });
+        }
+
+        const { success } = await auth.api.hasPermission({
+          headers: ctx.headers,
+          body: {
+            permissions: {
+              modelVersion: ["create"],
+            },
+            organizationId: project.team_id,
+          },
+        });
+
+        if (!success) {
+          throw new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" });
         }
         const lastModelVersion = await trx
           .selectFrom("registry.model_versions")
           .select("registry.model_versions.numeric_version")
           .where("registry.model_versions.model_id", "=", args.data.modelId)
-          .orderBy("registry.model_versions.numeric_version desc")
+          .orderBy("registry.model_versions.numeric_version", "desc")
           .executeTakeFirst();
 
         const incrementedVersion = (lastModelVersion?.numeric_version || 0) + 1;
 
-        // TODO: Will add organizations to path once set up
-        const s3_prefix = `organizations/DEFAULT/teams/${project.team_id}/models/${args.data.modelId}/versions/${incrementedVersion}`;
+        const s3_prefix = `teams/${project.team_id}/projects/${project.project_id}/models/${args.data.modelId}/versions/${incrementedVersion}`;
 
         const mlModelVersion = await trx
           .insertInto("registry.model_versions")
@@ -120,7 +127,7 @@ builder.mutationFields(t => ({
             description: args.data.description,
             numeric_version: incrementedVersion,
             s3_prefix,
-            created_by_id: ctx.user.user_id,
+            created_by_id: ctx.user.id,
           })
           .returningAll()
           .executeTakeFirstOrThrow();
@@ -172,25 +179,36 @@ builder.mutationFields(t => ({
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
 
-        await userHasRole({
-          userId: ctx.user.user_id,
-          teamId: project.team_id,
-          roles: ["owner", "member"],
+        const { success } = await auth.api.hasPermission({
+          headers: ctx.headers,
+          body: {
+            permissions: {
+              modelVersion: ["edit"],
+            },
+            organizationId: project.team_id,
+          },
         });
+
+        if (!success) {
+          throw new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" });
+        }
 
         if (mlModelVersion.is_archived === true) {
           throw new RegistryOperationError({ name: "ARCHIVED_MODEL_VERSION_ERROR" });
         }
 
-        // TODO: Add Date Modified and Modified By ID
         const result = await trx
           .updateTable("registry.model_versions")
           .set({
             description: args.data.description,
+            date_modified: new Date(),
+            modified_by_id: ctx.user.id,
           })
           .where("registry.model_versions.model_version_id", "=", args.modelVersionId)
           .returningAll()
-          .executeTakeFirst();
+          .executeTakeFirstOrThrow(
+            () => new RegistryOperationError({ name: "MODEL_VERSION_WRITE_ERROR" }),
+          );
 
         return result;
       });
@@ -239,11 +257,19 @@ builder.mutationFields(t => ({
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
 
-        await userHasRole({
-          userId: ctx.user.user_id,
-          teamId: project.team_id,
-          roles: ["owner", "member"],
+        const { success } = await auth.api.hasPermission({
+          headers: ctx.headers,
+          body: {
+            permissions: {
+              modelVersion: ["publish"],
+            },
+            organizationId: project.team_id,
+          },
         });
+
+        if (!success) {
+          throw new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" });
+        }
 
         if (parentModel.is_archived === true) {
           throw new RegistryOperationError({ name: "ARCHIVED_MODEL_ERROR" });
@@ -256,6 +282,8 @@ builder.mutationFields(t => ({
           .updateTable("registry.model_versions")
           .set({
             is_finalized: true,
+            date_modified: new Date(),
+            modified_by_id: ctx.user.id,
           })
           .where("registry.model_versions.model_version_id", "=", args.modelVersionId)
           .returningAll()
@@ -307,16 +335,26 @@ builder.mutationFields(t => ({
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
 
-        await userHasRole({
-          userId: ctx.user.user_id,
-          teamId: project.team_id,
-          roles: ["owner", "member"],
+        const { success } = await auth.api.hasPermission({
+          headers: ctx.headers,
+          body: {
+            permissions: {
+              modelVersion: ["archive"],
+            },
+            organizationId: project.team_id,
+          },
         });
+
+        if (!success) {
+          throw new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" });
+        }
 
         const archivedModelVersion = await trx
           .updateTable("registry.model_versions")
           .set({
             is_archived: !mlModelVersion.is_archived,
+            date_modified: new Date(),
+            modified_by_id: ctx.user.id,
           })
           .where("registry.model_versions.model_version_id", "=", args.modelVersionId)
           .returningAll()
@@ -402,11 +440,23 @@ builder.mutationFields(t => ({
 
       // Project viewers are not granted permission to download
       // model objects because I'm feeling petty tonight
-      await userHasRole({
-        userId: ctx.user.user_id,
-        teamId: project.team_id,
-        roles: ["owner", "member"],
+      const { success } = await auth.api.hasPermission({
+        headers: ctx.headers,
+        body: {
+          permissions: {
+            modelVersion: ["download"],
+          },
+          organizationId: project.team_id,
+        },
       });
+
+      if (!success) {
+        throw new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" });
+      }
+
+      if (!args.data.filename) {
+        throw new RegistryOperationError({ name: "MISSING_FILENAME_ERROR" });
+      }
 
       const key = `${mlModelVersion.s3_prefix}/${args.data.filename}`;
 
