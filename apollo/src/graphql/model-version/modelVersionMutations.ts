@@ -56,7 +56,7 @@ export const PresignedURLInputType = builder.inputType("PresignedURLInput", {
       required: true,
       type: PresignMethod,
     }),
-    filename: t.string(),
+    filename: t.string({ required: true }),
     uploadId: t.string(),
     partNumber: t.int(),
     multipartUpload: t.field({
@@ -452,10 +452,6 @@ builder.mutationFields(t => ({
 
       if (!success) {
         throw new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" });
-      }
-
-      if (!args.data.filename) {
-        throw new RegistryOperationError({ name: "MISSING_FILENAME_ERROR" });
       }
 
       const key = `${mlModelVersion.s3_prefix}/${args.data.filename}`;
