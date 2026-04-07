@@ -33,9 +33,9 @@ builder.objectType(StorageProvider, {
       type: User,
       async resolve(root: KyselyStorageProvider, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.user")
+          .selectFrom("dstk_user.users")
           .selectAll()
-          .where("dstk_user.user.user_id", "=", root.created_by_id)
+          .where("dstk_user.users.id", "=", root.created_by_id)
           .executeTakeFirstOrThrow();
         return user;
       },
@@ -44,9 +44,9 @@ builder.objectType(StorageProvider, {
       type: User,
       async resolve(root: KyselyStorageProvider, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.user")
+          .selectFrom("dstk_user.users")
           .selectAll()
-          .where("dstk_user.user.user_id", "=", root.modified_by_id)
+          .where("dstk_user.users.id", "=", root.modified_by_id)
           .executeTakeFirstOrThrow();
         return user;
       },
@@ -55,9 +55,9 @@ builder.objectType(StorageProvider, {
       type: User,
       async resolve(root: KyselyStorageProvider, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.user")
+          .selectFrom("dstk_user.users")
           .selectAll()
-          .where("dstk_user.user.user_id", "=", root.owner_id)
+          .where("dstk_user.users.id", "=", root.owner_id)
           .executeTakeFirstOrThrow();
         return user;
       },
