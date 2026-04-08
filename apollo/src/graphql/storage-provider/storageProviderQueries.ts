@@ -1,15 +1,18 @@
 import type { Expression, SqlBool } from "kysely";
 import { builder } from "../../builder.js";
 import { db } from "../../db/kysely.js";
+import { Encoder } from "../../utils/encoder.js";
 import { RegistryOperationError } from "../../utils/errors.js";
-import { userHasRole } from "../../utils/rls.js";
 import { ListObjects } from "../../utils/s3-api.js";
 import { StorageProviderObjectConnection } from "../storage-provider/storageProviderObjectConnection.js";
 import { StorageProvider } from "./storageProvider.js";
+import { StorageProviderConnection } from "./storageProviderConnection.js";
+
+const encoder = new Encoder();
 
 builder.queryFields(t => ({
   listStorageProviders: t.field({
-    type: [StorageProvider],
+    type: StorageProviderConnection,
     authScopes: {
       loggedIn: true,
     },
@@ -17,15 +20,24 @@ builder.queryFields(t => ({
       includeArchived: t.arg.boolean({ required: true, defaultValue: false }),
       bucket: t.arg.string(),
       teamId: t.arg.string({ required: true }),
+      first: t.arg({
+        type: "Limit",
+        defaultValue: 10,
+        required: true,
+      }),
+      after: t.arg.string(),
     },
     async resolve(_root, args, ctx) {
-      await userHasRole({
-        userId: ctx.user.user_id,
-        teamId: args.teamId,
-        roles: ["owner", "member", "viewer"],
-      });
+      await db
+        .selectFrom("dstk_user.members")
+        .select("dstk_user.members.id")
+        .where("dstk_user.members.user_id", "=", ctx.user.id)
+        .where("dstk_user.members.team_id", "=", args.teamId)
+        .executeTakeFirstOrThrow(
+          () => new RegistryOperationError({ name: "PROVIDER_PERMISSION_ERROR" }),
+        );
 
-      const storageProviders = await db
+      let query = db
         .selectFrom("registry.storage_providers")
         .selectAll()
         .where((eb) => {
@@ -54,11 +66,46 @@ builder.queryFields(t => ({
           }
 
           return eb.and(statements);
-        })
-        .orderBy("registry.storage_providers.date_created")
+        });
+
+      if (args.after) {
+        const [id, dateCreated] = encoder.decode(args.after);
+
+        query = query.where(({ eb, and, or }) =>
+          or([
+            eb("registry.storage_providers.date_created", ">", new Date(dateCreated)),
+            and([
+              eb("registry.storage_providers.date_created", "=", new Date(dateCreated)),
+              eb("registry.storage_providers.id", ">", Number.parseInt(id)),
+            ]),
+          ]),
+        );
+      }
+
+      const storageProviders = await query
+        .limit(args.first + 1)
+        .orderBy("registry.storage_providers.date_created", "asc")
+        .orderBy("registry.storage_providers.id", "asc")
         .execute();
 
-      return storageProviders;
+      const hasNextPage = storageProviders.length > args.first;
+
+      const lastResult = storageProviders[storageProviders.length - 2];
+      const continuationToken = hasNextPage
+        ? encoder.encode(lastResult.id.toString(), lastResult.date_created.toISOString())
+        : undefined;
+
+      return {
+        edges: storageProviders.slice(0, args.first).map(storageProvider => ({
+          cursor: continuationToken,
+          node: storageProvider,
+        })),
+        pageInfo: {
+          hasPreviousPage: !!args.after,
+          hasNextPage,
+          continuationToken,
+        },
+      };
     },
   }),
   getStorageProvider: t.field({
@@ -78,11 +125,14 @@ builder.queryFields(t => ({
           () => new RegistryOperationError({ name: "PROVIDER_NOT_FOUND_ERROR" }),
         );
 
-      await userHasRole({
-        userId: ctx.user.user_id,
-        teamId: storageProvider.team_id,
-        roles: ["owner", "member", "viewer"],
-      });
+      await db
+        .selectFrom("dstk_user.members")
+        .select("dstk_user.members.id")
+        .where("dstk_user.members.user_id", "=", ctx.user.id)
+        .where("dstk_user.members.team_id", "=", storageProvider.team_id)
+        .executeTakeFirstOrThrow(
+          () => new RegistryOperationError({ name: "PROVIDER_PERMISSION_ERROR" }),
+        );
 
       return storageProvider;
     },
@@ -128,11 +178,14 @@ builder.queryFields(t => ({
           () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
         );
 
-      await userHasRole({
-        userId: ctx.user.user_id,
-        teamId: project.team_id,
-        roles: ["owner", "member", "viewer"],
-      });
+      await db
+        .selectFrom("dstk_user.members")
+        .select("dstk_user.members.id")
+        .where("dstk_user.members.user_id", "=", ctx.user.id)
+        .where("dstk_user.members.team_id", "=", project.team_id)
+        .executeTakeFirstOrThrow(
+          () => new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" }),
+        );
 
       const modelStorageProvider = await db
         .selectFrom("registry.storage_providers")
@@ -149,18 +202,17 @@ builder.queryFields(t => ({
       const prefix = `${modelVersion.s3_prefix}`.concat(args.prefix ? `/${args.prefix}` : "");
 
       /* If no continuation token, the s3 api will always
-               return the root directory as an object. We do not want
-               this returned to the client. */
+         return the root directory as an object. We do not want
+         this returned to the client. */
       const limit = !args.after ? args.first + 1 : args.first;
 
-      // To get Pothos and the S3 API to play nicely
-      const maxKeys = args?.after || undefined;
+      const continuationToken = args.after || undefined;
 
       const { Contents, IsTruncated, NextContinuationToken, Prefix } = await ListObjects(
         modelStorageProvider,
         limit,
         prefix,
-        maxKeys,
+        continuationToken,
       );
 
       const objects = Contents
@@ -174,11 +226,10 @@ builder.queryFields(t => ({
         : [];
 
       return {
-        edges:
-                    objects.map(object => ({
-                      cursor: NextContinuationToken ?? "",
-                      node: object,
-                    })) ?? [],
+        edges: objects.map(object => ({
+          cursor: NextContinuationToken ?? "",
+          node: object,
+        })),
         pageInfo: {
           hasPreviousPage: !!args.after,
           hasNextPage: IsTruncated ?? false,
