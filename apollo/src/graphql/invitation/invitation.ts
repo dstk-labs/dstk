@@ -2,7 +2,8 @@ import type { Selectable } from "kysely";
 import type { DstkUserInvitations } from "../../db/db.js";
 import { builder } from "../../builder.js";
 import { db } from "../../db/kysely.js";
-import { RegistryOperationError } from "../../utils/errors.js";
+import { Team } from "../team/team.js";
+import { UserRole } from "../team/teamRoles.js";
 import { User } from "../user/user.js";
 
 export type KyselyInvitation = Selectable<DstkUserInvitations>;
@@ -25,13 +26,25 @@ builder.objectType(Invitation, {
           .selectFrom("dstk_user.users")
           .selectAll()
           .where("dstk_user.users.id", "=", root.inviter_id)
-          .executeTakeFirstOrThrow(
-            () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
-          );
+          .executeTakeFirstOrThrow();
       },
     }),
-    teamId: t.exposeString("team_id"),
-    role: t.exposeString("role"),
+    teamId: t.field({
+      type: Team,
+      async resolve(root) {
+        return db
+          .selectFrom("dstk_user.teams")
+          .selectAll()
+          .where("dstk_user.teams.id", "=", root.team_id)
+          .executeTakeFirstOrThrow();
+      },
+    }),
+    role: t.field({
+      type: UserRole,
+      resolve(root) {
+        return root.role;
+      },
+    }),
     status: t.exposeString("status", { nullable: true }),
     expiresAt: t.field({
       type: "String",
