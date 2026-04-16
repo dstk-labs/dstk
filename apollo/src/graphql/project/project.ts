@@ -2,7 +2,7 @@ import type { Selectable } from "kysely";
 import type { DstkUserProjects } from "../../db/db.js";
 import { builder } from "../../builder.js";
 import { db } from "../../db/kysely.js";
-import { User } from "../user/user.js";
+import { User } from "../user/user/user.js";
 
 export type KyselyProject = Selectable<DstkUserProjects>;
 
@@ -34,9 +34,9 @@ builder.objectType(Project, {
       type: User,
       async resolve(root: KyselyProject, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.user")
+          .selectFrom("dstk_user.users")
           .selectAll()
-          .where("dstk_user.user.user_id", "=", root.created_by_id)
+          .where("dstk_user.users.id", "=", root.created_by_id)
           .executeTakeFirstOrThrow();
         return user;
       },
@@ -45,9 +45,9 @@ builder.objectType(Project, {
       type: User,
       async resolve(root: KyselyProject, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.user")
+          .selectFrom("dstk_user.users")
           .selectAll()
-          .where("dstk_user.user.user_id", "=", root.modified_by_id)
+          .where("dstk_user.users.id", "=", root.modified_by_id)
           .executeTakeFirstOrThrow();
         return user;
       },
