@@ -1,7 +1,7 @@
 import { builder } from "../../builder.js";
 import { db } from "../../db/kysely.js";
+import { auth } from "../../utils/auth.js";
 import { RegistryOperationError } from "../../utils/errors.js";
-import { userHasRole } from "../../utils/rls.js";
 import { Project } from "./project.js";
 
 export const ProjectInputType = builder.inputType("ProjectInput", {
@@ -31,19 +31,39 @@ builder.mutationFields(t => ({
     },
     async resolve(_root, args, ctx) {
       const results = await db.transaction().execute(async (trx) => {
-        await userHasRole({
-          userId: ctx.user.user_id,
-          teamId: args.data.teamId,
-          roles: ["owner", "member"],
+        const team = await trx
+          .selectFrom("dstk_user.teams")
+          .select("dstk_user.teams.is_archived")
+          .where("dstk_user.teams.id", "=", args.data.teamId)
+          .executeTakeFirstOrThrow(
+            () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
+          );
+
+        if (team.is_archived) {
+          throw new RegistryOperationError({ name: "ARCHIVED_TEAM_ERROR" });
+        }
+
+        const { success } = await auth.api.hasPermission({
+          headers: ctx.headers,
+          body: {
+            permissions: {
+              project: ["create"],
+            },
+            organizationId: args.data.teamId,
+          },
         });
+
+        if (!success) {
+          throw new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" });
+        }
 
         const project = await trx
           .insertInto("dstk_user.projects")
           .values({
             name: args.data.name,
             description: args.data.description,
-            created_by_id: ctx.user.user_id,
-            modified_by_id: ctx.user.user_id,
+            created_by_id: ctx.user.id,
+            modified_by_id: ctx.user.id,
             team_id: args.data.teamId,
           })
           .returningAll()
@@ -72,16 +92,24 @@ builder.mutationFields(t => ({
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
 
-        await userHasRole({
-          userId: ctx.user.user_id,
-          teamId: project.team_id,
-          roles: ["owner", "member"],
+        const { success } = await auth.api.hasPermission({
+          headers: ctx.headers,
+          body: {
+            permissions: {
+              project: ["archive"],
+            },
+            organizationId: project.team_id,
+          },
         });
+
+        if (!success) {
+          throw new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" });
+        }
 
         const result = await trx
           .updateTable("dstk_user.projects")
           .set({
-            modified_by_id: ctx.user.user_id,
+            modified_by_id: ctx.user.id,
             date_modified: new Date(),
             is_archived: !project.is_archived,
           })
@@ -112,14 +140,22 @@ builder.mutationFields(t => ({
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
 
-        await userHasRole({
-          userId: ctx.user.user_id,
-          teamId: project.team_id,
-          roles: ["owner", "member"],
+        const { success } = await auth.api.hasPermission({
+          headers: ctx.headers,
+          body: {
+            permissions: {
+              project: ["edit"],
+            },
+            organizationId: project.team_id,
+          },
         });
 
+        if (!success) {
+          throw new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" });
+        }
+
         if (project.is_archived) {
-          new RegistryOperationError({ name: "ARCHIVED_PROJECT_ERROR" });
+          throw new RegistryOperationError({ name: "ARCHIVED_PROJECT_ERROR" });
         }
 
         const result = await trx
@@ -127,7 +163,7 @@ builder.mutationFields(t => ({
           .set({
             description: args.data.description,
             name: args.data.name,
-            modified_by_id: ctx.user.user_id,
+            modified_by_id: ctx.user.id,
             date_modified: new Date(),
           })
           .where("dstk_user.projects.project_id", "=", args.data.projectId)
