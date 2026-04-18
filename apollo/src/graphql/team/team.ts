@@ -11,7 +11,7 @@ builder.objectType(Team, {
     teamId: t.field({
       type: "ID",
       resolve(root: KyselyTeam, _args, _ctx) {
-        return root.team_id;
+        return root.id;
       },
     }),
     dateCreated: t.field({
