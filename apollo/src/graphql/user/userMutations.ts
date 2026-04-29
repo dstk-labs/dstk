@@ -1,7 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 import { builder } from "../../builder.js";
 import { db } from "../../db/kysely.js";
+import { auth } from "../../utils/auth.js";
+import { RegistryOperationError } from "../../utils/errors.js";
 import { ApiKey } from "../auth/auth.js";
+import { Invitation } from "../invitation/invitation.js";
 
 builder.mutationFields(t => ({
   createApiKey: t.field({
@@ -13,7 +16,7 @@ builder.mutationFields(t => ({
       return await db
         .insertInto("dstk_user.api_key")
         .values({
-          user_id: ctx.user.user_id,
+          user_id: ctx.user.id,
           api_key: uuidv4().replace(/-/g, ""),
         })
         .returningAll()
@@ -38,7 +41,7 @@ builder.mutationFields(t => ({
           .where(({ eb, and }) =>
             and([
               eb("dstk_user.api_key.api_key_id", "=", args.apiKeyId),
-              eb("dstk_user.api_key.user_id", "=", ctx.user.user_id),
+              eb("dstk_user.api_key.user_id", "=", ctx.user.id),
             ]),
           )
           .returningAll()
@@ -47,6 +50,56 @@ builder.mutationFields(t => ({
         return userApiKey;
       });
       return results;
+    },
+  }),
+  acceptInvitation: t.field({
+    type: Invitation,
+    authScopes: {
+      loggedIn: true,
+    },
+    args: {
+      invitationId: t.arg.string({ required: true }),
+    },
+    async resolve(_root, args, ctx) {
+      await auth.api.acceptInvitation({
+        headers: ctx.headers,
+        body: {
+          invitationId: args.invitationId,
+        },
+      });
+
+      return db
+        .selectFrom("dstk_user.invitations")
+        .selectAll()
+        .where("dstk_user.invitations.id", "=", args.invitationId)
+        .executeTakeFirstOrThrow(
+          () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
+        );
+    },
+  }),
+  rejectInvitation: t.field({
+    type: Invitation,
+    authScopes: {
+      loggedIn: true,
+    },
+    args: {
+      invitationId: t.arg.string({ required: true }),
+    },
+    async resolve(_root, args, ctx) {
+      await auth.api.rejectInvitation({
+        headers: ctx.headers,
+        body: {
+          invitationId: args.invitationId,
+        },
+      });
+
+      return db
+        .selectFrom("dstk_user.invitations")
+        .selectAll()
+        .where("dstk_user.invitations.id", "=", args.invitationId)
+        .executeTakeFirstOrThrow(
+          () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
+        );
     },
   }),
 }));
