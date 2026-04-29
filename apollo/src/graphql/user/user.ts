@@ -1,8 +1,8 @@
 import type { Selectable } from "kysely";
-import type { DstkUserUser } from "../../db/db.js";
+import type { DstkUserUsers } from "../../db/db.js";
 import { builder } from "../../builder.js";
 
-export type KyselyUser = Selectable<DstkUserUser>;
+export type KyselyUser = Selectable<DstkUserUsers>;
 
 export const User = builder.objectRef<KyselyUser>("User");
 
@@ -11,13 +11,13 @@ builder.objectType(User, {
     userId: t.field({
       type: "ID",
       resolve(root: KyselyUser, _args, _ctx) {
-        return root.user_id;
+        return root.id;
       },
     }),
     realName: t.exposeString("real_name"),
     email: t.exposeString("email"),
     isEmailVerified: t.exposeBoolean("is_email_verified"),
-    isMfaEnrolled: t.exposeBoolean("is_mfa_enrolled"),
+    isTwoFactorEnabled: t.exposeBoolean("is_two_factor_enabled"),
     image: t.exposeString("image"),
     userName: t.exposeString("user_name"),
     dateCreated: t.field({
