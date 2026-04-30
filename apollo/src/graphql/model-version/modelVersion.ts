@@ -13,7 +13,7 @@ builder.objectType(MLModelVersion, {
     modelVersionId: t.field({
       type: "ID",
       resolve(root: KyselyMLModelVersion, _args, _ctx) {
-        return root.model_version_id;
+        return root.modelVersionId;
       },
     }),
     modelId: t.field({
@@ -22,29 +22,29 @@ builder.objectType(MLModelVersion, {
         const mlModel = await db
           .selectFrom("registry.models")
           .selectAll()
-          .where("registry.models.model_id", "=", root.model_id)
+          .where("registry.models.modelId", "=", root.modelId)
           .executeTakeFirstOrThrow();
         return mlModel;
       },
     }),
-    isArchived: t.exposeBoolean("is_archived"),
-    isFinalized: t.exposeBoolean("is_finalized"),
-    numericVersion: t.exposeInt("numeric_version"),
+    isArchived: t.exposeBoolean("isArchived"),
+    isFinalized: t.exposeBoolean("isFinalized"),
+    numericVersion: t.exposeInt("numericVersion"),
     description: t.exposeString("description"),
     dateCreated: t.field({
       type: "String",
       resolve(root: KyselyMLModelVersion, _args, _ctx) {
-        return root.date_created.toISOString();
+        return root.dateCreated.toISOString();
       },
     }),
-    s3Prefix: t.exposeString("s3_prefix"),
+    s3Prefix: t.exposeString("s3Prefix"),
     createdBy: t.field({
       type: User,
       async resolve(root: KyselyMLModelVersion, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.users")
+          .selectFrom("dstkUser.users")
           .selectAll()
-          .where("dstk_user.users.id", "=", root.created_by_id)
+          .where("dstkUser.users.id", "=", root.createdById)
           .executeTakeFirstOrThrow();
 
         return user;

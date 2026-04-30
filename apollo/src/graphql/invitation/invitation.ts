@@ -23,9 +23,9 @@ builder.objectType(Invitation, {
       type: User,
       async resolve(root) {
         return db
-          .selectFrom("dstk_user.users")
+          .selectFrom("dstkUser.users")
           .selectAll()
-          .where("dstk_user.users.id", "=", root.inviter_id)
+          .where("dstkUser.users.id", "=", root.inviterId)
           .executeTakeFirstOrThrow();
       },
     }),
@@ -33,9 +33,9 @@ builder.objectType(Invitation, {
       type: Team,
       async resolve(root) {
         return db
-          .selectFrom("dstk_user.teams")
+          .selectFrom("dstkUser.teams")
           .selectAll()
-          .where("dstk_user.teams.id", "=", root.team_id)
+          .where("dstkUser.teams.id", "=", root.teamId)
           .executeTakeFirstOrThrow();
       },
     }),
@@ -49,19 +49,19 @@ builder.objectType(Invitation, {
     expiresAt: t.field({
       type: "String",
       resolve(root) {
-        return root.expires_at.toISOString();
+        return root.expiresAt.toISOString();
       },
     }),
     dateCreated: t.field({
       type: "String",
       resolve(root) {
-        return root.date_created.toISOString();
+        return root.dateCreated.toISOString();
       },
     }),
     dateModified: t.field({
       type: "String",
       resolve(root) {
-        return root.date_modified.toISOString();
+        return root.dateModified.toISOString();
       },
     }),
   }),

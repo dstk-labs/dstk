@@ -32,14 +32,14 @@ builder.mutationFields(t => ({
     async resolve(_root, args, ctx) {
       const results = await db.transaction().execute(async (trx) => {
         const team = await trx
-          .selectFrom("dstk_user.teams")
-          .select("dstk_user.teams.is_archived")
-          .where("dstk_user.teams.id", "=", args.data.teamId)
+          .selectFrom("dstkUser.teams")
+          .select("dstkUser.teams.isArchived")
+          .where("dstkUser.teams.id", "=", args.data.teamId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
           );
 
-        if (team.is_archived) {
+        if (team.isArchived) {
           throw new RegistryOperationError({ name: "ARCHIVED_TEAM_ERROR" });
         }
 
@@ -58,13 +58,13 @@ builder.mutationFields(t => ({
         }
 
         const project = await trx
-          .insertInto("dstk_user.projects")
+          .insertInto("dstkUser.projects")
           .values({
             name: args.data.name,
             description: args.data.description,
-            created_by_id: ctx.user.id,
-            modified_by_id: ctx.user.id,
-            team_id: args.data.teamId,
+            createdById: ctx.user.id,
+            modifiedById: ctx.user.id,
+            teamId: args.data.teamId,
           })
           .returningAll()
           .executeTakeFirstOrThrow();
@@ -85,9 +85,9 @@ builder.mutationFields(t => ({
     async resolve(_root, args, ctx) {
       const results = await db.transaction().execute(async (trx) => {
         const project = await trx
-          .selectFrom("dstk_user.projects")
-          .select(["dstk_user.projects.team_id", "dstk_user.projects.is_archived"])
-          .where("dstk_user.projects.project_id", "=", args.projectId)
+          .selectFrom("dstkUser.projects")
+          .select(["dstkUser.projects.teamId", "dstkUser.projects.isArchived"])
+          .where("dstkUser.projects.projectId", "=", args.projectId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
@@ -98,7 +98,7 @@ builder.mutationFields(t => ({
             permissions: {
               project: ["archive"],
             },
-            organizationId: project.team_id,
+            organizationId: project.teamId,
           },
         });
 
@@ -107,13 +107,13 @@ builder.mutationFields(t => ({
         }
 
         const result = await trx
-          .updateTable("dstk_user.projects")
+          .updateTable("dstkUser.projects")
           .set({
-            modified_by_id: ctx.user.id,
-            date_modified: new Date(),
-            is_archived: !project.is_archived,
+            modifiedById: ctx.user.id,
+            dateModified: new Date(),
+            isArchived: !project.isArchived,
           })
-          .where("dstk_user.projects.project_id", "=", args.projectId)
+          .where("dstkUser.projects.projectId", "=", args.projectId)
           .returningAll()
           .executeTakeFirstOrThrow();
 
@@ -133,9 +133,9 @@ builder.mutationFields(t => ({
     async resolve(_root, args, ctx) {
       const results = await db.transaction().execute(async (trx) => {
         const project = await trx
-          .selectFrom("dstk_user.projects")
-          .select(["dstk_user.projects.team_id", "dstk_user.projects.is_archived"])
-          .where("dstk_user.projects.project_id", "=", args.data.projectId)
+          .selectFrom("dstkUser.projects")
+          .select(["dstkUser.projects.teamId", "dstkUser.projects.isArchived"])
+          .where("dstkUser.projects.projectId", "=", args.data.projectId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
@@ -146,7 +146,7 @@ builder.mutationFields(t => ({
             permissions: {
               project: ["edit"],
             },
-            organizationId: project.team_id,
+            organizationId: project.teamId,
           },
         });
 
@@ -154,19 +154,19 @@ builder.mutationFields(t => ({
           throw new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" });
         }
 
-        if (project.is_archived) {
+        if (project.isArchived) {
           throw new RegistryOperationError({ name: "ARCHIVED_PROJECT_ERROR" });
         }
 
         const result = await trx
-          .updateTable("dstk_user.projects")
+          .updateTable("dstkUser.projects")
           .set({
             description: args.data.description,
             name: args.data.name,
-            modified_by_id: ctx.user.id,
-            date_modified: new Date(),
+            modifiedById: ctx.user.id,
+            dateModified: new Date(),
           })
-          .where("dstk_user.projects.project_id", "=", args.data.projectId)
+          .where("dstkUser.projects.projectId", "=", args.data.projectId)
           .returningAll()
           .executeTakeFirstOrThrow();
 

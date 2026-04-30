@@ -14,10 +14,10 @@ builder.mutationFields(t => ({
     },
     async resolve(_root, _args, ctx) {
       return await db
-        .insertInto("dstk_user.api_key")
+        .insertInto("dstkUser.apiKey")
         .values({
-          user_id: ctx.user.id,
-          api_key: uuidv4().replace(/-/g, ""),
+          userId: ctx.user.id,
+          apiKey: uuidv4().replace(/-/g, ""),
         })
         .returningAll()
         .executeTakeFirst();
@@ -34,14 +34,14 @@ builder.mutationFields(t => ({
     async resolve(_root, args, ctx) {
       const results = await db.transaction().execute(async (trx) => {
         const userApiKey = await trx
-          .updateTable("dstk_user.api_key")
+          .updateTable("dstkUser.apiKey")
           .set({
-            is_archived: true,
+            isArchived: true,
           })
           .where(({ eb, and }) =>
             and([
-              eb("dstk_user.api_key.api_key_id", "=", args.apiKeyId),
-              eb("dstk_user.api_key.user_id", "=", ctx.user.id),
+              eb("dstkUser.apiKey.apiKeyId", "=", args.apiKeyId),
+              eb("dstkUser.apiKey.userId", "=", ctx.user.id),
             ]),
           )
           .returningAll()
@@ -69,9 +69,9 @@ builder.mutationFields(t => ({
       });
 
       return db
-        .selectFrom("dstk_user.invitations")
+        .selectFrom("dstkUser.invitations")
         .selectAll()
-        .where("dstk_user.invitations.id", "=", args.invitationId)
+        .where("dstkUser.invitations.id", "=", args.invitationId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
         );
@@ -94,9 +94,9 @@ builder.mutationFields(t => ({
       });
 
       return db
-        .selectFrom("dstk_user.invitations")
+        .selectFrom("dstkUser.invitations")
         .selectAll()
-        .where("dstk_user.invitations.id", "=", args.invitationId)
+        .where("dstkUser.invitations.id", "=", args.invitationId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
         );

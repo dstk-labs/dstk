@@ -58,7 +58,7 @@ export const auth = betterAuth({
       clientSecret: env.GOOGLE_CLIENT_SECRET,
       mapProfileToUser: (profile) => {
         return {
-          user_name: profile.email.split("@")[0],
+          userName: profile.email.split("@")[0],
         };
       },
     },
@@ -67,7 +67,7 @@ export const auth = betterAuth({
       clientSecret: env.GITHUB_CLIENT_SECRET,
       mapProfileToUser: (profile) => {
         return {
-          user_name: profile.email.split("@")[0],
+          userName: profile.email.split("@")[0],
         };
       },
     },
@@ -89,52 +89,52 @@ export const auth = betterAuth({
   },
   appName: "dstk",
   user: {
-    modelName: "dstk_user.users",
+    modelName: "dstkUser.users",
     fields: {
-      name: "real_name",
-      emailVerified: "is_email_verified",
-      createdAt: "date_created",
-      updatedAt: "date_modified",
+      name: "realName",
+      emailVerified: "isEmailVerified",
+      createdAt: "dateCreated",
+      updatedAt: "dateModified",
     },
     additionalFields: {
-      user_name: {
+      userName: {
         type: "string",
         required: true,
       },
     },
   },
   session: {
-    modelName: "dstk_user.sessions",
+    modelName: "dstkUser.sessions",
     fields: {
-      userId: "user_id",
-      expiresAt: "expires_at",
-      ipAddress: "ip_address",
-      userAgent: "user_agent",
-      createdAt: "date_created",
-      updatedAt: "date_modified",
+      userId: "userId",
+      expiresAt: "expiresAt",
+      ipAddress: "ipAddress",
+      userAgent: "userAgent",
+      createdAt: "dateCreated",
+      updatedAt: "dateModified",
     },
   },
   account: {
-    modelName: "dstk_user.accounts",
+    modelName: "dstkUser.accounts",
     fields: {
-      userId: "user_id",
-      accountId: "account_id",
-      providerId: "provider_id",
-      accessToken: "access_token",
-      refreshToken: "refresh_token",
-      accessTokenExpiresAt: "access_token_expires_at",
-      refreshTokenExpiresAt: "refresh_token_expires_at",
-      idToken: "id_token",
-      createdAt: "date_created",
-      updatedAt: "date_modified",
+      userId: "userId",
+      accountId: "accountId",
+      providerId: "providerId",
+      accessToken: "accessToken",
+      refreshToken: "refreshToken",
+      accessTokenExpiresAt: "accessTokenExpiresAt",
+      refreshTokenExpiresAt: "refreshTokenExpiresAt",
+      idToken: "idToken",
+      createdAt: "dateCreated",
+      updatedAt: "dateModified",
     },
   },
   verification: {
-    modelName: "dstk_user.verifications",
+    modelName: "dstkUser.verifications",
     fields: {
-      expiresAt: "expires_at",
-      createdAt: "date_created",
-      updatedAt: "date_modified",
+      expiresAt: "expiresAt",
+      createdAt: "dateCreated",
+      updatedAt: "dateModified",
     },
   },
   plugins: [
@@ -147,28 +147,28 @@ export const auth = betterAuth({
       },
       schema: {
         organization: {
-          modelName: "dstk_user.teams",
+          modelName: "dstkUser.teams",
           fields: {
-            createdAt: "date_created",
-            updatedAt: "date_modified",
+            createdAt: "dateCreated",
+            updatedAt: "dateModified",
           },
         },
         member: {
-          modelName: "dstk_user.members",
+          modelName: "dstkUser.members",
           fields: {
-            organizationId: "team_id",
-            createdAt: "date_created",
-            updatedAt: "date_modified",
+            organizationId: "teamId",
+            createdAt: "dateCreated",
+            updatedAt: "dateModified",
           },
         },
         invitation: {
-          modelName: "dstk_user.invitations",
+          modelName: "dstkUser.invitations",
           fields: {
-            organizationId: "team_id",
-            inviterId: "inviter_id",
-            expiresAt: "expires_at",
-            createdAt: "date_created",
-            updatedAt: "date_modified",
+            organizationId: "teamId",
+            inviterId: "inviterId",
+            expiresAt: "expiresAt",
+            createdAt: "dateCreated",
+            updatedAt: "dateModified",
           },
         },
       },
@@ -195,7 +195,7 @@ export const auth = betterAuth({
       create: {
         after: async (user) => {
           await createTeam({
-            description: `${user.user_name}'s private team. Automatically created by DSTK.`,
+            description: `${user.userName}'s private team. Automatically created by DSTK.`,
             name: "Personal Team",
             userId: user.id,
           });

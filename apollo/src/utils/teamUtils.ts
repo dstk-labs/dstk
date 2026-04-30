@@ -14,23 +14,23 @@ export async function createTeam({
 }: CreateTeam) {
   const results = await db.transaction().execute(async (trx) => {
     const team = await trx
-      .insertInto("dstk_user.teams")
+      .insertInto("dstkUser.teams")
       .values({
         name,
         description,
         slug: shishKebab(name),
-        is_archived: false,
-        created_by_id: userId,
-        modified_by_id: userId,
+        isArchived: false,
+        createdById: userId,
+        modifiedById: userId,
       })
       .returningAll()
       .executeTakeFirstOrThrow();
 
     await trx
-      .insertInto("dstk_user.members")
+      .insertInto("dstkUser.members")
       .values({
-        team_id: team.id,
-        user_id: userId,
+        teamId: team.id,
+        userId,
         role: "owner",
       })
       .execute();

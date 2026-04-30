@@ -29,29 +29,29 @@ builder.queryFields(t => ({
     },
     async resolve(_root, args, ctx) {
       await db
-        .selectFrom("dstk_user.members")
-        .select("dstk_user.members.id")
-        .where("dstk_user.members.user_id", "=", ctx.user.id)
-        .where("dstk_user.members.team_id", "=", args.teamId)
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.id")
+        .where("dstkUser.members.userId", "=", ctx.user.id)
+        .where("dstkUser.members.teamId", "=", args.teamId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "PROVIDER_PERMISSION_ERROR" }),
         );
 
       let query = db
-        .selectFrom("registry.storage_providers")
+        .selectFrom("registry.storageProviders")
         .selectAll()
         .where((eb) => {
           const statements: Expression<SqlBool>[] = [];
 
           statements.push(eb(
-            "registry.storage_providers.team_id",
+            "registry.storageProviders.teamId",
             "=",
             args.teamId,
           ));
 
           if (!args.includeArchived) {
             statements.push(eb(
-              "registry.storage_providers.is_archived",
+              "registry.storageProviders.isArchived",
               "is",
               false,
             ));
@@ -59,7 +59,7 @@ builder.queryFields(t => ({
 
           if (args.bucket) {
             statements.push(eb(
-              "registry.storage_providers.bucket",
+              "registry.storageProviders.bucket",
               "ilike",
               `%${args.bucket}%`,
             ));
@@ -73,10 +73,10 @@ builder.queryFields(t => ({
 
         query = query.where(({ eb, and, or }) =>
           or([
-            eb("registry.storage_providers.date_created", ">", new Date(dateCreated)),
+            eb("registry.storageProviders.dateCreated", ">", new Date(dateCreated)),
             and([
-              eb("registry.storage_providers.date_created", "=", new Date(dateCreated)),
-              eb("registry.storage_providers.id", ">", Number.parseInt(id)),
+              eb("registry.storageProviders.dateCreated", "=", new Date(dateCreated)),
+              eb("registry.storageProviders.id", ">", Number.parseInt(id)),
             ]),
           ]),
         );
@@ -84,15 +84,15 @@ builder.queryFields(t => ({
 
       const storageProviders = await query
         .limit(args.first + 1)
-        .orderBy("registry.storage_providers.date_created", "asc")
-        .orderBy("registry.storage_providers.id", "asc")
+        .orderBy("registry.storageProviders.dateCreated", "asc")
+        .orderBy("registry.storageProviders.id", "asc")
         .execute();
 
       const hasNextPage = storageProviders.length > args.first;
 
       const lastResult = storageProviders[storageProviders.length - 2];
       const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id.toString(), lastResult.date_created.toISOString())
+        ? encoder.encode(lastResult.id.toString(), lastResult.dateCreated.toISOString())
         : undefined;
 
       return {
@@ -118,18 +118,18 @@ builder.queryFields(t => ({
     },
     async resolve(_root, args, ctx) {
       const storageProvider = await db
-        .selectFrom("registry.storage_providers")
+        .selectFrom("registry.storageProviders")
         .selectAll()
-        .where("registry.storage_providers.provider_id", "=", args.storageProviderId)
+        .where("registry.storageProviders.providerId", "=", args.storageProviderId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "PROVIDER_NOT_FOUND_ERROR" }),
         );
 
       await db
-        .selectFrom("dstk_user.members")
-        .select("dstk_user.members.id")
-        .where("dstk_user.members.user_id", "=", ctx.user.id)
-        .where("dstk_user.members.team_id", "=", storageProvider.team_id)
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.id")
+        .where("dstkUser.members.userId", "=", ctx.user.id)
+        .where("dstkUser.members.teamId", "=", storageProvider.teamId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "PROVIDER_PERMISSION_ERROR" }),
         );
@@ -155,51 +155,51 @@ builder.queryFields(t => ({
     },
     async resolve(_root, args, ctx) {
       const modelVersion = await db
-        .selectFrom("registry.model_versions")
-        .select(["registry.model_versions.model_id", "registry.model_versions.s3_prefix"])
-        .where("registry.model_versions.model_version_id", "=", args.modelVersionId)
+        .selectFrom("registry.modelVersions")
+        .select(["registry.modelVersions.modelId", "registry.modelVersions.s3Prefix"])
+        .where("registry.modelVersions.modelVersionId", "=", args.modelVersionId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" }),
         );
 
       const parentModel = await db
         .selectFrom("registry.models")
-        .select(["registry.models.project_id", "registry.models.storage_provider_id"])
-        .where("registry.models.model_id", "=", modelVersion.model_id)
+        .select(["registry.models.projectId", "registry.models.storageProviderId"])
+        .where("registry.models.modelId", "=", modelVersion.modelId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
         );
 
       const project = await db
-        .selectFrom("dstk_user.projects")
-        .select("dstk_user.projects.team_id")
-        .where("dstk_user.projects.project_id", "=", parentModel.project_id)
+        .selectFrom("dstkUser.projects")
+        .select("dstkUser.projects.teamId")
+        .where("dstkUser.projects.projectId", "=", parentModel.projectId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
         );
 
       await db
-        .selectFrom("dstk_user.members")
-        .select("dstk_user.members.id")
-        .where("dstk_user.members.user_id", "=", ctx.user.id)
-        .where("dstk_user.members.team_id", "=", project.team_id)
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.id")
+        .where("dstkUser.members.userId", "=", ctx.user.id)
+        .where("dstkUser.members.teamId", "=", project.teamId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" }),
         );
 
       const modelStorageProvider = await db
-        .selectFrom("registry.storage_providers")
+        .selectFrom("registry.storageProviders")
         .selectAll()
         .where(
-          "registry.storage_providers.provider_id",
+          "registry.storageProviders.providerId",
           "=",
-          parentModel.storage_provider_id,
+          parentModel.storageProviderId,
         )
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "PROVIDER_NOT_FOUND_ERROR" }),
         );
 
-      const prefix = `${modelVersion.s3_prefix}`.concat(args.prefix ? `/${args.prefix}` : "");
+      const prefix = `${modelVersion.s3Prefix}`.concat(args.prefix ? `/${args.prefix}` : "");
 
       /* If no continuation token, the s3 api will always
          return the root directory as an object. We do not want

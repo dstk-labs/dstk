@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "compile": "tsc",
-    "schemagen": "kysely-codegen --dialect postgres --out-file ./src/db/db.d.ts",
+    "schemagen": "kysely-codegen --dialect postgres --camel-case --out-file ./src/db/db.d.ts",
     "start": "pnpm run schemagen && pnpm run compile && node ./dist/index.js",
     "dev": "NODE_ENV=dev && pnpm run start",
     "lint": "eslint .",

@@ -27,29 +27,29 @@ builder.queryFields(t => ({
     },
     async resolve(_root, args, ctx) {
       await db
-        .selectFrom("dstk_user.members")
-        .select("dstk_user.members.id")
-        .where("dstk_user.members.user_id", "=", ctx.user.id)
-        .where("dstk_user.members.team_id", "=", args.teamId)
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.id")
+        .where("dstkUser.members.userId", "=", ctx.user.id)
+        .where("dstkUser.members.teamId", "=", args.teamId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
         );
 
       let query = db
-        .selectFrom("dstk_user.projects")
+        .selectFrom("dstkUser.projects")
         .selectAll()
         .where((eb) => {
           const statements: Expression<SqlBool>[] = [];
 
           statements.push(eb(
-            "dstk_user.projects.team_id",
+            "dstkUser.projects.teamId",
             "=",
             args.teamId,
           ));
 
           if (!args.includeArchived) {
             statements.push(eb(
-              "dstk_user.projects.is_archived",
+              "dstkUser.projects.isArchived",
               "is",
               false,
             ));
@@ -57,7 +57,7 @@ builder.queryFields(t => ({
 
           if (args.projectName) {
             statements.push(eb(
-              "dstk_user.projects.name",
+              "dstkUser.projects.name",
               "ilike",
               `%${args.projectName}%`,
             ));
@@ -71,10 +71,10 @@ builder.queryFields(t => ({
 
         query = query.where(({ eb, and, or }) =>
           or([
-            eb("dstk_user.projects.date_created", ">", new Date(dateCreated)),
+            eb("dstkUser.projects.dateCreated", ">", new Date(dateCreated)),
             and([
-              eb("dstk_user.projects.date_created", "=", new Date(dateCreated)),
-              eb("dstk_user.projects.id", ">", Number.parseInt(id)),
+              eb("dstkUser.projects.dateCreated", "=", new Date(dateCreated)),
+              eb("dstkUser.projects.id", ">", Number.parseInt(id)),
             ]),
           ]),
         );
@@ -82,15 +82,15 @@ builder.queryFields(t => ({
 
       const projects = await query
         .limit(args.first + 1)
-        .orderBy("dstk_user.projects.date_created", "asc")
-        .orderBy("dstk_user.projects.id", "asc")
+        .orderBy("dstkUser.projects.dateCreated", "asc")
+        .orderBy("dstkUser.projects.id", "asc")
         .execute();
 
       const hasNextPage = projects.length > args.first;
 
       const lastResult = projects[projects.length - 2];
       const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id.toString(), lastResult.date_created.toISOString())
+        ? encoder.encode(lastResult.id.toString(), lastResult.dateCreated.toISOString())
         : undefined;
 
       return {
@@ -116,18 +116,18 @@ builder.queryFields(t => ({
     },
     async resolve(_root, args, ctx) {
       const project = await db
-        .selectFrom("dstk_user.projects")
+        .selectFrom("dstkUser.projects")
         .selectAll()
-        .where("dstk_user.projects.project_id", "=", args.projectId)
+        .where("dstkUser.projects.projectId", "=", args.projectId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
         );
 
       await db
-        .selectFrom("dstk_user.members")
-        .select("dstk_user.members.id")
-        .where("dstk_user.members.user_id", "=", ctx.user.id)
-        .where("dstk_user.members.team_id", "=", project.team_id)
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.id")
+        .where("dstkUser.members.userId", "=", ctx.user.id)
+        .where("dstkUser.members.teamId", "=", project.teamId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
         );

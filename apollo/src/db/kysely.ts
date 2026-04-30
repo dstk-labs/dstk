@@ -1,6 +1,6 @@
 import type { DB } from "./db.js";
 
-import { Kysely, PostgresDialect } from "kysely";
+import { CamelCasePlugin, Kysely, PostgresDialect } from "kysely";
 // https://github.com/brianc/node-postgres/issues/2819
 import pg from "pg";
 import { env } from "../config/env.js";
@@ -16,4 +16,5 @@ const dialect = new PostgresDialect({ pool });
 
 export const db = new Kysely<DB>({
   dialect,
+  plugins: [new CamelCasePlugin()],
 });

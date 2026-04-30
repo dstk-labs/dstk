@@ -27,14 +27,14 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export interface DstkUserUsers {
   id: Generated<string>;
-  real_name: string;
+  realName: string;
   email: string;
-  is_email_verified: Generated<boolean>;
-  is_two_factor_enabled: Generated<boolean>;
+  isEmailVerified: Generated<boolean>;
+  isTwoFactorEnabled: Generated<boolean>;
   image: string | null;
-  user_name: string;
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
+  userName: string;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
 }
 
 export interface DstkUserTeams {
@@ -44,161 +44,161 @@ export interface DstkUserTeams {
   slug: string;
   logo: string | null;
   metadata: string | null;
-  is_archived: boolean;
-  created_by_id: string;
-  modified_by_id: string;
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
+  isArchived: boolean;
+  createdById: string;
+  modifiedById: string;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
 }
 
 export interface DstkUserMembers {
   id: Generated<string>;
-  user_id: string;
-  team_id: string;
+  userId: string;
+  teamId: string;
   role: DstkRole;
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
 }
 
 export interface DstkUserProjects {
   id: Generated<number>;
-  project_id: Generated<string>;
+  projectId: Generated<string>;
   name: string;
   description: string | null;
-  team_id: string;
-  is_archived: Generated<boolean>;
-  created_by_id: string | null;
-  modified_by_id: string | null;
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
+  teamId: string;
+  isArchived: Generated<boolean>;
+  createdById: string | null;
+  modifiedById: string | null;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
 }
 
 export interface DstkUserSessions {
   id: Generated<string>;
-  user_id: string;
+  userId: string;
   token: string;
-  ip_address: string | null;
-  user_agent: string | null;
-  active_team_id: string | null;
-  expires_at: Generated<Timestamp>;
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
+  ipAddress: string | null;
+  userAgent: string | null;
+  activeTeamId: string | null;
+  expiresAt: Generated<Timestamp>;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
 }
 
 export interface DstkUserAccounts {
   id: Generated<string>;
-  better_auth_account_id: string;
-  user_id: string;
-  provider_id: string;
-  access_token: string | null;
-  refresh_token: string | null;
-  access_token_expires_at: Generated<Timestamp | null>;
-  refresh_token_expires_at: Generated<Timestamp | null>;
+  betterAuthAccountId: string;
+  userId: string;
+  providerId: string;
+  accessToken: string | null;
+  refreshToken: string | null;
+  accessTokenExpiresAt: Generated<Timestamp | null>;
+  refreshTokenExpiresAt: Generated<Timestamp | null>;
   scope: string | null;
-  id_token: string | null;
+  idToken: string | null;
   password: string | null;
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
 }
 
 export interface DstkUserVerifications {
   id: Generated<string>;
   identifier: string;
   value: string;
-  expires_at: Generated<Timestamp>;
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
+  expiresAt: Generated<Timestamp>;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
 }
 
 export interface DstkUserInvitations {
   id: Generated<string>;
   email: string;
-  inviter_id: string;
-  team_id: string;
+  inviterId: string;
+  teamId: string;
   role: DstkRole;
   status: string | null;
-  expires_at: Generated<Timestamp>;
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
+  expiresAt: Generated<Timestamp>;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
 }
 
 export interface DstkUserApiKey {
   id: Generated<number>;
-  api_key_id: Generated<string>;
-  user_id: string;
-  api_key: string;
-  is_archived: Generated<boolean>;
-  date_created: Generated<Timestamp>;
+  apiKeyId: Generated<string>;
+  userId: string;
+  apiKey: string;
+  isArchived: Generated<boolean>;
+  dateCreated: Generated<Timestamp>;
 }
 
 export interface DstkUserTwoFactors {
   id: Generated<string>;
-  user_id: string;
+  userId: string;
   secret: string | null;
-  backup_codes: string | null;
+  backupCodes: string | null;
 }
 
 export interface RegistryStorageProviders {
   id: Generated<number>;
-  provider_id: Generated<string>;
-  endpoint_url: string;
+  providerId: Generated<string>;
+  endpointUrl: string;
   region: string;
   bucket: string;
-  access_key_id: string;
-  secret_access_key: string;
-  created_by_id: string;
-  modified_by_id: string;
-  owner_id: string;
-  is_archived: Generated<boolean>;
-  team_id: string;
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
+  accessKeyId: string;
+  secretAccessKey: string;
+  createdById: string;
+  modifiedById: string;
+  ownerId: string;
+  isArchived: Generated<boolean>;
+  teamId: string;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
 }
 
 export interface RegistryModels {
   id: Generated<number>;
-  model_id: Generated<string>;
-  storage_provider_id: string;
-  is_archived: Generated<boolean>;
-  model_name: string;
-  created_by_id: string | null;
-  modified_by_id: string | null;
+  modelId: Generated<string>;
+  storageProviderId: string;
+  isArchived: Generated<boolean>;
+  modelName: string;
+  createdById: string | null;
+  modifiedById: string | null;
   description: string | null;
   metadata: Json | null;
-  project_id: string;
-  current_model_version_id: string | null;
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
+  projectId: string;
+  currentModelVersionId: string | null;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
 }
 
 export interface RegistryModelVersions {
   id: Generated<number>;
-  model_version_id: Generated<string>;
-  model_id: string;
-  is_finalized: Generated<boolean>;
-  is_archived: Generated<boolean>;
-  created_by_id: string | null;
-  modified_by_id: string | null;
-  numeric_version: number;
-  s3_prefix: string;
+  modelVersionId: Generated<string>;
+  modelId: string;
+  isFinalized: Generated<boolean>;
+  isArchived: Generated<boolean>;
+  createdById: string | null;
+  modifiedById: string | null;
+  numericVersion: number;
+  s3Prefix: string;
   description: string | null;
   metadata: Json | null;
-  date_created: Generated<Timestamp>;
-  date_modified: Generated<Timestamp>;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
 }
 
 export interface DB {
-  "dstk_user.accounts": DstkUserAccounts;
-  "dstk_user.api_key": DstkUserApiKey;
-  "dstk_user.invitations": DstkUserInvitations;
-  "dstk_user.members": DstkUserMembers;
-  "dstk_user.projects": DstkUserProjects;
-  "dstk_user.sessions": DstkUserSessions;
-  "dstk_user.teams": DstkUserTeams;
-  "dstk_user.two_factors": DstkUserTwoFactors;
-  "dstk_user.users": DstkUserUsers;
-  "dstk_user.verifications": DstkUserVerifications;
-  "registry.model_versions": RegistryModelVersions;
+  "dstkUser.accounts": DstkUserAccounts;
+  "dstkUser.apiKey": DstkUserApiKey;
+  "dstkUser.invitations": DstkUserInvitations;
+  "dstkUser.members": DstkUserMembers;
+  "dstkUser.projects": DstkUserProjects;
+  "dstkUser.sessions": DstkUserSessions;
+  "dstkUser.teams": DstkUserTeams;
+  "dstkUser.twoFactors": DstkUserTwoFactors;
+  "dstkUser.users": DstkUserUsers;
+  "dstkUser.verifications": DstkUserVerifications;
+  "registry.modelVersions": RegistryModelVersions;
   "registry.models": RegistryModels;
-  "registry.storage_providers": RegistryStorageProviders;
+  "registry.storageProviders": RegistryStorageProviders;
 }

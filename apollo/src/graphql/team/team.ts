@@ -17,17 +17,17 @@ builder.objectType(Team, {
     dateCreated: t.field({
       type: "String",
       resolve(root: KyselyTeam, _args, _ctx) {
-        return root.date_created.toISOString();
+        return root.dateCreated.toISOString();
       },
     }),
     dateModified: t.field({
       type: "String",
       resolve(root: KyselyTeam, _args, _ctx) {
-        return root.date_modified.toISOString();
+        return root.dateModified.toISOString();
       },
     }),
     description: t.exposeString("description"),
-    isArchived: t.exposeBoolean("is_archived"),
+    isArchived: t.exposeBoolean("isArchived"),
     name: t.exposeString("name"),
   }),
 });
