@@ -13,27 +13,27 @@ builder.objectType(ApiKey, {
     apiKeyId: t.field({
       type: "ID",
       resolve(root: KyselyApiKey, _args, _ctx) {
-        return root.api_key_id;
+        return root.apiKeyId;
       },
     }),
     userId: t.field({
       type: User,
       async resolve(root: KyselyApiKey, _args, _ctx) {
         const result = await db
-          .selectFrom("dstk_user.users")
+          .selectFrom("dstkUser.users")
           .selectAll()
-          .where("dstk_user.users.id", "=", root.user_id)
+          .where("dstkUser.users.id", "=", root.userId)
           .executeTakeFirstOrThrow();
 
         return result;
       },
     }),
-    apiKey: t.exposeString("api_key"),
-    isArchived: t.exposeBoolean("is_archived"),
+    apiKey: t.exposeString("apiKey"),
+    isArchived: t.exposeBoolean("isArchived"),
     dateCreated: t.field({
       type: "String",
       resolve(root: KyselyApiKey, _args, _ctx) {
-        return root.date_created.toISOString();
+        return root.dateCreated.toISOString();
       },
     }),
   }),

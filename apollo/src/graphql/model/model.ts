@@ -16,16 +16,16 @@ builder.objectType(MLModel, {
     modelId: t.field({
       type: "ID",
       resolve(root: KyselyMLModel, _args, _ctx) {
-        return root.model_id;
+        return root.modelId;
       },
     }),
     storageProvider: t.field({
       type: StorageProvider,
       async resolve(root: KyselyMLModel, _args, _ctx) {
         const storageProvider = await db
-          .selectFrom("registry.storage_providers")
+          .selectFrom("registry.storageProviders")
           .selectAll()
-          .where("registry.storage_providers.provider_id", "=", root.storage_provider_id)
+          .where("registry.storageProviders.providerId", "=", root.storageProviderId)
           .executeTakeFirstOrThrow();
 
         return storageProvider;
@@ -36,9 +36,9 @@ builder.objectType(MLModel, {
       type: MLModelVersion,
       async resolve(root: KyselyMLModel, _args, _ctx) {
         const currentModelVersion = await db
-          .selectFrom("registry.model_versions")
+          .selectFrom("registry.modelVersions")
           .selectAll()
-          .where("registry.model_versions.model_id", "=", root.current_model_version_id)
+          .where("registry.modelVersions.modelId", "=", root.currentModelVersionId)
           .executeTakeFirst();
         return currentModelVersion;
       },
@@ -48,27 +48,27 @@ builder.objectType(MLModel, {
       type: Project,
       async resolve(root: KyselyMLModel, _args, _ctx) {
         const project = await db
-          .selectFrom("dstk_user.projects")
+          .selectFrom("dstkUser.projects")
           .selectAll()
-          .where("dstk_user.projects.project_id", "=", root.project_id)
+          .where("dstkUser.projects.projectId", "=", root.projectId)
           .executeTakeFirstOrThrow();
 
         return project;
       },
     }),
 
-    isArchived: t.exposeBoolean("is_archived"),
-    modelName: t.exposeString("model_name"),
+    isArchived: t.exposeBoolean("isArchived"),
+    modelName: t.exposeString("modelName"),
     dateCreated: t.field({
       type: "String",
       resolve(root: KyselyMLModel, _args, _ctx) {
-        return root.date_created.toISOString();
+        return root.dateCreated.toISOString();
       },
     }),
     dateModified: t.field({
       type: "String",
       resolve(root: KyselyMLModel, _args, _ctx) {
-        return root.date_modified.toISOString();
+        return root.dateModified.toISOString();
       },
     }),
     description: t.exposeString("description"),
@@ -76,9 +76,9 @@ builder.objectType(MLModel, {
       type: User,
       async resolve(root: KyselyMLModel, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.users")
+          .selectFrom("dstkUser.users")
           .selectAll()
-          .where("dstk_user.users.id", "=", root.created_by_id)
+          .where("dstkUser.users.id", "=", root.createdById)
           .executeTakeFirstOrThrow();
         return user;
       },
@@ -87,9 +87,9 @@ builder.objectType(MLModel, {
       type: User,
       async resolve(root: KyselyMLModel, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.users")
+          .selectFrom("dstkUser.users")
           .selectAll()
-          .where("dstk_user.users.id", "=", root.modified_by_id)
+          .where("dstkUser.users.id", "=", root.modifiedById)
           .executeTakeFirstOrThrow();
         return user;
       },

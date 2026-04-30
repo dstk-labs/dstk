@@ -78,21 +78,21 @@ builder.mutationFields(t => ({
       const results = await db.transaction().execute(async (trx) => {
         const parentModel = await trx
           .selectFrom("registry.models")
-          .select(["registry.models.is_archived", "registry.models.project_id"])
-          .where("registry.models.model_id", "=", args.data.modelId)
+          .select(["registry.models.isArchived", "registry.models.projectId"])
+          .where("registry.models.modelId", "=", args.data.modelId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
           );
 
         const project = await trx
-          .selectFrom("dstk_user.projects")
-          .select(["dstk_user.projects.team_id", "dstk_user.projects.project_id"])
-          .where("dstk_user.projects.project_id", "=", parentModel.project_id)
+          .selectFrom("dstkUser.projects")
+          .select(["dstkUser.projects.teamId", "dstkUser.projects.projectId"])
+          .where("dstkUser.projects.projectId", "=", parentModel.projectId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
 
-        if (parentModel.is_archived === true) {
+        if (parentModel.isArchived === true) {
           throw new RegistryOperationError({ name: "ARCHIVED_MODEL_ERROR" });
         }
 
@@ -102,7 +102,7 @@ builder.mutationFields(t => ({
             permissions: {
               modelVersion: ["create"],
             },
-            organizationId: project.team_id,
+            organizationId: project.teamId,
           },
         });
 
@@ -110,24 +110,24 @@ builder.mutationFields(t => ({
           throw new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" });
         }
         const lastModelVersion = await trx
-          .selectFrom("registry.model_versions")
-          .select("registry.model_versions.numeric_version")
-          .where("registry.model_versions.model_id", "=", args.data.modelId)
-          .orderBy("registry.model_versions.numeric_version", "desc")
+          .selectFrom("registry.modelVersions")
+          .select("registry.modelVersions.numericVersion")
+          .where("registry.modelVersions.modelId", "=", args.data.modelId)
+          .orderBy("registry.modelVersions.numericVersion", "desc")
           .executeTakeFirst();
 
-        const incrementedVersion = (lastModelVersion?.numeric_version || 0) + 1;
+        const incrementedVersion = (lastModelVersion?.numericVersion || 0) + 1;
 
-        const s3_prefix = `teams/${project.team_id}/projects/${project.project_id}/models/${args.data.modelId}/versions/${incrementedVersion}`;
+        const s3Prefix = `teams/${project.teamId}/projects/${project.projectId}/models/${args.data.modelId}/versions/${incrementedVersion}`;
 
         const mlModelVersion = await trx
-          .insertInto("registry.model_versions")
+          .insertInto("registry.modelVersions")
           .values({
-            model_id: args.data.modelId,
+            modelId: args.data.modelId,
             description: args.data.description,
-            numeric_version: incrementedVersion,
-            s3_prefix,
-            created_by_id: ctx.user.id,
+            numericVersion: incrementedVersion,
+            s3Prefix,
+            createdById: ctx.user.id,
           })
           .returningAll()
           .executeTakeFirstOrThrow();
@@ -135,9 +135,9 @@ builder.mutationFields(t => ({
         await trx
           .updateTable("registry.models")
           .set({
-            current_model_version_id: mlModelVersion.model_version_id,
+            currentModelVersionId: mlModelVersion.modelVersionId,
           })
-          .where("registry.models.model_id", "=", args.data.modelId)
+          .where("registry.models.modelId", "=", args.data.modelId)
           .execute();
 
         return mlModelVersion;
@@ -158,23 +158,23 @@ builder.mutationFields(t => ({
     async resolve(_root, args, ctx) {
       const results = await db.transaction().execute(async (trx) => {
         const mlModelVersion = await trx
-          .selectFrom("registry.model_versions")
-          .select(["registry.model_versions.is_archived", "registry.model_versions.model_id"])
-          .where("registry.model_versions.model_version_id", "=", args.modelVersionId)
+          .selectFrom("registry.modelVersions")
+          .select(["registry.modelVersions.isArchived", "registry.modelVersions.modelId"])
+          .where("registry.modelVersions.modelVersionId", "=", args.modelVersionId)
           .executeTakeFirstOrThrow(() => new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" }));
 
         const parentModel = await trx
           .selectFrom("registry.models")
-          .select(["registry.models.project_id"])
-          .where("registry.models.model_id", "=", mlModelVersion.model_id)
+          .select(["registry.models.projectId"])
+          .where("registry.models.modelId", "=", mlModelVersion.modelId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
           );
 
         const project = await trx
-          .selectFrom("dstk_user.projects")
-          .select("dstk_user.projects.team_id")
-          .where("dstk_user.projects.project_id", "=", parentModel.project_id)
+          .selectFrom("dstkUser.projects")
+          .select("dstkUser.projects.teamId")
+          .where("dstkUser.projects.projectId", "=", parentModel.projectId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
@@ -185,7 +185,7 @@ builder.mutationFields(t => ({
             permissions: {
               modelVersion: ["edit"],
             },
-            organizationId: project.team_id,
+            organizationId: project.teamId,
           },
         });
 
@@ -193,18 +193,18 @@ builder.mutationFields(t => ({
           throw new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" });
         }
 
-        if (mlModelVersion.is_archived === true) {
+        if (mlModelVersion.isArchived === true) {
           throw new RegistryOperationError({ name: "ARCHIVED_MODEL_VERSION_ERROR" });
         }
 
         const result = await trx
-          .updateTable("registry.model_versions")
+          .updateTable("registry.modelVersions")
           .set({
             description: args.data.description,
-            date_modified: new Date(),
-            modified_by_id: ctx.user.id,
+            dateModified: new Date(),
+            modifiedById: ctx.user.id,
           })
-          .where("registry.model_versions.model_version_id", "=", args.modelVersionId)
+          .where("registry.modelVersions.modelVersionId", "=", args.modelVersionId)
           .returningAll()
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_VERSION_WRITE_ERROR" }),
@@ -227,12 +227,12 @@ builder.mutationFields(t => ({
     async resolve(_root, args, ctx) {
       const results = await db.transaction().execute(async (trx) => {
         const mlModelVersion = await trx
-          .selectFrom("registry.model_versions")
+          .selectFrom("registry.modelVersions")
           .select([
-            "registry.model_versions.model_id",
-            "registry.model_versions.is_archived",
+            "registry.modelVersions.modelId",
+            "registry.modelVersions.isArchived",
           ])
-          .where("registry.model_versions.model_version_id", "=", args.modelVersionId)
+          .where("registry.modelVersions.modelVersionId", "=", args.modelVersionId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" }),
           );
@@ -240,19 +240,19 @@ builder.mutationFields(t => ({
         const parentModel = await trx
           .selectFrom("registry.models")
           .select([
-            "registry.models.model_id",
-            "registry.models.project_id",
-            "registry.models.is_archived",
+            "registry.models.modelId",
+            "registry.models.projectId",
+            "registry.models.isArchived",
           ])
-          .where("registry.models.model_id", "=", mlModelVersion.model_id)
+          .where("registry.models.modelId", "=", mlModelVersion.modelId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
           );
 
         const project = await trx
-          .selectFrom("dstk_user.projects")
-          .select("dstk_user.projects.team_id")
-          .where("dstk_user.projects.project_id", "=", parentModel.project_id)
+          .selectFrom("dstkUser.projects")
+          .select("dstkUser.projects.teamId")
+          .where("dstkUser.projects.projectId", "=", parentModel.projectId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
@@ -263,7 +263,7 @@ builder.mutationFields(t => ({
             permissions: {
               modelVersion: ["publish"],
             },
-            organizationId: project.team_id,
+            organizationId: project.teamId,
           },
         });
 
@@ -271,21 +271,21 @@ builder.mutationFields(t => ({
           throw new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" });
         }
 
-        if (parentModel.is_archived === true) {
+        if (parentModel.isArchived === true) {
           throw new RegistryOperationError({ name: "ARCHIVED_MODEL_ERROR" });
         }
-        if (mlModelVersion.is_archived === true) {
+        if (mlModelVersion.isArchived === true) {
           throw new RegistryOperationError({ name: "ARCHIVED_MODEL_VERSION_ERROR" });
         }
 
         const publishedMlModelVersion = await trx
-          .updateTable("registry.model_versions")
+          .updateTable("registry.modelVersions")
           .set({
-            is_finalized: true,
-            date_modified: new Date(),
-            modified_by_id: ctx.user.id,
+            isFinalized: true,
+            dateModified: new Date(),
+            modifiedById: ctx.user.id,
           })
-          .where("registry.model_versions.model_version_id", "=", args.modelVersionId)
+          .where("registry.modelVersions.modelVersionId", "=", args.modelVersionId)
           .returningAll()
           .executeTakeFirstOrThrow();
 
@@ -309,28 +309,28 @@ builder.mutationFields(t => ({
         // providers or models. It's not unreasonable to want to mark old
         // assets as archived if a parent object goes bye-bye
         const mlModelVersion = await trx
-          .selectFrom("registry.model_versions")
+          .selectFrom("registry.modelVersions")
           .select([
-            "registry.model_versions.model_id",
-            "registry.model_versions.is_archived",
+            "registry.modelVersions.modelId",
+            "registry.modelVersions.isArchived",
           ])
-          .where("registry.model_versions.model_version_id", "=", args.modelVersionId)
+          .where("registry.modelVersions.modelVersionId", "=", args.modelVersionId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" }),
           );
 
         const parentModel = await trx
           .selectFrom("registry.models")
-          .select("registry.models.project_id")
-          .where("registry.models.model_id", "=", mlModelVersion.model_id)
+          .select("registry.models.projectId")
+          .where("registry.models.modelId", "=", mlModelVersion.modelId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
           );
 
         const project = await trx
-          .selectFrom("dstk_user.projects")
-          .select("team_id")
-          .where("dstk_user.projects.project_id", "=", parentModel.project_id)
+          .selectFrom("dstkUser.projects")
+          .select("teamId")
+          .where("dstkUser.projects.projectId", "=", parentModel.projectId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
@@ -341,7 +341,7 @@ builder.mutationFields(t => ({
             permissions: {
               modelVersion: ["archive"],
             },
-            organizationId: project.team_id,
+            organizationId: project.teamId,
           },
         });
 
@@ -350,13 +350,13 @@ builder.mutationFields(t => ({
         }
 
         const archivedModelVersion = await trx
-          .updateTable("registry.model_versions")
+          .updateTable("registry.modelVersions")
           .set({
-            is_archived: !mlModelVersion.is_archived,
-            date_modified: new Date(),
-            modified_by_id: ctx.user.id,
+            isArchived: !mlModelVersion.isArchived,
+            dateModified: new Date(),
+            modifiedById: ctx.user.id,
           })
-          .where("registry.model_versions.model_version_id", "=", args.modelVersionId)
+          .where("registry.modelVersions.modelVersionId", "=", args.modelVersionId)
           .returningAll()
           .executeTakeFirstOrThrow();
 
@@ -378,62 +378,62 @@ builder.mutationFields(t => ({
     },
     async resolve(_root, args, ctx) {
       const mlModelVersion = await db
-        .selectFrom("registry.model_versions")
+        .selectFrom("registry.modelVersions")
         .select([
-          "registry.model_versions.model_id",
-          "registry.model_versions.is_archived",
-          "registry.model_versions.is_finalized",
-          "registry.model_versions.s3_prefix",
+          "registry.modelVersions.modelId",
+          "registry.modelVersions.isArchived",
+          "registry.modelVersions.isFinalized",
+          "registry.modelVersions.s3Prefix",
         ])
-        .where("registry.model_versions.model_version_id", "=", args.data.modelVersionId)
+        .where("registry.modelVersions.modelVersionId", "=", args.data.modelVersionId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" }),
         );
 
-      if (mlModelVersion.is_archived) {
+      if (mlModelVersion.isArchived) {
         throw new RegistryOperationError({ name: "ARCHIVED_MODEL_VERSION_ERROR" });
       }
 
-      if (mlModelVersion.is_finalized === true) {
+      if (mlModelVersion.isFinalized === true) {
         throw new RegistryOperationError({ name: "PUBLISHED_MODEL_VERSION_ERROR" });
       }
 
       const parentModel = await db
         .selectFrom("registry.models")
         .select([
-          "registry.models.storage_provider_id",
-          "registry.models.project_id",
-          "registry.models.is_archived",
+          "registry.models.storageProviderId",
+          "registry.models.projectId",
+          "registry.models.isArchived",
         ])
-        .where("registry.models.model_id", "=", mlModelVersion.model_id)
+        .where("registry.models.modelId", "=", mlModelVersion.modelId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
         );
 
-      if (parentModel.is_archived === true) {
+      if (parentModel.isArchived === true) {
         throw new RegistryOperationError({ name: "ARCHIVED_MODEL_ERROR" });
       }
 
       const modelStorageProvider = await db
-        .selectFrom("registry.storage_providers")
+        .selectFrom("registry.storageProviders")
         .selectAll()
         .where(
-          "registry.storage_providers.provider_id",
+          "registry.storageProviders.providerId",
           "=",
-          parentModel.storage_provider_id,
+          parentModel.storageProviderId,
         )
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "PROVIDER_NOT_FOUND_ERROR" }),
         );
 
-      if (modelStorageProvider.is_archived === true) {
+      if (modelStorageProvider.isArchived === true) {
         throw new RegistryOperationError({ name: "ARCHIVED_STORAGE_ERROR" });
       }
 
       const project = await db
-        .selectFrom("dstk_user.projects")
-        .select("dstk_user.projects.team_id")
-        .where("dstk_user.projects.project_id", "=", parentModel.project_id)
+        .selectFrom("dstkUser.projects")
+        .select("dstkUser.projects.teamId")
+        .where("dstkUser.projects.projectId", "=", parentModel.projectId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
         );
@@ -446,7 +446,7 @@ builder.mutationFields(t => ({
           permissions: {
             modelVersion: ["download"],
           },
-          organizationId: project.team_id,
+          organizationId: project.teamId,
         },
       });
 
@@ -454,7 +454,7 @@ builder.mutationFields(t => ({
         throw new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" });
       }
 
-      const key = `${mlModelVersion.s3_prefix}/${args.data.filename}`;
+      const key = `${mlModelVersion.s3Prefix}/${args.data.filename}`;
 
       if (args.data.method === "createMultipartUpload") {
         const result = await CreateMultipartUpload(modelStorageProvider, key);

@@ -26,32 +26,32 @@ builder.queryFields(t => ({
     },
     async resolve(_root, args, ctx) {
       await db
-        .selectFrom("dstk_user.members")
-        .select("dstk_user.members.id")
-        .where("dstk_user.members.user_id", "=", ctx.user.id)
-        .where("dstk_user.members.team_id", "=", args.teamId)
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.id")
+        .where("dstkUser.members.userId", "=", ctx.user.id)
+        .where("dstkUser.members.teamId", "=", args.teamId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
         );
 
       const userProjects = await db
-        .selectFrom("dstk_user.projects")
-        .select("dstk_user.projects.project_id")
-        .where("dstk_user.projects.team_id", "=", args.teamId)
+        .selectFrom("dstkUser.projects")
+        .select("dstkUser.projects.projectId")
+        .where("dstkUser.projects.teamId", "=", args.teamId)
         .execute();
 
       let query = db
         .selectFrom("registry.models")
         .selectAll()
         .where(
-          "registry.models.project_id",
+          "registry.models.projectId",
           "in",
-          userProjects.map(project => project.project_id),
+          userProjects.map(project => project.projectId),
         );
 
       if (args.modelName) {
         query = query.where(
-          "registry.models.model_name",
+          "registry.models.modelName",
           "ilike",
           `%${args.modelName}%`,
         );
@@ -59,7 +59,7 @@ builder.queryFields(t => ({
 
       if (!args.includeArchived) {
         query = query.where(
-          "registry.models.is_archived",
+          "registry.models.isArchived",
           "is",
           false,
         );
@@ -70,9 +70,9 @@ builder.queryFields(t => ({
 
         query = query.where(({ eb, and, or }) =>
           or([
-            eb("registry.models.date_created", ">", new Date(dateCreated)),
+            eb("registry.models.dateCreated", ">", new Date(dateCreated)),
             and([
-              eb("registry.models.date_created", "=", new Date(dateCreated)),
+              eb("registry.models.dateCreated", "=", new Date(dateCreated)),
               eb("registry.models.id", ">", Number.parseInt(id)),
             ]),
           ]),
@@ -81,7 +81,7 @@ builder.queryFields(t => ({
 
       const mlModels = await query
         .limit(args.first + 1)
-        .orderBy("registry.models.date_created", "asc")
+        .orderBy("registry.models.dateCreated", "asc")
         .orderBy("registry.models.id", "asc")
         .execute();
 
@@ -90,7 +90,7 @@ builder.queryFields(t => ({
 
       const lastResult = mlModels[mlModels.length - 2];
       const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id.toString(), lastResult.date_created.toISOString())
+        ? encoder.encode(lastResult.id.toString(), lastResult.dateCreated.toISOString())
         : undefined;
 
       return {
@@ -116,18 +116,18 @@ builder.queryFields(t => ({
     },
     async resolve(_root, args, ctx) {
       const userTeams = await db
-        .selectFrom("dstk_user.members")
-        .select("dstk_user.members.team_id")
-        .where("dstk_user.members.user_id", "=", ctx.user.id)
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.teamId")
+        .where("dstkUser.members.userId", "=", ctx.user.id)
         .execute();
 
       const userProjects = await db
-        .selectFrom("dstk_user.projects")
-        .select("dstk_user.projects.project_id")
+        .selectFrom("dstkUser.projects")
+        .select("dstkUser.projects.projectId")
         .where(
-          "dstk_user.projects.team_id",
+          "dstkUser.projects.teamId",
           "in",
-          userTeams.map(edge => edge.team_id),
+          userTeams.map(edge => edge.teamId),
         )
         .execute();
 
@@ -137,11 +137,11 @@ builder.queryFields(t => ({
         .where(({ eb, and }) =>
           and([
             eb(
-              "registry.models.project_id",
+              "registry.models.projectId",
               "in",
-              userProjects.map(project => project.project_id),
+              userProjects.map(project => project.projectId),
             ),
-            eb("registry.models.model_id", "=", args.modelId),
+            eb("registry.models.modelId", "=", args.modelId),
           ]),
         )
         .executeTakeFirstOrThrow(

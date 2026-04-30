@@ -38,14 +38,14 @@ builder.mutationFields(t => ({
     async resolve(_root, args, ctx) {
       const results = await db.transaction().execute(async (trx) => {
         const team = await trx
-          .selectFrom("dstk_user.teams")
-          .select("dstk_user.teams.is_archived")
-          .where("dstk_user.teams.id", "=", args.data.teamId)
+          .selectFrom("dstkUser.teams")
+          .select("dstkUser.teams.isArchived")
+          .where("dstkUser.teams.id", "=", args.data.teamId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
           );
 
-        if (team.is_archived) {
+        if (team.isArchived) {
           throw new RegistryOperationError({ name: "ARCHIVED_TEAM_ERROR" });
         }
 
@@ -67,17 +67,17 @@ builder.mutationFields(t => ({
         const encryptedSecretAccessKey = EncryptoMatic.encrypt(args.data.secretAccessKey);
 
         const storageProvider = await trx
-          .insertInto("registry.storage_providers")
+          .insertInto("registry.storageProviders")
           .values({
-            endpoint_url: args.data.endpointUrl,
+            endpointUrl: args.data.endpointUrl,
             region: args.data.region,
             bucket: args.data.bucket,
-            access_key_id: encryptedAccessKeyId,
-            secret_access_key: encryptedSecretAccessKey,
-            created_by_id: ctx.user.id,
-            modified_by_id: ctx.user.id,
-            owner_id: ctx.user.id,
-            team_id: args.data.teamId,
+            accessKeyId: encryptedAccessKeyId,
+            secretAccessKey: encryptedSecretAccessKey,
+            createdById: ctx.user.id,
+            modifiedById: ctx.user.id,
+            ownerId: ctx.user.id,
+            teamId: args.data.teamId,
           })
           .returningAll()
           .executeTakeFirstOrThrow();
@@ -99,9 +99,9 @@ builder.mutationFields(t => ({
     async resolve(_root, args, ctx) {
       const results = await db.transaction().execute(async (trx) => {
         const storageProvider = await trx
-          .selectFrom("registry.storage_providers")
-          .select("registry.storage_providers.team_id")
-          .where("registry.storage_providers.provider_id", "=", args.data.providerId)
+          .selectFrom("registry.storageProviders")
+          .select("registry.storageProviders.teamId")
+          .where("registry.storageProviders.providerId", "=", args.data.providerId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "PROVIDER_NOT_FOUND_ERROR" }),
           );
@@ -112,7 +112,7 @@ builder.mutationFields(t => ({
             permissions: {
               storageProvider: ["edit"],
             },
-            organizationId: storageProvider.team_id,
+            organizationId: storageProvider.teamId,
           },
         });
 
@@ -124,14 +124,14 @@ builder.mutationFields(t => ({
         const encryptedSecretAccessKey = EncryptoMatic.encrypt(args.data.secretAccessKey);
 
         const result = await trx
-          .updateTable("registry.storage_providers")
+          .updateTable("registry.storageProviders")
           .set({
-            access_key_id: encryptedAccessKeyId,
-            secret_access_key: encryptedSecretAccessKey,
-            date_modified: new Date(),
-            modified_by_id: ctx.user.id,
+            accessKeyId: encryptedAccessKeyId,
+            secretAccessKey: encryptedSecretAccessKey,
+            dateModified: new Date(),
+            modifiedById: ctx.user.id,
           })
-          .where("registry.storage_providers.provider_id", "=", args.data.providerId)
+          .where("registry.storageProviders.providerId", "=", args.data.providerId)
           .returningAll()
           .executeTakeFirstOrThrow();
 
@@ -152,12 +152,12 @@ builder.mutationFields(t => ({
     async resolve(_root, args, ctx) {
       const results = await db.transaction().execute(async (trx) => {
         const storageProvider = await trx
-          .selectFrom("registry.storage_providers")
+          .selectFrom("registry.storageProviders")
           .select([
-            "registry.storage_providers.is_archived",
-            "registry.storage_providers.team_id",
+            "registry.storageProviders.isArchived",
+            "registry.storageProviders.teamId",
           ])
-          .where("registry.storage_providers.provider_id", "=", args.providerId)
+          .where("registry.storageProviders.providerId", "=", args.providerId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "PROVIDER_NOT_FOUND_ERROR" }),
           );
@@ -168,7 +168,7 @@ builder.mutationFields(t => ({
             permissions: {
               storageProvider: ["archive"],
             },
-            organizationId: storageProvider.team_id,
+            organizationId: storageProvider.teamId,
           },
         });
 
@@ -177,15 +177,15 @@ builder.mutationFields(t => ({
         }
 
         const result = await trx
-          .updateTable("registry.storage_providers")
+          .updateTable("registry.storageProviders")
           .set({
-            is_archived: !storageProvider.is_archived,
-            secret_access_key: EncryptoMatic.encrypt("<DELETED>"),
-            access_key_id: EncryptoMatic.encrypt("<DELETED>"),
-            date_modified: new Date(),
-            modified_by_id: ctx.user.id,
+            isArchived: !storageProvider.isArchived,
+            secretAccessKey: EncryptoMatic.encrypt("<DELETED>"),
+            accessKeyId: EncryptoMatic.encrypt("<DELETED>"),
+            dateModified: new Date(),
+            modifiedById: ctx.user.id,
           })
-          .where("registry.storage_providers.provider_id", "=", args.providerId)
+          .where("registry.storageProviders.providerId", "=", args.providerId)
           .returningAll()
           .executeTakeFirstOrThrow();
 

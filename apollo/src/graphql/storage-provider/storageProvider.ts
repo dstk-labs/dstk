@@ -16,16 +16,16 @@ builder.objectType(StorageProvider, {
     providerId: t.field({
       type: "ID",
       resolve(root: KyselyStorageProvider, _args, _ctx) {
-        return root.provider_id;
+        return root.providerId;
       },
     }),
-    endpointUrl: t.exposeString("endpoint_url"),
+    endpointUrl: t.exposeString("endpointUrl"),
     region: t.exposeString("region"),
     bucket: t.exposeString("bucket"),
 
     accessKeyId: t.string({
       resolve(root: KyselyStorageProvider, _args, _ctx) {
-        return EncryptoMatic.decrypt(root.access_key_id);
+        return EncryptoMatic.decrypt(root.accessKeyId);
       },
     }),
 
@@ -33,9 +33,9 @@ builder.objectType(StorageProvider, {
       type: User,
       async resolve(root: KyselyStorageProvider, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.users")
+          .selectFrom("dstkUser.users")
           .selectAll()
-          .where("dstk_user.users.id", "=", root.created_by_id)
+          .where("dstkUser.users.id", "=", root.createdById)
           .executeTakeFirstOrThrow();
         return user;
       },
@@ -44,9 +44,9 @@ builder.objectType(StorageProvider, {
       type: User,
       async resolve(root: KyselyStorageProvider, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.users")
+          .selectFrom("dstkUser.users")
           .selectAll()
-          .where("dstk_user.users.id", "=", root.modified_by_id)
+          .where("dstkUser.users.id", "=", root.modifiedById)
           .executeTakeFirstOrThrow();
         return user;
       },
@@ -55,26 +55,26 @@ builder.objectType(StorageProvider, {
       type: User,
       async resolve(root: KyselyStorageProvider, _args, _ctx) {
         const user = await db
-          .selectFrom("dstk_user.users")
+          .selectFrom("dstkUser.users")
           .selectAll()
-          .where("dstk_user.users.id", "=", root.owner_id)
+          .where("dstkUser.users.id", "=", root.ownerId)
           .executeTakeFirstOrThrow();
         return user;
       },
     }),
-    teamId: t.exposeString("team_id"),
+    teamId: t.exposeString("teamId"),
     dateCreated: t.field({
       type: "String",
       resolve(root: KyselyStorageProvider, _args, _ctx) {
-        return root.date_created.toISOString();
+        return root.dateCreated.toISOString();
       },
     }),
     dateModified: t.field({
       type: "String",
       resolve(root: KyselyStorageProvider, _args, _ctx) {
-        return root.date_modified.toISOString();
+        return root.dateModified.toISOString();
       },
     }),
-    isArchived: t.exposeBoolean("is_archived"),
+    isArchived: t.exposeBoolean("isArchived"),
   }),
 });

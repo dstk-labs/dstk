@@ -16,12 +16,12 @@ builder.queryFields(t => ({
     },
     async resolve(_root, _args, ctx) {
       const apiKeys = await db
-        .selectFrom("dstk_user.api_key")
+        .selectFrom("dstkUser.apiKey")
         .selectAll()
         .where(({ eb, and }) =>
           and([
-            eb("dstk_user.api_key.user_id", "=", ctx.user.id),
-            eb("dstk_user.api_key.is_archived", "=", false),
+            eb("dstkUser.apiKey.userId", "=", ctx.user.id),
+            eb("dstkUser.apiKey.isArchived", "=", false),
           ]),
         )
         .execute();
@@ -45,25 +45,25 @@ builder.queryFields(t => ({
     },
     async resolve(_root, args, ctx) {
       const userTeams = await db
-        .selectFrom("dstk_user.members")
-        .select("dstk_user.members.team_id")
-        .where("dstk_user.members.user_id", "=", ctx.user.id)
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.teamId")
+        .where("dstkUser.members.userId", "=", ctx.user.id)
         .execute();
 
       let query = db
-        .selectFrom("dstk_user.users")
+        .selectFrom("dstkUser.users")
         .selectAll()
         .where(
-          "dstk_user.users.id",
+          "dstkUser.users.id",
           "in",
-          db.selectFrom("dstk_user.members")
-            .select("dstk_user.members.user_id")
-            .where("dstk_user.members.team_id", "in", userTeams.map(t => t.team_id)),
+          db.selectFrom("dstkUser.members")
+            .select("dstkUser.members.userId")
+            .where("dstkUser.members.teamId", "in", userTeams.map(t => t.teamId)),
         );
 
       if (args.userName) {
         query = query.where(
-          "dstk_user.users.user_name",
+          "dstkUser.users.userName",
           "ilike",
           `%${args.userName}%`,
         );
@@ -74,10 +74,10 @@ builder.queryFields(t => ({
 
         query = query.where(({ eb, and, or }) =>
           or([
-            eb("dstk_user.users.date_created", ">", new Date(dateCreated)),
+            eb("dstkUser.users.dateCreated", ">", new Date(dateCreated)),
             and([
-              eb("dstk_user.users.date_created", "=", new Date(dateCreated)),
-              eb("dstk_user.users.id", ">", id),
+              eb("dstkUser.users.dateCreated", "=", new Date(dateCreated)),
+              eb("dstkUser.users.id", ">", id),
             ]),
           ]),
         );
@@ -85,15 +85,15 @@ builder.queryFields(t => ({
 
       const users = await query
         .limit(args.first + 1)
-        .orderBy("dstk_user.users.date_created", "asc")
-        .orderBy("dstk_user.users.id", "asc")
+        .orderBy("dstkUser.users.dateCreated", "asc")
+        .orderBy("dstkUser.users.id", "asc")
         .execute();
 
       const hasNextPage = users.length > args.first;
 
       const lastResult = users[users.length - 2];
       const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id, lastResult.date_created.toISOString())
+        ? encoder.encode(lastResult.id, lastResult.dateCreated.toISOString())
         : undefined;
 
       return {
@@ -116,9 +116,9 @@ builder.queryFields(t => ({
     },
     async resolve(_root, _args, ctx) {
       return db
-        .selectFrom("dstk_user.users")
+        .selectFrom("dstkUser.users")
         .selectAll()
-        .where("dstk_user.users.id", "=", ctx.user.id)
+        .where("dstkUser.users.id", "=", ctx.user.id)
         .executeTakeFirstOrThrow(
           () => new AccountError({ name: "INVALID_SESSION_ERROR" }),
         );

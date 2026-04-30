@@ -28,15 +28,15 @@ builder.queryFields(t => ({
     },
     async resolve(_root, args, ctx) {
       const userMemberships = await db
-        .selectFrom("dstk_user.members")
-        .select("dstk_user.members.team_id")
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.teamId")
         .where((eb) => {
           const statements: Expression<SqlBool>[] = [];
 
-          statements.push(eb("dstk_user.members.user_id", "=", ctx.user.id));
+          statements.push(eb("dstkUser.members.userId", "=", ctx.user.id));
 
           if (args.teamId) {
-            statements.push(eb("dstk_user.members.team_id", "=", args.teamId));
+            statements.push(eb("dstkUser.members.teamId", "=", args.teamId));
           }
 
           return eb.and(statements);
@@ -51,20 +51,20 @@ builder.queryFields(t => ({
       }
 
       let query = db
-        .selectFrom("dstk_user.teams")
+        .selectFrom("dstkUser.teams")
         .selectAll()
         .where((eb) => {
           const statements: Expression<SqlBool>[] = [];
 
           statements.push(eb(
-            "dstk_user.teams.id",
+            "dstkUser.teams.id",
             "in",
-            userMemberships.map(m => m.team_id),
+            userMemberships.map(m => m.teamId),
           ));
 
           if (!args.includeArchived) {
             statements.push(eb(
-              "dstk_user.teams.is_archived",
+              "dstkUser.teams.isArchived",
               "is",
               false,
             ));
@@ -72,7 +72,7 @@ builder.queryFields(t => ({
 
           if (args.teamName) {
             statements.push(eb(
-              "dstk_user.teams.name",
+              "dstkUser.teams.name",
               "ilike",
               `%${args.teamName}%`,
             ));
@@ -86,10 +86,10 @@ builder.queryFields(t => ({
 
         query = query.where(({ eb, and, or }) =>
           or([
-            eb("dstk_user.teams.date_created", ">", new Date(dateCreated)),
+            eb("dstkUser.teams.dateCreated", ">", new Date(dateCreated)),
             and([
-              eb("dstk_user.teams.date_created", "=", new Date(dateCreated)),
-              eb("dstk_user.teams.id", ">", id),
+              eb("dstkUser.teams.dateCreated", "=", new Date(dateCreated)),
+              eb("dstkUser.teams.id", ">", id),
             ]),
           ]),
         );
@@ -97,15 +97,15 @@ builder.queryFields(t => ({
 
       const teams = await query
         .limit(args.first + 1)
-        .orderBy("dstk_user.teams.date_created", "asc")
-        .orderBy("dstk_user.teams.id", "asc")
+        .orderBy("dstkUser.teams.dateCreated", "asc")
+        .orderBy("dstkUser.teams.id", "asc")
         .execute();
 
       const hasNextPage = teams.length > args.first;
 
       const lastResult = teams[teams.length - 2];
       const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id, lastResult.date_created.toISOString())
+        ? encoder.encode(lastResult.id, lastResult.dateCreated.toISOString())
         : undefined;
 
       return {
@@ -138,21 +138,21 @@ builder.queryFields(t => ({
     },
     async resolve(_root, args, ctx) {
       await db
-        .selectFrom("dstk_user.members")
-        .select("dstk_user.members.id")
-        .where("dstk_user.members.user_id", "=", ctx.user.id)
-        .where("dstk_user.members.team_id", "=", args.teamId)
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.id")
+        .where("dstkUser.members.userId", "=", ctx.user.id)
+        .where("dstkUser.members.teamId", "=", args.teamId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
         );
 
       let query = db
-        .selectFrom("dstk_user.invitations")
+        .selectFrom("dstkUser.invitations")
         .selectAll()
-        .where("dstk_user.invitations.team_id", "=", args.teamId);
+        .where("dstkUser.invitations.teamId", "=", args.teamId);
 
       if (args.status) {
-        query = query.where("dstk_user.invitations.status", "=", args.status);
+        query = query.where("dstkUser.invitations.status", "=", args.status);
       }
 
       if (args.after) {
@@ -160,10 +160,10 @@ builder.queryFields(t => ({
 
         query = query.where(({ eb, and, or }) =>
           or([
-            eb("dstk_user.invitations.date_created", ">", new Date(dateCreated)),
+            eb("dstkUser.invitations.dateCreated", ">", new Date(dateCreated)),
             and([
-              eb("dstk_user.invitations.date_created", "=", new Date(dateCreated)),
-              eb("dstk_user.invitations.id", ">", id),
+              eb("dstkUser.invitations.dateCreated", "=", new Date(dateCreated)),
+              eb("dstkUser.invitations.id", ">", id),
             ]),
           ]),
         );
@@ -171,15 +171,15 @@ builder.queryFields(t => ({
 
       const invitations = await query
         .limit(args.first + 1)
-        .orderBy("dstk_user.invitations.date_created", "asc")
-        .orderBy("dstk_user.invitations.id", "asc")
+        .orderBy("dstkUser.invitations.dateCreated", "asc")
+        .orderBy("dstkUser.invitations.id", "asc")
         .execute();
 
       const hasNextPage = invitations.length > args.first;
 
       const lastResult = invitations[invitations.length - 2];
       const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id, lastResult.date_created.toISOString())
+        ? encoder.encode(lastResult.id, lastResult.dateCreated.toISOString())
         : undefined;
 
       return {
@@ -205,24 +205,24 @@ builder.queryFields(t => ({
     },
     async resolve(_root, args, ctx) {
       await db
-        .selectFrom("dstk_user.members")
-        .select("dstk_user.members.id")
-        .where("dstk_user.members.user_id", "=", ctx.user.id)
-        .where("dstk_user.members.team_id", "=", args.teamId)
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.id")
+        .where("dstkUser.members.userId", "=", ctx.user.id)
+        .where("dstkUser.members.teamId", "=", args.teamId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
         );
 
       const memberUserIds = await db
-        .selectFrom("dstk_user.members")
-        .select("dstk_user.members.user_id")
-        .where("dstk_user.members.team_id", "=", args.teamId)
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.userId")
+        .where("dstkUser.members.teamId", "=", args.teamId)
         .execute();
 
       return db
-        .selectFrom("dstk_user.users")
+        .selectFrom("dstkUser.users")
         .selectAll()
-        .where("dstk_user.users.id", "in", memberUserIds.map(m => m.user_id))
+        .where("dstkUser.users.id", "in", memberUserIds.map(m => m.userId))
         .execute();
     },
   }),

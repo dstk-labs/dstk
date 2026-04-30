@@ -43,10 +43,10 @@ builder.mutationFields(t => ({
     },
     async resolve(_root, args, ctx) {
       const userName = await db
-        .selectFrom("dstk_user.users")
-        .select("dstk_user.users.user_name")
+        .selectFrom("dstkUser.users")
+        .select("dstkUser.users.userName")
         .where(
-          ({ fn }) => fn("lower", ["dstk_user.users.user_name"]),
+          ({ fn }) => fn("lower", ["dstkUser.users.userName"]),
           "=",
           args.data.userName,
         )
@@ -61,16 +61,16 @@ builder.mutationFields(t => ({
           name: args.data.realName,
           email: args.data.email,
           password: args.data.password,
-          user_name: args.data.userName,
+          userName: args.data.userName,
         },
       });
 
       await handleAuthCookies({ headers, ctx });
 
       const user = await db
-        .selectFrom("dstk_user.users")
+        .selectFrom("dstkUser.users")
         .selectAll()
-        .where("dstk_user.users.id", "=", response.user.id)
+        .where("dstkUser.users.id", "=", response.user.id)
         .executeTakeFirstOrThrow();
 
       return user;

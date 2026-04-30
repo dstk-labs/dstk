@@ -35,10 +35,10 @@ export async function CreateMultipartUpload(storageProvider: KyselyStorageProvid
   const client = new S3Client({
     apiVersion: "2006-03-01",
     region: storageProvider.region,
-    endpoint: storageProvider.endpoint_url,
+    endpoint: storageProvider.endpointUrl,
     credentials: {
-      accessKeyId: EncryptoMatic.decrypt(storageProvider.access_key_id),
-      secretAccessKey: EncryptoMatic.decrypt(storageProvider.secret_access_key),
+      accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
+      secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
     },
   });
 
@@ -59,10 +59,10 @@ export async function CreatePresignedURLForPart(
   const client = new S3Client({
     apiVersion: "2006-03-01",
     region: storageProvider.region,
-    endpoint: storageProvider.endpoint_url,
+    endpoint: storageProvider.endpointUrl,
     credentials: {
-      accessKeyId: EncryptoMatic.decrypt(storageProvider.access_key_id),
-      secretAccessKey: EncryptoMatic.decrypt(storageProvider.secret_access_key),
+      accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
+      secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
     },
   });
 
@@ -93,10 +93,10 @@ export async function FinalizeMultipartUpload(
   const client = new S3Client({
     apiVersion: "2006-03-01",
     region: storageProvider.region,
-    endpoint: storageProvider.endpoint_url,
+    endpoint: storageProvider.endpointUrl,
     credentials: {
-      accessKeyId: EncryptoMatic.decrypt(storageProvider.access_key_id),
-      secretAccessKey: EncryptoMatic.decrypt(storageProvider.secret_access_key),
+      accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
+      secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
     },
   });
 
@@ -118,10 +118,10 @@ export async function AbortMultipartUpload(
   const client = new S3Client({
     apiVersion: "2006-03-01",
     region: storageProvider.region,
-    endpoint: storageProvider.endpoint_url,
+    endpoint: storageProvider.endpointUrl,
     credentials: {
-      accessKeyId: EncryptoMatic.decrypt(storageProvider.access_key_id),
-      secretAccessKey: EncryptoMatic.decrypt(storageProvider.secret_access_key),
+      accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
+      secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
     },
   });
 
@@ -143,10 +143,10 @@ export async function ListObjects(
   const client = new S3Client({
     apiVersion: "2006-03-01",
     region: storageProvider.region,
-    endpoint: storageProvider.endpoint_url,
+    endpoint: storageProvider.endpointUrl,
     credentials: {
-      accessKeyId: EncryptoMatic.decrypt(storageProvider.access_key_id),
-      secretAccessKey: EncryptoMatic.decrypt(storageProvider.secret_access_key),
+      accessKeyId: EncryptoMatic.decrypt(storageProvider.accessKeyId),
+      secretAccessKey: EncryptoMatic.decrypt(storageProvider.secretAccessKey),
     },
   });
 

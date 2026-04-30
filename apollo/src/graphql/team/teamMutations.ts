@@ -77,21 +77,21 @@ builder.mutationFields(t => ({
         }
 
         const team = await trx
-          .selectFrom("dstk_user.teams")
-          .select(["dstk_user.teams.is_archived"])
-          .where("dstk_user.teams.id", "=", args.teamId)
+          .selectFrom("dstkUser.teams")
+          .select(["dstkUser.teams.isArchived"])
+          .where("dstkUser.teams.id", "=", args.teamId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
           );
 
         const result = await trx
-          .updateTable("dstk_user.teams")
+          .updateTable("dstkUser.teams")
           .set({
-            modified_by_id: ctx.user.id,
-            date_modified: new Date(),
-            is_archived: !team.is_archived,
+            modifiedById: ctx.user.id,
+            dateModified: new Date(),
+            isArchived: !team.isArchived,
           })
-          .where("dstk_user.teams.id", "=", args.teamId)
+          .where("dstkUser.teams.id", "=", args.teamId)
           .returningAll()
           .executeTakeFirstOrThrow();
 
@@ -125,26 +125,26 @@ builder.mutationFields(t => ({
         }
 
         const team = await trx
-          .selectFrom("dstk_user.teams")
-          .select(["dstk_user.teams.id", "dstk_user.teams.is_archived"])
-          .where("dstk_user.teams.id", "=", args.data.teamId)
+          .selectFrom("dstkUser.teams")
+          .select(["dstkUser.teams.id", "dstkUser.teams.isArchived"])
+          .where("dstkUser.teams.id", "=", args.data.teamId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
           );
 
-        if (team.is_archived) {
+        if (team.isArchived) {
           throw new RegistryOperationError({ name: "ARCHIVED_TEAM_ERROR" });
         }
 
         const result = await trx
-          .updateTable("dstk_user.teams")
+          .updateTable("dstkUser.teams")
           .set({
             description: args.data.description,
             name: args.data.name,
-            modified_by_id: ctx.user.id,
-            date_modified: new Date(),
+            modifiedById: ctx.user.id,
+            dateModified: new Date(),
           })
-          .where("dstk_user.teams.id", "=", args.data.teamId)
+          .where("dstkUser.teams.id", "=", args.data.teamId)
           .returningAll()
           .executeTakeFirstOrThrow();
 
@@ -178,9 +178,9 @@ builder.mutationFields(t => ({
       }
 
       const user = await db
-        .selectFrom("dstk_user.users")
-        .select("dstk_user.users.email")
-        .where("dstk_user.users.id", "=", args.data.userId)
+        .selectFrom("dstkUser.users")
+        .select("dstkUser.users.email")
+        .where("dstkUser.users.id", "=", args.data.userId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
         );
@@ -195,11 +195,11 @@ builder.mutationFields(t => ({
       });
 
       return db
-        .selectFrom("dstk_user.invitations")
+        .selectFrom("dstkUser.invitations")
         .selectAll()
-        .where("dstk_user.invitations.email", "=", user.email)
-        .where("dstk_user.invitations.team_id", "=", args.data.teamId)
-        .orderBy("dstk_user.invitations.date_created", "desc")
+        .where("dstkUser.invitations.email", "=", user.email)
+        .where("dstkUser.invitations.teamId", "=", args.data.teamId)
+        .orderBy("dstkUser.invitations.dateCreated", "desc")
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
         );
@@ -237,9 +237,9 @@ builder.mutationFields(t => ({
       });
 
       return db
-        .selectFrom("dstk_user.invitations")
+        .selectFrom("dstkUser.invitations")
         .selectAll()
-        .where("dstk_user.invitations.id", "=", args.invitationId)
+        .where("dstkUser.invitations.id", "=", args.invitationId)
         .executeTakeFirstOrThrow(
           () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
         );

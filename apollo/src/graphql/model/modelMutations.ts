@@ -25,9 +25,9 @@ builder.mutationFields(t => ({
     async resolve(_root, args, ctx) {
       const results = await db.transaction().execute(async (trx) => {
         const project = await trx
-          .selectFrom("dstk_user.projects")
-          .select(["dstk_user.projects.project_id", "dstk_user.projects.team_id"])
-          .where("dstk_user.projects.project_id", "=", args.data.projectId)
+          .selectFrom("dstkUser.projects")
+          .select(["dstkUser.projects.projectId", "dstkUser.projects.teamId"])
+          .where("dstkUser.projects.projectId", "=", args.data.projectId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
@@ -38,7 +38,7 @@ builder.mutationFields(t => ({
             permissions: {
               model: ["create"],
             },
-            organizationId: project.team_id,
+            organizationId: project.teamId,
           },
         });
 
@@ -47,16 +47,16 @@ builder.mutationFields(t => ({
         }
 
         const storageProvider = await trx
-          .selectFrom("registry.storage_providers")
+          .selectFrom("registry.storageProviders")
           .select([
-            "registry.storage_providers.provider_id",
-            "registry.storage_providers.is_archived",
+            "registry.storageProviders.providerId",
+            "registry.storageProviders.isArchived",
           ])
           .where(({ eb, and }) =>
             and([
-              eb("registry.storage_providers.team_id", "=", project.team_id),
+              eb("registry.storageProviders.teamId", "=", project.teamId),
               eb(
-                "registry.storage_providers.provider_id",
+                "registry.storageProviders.providerId",
                 "=",
                 args.data.storageProviderId,
               ),
@@ -66,19 +66,19 @@ builder.mutationFields(t => ({
             () => new RegistryOperationError({ name: "PROVIDER_NOT_FOUND_ERROR" }),
           );
 
-        if (storageProvider.is_archived === true) {
+        if (storageProvider.isArchived === true) {
           throw new RegistryOperationError({ name: "ARCHIVED_STORAGE_ERROR" });
         }
 
         const mlModel = await trx
           .insertInto("registry.models")
           .values({
-            storage_provider_id: args.data.storageProviderId,
-            project_id: project.project_id,
-            model_name: args.data.modelName,
+            storageProviderId: args.data.storageProviderId,
+            projectId: project.projectId,
+            modelName: args.data.modelName,
             description: args.data.description,
-            created_by_id: ctx.user.id,
-            modified_by_id: ctx.user.id,
+            createdById: ctx.user.id,
+            modifiedById: ctx.user.id,
           })
           .returningAll()
           .executeTakeFirstOrThrow(
@@ -103,20 +103,20 @@ builder.mutationFields(t => ({
       const results = await db.transaction().execute(async (trx) => {
         const mlModel = await trx
           .selectFrom("registry.models")
-          .select(["registry.models.project_id", "registry.models.is_archived"])
-          .where("registry.models.model_id", "=", args.modelId)
+          .select(["registry.models.projectId", "registry.models.isArchived"])
+          .where("registry.models.modelId", "=", args.modelId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
           );
 
-        if (mlModel.is_archived === true) {
+        if (mlModel.isArchived === true) {
           throw new RegistryOperationError({ name: "ARCHIVED_MODEL_ERROR" });
         }
 
         const project = await trx
-          .selectFrom("dstk_user.projects")
-          .select("dstk_user.projects.team_id")
-          .where("dstk_user.projects.project_id", "=", mlModel.project_id)
+          .selectFrom("dstkUser.projects")
+          .select("dstkUser.projects.teamId")
+          .where("dstkUser.projects.projectId", "=", mlModel.projectId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
@@ -127,7 +127,7 @@ builder.mutationFields(t => ({
             permissions: {
               model: ["edit"],
             },
-            organizationId: project.team_id,
+            organizationId: project.teamId,
           },
         });
 
@@ -136,13 +136,13 @@ builder.mutationFields(t => ({
         }
 
         const storageProvider = await trx
-          .selectFrom("registry.storage_providers")
-          .select("registry.storage_providers.is_archived")
+          .selectFrom("registry.storageProviders")
+          .select("registry.storageProviders.isArchived")
           .where(({ eb, and }) =>
             and([
-              eb("registry.storage_providers.team_id", "=", project.team_id),
+              eb("registry.storageProviders.teamId", "=", project.teamId),
               eb(
-                "registry.storage_providers.provider_id",
+                "registry.storageProviders.providerId",
                 "=",
                 args.data.storageProviderId,
               ),
@@ -152,21 +152,21 @@ builder.mutationFields(t => ({
             () => new RegistryOperationError({ name: "PROVIDER_NOT_FOUND_ERROR" }),
           );
 
-        if (storageProvider.is_archived === true) {
+        if (storageProvider.isArchived === true) {
           throw new RegistryOperationError({ name: "ARCHIVED_STORAGE_ERROR" });
         }
 
         const result = await trx
           .updateTable("registry.models")
           .set({
-            model_name: args.data.modelName,
+            modelName: args.data.modelName,
             description: args.data.description,
-            storage_provider_id: args.data.storageProviderId,
-            project_id: args.data.projectId,
-            date_modified: new Date(),
-            modified_by_id: ctx.user.id,
+            storageProviderId: args.data.storageProviderId,
+            projectId: args.data.projectId,
+            dateModified: new Date(),
+            modifiedById: ctx.user.id,
           })
-          .where("registry.models.model_id", "=", args.modelId)
+          .where("registry.models.modelId", "=", args.modelId)
           .returningAll()
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_WRITE_ERROR" }),
@@ -190,16 +190,16 @@ builder.mutationFields(t => ({
       const results = await db.transaction().execute(async (trx) => {
         const mlModel = await trx
           .selectFrom("registry.models")
-          .select(["registry.models.project_id", "registry.models.is_archived"])
-          .where("registry.models.model_id", "=", args.modelId)
+          .select(["registry.models.projectId", "registry.models.isArchived"])
+          .where("registry.models.modelId", "=", args.modelId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
           );
 
         const project = await trx
-          .selectFrom("dstk_user.projects")
-          .select("dstk_user.projects.team_id")
-          .where("dstk_user.projects.project_id", "=", mlModel.project_id)
+          .selectFrom("dstkUser.projects")
+          .select("dstkUser.projects.teamId")
+          .where("dstkUser.projects.projectId", "=", mlModel.projectId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
           );
@@ -210,7 +210,7 @@ builder.mutationFields(t => ({
             permissions: {
               model: ["archive"],
             },
-            organizationId: project.team_id,
+            organizationId: project.teamId,
           },
         });
 
@@ -224,11 +224,11 @@ builder.mutationFields(t => ({
         const result = await trx
           .updateTable("registry.models")
           .set({
-            is_archived: !mlModel.is_archived,
-            date_modified: new Date(),
-            modified_by_id: ctx.user.id,
+            isArchived: !mlModel.isArchived,
+            dateModified: new Date(),
+            modifiedById: ctx.user.id,
           })
-          .where("registry.models.model_id", "=", args.modelId)
+          .where("registry.models.modelId", "=", args.modelId)
           .returningAll()
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_WRITE_ERROR" }),

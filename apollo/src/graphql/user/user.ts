@@ -14,22 +14,22 @@ builder.objectType(User, {
         return root.id;
       },
     }),
-    realName: t.exposeString("real_name"),
+    realName: t.exposeString("realName"),
     email: t.exposeString("email"),
-    isEmailVerified: t.exposeBoolean("is_email_verified"),
-    isTwoFactorEnabled: t.exposeBoolean("is_two_factor_enabled"),
+    isEmailVerified: t.exposeBoolean("isEmailVerified"),
+    isTwoFactorEnabled: t.exposeBoolean("isTwoFactorEnabled"),
     image: t.exposeString("image"),
-    userName: t.exposeString("user_name"),
+    userName: t.exposeString("userName"),
     dateCreated: t.field({
       type: "String",
       resolve(root: KyselyUser, _args, _ctx) {
-        return root.date_created.toISOString();
+        return root.dateCreated.toISOString();
       },
     }),
     dateModified: t.field({
       type: "String",
       resolve(root: KyselyUser, _args, _ctx) {
-        return root.date_modified.toISOString();
+        return root.dateModified.toISOString();
       },
     }),
   }),
