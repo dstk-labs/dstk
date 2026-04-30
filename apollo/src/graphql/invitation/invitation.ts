@@ -1,10 +1,10 @@
 import type { Selectable } from "kysely";
-import type { DstkUserInvitations } from "../../db/db.js";
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { Team } from "../team/team.js";
-import { UserRole } from "../team/teamRoles.js";
-import { User } from "../user/user.js";
+import type { DstkUserInvitations } from "@/db/db.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { Team } from "@/graphql/team/team.js";
+import { UserRole } from "@/graphql/team/teamRoles.js";
+import { User } from "@/graphql/user/user.js";
 
 export type KyselyInvitation = Selectable<DstkUserInvitations>;
 

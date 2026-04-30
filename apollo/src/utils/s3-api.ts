@@ -1,4 +1,4 @@
-import type { KyselyStorageProvider } from "../graphql/index.js";
+import type { KyselyStorageProvider } from "@/graphql/index.js";
 import {
   AbortMultipartUploadCommand,
   CompleteMultipartUploadCommand,
@@ -8,7 +8,7 @@ import {
   UploadPartCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { builder } from "../builder.js";
+import { builder } from "@/builder.js";
 import { Security } from "./encryption.js";
 
 const EncryptoMatic = new Security();

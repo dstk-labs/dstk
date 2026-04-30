@@ -1,7 +1,7 @@
-import type { PageInfoClass } from "../misc/pageInfo.js";
 import type { StorageProviderObjectEdgeClass } from "./storageProviderObjectEdge.js";
-import { builder } from "../../builder.js";
-import { PageInfo } from "../misc/pageInfo.js";
+import type { PageInfoClass } from "@/graphql/misc/pageInfo.js";
+import { builder } from "@/builder.js";
+import { PageInfo } from "@/graphql/misc/pageInfo.js";
 import {
   StorageProviderObjectEdge,
 

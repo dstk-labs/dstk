@@ -1,5 +1,5 @@
 import type { KyselyMLModel } from "./model.js";
-import { builder } from "../../builder.js";
+import { builder } from "@/builder.js";
 import { MLModel } from "./model.js";
 
 export const MLModelEdge = builder.objectRef<MLModelEdgeClass>("MLModelEdge");

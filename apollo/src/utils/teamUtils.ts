@@ -1,4 +1,4 @@
-import { db } from "../db/kysely.js";
+import { db } from "@/db/kysely.js";
 import { shishKebab } from "./string-functions.js";
 
 type CreateTeam = {

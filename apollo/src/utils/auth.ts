@@ -2,8 +2,8 @@ import { betterAuth } from "better-auth";
 import { organization } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { defaultStatements, ownerAc } from "better-auth/plugins/organization/access";
-import { env } from "../config/env.js";
-import { pool } from "../db/kysely.js";
+import { env } from "@/config/env.js";
+import { pool } from "@/db/kysely.js";
 import { transporter } from "./smtp.js";
 import { createTeam } from "./teamUtils.js";
 

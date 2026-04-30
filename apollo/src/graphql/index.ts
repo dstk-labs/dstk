@@ -1,5 +1,5 @@
 // Alphabetize plz
-import { builder } from "../builder.js";
+import { builder } from "@/builder.js";
 
 export * from "./auth/auth.js";
 export * from "./auth/authMutations.js";

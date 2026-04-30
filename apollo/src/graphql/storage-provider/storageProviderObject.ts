@@ -1,4 +1,4 @@
-import { builder } from "../../builder.js";
+import { builder } from "@/builder.js";
 
 export const StorageProviderObject
   = builder.objectRef<StorageProviderObjectClass>("StorageProviderObject");

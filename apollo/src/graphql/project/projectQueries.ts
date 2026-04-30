@@ -1,8 +1,8 @@
 import type { Expression, SqlBool } from "kysely";
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { Encoder } from "../../utils/encoder.js";
-import { RegistryOperationError } from "../../utils/errors.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { Encoder } from "@/utils/encoder.js";
+import { RegistryOperationError } from "@/utils/errors.js";
 import { Project } from "./project.js";
 import { ProjectConnection } from "./projectConnection.js";
 

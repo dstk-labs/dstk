@@ -1,14 +1,14 @@
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { auth } from "../../utils/auth.js";
-import { RegistryOperationError } from "../../utils/errors.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { auth } from "@/utils/auth.js";
+import { RegistryOperationError } from "@/utils/errors.js";
 import {
   AbortMultipartUpload,
   CreateMultipartUpload,
   CreatePresignedURLForPart,
   FinalizeMultipartUpload,
   PresignedURL,
-} from "../../utils/s3-api.js";
+} from "@/utils/s3-api.js";
 import { MLModelVersion } from "./modelVersion.js";
 
 export const ModelVersionInputType = builder.inputType("ModelVersionInput", {

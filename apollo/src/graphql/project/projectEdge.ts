@@ -1,5 +1,5 @@
 import type { KyselyProject } from "./project.js";
-import { builder } from "../../builder.js";
+import { builder } from "@/builder.js";
 import { Project } from "./project.js";
 
 export const ProjectEdge = builder.objectRef<ProjectEdgeClass>("ProjectEdge");

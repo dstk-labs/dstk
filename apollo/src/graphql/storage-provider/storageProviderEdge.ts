@@ -1,5 +1,5 @@
 import type { KyselyStorageProvider } from "./storageProvider.js";
-import { builder } from "../../builder.js";
+import { builder } from "@/builder.js";
 import { StorageProvider } from "./storageProvider.js";
 
 export const StorageProviderEdge = builder.objectRef<StorageProviderEdgeClass>("StorageProviderEdge");

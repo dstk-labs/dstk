@@ -1,8 +1,8 @@
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { Encoder } from "../../utils/encoder.js";
-import { AccountError } from "../../utils/errors.js";
-import { ApiKey } from "../auth/auth.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { ApiKey } from "@/graphql/auth/auth.js";
+import { Encoder } from "@/utils/encoder.js";
+import { AccountError } from "@/utils/errors.js";
 import { User } from "./user.js";
 import { UserConnection } from "./userConnection.js";
 

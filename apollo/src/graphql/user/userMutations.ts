@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { auth } from "../../utils/auth.js";
-import { RegistryOperationError } from "../../utils/errors.js";
-import { ApiKey } from "../auth/auth.js";
-import { Invitation } from "../invitation/invitation.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { ApiKey } from "@/graphql/auth/auth.js";
+import { Invitation } from "@/graphql/invitation/invitation.js";
+import { auth } from "@/utils/auth.js";
+import { RegistryOperationError } from "@/utils/errors.js";
 
 builder.mutationFields(t => ({
   createApiKey: t.field({

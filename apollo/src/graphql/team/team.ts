@@ -1,6 +1,6 @@
 import type { Selectable } from "kysely";
-import type { DstkUserTeams } from "../../db/db.js";
-import { builder } from "../../builder.js";
+import type { DstkUserTeams } from "@/db/db.js";
+import { builder } from "@/builder.js";
 
 export type KyselyTeam = Selectable<DstkUserTeams>;
 

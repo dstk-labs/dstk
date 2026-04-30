@@ -1,10 +1,10 @@
 import type { Expression, SqlBool } from "kysely";
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { Encoder } from "../../utils/encoder.js";
-import { RegistryOperationError } from "../../utils/errors.js";
-import { ListObjects } from "../../utils/s3-api.js";
-import { StorageProviderObjectConnection } from "../storage-provider/storageProviderObjectConnection.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { StorageProviderObjectConnection } from "@/graphql/storage-provider/storageProviderObjectConnection.js";
+import { Encoder } from "@/utils/encoder.js";
+import { RegistryOperationError } from "@/utils/errors.js";
+import { ListObjects } from "@/utils/s3-api.js";
 import { StorageProvider } from "./storageProvider.js";
 import { StorageProviderConnection } from "./storageProviderConnection.js";
 

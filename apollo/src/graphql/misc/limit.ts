@@ -1,7 +1,7 @@
-import type { Limit } from "../../types/limit.js";
-import { builder } from "../../builder.js";
-import { LIMITS } from "../../types/limit.js";
-import { InputError } from "../../utils/errors.js";
+import type { Limit } from "@/types/limit.js";
+import { builder } from "@/builder.js";
+import { LIMITS } from "@/types/limit.js";
+import { InputError } from "@/utils/errors.js";
 
 builder.scalarType("Limit", {
   serialize: n => n,

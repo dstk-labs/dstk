@@ -1,9 +1,9 @@
 import type { Selectable } from "kysely";
-import type { RegistryStorageProviders } from "../../db/db.js";
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { Security } from "../../utils/encryption.js";
-import { User } from "../user/user.js";
+import type { RegistryStorageProviders } from "@/db/db.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { User } from "@/graphql/user/user.js";
+import { Security } from "@/utils/encryption.js";
 
 const EncryptoMatic = new Security();
 

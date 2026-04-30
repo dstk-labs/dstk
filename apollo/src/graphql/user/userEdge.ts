@@ -1,5 +1,5 @@
 import type { KyselyUser } from "./user.js";
-import { builder } from "../../builder.js";
+import { builder } from "@/builder.js";
 import { User } from "./user.js";
 
 export const UserEdge = builder.objectRef<UserEdgeClass>("UserEdge");

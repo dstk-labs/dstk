@@ -1,6 +1,6 @@
 import type { Selectable } from "kysely";
-import type { DstkUserUsers } from "../../db/db.js";
-import { builder } from "../../builder.js";
+import type { DstkUserUsers } from "@/db/db.js";
+import { builder } from "@/builder.js";
 
 export type KyselyUser = Selectable<DstkUserUsers>;
 
