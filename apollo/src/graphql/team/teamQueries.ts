@@ -1,10 +1,10 @@
 import type { Expression, SqlBool } from "kysely";
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { Encoder } from "../../utils/encoder.js";
-import { RegistryOperationError } from "../../utils/errors.js";
-import { InvitationConnection } from "../invitation/invitationConnection.js";
-import { User } from "../user/user.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { InvitationConnection } from "@/graphql/invitation/invitationConnection.js";
+import { User } from "@/graphql/user/user.js";
+import { Encoder } from "@/utils/encoder.js";
+import { RegistryOperationError } from "@/utils/errors.js";
 import { TeamConnection } from "./teamConnection.js";
 
 const encoder = new Encoder();

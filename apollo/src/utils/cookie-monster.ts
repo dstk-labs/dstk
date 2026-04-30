@@ -1,4 +1,4 @@
-import type { Context } from "../builder.js";
+import type { Context } from "@/builder.js";
 import { AccountError } from "./errors.js";
 
 type HandleAuthCookiesArgs = {

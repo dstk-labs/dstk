@@ -1,5 +1,5 @@
 import type { StorageProviderObjectClass } from "./storageProviderObject.js";
-import { builder } from "../../builder.js";
+import { builder } from "@/builder.js";
 import { StorageProviderObject } from "./storageProviderObject.js";
 
 export const StorageProviderObjectEdge = builder.objectRef<StorageProviderObjectEdgeClass>(

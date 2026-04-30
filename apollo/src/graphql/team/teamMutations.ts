@@ -1,9 +1,9 @@
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { auth } from "../../utils/auth.js";
-import { RegistryOperationError } from "../../utils/errors.js";
-import { createTeam } from "../../utils/teamUtils.js";
-import { Invitation } from "../invitation/invitation.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { Invitation } from "@/graphql/invitation/invitation.js";
+import { auth } from "@/utils/auth.js";
+import { RegistryOperationError } from "@/utils/errors.js";
+import { createTeam } from "@/utils/teamUtils.js";
 import { Team } from "./team.js";
 import { UserRole } from "./teamRoles.js";
 

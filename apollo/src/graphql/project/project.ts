@@ -1,8 +1,8 @@
 import type { Selectable } from "kysely";
-import type { DstkUserProjects } from "../../db/db.js";
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { User } from "../user/user.js";
+import type { DstkUserProjects } from "@/db/db.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { User } from "@/graphql/user/user.js";
 
 export type KyselyProject = Selectable<DstkUserProjects>;
 

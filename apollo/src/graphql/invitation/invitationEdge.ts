@@ -1,5 +1,5 @@
 import type { KyselyInvitation } from "./invitation.js";
-import { builder } from "../../builder.js";
+import { builder } from "@/builder.js";
 import { Invitation } from "./invitation.js";
 
 export const InvitationEdge = builder.objectRef<InvitationEdgeClass>("InvitationEdge");

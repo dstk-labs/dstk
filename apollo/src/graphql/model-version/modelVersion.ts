@@ -1,9 +1,9 @@
 import type { Selectable } from "kysely";
-import type { RegistryModelVersions } from "../../db/db.js";
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { MLModel } from "../model/model.js";
-import { User } from "../user/user.js";
+import type { RegistryModelVersions } from "@/db/db.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { MLModel } from "@/graphql/model/model.js";
+import { User } from "@/graphql/user/user.js";
 
 export type KyselyMLModelVersion = Selectable<RegistryModelVersions>;
 

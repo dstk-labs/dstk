@@ -1,5 +1,5 @@
 import type { KyselyMLModelVersion } from "./modelVersion.js";
-import { builder } from "../../builder.js";
+import { builder } from "@/builder.js";
 import { MLModelVersion } from "./modelVersion.js";
 
 export const MLModelVersionEdge = builder.objectRef<MLModelVersionEdgeClass>("MLModelVersionEdge");

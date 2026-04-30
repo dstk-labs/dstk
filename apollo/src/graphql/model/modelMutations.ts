@@ -1,7 +1,7 @@
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { auth } from "../../utils/auth.js";
-import { RegistryOperationError } from "../../utils/errors.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { auth } from "@/utils/auth.js";
+import { RegistryOperationError } from "@/utils/errors.js";
 import { MLModel } from "./model.js";
 
 export const ModelInputType = builder.inputType("ModelInput", {

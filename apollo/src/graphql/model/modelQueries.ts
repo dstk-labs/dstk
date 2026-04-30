@@ -1,7 +1,7 @@
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { Encoder } from "../../utils/encoder.js";
-import { RegistryOperationError } from "../../utils/errors.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { Encoder } from "@/utils/encoder.js";
+import { RegistryOperationError } from "@/utils/errors.js";
 import { MLModel } from "./model.js";
 import { MLModelConnection } from "./modelConnection.js";
 

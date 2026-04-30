@@ -1,5 +1,5 @@
 import type { KyselyTeam } from "./team.js";
-import { builder } from "../../builder.js";
+import { builder } from "@/builder.js";
 import { Team } from "./team.js";
 
 export const TeamEdge = builder.objectRef<TeamEdgeClass>("TeamEdge");

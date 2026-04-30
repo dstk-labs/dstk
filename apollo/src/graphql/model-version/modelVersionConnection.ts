@@ -1,7 +1,7 @@
-import type { PageInfoClass } from "../misc/pageInfo.js";
 import type { MLModelVersionEdgeClass } from "./modelVersionEdge.js";
-import { builder } from "../../builder.js";
-import { PageInfo } from "../misc/pageInfo.js";
+import type { PageInfoClass } from "@/graphql/misc/pageInfo.js";
+import { builder } from "@/builder.js";
+import { PageInfo } from "@/graphql/misc/pageInfo.js";
 import { MLModelVersionEdge } from "./modelVersionEdge.js";
 
 export const MLModelVersionConnection = builder.objectRef<MLModelVersionConnectionClass>(

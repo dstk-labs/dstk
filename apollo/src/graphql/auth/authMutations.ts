@@ -1,9 +1,9 @@
-import { builder } from "../../builder.js";
-import { db } from "../../db/kysely.js";
-import { auth } from "../../utils/auth.js";
-import { handleAuthCookies } from "../../utils/cookie-monster.js";
-import { AccountError } from "../../utils/errors.js";
-import { User } from "../user/user.js";
+import { builder } from "@/builder.js";
+import { db } from "@/db/kysely.js";
+import { User } from "@/graphql/user/user.js";
+import { auth } from "@/utils/auth.js";
+import { handleAuthCookies } from "@/utils/cookie-monster.js";
+import { AccountError } from "@/utils/errors.js";
 
 export const OAuthProviderEnum = builder.enumType("OAuthProvider", {
   values: ["google", "github"] as const,

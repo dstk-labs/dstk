@@ -5,11 +5,31 @@
 
 import type { ColumnType } from "kysely";
 
-export type DstkRole = "owner" | "member" | "viewer";
+export type AuthAalLevel = "aal1" | "aal2" | "aal3";
+
+export type AuthCodeChallengeMethod = "plain" | "s256";
+
+export type AuthFactorStatus = "unverified" | "verified";
+
+export type AuthFactorType = "phone" | "totp" | "webauthn";
+
+export type AuthOauthAuthorizationStatus = "approved" | "denied" | "expired" | "pending";
+
+export type AuthOauthClientType = "confidential" | "public";
+
+export type AuthOauthRegistrationType = "dynamic" | "manual";
+
+export type AuthOauthResponseType = "code";
+
+export type AuthOneTimeTokenType = "confirmation_token" | "email_change_token_current" | "email_change_token_new" | "phone_change_token" | "reauthentication_token" | "recovery_token";
+
+export type DstkRole = "admin" | "owner" | "viewer";
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
+
+export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
 
 export type Json = JsonValue;
 
@@ -23,171 +43,732 @@ export type JsonPrimitive = boolean | number | string | null;
 
 export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
 
+export type Numeric = ColumnType<string, number | string, number | string>;
+
+export type StorageBuckettype = "ANALYTICS" | "STANDARD" | "VECTOR";
+
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-export interface DstkUserUsers {
-  id: Generated<string>;
-  realName: string;
-  email: string;
-  isEmailVerified: Generated<boolean>;
-  isTwoFactorEnabled: Generated<boolean>;
-  image: string | null;
-  userName: string;
-  dateCreated: Generated<Timestamp>;
-  dateModified: Generated<Timestamp>;
+export interface AuthAuditLogEntries {
+  createdAt: Timestamp | null;
+  id: string;
+  instanceId: string | null;
+  ipAddress: Generated<string>;
+  payload: Json | null;
 }
 
-export interface DstkUserTeams {
+export interface AuthCustomOauthProviders {
+  acceptableClientIds: Generated<string[]>;
+  attributeMapping: Generated<Json>;
+  authorizationParams: Generated<Json>;
+  authorizationUrl: string | null;
+  cachedDiscovery: Json | null;
+  clientId: string;
+  clientSecret: string;
+  createdAt: Generated<Timestamp>;
+  discoveryCachedAt: Timestamp | null;
+  discoveryUrl: string | null;
+  emailOptional: Generated<boolean>;
+  enabled: Generated<boolean>;
   id: Generated<string>;
+  identifier: string;
+  issuer: string | null;
+  jwksUri: string | null;
   name: string;
-  description: string | null;
-  slug: string;
-  logo: string | null;
-  metadata: string | null;
-  isArchived: boolean;
-  createdById: string;
-  modifiedById: string;
-  dateCreated: Generated<Timestamp>;
-  dateModified: Generated<Timestamp>;
+  pkceEnabled: Generated<boolean>;
+  providerType: string;
+  scopes: Generated<string[]>;
+  skipNonceCheck: Generated<boolean>;
+  tokenUrl: string | null;
+  updatedAt: Generated<Timestamp>;
+  userinfoUrl: string | null;
 }
 
-export interface DstkUserMembers {
+export interface AuthFlowState {
+  authCode: string | null;
+  authCodeIssuedAt: Timestamp | null;
+  authenticationMethod: string;
+  codeChallenge: string | null;
+  codeChallengeMethod: AuthCodeChallengeMethod | null;
+  createdAt: Timestamp | null;
+  emailOptional: Generated<boolean>;
+  id: string;
+  inviteToken: string | null;
+  linkingTargetId: string | null;
+  oauthClientStateId: string | null;
+  providerAccessToken: string | null;
+  providerRefreshToken: string | null;
+  providerType: string;
+  referrer: string | null;
+  updatedAt: Timestamp | null;
+  userId: string | null;
+}
+
+export interface AuthIdentities {
+  createdAt: Timestamp | null;
+  /**
+   * Auth: Email is a generated column that references the optional email property in the identity_data
+   */
+  email: Generated<string | null>;
   id: Generated<string>;
+  identityData: Json;
+  lastSignInAt: Timestamp | null;
+  provider: string;
+  providerId: string;
+  updatedAt: Timestamp | null;
   userId: string;
-  teamId: string;
-  role: DstkRole;
-  dateCreated: Generated<Timestamp>;
-  dateModified: Generated<Timestamp>;
 }
 
-export interface DstkUserProjects {
-  id: Generated<number>;
-  projectId: Generated<string>;
-  name: string;
-  description: string | null;
-  teamId: string;
-  isArchived: Generated<boolean>;
-  createdById: string | null;
-  modifiedById: string | null;
-  dateCreated: Generated<Timestamp>;
-  dateModified: Generated<Timestamp>;
+export interface AuthInstances {
+  createdAt: Timestamp | null;
+  id: string;
+  rawBaseConfig: string | null;
+  updatedAt: Timestamp | null;
+  uuid: string | null;
 }
 
-export interface DstkUserSessions {
-  id: Generated<string>;
+export interface AuthMfaAmrClaims {
+  authenticationMethod: string;
+  createdAt: Timestamp;
+  id: string;
+  sessionId: string;
+  updatedAt: Timestamp;
+}
+
+export interface AuthMfaChallenges {
+  createdAt: Timestamp;
+  factorId: string;
+  id: string;
+  ipAddress: string;
+  otpCode: string | null;
+  verifiedAt: Timestamp | null;
+  webAuthnSessionData: Json | null;
+}
+
+export interface AuthMfaFactors {
+  createdAt: Timestamp;
+  factorType: AuthFactorType;
+  friendlyName: string | null;
+  id: string;
+  lastChallengedAt: Timestamp | null;
+  /**
+   * Stores the latest WebAuthn challenge data including attestation/assertion for customer verification
+   */
+  lastWebauthnChallengeData: Json | null;
+  phone: string | null;
+  secret: string | null;
+  status: AuthFactorStatus;
+  updatedAt: Timestamp;
   userId: string;
-  token: string;
-  ipAddress: string | null;
-  userAgent: string | null;
-  activeTeamId: string | null;
+  webAuthnAaguid: string | null;
+  webAuthnCredential: Json | null;
+}
+
+export interface AuthOauthAuthorizations {
+  approvedAt: Timestamp | null;
+  authorizationCode: string | null;
+  authorizationId: string;
+  clientId: string;
+  codeChallenge: string | null;
+  codeChallengeMethod: AuthCodeChallengeMethod | null;
+  createdAt: Generated<Timestamp>;
   expiresAt: Generated<Timestamp>;
-  dateCreated: Generated<Timestamp>;
-  dateModified: Generated<Timestamp>;
+  id: string;
+  nonce: string | null;
+  redirectUri: string;
+  resource: string | null;
+  responseType: Generated<AuthOauthResponseType>;
+  scope: string;
+  state: string | null;
+  status: Generated<AuthOauthAuthorizationStatus>;
+  userId: string | null;
+}
+
+export interface AuthOauthClients {
+  clientName: string | null;
+  clientSecretHash: string | null;
+  clientType: Generated<AuthOauthClientType>;
+  clientUri: string | null;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  grantTypes: string;
+  id: string;
+  logoUri: string | null;
+  redirectUris: string;
+  registrationType: AuthOauthRegistrationType;
+  tokenEndpointAuthMethod: string;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface AuthOauthClientStates {
+  codeVerifier: string | null;
+  createdAt: Timestamp;
+  id: string;
+  providerType: string;
+}
+
+export interface AuthOauthConsents {
+  clientId: string;
+  grantedAt: Generated<Timestamp>;
+  id: string;
+  revokedAt: Timestamp | null;
+  scopes: string;
+  userId: string;
+}
+
+export interface AuthOneTimeTokens {
+  createdAt: Generated<Timestamp>;
+  id: string;
+  relatesTo: string;
+  tokenHash: string;
+  tokenType: AuthOneTimeTokenType;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+}
+
+export interface AuthRefreshTokens {
+  createdAt: Timestamp | null;
+  id: Generated<Int8>;
+  instanceId: string | null;
+  parent: string | null;
+  revoked: boolean | null;
+  sessionId: string | null;
+  token: string | null;
+  updatedAt: Timestamp | null;
+  userId: string | null;
+}
+
+export interface AuthSamlProviders {
+  attributeMapping: Json | null;
+  createdAt: Timestamp | null;
+  entityId: string;
+  id: string;
+  metadataUrl: string | null;
+  metadataXml: string;
+  nameIdFormat: string | null;
+  ssoProviderId: string;
+  updatedAt: Timestamp | null;
+}
+
+export interface AuthSamlRelayStates {
+  createdAt: Timestamp | null;
+  flowStateId: string | null;
+  forEmail: string | null;
+  id: string;
+  redirectTo: string | null;
+  requestId: string;
+  ssoProviderId: string;
+  updatedAt: Timestamp | null;
+}
+
+export interface AuthSchemaMigrations {
+  version: string;
+}
+
+export interface AuthSessions {
+  aal: AuthAalLevel | null;
+  createdAt: Timestamp | null;
+  factorId: string | null;
+  id: string;
+  ip: string | null;
+  /**
+   * Auth: Not after is a nullable column that contains a timestamp after which the session should be regarded as expired.
+   */
+  notAfter: Timestamp | null;
+  oauthClientId: string | null;
+  refreshedAt: Timestamp | null;
+  /**
+   * Holds the ID (counter) of the last issued refresh token.
+   */
+  refreshTokenCounter: Int8 | null;
+  /**
+   * Holds a HMAC-SHA256 key used to sign refresh tokens for this session.
+   */
+  refreshTokenHmacKey: string | null;
+  scopes: string | null;
+  tag: string | null;
+  updatedAt: Timestamp | null;
+  userAgent: string | null;
+  userId: string;
+}
+
+export interface AuthSsoDomains {
+  createdAt: Timestamp | null;
+  domain: string;
+  id: string;
+  ssoProviderId: string;
+  updatedAt: Timestamp | null;
+}
+
+export interface AuthSsoProviders {
+  createdAt: Timestamp | null;
+  disabled: boolean | null;
+  id: string;
+  /**
+   * Auth: Uniquely identifies a SSO provider according to a user-chosen resource ID (case insensitive), useful in infrastructure as code.
+   */
+  resourceId: string | null;
+  updatedAt: Timestamp | null;
+}
+
+export interface AuthUsers {
+  aud: string | null;
+  bannedUntil: Timestamp | null;
+  confirmationSentAt: Timestamp | null;
+  confirmationToken: string | null;
+  confirmedAt: Generated<Timestamp | null>;
+  createdAt: Timestamp | null;
+  deletedAt: Timestamp | null;
+  email: string | null;
+  emailChange: string | null;
+  emailChangeConfirmStatus: Generated<number | null>;
+  emailChangeSentAt: Timestamp | null;
+  emailChangeTokenCurrent: Generated<string | null>;
+  emailChangeTokenNew: string | null;
+  emailConfirmedAt: Timestamp | null;
+  encryptedPassword: string | null;
+  id: string;
+  instanceId: string | null;
+  invitedAt: Timestamp | null;
+  isAnonymous: Generated<boolean>;
+  /**
+   * Auth: Set this column to true when the account comes from SSO. These accounts can have duplicate emails.
+   */
+  isSsoUser: Generated<boolean>;
+  isSuperAdmin: boolean | null;
+  lastSignInAt: Timestamp | null;
+  phone: Generated<string | null>;
+  phoneChange: Generated<string | null>;
+  phoneChangeSentAt: Timestamp | null;
+  phoneChangeToken: Generated<string | null>;
+  phoneConfirmedAt: Timestamp | null;
+  rawAppMetaData: Json | null;
+  rawUserMetaData: Json | null;
+  reauthenticationSentAt: Timestamp | null;
+  reauthenticationToken: Generated<string | null>;
+  recoverySentAt: Timestamp | null;
+  recoveryToken: string | null;
+  role: string | null;
+  updatedAt: Timestamp | null;
+}
+
+export interface AuthWebauthnChallenges {
+  challengeType: string;
+  createdAt: Generated<Timestamp>;
+  expiresAt: Timestamp;
+  id: Generated<string>;
+  sessionData: Json;
+  userId: string | null;
+}
+
+export interface AuthWebauthnCredentials {
+  aaguid: string | null;
+  attestationType: Generated<string>;
+  backedUp: Generated<boolean>;
+  backupEligible: Generated<boolean>;
+  createdAt: Generated<Timestamp>;
+  credentialId: Buffer;
+  friendlyName: Generated<string>;
+  id: Generated<string>;
+  lastUsedAt: Timestamp | null;
+  publicKey: Buffer;
+  signCount: Generated<Int8>;
+  transports: Generated<Json>;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+}
+
+export interface DstkMetadataPatchStatus {
+  applied: Generated<boolean>;
+  duration: number | null;
+  patch: string;
 }
 
 export interface DstkUserAccounts {
-  id: Generated<string>;
-  betterAuthAccountId: string;
-  userId: string;
-  providerId: string;
   accessToken: string | null;
-  refreshToken: string | null;
   accessTokenExpiresAt: Generated<Timestamp | null>;
-  refreshTokenExpiresAt: Generated<Timestamp | null>;
-  scope: string | null;
+  betterAuthAccountId: string;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
+  id: Generated<string>;
   idToken: string | null;
   password: string | null;
-  dateCreated: Generated<Timestamp>;
-  dateModified: Generated<Timestamp>;
-}
-
-export interface DstkUserVerifications {
-  id: Generated<string>;
-  identifier: string;
-  value: string;
-  expiresAt: Generated<Timestamp>;
-  dateCreated: Generated<Timestamp>;
-  dateModified: Generated<Timestamp>;
-}
-
-export interface DstkUserInvitations {
-  id: Generated<string>;
-  email: string;
-  inviterId: string;
-  teamId: string;
-  role: DstkRole;
-  status: string | null;
-  expiresAt: Generated<Timestamp>;
-  dateCreated: Generated<Timestamp>;
-  dateModified: Generated<Timestamp>;
+  providerId: string;
+  refreshToken: string | null;
+  refreshTokenExpiresAt: Generated<Timestamp | null>;
+  scope: string | null;
+  userId: string;
 }
 
 export interface DstkUserApiKey {
-  id: Generated<number>;
-  apiKeyId: Generated<string>;
-  userId: string;
   apiKey: string;
-  isArchived: Generated<boolean>;
+  apiKeyId: Generated<string>;
   dateCreated: Generated<Timestamp>;
+  id: Generated<number>;
+  isArchived: Generated<boolean>;
+  userId: string;
+}
+
+export interface DstkUserInvitations {
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
+  email: string;
+  expiresAt: Generated<Timestamp>;
+  id: Generated<string>;
+  inviterId: string;
+  role: DstkRole;
+  status: string | null;
+  teamId: string;
+}
+
+export interface DstkUserMembers {
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
+  id: Generated<string>;
+  role: DstkRole;
+  teamId: string;
+  userId: string;
+}
+
+export interface DstkUserProjects {
+  createdById: string | null;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
+  description: string | null;
+  id: Generated<number>;
+  isArchived: Generated<boolean>;
+  modifiedById: string | null;
+  name: string;
+  projectId: Generated<string>;
+  teamId: string;
+}
+
+export interface DstkUserSessions {
+  activeTeamId: string | null;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
+  expiresAt: Generated<Timestamp>;
+  id: Generated<string>;
+  ipAddress: string | null;
+  token: string;
+  userAgent: string | null;
+  userId: string;
+}
+
+export interface DstkUserTeams {
+  createdById: string;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
+  description: string | null;
+  id: Generated<string>;
+  isArchived: boolean;
+  logo: string | null;
+  metadata: string | null;
+  modifiedById: string;
+  name: string;
+  slug: string;
 }
 
 export interface DstkUserTwoFactors {
-  id: Generated<string>;
-  userId: string;
-  secret: string | null;
   backupCodes: string | null;
+  id: Generated<string>;
+  secret: string | null;
+  userId: string;
 }
 
-export interface RegistryStorageProviders {
-  id: Generated<number>;
-  providerId: Generated<string>;
-  endpointUrl: string;
-  region: string;
-  bucket: string;
-  accessKeyId: string;
-  secretAccessKey: string;
-  createdById: string;
-  modifiedById: string;
-  ownerId: string;
-  isArchived: Generated<boolean>;
-  teamId: string;
+export interface DstkUserUsers {
   dateCreated: Generated<Timestamp>;
   dateModified: Generated<Timestamp>;
+  email: string;
+  id: Generated<string>;
+  image: string | null;
+  isEmailVerified: Generated<boolean>;
+  isTwoFactorEnabled: Generated<boolean>;
+  realName: string;
+  userName: string;
+}
+
+export interface DstkUserVerifications {
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
+  expiresAt: Generated<Timestamp>;
+  id: Generated<string>;
+  identifier: string;
+  value: string;
+}
+
+export interface ExtensionsPgStatStatements {
+  blkReadTime: number | null;
+  blkWriteTime: number | null;
+  calls: Int8 | null;
+  dbid: number | null;
+  jitEmissionCount: Int8 | null;
+  jitEmissionTime: number | null;
+  jitFunctions: Int8 | null;
+  jitGenerationTime: number | null;
+  jitInliningCount: Int8 | null;
+  jitInliningTime: number | null;
+  jitOptimizationCount: Int8 | null;
+  jitOptimizationTime: number | null;
+  localBlksDirtied: Int8 | null;
+  localBlksHit: Int8 | null;
+  localBlksRead: Int8 | null;
+  localBlksWritten: Int8 | null;
+  maxExecTime: number | null;
+  maxPlanTime: number | null;
+  meanExecTime: number | null;
+  meanPlanTime: number | null;
+  minExecTime: number | null;
+  minPlanTime: number | null;
+  plans: Int8 | null;
+  query: string | null;
+  queryid: Int8 | null;
+  rows: Int8 | null;
+  sharedBlksDirtied: Int8 | null;
+  sharedBlksHit: Int8 | null;
+  sharedBlksRead: Int8 | null;
+  sharedBlksWritten: Int8 | null;
+  stddevExecTime: number | null;
+  stddevPlanTime: number | null;
+  tempBlkReadTime: number | null;
+  tempBlksRead: Int8 | null;
+  tempBlksWritten: Int8 | null;
+  tempBlkWriteTime: number | null;
+  toplevel: boolean | null;
+  totalExecTime: number | null;
+  totalPlanTime: number | null;
+  userid: number | null;
+  walBytes: Numeric | null;
+  walFpi: Int8 | null;
+  walRecords: Int8 | null;
+}
+
+export interface ExtensionsPgStatStatementsInfo {
+  dealloc: Int8 | null;
+  statsReset: Timestamp | null;
+}
+
+export interface RealtimeMessages {
+  event: string | null;
+  extension: string;
+  id: Generated<string>;
+  insertedAt: Generated<Timestamp>;
+  payload: Json | null;
+  private: Generated<boolean | null>;
+  topic: string;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface RealtimeSchemaMigrations {
+  insertedAt: Timestamp | null;
+  version: Int8;
+}
+
+export interface RealtimeSubscription {
+  actionFilter: Generated<string | null>;
+  claims: Json;
+  claimsRole: Generated<string>;
+  createdAt: Generated<Timestamp>;
+  entity: string;
+  filters: Generated<string[]>;
+  id: Generated<Int8>;
+  subscriptionId: string;
 }
 
 export interface RegistryModels {
-  id: Generated<number>;
-  modelId: Generated<string>;
-  storageProviderId: string;
-  isArchived: Generated<boolean>;
-  modelName: string;
   createdById: string | null;
-  modifiedById: string | null;
-  description: string | null;
-  metadata: Json | null;
-  projectId: string;
   currentModelVersionId: string | null;
   dateCreated: Generated<Timestamp>;
   dateModified: Generated<Timestamp>;
+  description: string | null;
+  id: Generated<number>;
+  isArchived: Generated<boolean>;
+  metadata: Json | null;
+  modelId: Generated<string>;
+  modelName: string;
+  modifiedById: string | null;
+  projectId: string;
+  storageProviderId: string;
 }
 
 export interface RegistryModelVersions {
-  id: Generated<number>;
-  modelVersionId: Generated<string>;
-  modelId: string;
-  isFinalized: Generated<boolean>;
-  isArchived: Generated<boolean>;
   createdById: string | null;
+  dateCreated: Generated<Timestamp>;
+  dateModified: Generated<Timestamp>;
+  description: string | null;
+  id: Generated<number>;
+  isArchived: Generated<boolean>;
+  isFinalized: Generated<boolean>;
+  metadata: Json | null;
+  modelId: string;
+  modelVersionId: Generated<string>;
   modifiedById: string | null;
   numericVersion: number;
   s3Prefix: string;
-  description: string | null;
-  metadata: Json | null;
+}
+
+export interface RegistryStorageProviders {
+  accessKeyId: string;
+  bucket: string;
+  createdById: string;
   dateCreated: Generated<Timestamp>;
   dateModified: Generated<Timestamp>;
+  endpointUrl: string;
+  id: Generated<number>;
+  isArchived: Generated<boolean>;
+  modifiedById: string;
+  ownerId: string;
+  providerId: Generated<string>;
+  region: string;
+  secretAccessKey: string;
+  teamId: string;
+}
+
+export interface StorageBuckets {
+  allowedMimeTypes: string[] | null;
+  avifAutodetection: Generated<boolean | null>;
+  createdAt: Generated<Timestamp | null>;
+  fileSizeLimit: Int8 | null;
+  id: string;
+  name: string;
+  /**
+   * Field is deprecated, use owner_id instead
+   */
+  owner: string | null;
+  ownerId: string | null;
+  public: Generated<boolean | null>;
+  type: Generated<StorageBuckettype>;
+  updatedAt: Generated<Timestamp | null>;
+}
+
+export interface StorageBucketsAnalytics {
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  format: Generated<string>;
+  id: Generated<string>;
+  name: string;
+  type: Generated<StorageBuckettype>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface StorageBucketsVectors {
+  createdAt: Generated<Timestamp>;
+  id: string;
+  type: Generated<StorageBuckettype>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface StorageMigrations {
+  executedAt: Generated<Timestamp | null>;
+  hash: string;
+  id: number;
+  name: string;
+}
+
+export interface StorageObjects {
+  bucketId: string | null;
+  createdAt: Generated<Timestamp | null>;
+  id: Generated<string>;
+  lastAccessedAt: Generated<Timestamp | null>;
+  metadata: Json | null;
+  name: string | null;
+  /**
+   * Field is deprecated, use owner_id instead
+   */
+  owner: string | null;
+  ownerId: string | null;
+  pathTokens: Generated<string[] | null>;
+  updatedAt: Generated<Timestamp | null>;
+  userMetadata: Json | null;
+  version: string | null;
+}
+
+export interface StorageS3MultipartUploads {
+  bucketId: string;
+  createdAt: Generated<Timestamp>;
+  id: string;
+  inProgressSize: Generated<Int8>;
+  key: string;
+  metadata: Json | null;
+  ownerId: string | null;
+  uploadSignature: string;
+  userMetadata: Json | null;
+  version: string;
+}
+
+export interface StorageS3MultipartUploadsParts {
+  bucketId: string;
+  createdAt: Generated<Timestamp>;
+  etag: string;
+  id: Generated<string>;
+  key: string;
+  ownerId: string | null;
+  partNumber: number;
+  size: Generated<Int8>;
+  uploadId: string;
+  version: string;
+}
+
+export interface StorageVectorIndexes {
+  bucketId: string;
+  createdAt: Generated<Timestamp>;
+  dataType: string;
+  dimension: number;
+  distanceMetric: string;
+  id: Generated<string>;
+  metadataConfiguration: Json | null;
+  name: string;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface VaultDecryptedSecrets {
+  createdAt: Timestamp | null;
+  decryptedSecret: string | null;
+  description: string | null;
+  id: string | null;
+  keyId: string | null;
+  name: string | null;
+  nonce: Buffer | null;
+  secret: string | null;
+  updatedAt: Timestamp | null;
+}
+
+export interface VaultSecrets {
+  createdAt: Generated<Timestamp>;
+  description: Generated<string>;
+  id: Generated<string>;
+  keyId: string | null;
+  name: string | null;
+  nonce: Generated<Buffer | null>;
+  secret: string;
+  updatedAt: Generated<Timestamp>;
 }
 
 export interface DB {
+  "auth.auditLogEntries": AuthAuditLogEntries;
+  "auth.customOauthProviders": AuthCustomOauthProviders;
+  "auth.flowState": AuthFlowState;
+  "auth.identities": AuthIdentities;
+  "auth.instances": AuthInstances;
+  "auth.mfaAmrClaims": AuthMfaAmrClaims;
+  "auth.mfaChallenges": AuthMfaChallenges;
+  "auth.mfaFactors": AuthMfaFactors;
+  "auth.oauthAuthorizations": AuthOauthAuthorizations;
+  "auth.oauthClients": AuthOauthClients;
+  "auth.oauthClientStates": AuthOauthClientStates;
+  "auth.oauthConsents": AuthOauthConsents;
+  "auth.oneTimeTokens": AuthOneTimeTokens;
+  "auth.refreshTokens": AuthRefreshTokens;
+  "auth.samlProviders": AuthSamlProviders;
+  "auth.samlRelayStates": AuthSamlRelayStates;
+  "auth.schemaMigrations": AuthSchemaMigrations;
+  "auth.sessions": AuthSessions;
+  "auth.ssoDomains": AuthSsoDomains;
+  "auth.ssoProviders": AuthSsoProviders;
+  "auth.users": AuthUsers;
+  "auth.webauthnChallenges": AuthWebauthnChallenges;
+  "auth.webauthnCredentials": AuthWebauthnCredentials;
+  "dstkMetadata.patchStatus": DstkMetadataPatchStatus;
   "dstkUser.accounts": DstkUserAccounts;
   "dstkUser.apiKey": DstkUserApiKey;
   "dstkUser.invitations": DstkUserInvitations;
@@ -198,7 +779,22 @@ export interface DB {
   "dstkUser.twoFactors": DstkUserTwoFactors;
   "dstkUser.users": DstkUserUsers;
   "dstkUser.verifications": DstkUserVerifications;
-  "registry.modelVersions": RegistryModelVersions;
+  "extensions.pgStatStatements": ExtensionsPgStatStatements;
+  "extensions.pgStatStatementsInfo": ExtensionsPgStatStatementsInfo;
+  "realtime.messages": RealtimeMessages;
+  "realtime.schemaMigrations": RealtimeSchemaMigrations;
+  "realtime.subscription": RealtimeSubscription;
   "registry.models": RegistryModels;
+  "registry.modelVersions": RegistryModelVersions;
   "registry.storageProviders": RegistryStorageProviders;
+  "storage.buckets": StorageBuckets;
+  "storage.bucketsAnalytics": StorageBucketsAnalytics;
+  "storage.bucketsVectors": StorageBucketsVectors;
+  "storage.migrations": StorageMigrations;
+  "storage.objects": StorageObjects;
+  "storage.s3MultipartUploads": StorageS3MultipartUploads;
+  "storage.s3MultipartUploadsParts": StorageS3MultipartUploadsParts;
+  "storage.vectorIndexes": StorageVectorIndexes;
+  "vault.decryptedSecrets": VaultDecryptedSecrets;
+  "vault.secrets": VaultSecrets;
 }
