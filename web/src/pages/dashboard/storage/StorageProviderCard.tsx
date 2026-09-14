@@ -1,7 +1,10 @@
 import type { ListStorageProvidersForTableQuery } from "@/graphql/types";
 import { CloudIcon } from "lucide-react";
+import { useNavigate } from "react-router";
 
+import { RowActions } from "@/components/rowActions/RowActions";
 import { ArchivableStatus } from "@/components/statusBadge/StatusBadge";
+import { paths } from "@/config/paths";
 import { formatDate, formatRelative } from "@/utils/formatters";
 
 import { ArchiveStorageProvider } from "./ArchiveStorageProvider";
@@ -55,8 +58,13 @@ function Detail({ label, value }: DetailProps) {
 }
 
 export function StorageProviderCard({ provider }: StorageProviderCardProps) {
+  const navigate = useNavigate();
+
   return (
-    <article className={styles.card}>
+    <article
+      className={styles.card}
+      onClick={() => navigate(paths.dashboard.storageItem.getPath(provider.providerId ?? ""))}
+    >
       <div
         style={{
           alignItems: "flex-start",
@@ -141,7 +149,7 @@ export function StorageProviderCard({ provider }: StorageProviderCardProps) {
           {" "}
           {formatDate(provider.dateCreated)}
         </div>
-        <div style={{ display: "flex", gap: 4 }}>
+        <RowActions>
           <EditStorageProvider
             bucket={provider.bucket ?? ""}
             isArchived={!!provider.isArchived}
@@ -153,7 +161,7 @@ export function StorageProviderCard({ provider }: StorageProviderCardProps) {
             isArchived={!!provider.isArchived}
             providerId={provider.providerId ?? ""}
           />
-        </div>
+        </RowActions>
       </div>
     </article>
   );
