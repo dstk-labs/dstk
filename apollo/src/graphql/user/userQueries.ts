@@ -50,6 +50,13 @@ builder.queryFields(t => ({
         .where("dstkUser.members.userId", "=", ctx.user.id)
         .execute();
 
+      if (userTeams.length === 0) {
+        return {
+          edges: [],
+          pageInfo: { hasPreviousPage: false, hasNextPage: false, continuationToken: undefined },
+        };
+      }
+
       let query = db
         .selectFrom("dstkUser.users")
         .selectAll()
