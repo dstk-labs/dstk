@@ -170,9 +170,11 @@ export function useFileUpload(modelVersionId: string) {
     async (files: FileWithPath[]) => {
       setState(prev => ({ ...prev, uploading: true }));
 
-      await Promise.allSettled(files.map(file => uploadFile(file)));
+      const results = await Promise.allSettled(files.map(file => uploadFile(file)));
 
       setState(prev => ({ ...prev, uploading: false }));
+
+      return files.filter((_, index) => results[index].status === "rejected");
     },
     [uploadFile],
   );

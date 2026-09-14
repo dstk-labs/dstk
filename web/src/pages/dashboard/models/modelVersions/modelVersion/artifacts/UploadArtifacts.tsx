@@ -30,49 +30,34 @@ export function UploadArtifacts({ modelVersionId }: UploadArtifactsProps) {
     resetState();
   }, [close, resetState]);
 
-  const finish = useCallback(
-    (hasErrors: boolean, hasSuccess: boolean) => {
-      if (!hasErrors) {
-        notifications.show({
-          color: "green",
-          message: `Uploaded ${files.length} file${files.length > 1 ? "s" : ""}`,
-          title: "Upload complete",
-        });
-        handleClose();
-        return;
-      }
-
-      notifications.show({
-        color: "red",
-        message: hasSuccess
-          ? "Some files uploaded, but others failed. Retry the failed files."
-          : "All file uploads failed.",
-        title: "Upload issues",
-      });
-    },
-    [files.length, handleClose],
-  );
-
   const uploadFiles = useCallback(async () => {
-    await uploadAllFiles(files);
+    const failed = await uploadAllFiles(files);
 
-    const statuses = Object.values(fileProgress).map(f => f.status);
-    finish(
-      statuses.includes(FILE_UPLOAD_STATUS.ERROR),
-      statuses.includes(FILE_UPLOAD_STATUS.SUCCESS),
-    );
-  }, [files, fileProgress, uploadAllFiles, finish]);
+    if (failed.length === 0) {
+      notifications.show({
+        color: "green",
+        message: `Uploaded ${files.length} file${files.length > 1 ? "s" : ""}`,
+        title: "Upload complete",
+      });
+      handleClose();
+      return;
+    }
+
+    notifications.show({
+      color: "red",
+      message: failed.length === files.length
+        ? "All file uploads failed."
+        : "Some files uploaded, but others failed. Retry the failed files.",
+      title: "Upload issues",
+    });
+  }, [files, uploadAllFiles, handleClose]);
 
   const retryFailedFiles = useCallback(async () => {
     const failedFiles = files.filter(
       file => fileProgress[file.name]?.status === FILE_UPLOAD_STATUS.ERROR,
     );
 
-    await uploadAllFiles(failedFiles);
-
-    const stillFailing = failedFiles.filter(
-      file => fileProgress[file.name]?.status === FILE_UPLOAD_STATUS.ERROR,
-    );
+    const stillFailing = await uploadAllFiles(failedFiles);
 
     if (stillFailing.length === 0) {
       notifications.show({
