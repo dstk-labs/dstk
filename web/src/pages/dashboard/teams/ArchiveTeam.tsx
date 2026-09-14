@@ -1,18 +1,10 @@
 import { useMutation } from "@apollo/client";
-import {
-  ActionIcon,
-  Button,
-  Stack,
-  Text,
-  TextInput,
-  Tooltip,
-} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { ArchiveIcon } from "lucide-react";
-import { useState } from "react";
 
-import { Modal } from "@/components/modal/Modal";
+import { ArchiveConfirmModal } from "@/components/archiveConfirmModal/ArchiveConfirmModal";
+import { RowAction } from "@/components/rowActions/RowActions";
 import { gql } from "@/graphql";
 
 const ARCHIVE_TEAM = gql(`
@@ -34,21 +26,19 @@ export function ArchiveTeam({
   teamId,
   teamName,
 }: ArchiveTeamProps) {
-  const [inputValue, setInputValue] = useState("");
-
   const [archiveTeam, { loading }] = useMutation(ARCHIVE_TEAM);
 
   const [opened, { close, open }] = useDisclosure(false);
 
-  const onSubmit = () =>
+  const onConfirm = () =>
     archiveTeam({
       onCompleted: (data) => {
         notifications.show({
-          message: `Successfully archived ${data.archiveTeam?.name}`,
-          title: "Success",
+          color: "green",
+          message: `Archived ${data.archiveTeam?.name}`,
+          title: "Team archived",
         });
         close();
-        setInputValue("");
       },
       refetchQueries: ["ListTeamsForDropdown", "ListTeamsForTable"],
       variables: {
@@ -58,53 +48,24 @@ export function ArchiveTeam({
 
   return (
     <>
-      <Modal
-        disabled={loading}
+      <ArchiveConfirmModal
+        confirmValue={teamName}
+        consequence="Archiving this team prevents further changes and blocks new resources from being added to it."
+        entityLabel="team"
+        loading={loading}
         onClose={close}
+        onConfirm={onConfirm}
         opened={opened}
-        size="lg"
         title={`Archive ${teamName}`}
-      >
-        <Stack gap="md">
-          <Text size="sm">
-            This action is
-            {" "}
-            <Text c="red" fw={500} span>
-              irreversible
-            </Text>
-            . Archiving this team will permanently prevent any further
-            modifications or the addition of new resources.
-          </Text>
-          <TextInput
-            label="Please type in the name of the team to continue"
-            onChange={e => setInputValue(e.target.value)}
-            placeholder={teamName}
-            value={inputValue}
-          />
-          <Button
-            color="red"
-            disabled={inputValue !== teamName || loading}
-            fullWidth
-            loading={loading}
-            mt="sm"
-            onClick={() => onSubmit()}
-            radius="md"
-          >
-            I understand, archive this team
-          </Button>
-        </Stack>
-      </Modal>
+      />
 
-      <Tooltip disabled={isArchived} label="Archive">
-        <ActionIcon
-          color="red"
-          disabled={isArchived}
-          onClick={open}
-          variant="subtle"
-        >
-          <ArchiveIcon size={14} />
-        </ActionIcon>
-      </Tooltip>
+      <RowAction
+        danger
+        disabled={isArchived}
+        icon={<ArchiveIcon size={14} />}
+        label="Archive"
+        onClick={open}
+      />
     </>
   );
 }

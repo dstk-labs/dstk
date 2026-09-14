@@ -1,14 +1,15 @@
 import type { CreateTeamMutationVariables } from "@/graphql/types";
 import { useMutation } from "@apollo/client";
-import { Button, Flex, Stack, Textarea, TextInput } from "@mantine/core";
+import { Button, Stack, Textarea, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
+import { PlusIcon } from "lucide-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-
 import { z } from "zod/v4";
 
 import { Modal } from "@/components/modal/Modal";
+import { ModalFooter } from "@/components/modalFooter/ModalFooter";
 import { gql } from "@/graphql";
 import { useTeamStore } from "@/stores/teamStore";
 
@@ -48,12 +49,14 @@ export function AddTeam() {
     createTeam({
       onCompleted: (data) => {
         if (data.createTeam?.teamId) {
-          setSelectedTeam(data.createTeam?.teamId);
+          setSelectedTeam(data.createTeam.teamId);
         }
         notifications.show({
-          message: `Successfully created ${data.createTeam?.name}`,
-          title: "Success",
+          color: "green",
+          message: `Created ${data.createTeam?.name} and switched to it`,
+          title: "Team created",
         });
+        createTeamForm.reset();
         close();
       },
       refetchQueries: ["ListTeamsForDropdown", "ListTeamsForTable"],
@@ -67,42 +70,35 @@ export function AddTeam() {
 
   return (
     <>
-      <Modal
-        disabled={loading}
-        onClose={close}
-        opened={opened}
-        size="lg"
-        title="Add Team"
-      >
+      <Modal disabled={loading} onClose={close} opened={opened} title="New Team">
         <form onSubmit={createTeamForm.onSubmit(values => onSubmit(values))}>
-          <Stack gap="md">
+          <Stack gap="lg">
             <TextInput
+              data-autofocus
               disabled={loading}
               key={createTeamForm.key("name")}
               label="Team Name"
+              placeholder="e.g. Acme ML"
               withAsterisk
               {...createTeamForm.getInputProps("name")}
             />
-
             <Textarea
+              autosize
               disabled={loading}
               key={createTeamForm.key("description")}
               label="Description"
+              minRows={3}
+              placeholder="Who is this team for?"
               withAsterisk
               {...createTeamForm.getInputProps("description")}
             />
           </Stack>
-
-          <Flex align="center" justify="end" mt="xl">
-            <Button color="blue" loading={loading} radius="md" type="submit">
-              Submit
-            </Button>
-          </Flex>
+          <ModalFooter loading={loading} onCancel={close} submitLabel="Create team" />
         </form>
       </Modal>
 
-      <Button fullWidth onClick={open}>
-        Add Team
+      <Button leftSection={<PlusIcon size={14} />} onClick={open} size="sm">
+        New team
       </Button>
     </>
   );
