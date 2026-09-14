@@ -2,10 +2,10 @@ import type { Expression, SqlBool } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { InvitationConnection } from "@/graphql/invitation/invitationConnection.js";
-import { User } from "@/graphql/user/user.js";
 import { Encoder } from "@/utils/encoder.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { TeamConnection } from "./teamConnection.js";
+import { TeamMember } from "./teamMember.js";
 
 const encoder = new Encoder();
 
@@ -200,7 +200,7 @@ builder.queryFields(t => ({
     },
   }),
   listTeamMembers: t.field({
-    type: [User],
+    type: [TeamMember],
     authScopes: {
       loggedIn: true,
     },
@@ -217,16 +217,11 @@ builder.queryFields(t => ({
           () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
         );
 
-      const memberUserIds = await db
-        .selectFrom("dstkUser.members")
-        .select("dstkUser.members.userId")
-        .where("dstkUser.members.teamId", "=", args.teamId)
-        .execute();
-
       return db
-        .selectFrom("dstkUser.users")
+        .selectFrom("dstkUser.members")
         .selectAll()
-        .where("dstkUser.users.id", "in", memberUserIds.map(m => m.userId))
+        .where("dstkUser.members.teamId", "=", args.teamId)
+        .orderBy("dstkUser.members.dateCreated", "asc")
         .execute();
     },
   }),
