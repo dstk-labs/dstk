@@ -8,6 +8,7 @@ import { paths } from "./config/paths";
 import { userLoader } from "./features/auth/loaders/authLoader";
 import { GET_ML_MODEL } from "./features/models/loaders/modelLoader";
 import { GET_ML_MODEL_VERSION } from "./features/modelVersions/loaders/modelVersionLoader";
+import { GET_TEAM } from "./features/teams/loaders/teamLoader";
 import { apolloClient } from "./lib/apollo";
 import { ErrorPage } from "./pages/errors/ErrorPage";
 
@@ -303,22 +304,53 @@ function createAppRouter() {
               path: paths.dashboard.storage.path,
             },
             {
+              children: [
+                {
+                  index: true,
+                  lazy: async () => {
+                    const { TeamsPage } = await import(
+                      "./pages/dashboard/teams/TeamsPage",
+                    );
+                    return { Component: TeamsPage };
+                  },
+                  loader: async (params) => {
+                    const { teamsTableLoader } = await import(
+                      "./features/teams/loaders/teamsLoader",
+                    );
+
+                    const queryRef = await teamsTableLoader(params);
+                    return queryRef;
+                  },
+                },
+                {
+                  handle: {
+                    crumb: (params: Record<string, string | undefined>) => {
+                      const result = apolloClient.readQuery({
+                        query: GET_TEAM,
+                        variables: { teamId: params.teamId ?? "" },
+                      });
+
+                      return result?.listTeams?.edges?.[0]?.node?.name ?? "";
+                    },
+                  },
+                  lazy: async () => {
+                    const { TeamPage } = await import(
+                      "./pages/dashboard/teams/team/TeamPage",
+                    );
+                    return { Component: TeamPage };
+                  },
+                  loader: async (params) => {
+                    const { teamLoader } = await import(
+                      "./features/teams/loaders/teamLoader",
+                    );
+
+                    return teamLoader({ teamId: params.params.teamId! });
+                  },
+                  path: paths.dashboard.team.path,
+                },
+              ],
               handle: {
                 crumb: () => "Teams",
-              },
-              lazy: async () => {
-                const { TeamsPage } = await import(
-                  "./pages/dashboard/teams/TeamsPage",
-                );
-                return { Component: TeamsPage };
-              },
-              loader: async (params) => {
-                const { teamsTableLoader } = await import(
-                  "./features/teams/loaders/teamsLoader",
-                );
-
-                const queryRef = await teamsTableLoader(params);
-                return queryRef;
               },
               path: paths.dashboard.teams.path,
             },

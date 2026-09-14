@@ -2,6 +2,7 @@ import type { TeamsTableLoader } from "@/features/teams/loaders/teamsLoader";
 import { useReadQuery } from "@apollo/client";
 import { Table } from "@mantine/core";
 import { UsersRoundIcon } from "lucide-react";
+import { useNavigate } from "react-router";
 
 import { DateCell } from "@/components/dateCell/DateCell";
 import { EmptyTableRow } from "@/components/emptyState/EmptyState";
@@ -12,12 +13,14 @@ import { RowActions } from "@/components/rowActions/RowActions";
 import { SearchParamTextInput } from "@/components/searchParamInput/SearchParamInput";
 import { ArchivableStatus, StatusBadge } from "@/components/statusBadge/StatusBadge";
 import { TableCard } from "@/components/tableCard/TableCard";
+import { paths } from "@/config/paths";
 import { useContinuationTokens } from "@/hooks/useContinuationTokens";
 import { useTeamStore } from "@/stores/teamStore";
 import { truncate } from "@/utils/formatters";
 
 import { ArchiveTeam } from "./ArchiveTeam";
 import { EditTeam } from "./EditTeam";
+import styles from "./TeamsTable.module.css";
 
 type TeamsTableProps = {
   queryRef: TeamsTableLoader;
@@ -25,6 +28,7 @@ type TeamsTableProps = {
 
 export function TeamsTable({ queryRef }: TeamsTableProps) {
   const { data } = useReadQuery(queryRef);
+  const navigate = useNavigate();
   const { selectedTeam } = useTeamStore();
   const pageInfo = data.listTeams?.pageInfo;
   const continuationTokens = useContinuationTokens(pageInfo?.continuationToken);
@@ -59,7 +63,11 @@ export function TeamsTable({ queryRef }: TeamsTableProps) {
             />
           )}
           {teams.map(team => (
-            <Table.Tr key={team.teamId}>
+            <Table.Tr
+              className={styles.row}
+              key={team.teamId}
+              onClick={() => navigate(paths.dashboard.team.getPath(team.teamId ?? ""))}
+            >
               <Table.Td>
                 <div style={{ alignItems: "center", display: "flex", gap: "var(--space-3)" }}>
                   <span>{team.name}</span>
