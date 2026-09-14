@@ -147,6 +147,11 @@ export const auth = betterAuth({
         owner,
       },
       schema: {
+        session: {
+          fields: {
+            activeOrganizationId: "activeTeamId",
+          },
+        },
         organization: {
           modelName: "dstkUser.teams",
           fields: {
