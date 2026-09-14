@@ -23,6 +23,7 @@ builder.queryFields(t => ({
       }),
       after: t.arg.string(),
       teamId: t.arg.string({ required: true }),
+      projectId: t.arg.string(),
     },
     async resolve(_root, args, ctx) {
       await db
@@ -55,6 +56,10 @@ builder.queryFields(t => ({
           "in",
           userProjects.map(project => project.projectId),
         );
+
+      if (args.projectId) {
+        query = query.where("registry.models.projectId", "=", args.projectId);
+      }
 
       if (args.modelName) {
         query = query.where(
