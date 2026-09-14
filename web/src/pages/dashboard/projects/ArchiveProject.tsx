@@ -1,18 +1,10 @@
 import { useMutation } from "@apollo/client";
-import {
-  ActionIcon,
-  Button,
-  Stack,
-  Text,
-  TextInput,
-  Tooltip,
-} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { ArchiveIcon } from "lucide-react";
-import { useState } from "react";
 
-import { Modal } from "@/components/modal/Modal";
+import { ArchiveConfirmModal } from "@/components/archiveConfirmModal/ArchiveConfirmModal";
+import { RowAction } from "@/components/rowActions/RowActions";
 import { gql } from "@/graphql";
 
 const ARCHIVE_PROJECT = gql(`
@@ -34,21 +26,19 @@ export function ArchiveProject({
   projectId,
   projectName,
 }: ArchiveProjectProps) {
-  const [inputValue, setInputValue] = useState("");
-
   const [archiveProject, { loading }] = useMutation(ARCHIVE_PROJECT);
 
   const [opened, { close, open }] = useDisclosure(false);
 
-  const onSubmit = () =>
+  const onConfirm = () =>
     archiveProject({
       onCompleted: (data) => {
         notifications.show({
-          message: `Successfully archived ${data.archiveProject?.name}`,
-          title: "Success",
+          color: "green",
+          message: `Archived ${data.archiveProject?.name}`,
+          title: "Project archived",
         });
         close();
-        setInputValue("");
       },
       refetchQueries: ["ListProjectsForTable", "ListProjectsForSelect"],
       variables: {
@@ -58,53 +48,24 @@ export function ArchiveProject({
 
   return (
     <>
-      <Modal
-        disabled={loading}
+      <ArchiveConfirmModal
+        confirmValue={projectName}
+        consequence="Archiving this project prevents further changes and blocks new models from being added to it."
+        entityLabel="project"
+        loading={loading}
         onClose={close}
+        onConfirm={onConfirm}
         opened={opened}
-        size="lg"
         title={`Archive ${projectName}`}
-      >
-        <Stack gap="md">
-          <Text size="sm">
-            This action is
-            {" "}
-            <Text c="red" fw={500} span>
-              irreversible
-            </Text>
-            . Archiving this project will permanently prevent any further
-            modifications or the addition of new models.
-          </Text>
-          <TextInput
-            label="Please type in the name of the project to continue"
-            onChange={e => setInputValue(e.target.value)}
-            placeholder={projectName}
-            value={inputValue}
-          />
-          <Button
-            color="red"
-            disabled={inputValue !== projectName || loading}
-            fullWidth
-            loading={loading}
-            mt="sm"
-            onClick={() => onSubmit()}
-            radius="md"
-          >
-            I understand, archive this project
-          </Button>
-        </Stack>
-      </Modal>
+      />
 
-      <Tooltip disabled={isArchived} label="Archive">
-        <ActionIcon
-          color="red"
-          disabled={isArchived}
-          onClick={open}
-          variant="subtle"
-        >
-          <ArchiveIcon size={14} />
-        </ActionIcon>
-      </Tooltip>
+      <RowAction
+        danger
+        disabled={isArchived}
+        icon={<ArchiveIcon size={14} />}
+        label="Archive"
+        onClick={open}
+      />
     </>
   );
 }
