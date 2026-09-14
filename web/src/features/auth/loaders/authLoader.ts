@@ -14,4 +14,6 @@ export const GET_USER = gql(`
     }
 `);
 
-export const userLoader = async () => preloadQuery(GET_USER).toPromise();
+export async function userLoader() {
+  return preloadQuery(GET_USER, { errorPolicy: "all" }).toPromise();
+}
