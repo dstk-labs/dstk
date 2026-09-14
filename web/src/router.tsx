@@ -265,6 +265,25 @@ function createAppRouter() {
             },
             {
               handle: {
+                crumb: () => "Settings",
+              },
+              lazy: async () => {
+                const { SettingsPage } = await import(
+                  "./pages/dashboard/settings/SettingsPage",
+                );
+                return { Component: SettingsPage };
+              },
+              loader: async () => {
+                const { settingsLoader } = await import(
+                  "./features/settings/loaders/settingsLoader",
+                );
+
+                return settingsLoader();
+              },
+              path: paths.dashboard.settings.path,
+            },
+            {
+              handle: {
                 crumb: () => "Storage",
               },
               lazy: async () => {

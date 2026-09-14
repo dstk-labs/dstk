@@ -4,6 +4,7 @@ import {
   CloudIcon,
   FolderIcon,
   LayoutDashboardIcon,
+  SettingsIcon,
   UsersRoundIcon,
 } from "lucide-react";
 import { Link, useLocation } from "react-router";
@@ -38,6 +39,12 @@ const NAV_SECTIONS: NavSection[] = [
       { icon: UsersRoundIcon, label: "Teams", to: paths.dashboard.teams.path },
     ],
     label: "Team",
+  },
+  {
+    items: [
+      { icon: SettingsIcon, label: "Settings", to: paths.dashboard.settings.path },
+    ],
+    label: "Account",
   },
 ];
 
