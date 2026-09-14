@@ -13,7 +13,7 @@ builder.objectType(StorageProviderObject, {
       },
     }),
     size: t.field({
-      type: "Int",
+      type: "Float",
       nullable: true,
       resolve(root, _args, _ctx) {
         return root.size;
