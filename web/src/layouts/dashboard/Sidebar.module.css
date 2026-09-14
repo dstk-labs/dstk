@@ -1,0 +1,96 @@
+.item {
+  align-items: center;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  display: flex;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-light);
+  gap: 10px;
+  padding: 9px var(--space-3);
+  position: relative;
+  text-decoration: none;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+  user-select: none;
+}
+
+.item:hover {
+  background: var(--color-alpha-subtle);
+  color: var(--color-text-primary);
+}
+
+.item[data-active] {
+  background: var(--color-alpha-light);
+  color: var(--sky-200);
+}
+
+.item[data-active]::before {
+  background: var(--sky-400);
+  border-radius: 0 3px 3px 0;
+  bottom: 6px;
+  content: "";
+  left: calc(var(--space-3) * -1);
+  position: absolute;
+  top: 6px;
+  width: 3px;
+}
+
+.itemIcon {
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+}
+
+.item:hover .itemIcon,
+.item[data-active] .itemIcon {
+  opacity: 1;
+}
+
+.teamSelector {
+  align-items: center;
+  background: var(--color-bg-tertiary);
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  display: flex;
+  gap: 10px;
+  margin: var(--space-3) var(--space-3) var(--space-1);
+  padding: 10px var(--space-3);
+  text-align: left;
+  transition: border-color 0.15s;
+  width: calc(100% - var(--space-6));
+}
+
+.teamSelector:hover {
+  border-color: var(--color-border-accent);
+}
+
+.teamSelector:hover .chevron {
+  color: var(--color-text-secondary);
+}
+
+.chevron {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.footerBtn {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  display: flex;
+  height: 28px;
+  justify-content: center;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+  width: 28px;
+}
+
+.footerBtn:hover {
+  background: var(--color-alpha-faint);
+  color: var(--color-text-primary);
+}

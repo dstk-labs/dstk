@@ -1,48 +1,18 @@
 .navbar {
-  background-color: var(--mantine-color-body);
-  padding: var(--mantine-spacing-md);
-  padding-top: 0;
+  background: var(--color-bg-secondary);
+  border-right: var(--border-width) solid var(--color-border-default);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--mantine-color-dark-4);
+  overflow-y: auto;
 }
 
-.section {
-  margin-left: calc(var(--mantine-spacing-md) * -0.4);
-  margin-right: calc(var(--mantine-spacing-md) * -0.5);
-  margin-bottom: var(--mantine-spacing-md);
-
-  &:not(:last-of-type) {
-    border-bottom: 1px solid var(--mantine-color-dark-4);
-    margin-left: calc(var(--mantine-spacing-md) * -1);
-    margin-right: calc(var(--mantine-spacing-md) * -1);
-  }
+.header {
+  background: rgba(14, 17, 23, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: var(--border-width) solid var(--color-border-default);
 }
 
-.mainLinkIcon {
-  margin-right: var(--mantine-spacing-sm);
-  color: var(--mantine-color-dark-2);
-}
-
-.mainLinkBadge {
-  padding: 0;
-  width: 20px;
-  height: 20px;
-  pointer-events: none;
-}
-
-.footer {
-  border-top: 1px solid var(--mantine-color-dark-4);
-  margin-left: calc(var(--mantine-spacing-md) * -1);
-  margin-right: calc(var(--mantine-spacing-md) * -1);
-  margin-top: auto;
-}
-
-.footerInner {
-  display: flex;
-  justify-content: end;
-  margin-top: var(--mantine-spacing-md);
-  width: 100%;
-  margin-left: calc(var(--mantine-spacing-md) * -0.4);
-  margin-right: calc(var(--mantine-spacing-md) * -0.5);
+.main {
+  background: var(--color-bg-primary);
 }
