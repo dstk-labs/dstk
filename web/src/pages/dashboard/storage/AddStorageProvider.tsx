@@ -2,7 +2,6 @@ import type { CreateStorageProviderMutationVariables } from "@/graphql/types";
 import { useMutation } from "@apollo/client";
 import {
   Button,
-  Flex,
   Group,
   PasswordInput,
   Stack,
@@ -11,12 +10,13 @@ import {
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
+import { PlusIcon } from "lucide-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-
 import { z } from "zod/v4";
 
 import { AwsRegionsSelect } from "@/components/awsRegionSelect/AwsRegionSelect";
 import { Modal } from "@/components/modal/Modal";
+import { ModalFooter } from "@/components/modalFooter/ModalFooter";
 import { gql } from "@/graphql";
 import { useTeamStore } from "@/stores/teamStore";
 
@@ -30,8 +30,7 @@ const CREATE_STORAGE_PROVIDER = gql(`
 const createStorageProviderSchema = z.object({
   accessKeyId: z.string().min(1, "Required"),
   bucket: z.string().min(1, "Required"),
-  endpointUrl: z.string().min(1, "Required"),
-  //   TODO: Enum with literals
+  endpointUrl: z.url("Enter a valid URL"),
   region: z.string().min(1, "Required"),
   secretAccessKey: z.string().min(1, "Required"),
 }) satisfies z.ZodType<
@@ -49,7 +48,7 @@ export function AddStorageProvider() {
 
   const [opened, { close, open }] = useDisclosure(false);
 
-  const createStorageProviderForm = useForm({
+  const form = useForm({
     initialValues: {
       accessKeyId: "",
       bucket: "",
@@ -65,9 +64,11 @@ export function AddStorageProvider() {
     createStorageProvider({
       onCompleted: (data) => {
         notifications.show({
-          message: `Successfully added ${data.createStorageProvider?.bucket}`,
-          title: "Success",
+          color: "green",
+          message: `Connected ${data.createStorageProvider?.bucket}`,
+          title: "Storage provider added",
         });
+        form.reset();
         close();
       },
       refetchQueries: [
@@ -76,11 +77,7 @@ export function AddStorageProvider() {
       ],
       variables: {
         data: {
-          accessKeyId: values.accessKeyId,
-          bucket: values.bucket,
-          endpointUrl: values.endpointUrl,
-          region: values.region,
-          secretAccessKey: values.secretAccessKey,
+          ...values,
           teamId: selectedTeam!,
         },
       },
@@ -92,69 +89,72 @@ export function AddStorageProvider() {
         disabled={loading}
         onClose={close}
         opened={opened}
-        size="lg"
         title="Add Storage Provider"
       >
-        <form
-          onSubmit={createStorageProviderForm.onSubmit(values =>
-            onSubmit(values),
-          )}
-        >
-          <Stack gap="md">
+        <form onSubmit={form.onSubmit(values => onSubmit(values))}>
+          <Stack gap="lg">
             <TextInput
+              data-autofocus
               disabled={loading}
-              key={createStorageProviderForm.key("bucket")}
-              label="Bucket Name"
+              key={form.key("bucket")}
+              label="Bucket"
+              placeholder="my-models-bucket"
+              styles={{ input: { fontFamily: "var(--font-mono)" } }}
               withAsterisk
-              {...createStorageProviderForm.getInputProps("bucket")}
+              {...form.getInputProps("bucket")}
             />
-
-            {/* TODO: Stack on sm */}
+            <TextInput
+              description="Any S3-compatible endpoint: AWS S3, MinIO, Cloudflare R2, and so on."
+              disabled={loading}
+              key={form.key("endpointUrl")}
+              label="Endpoint URL"
+              placeholder="https://s3.us-east-1.amazonaws.com"
+              styles={{ input: { fontFamily: "var(--font-mono)" } }}
+              withAsterisk
+              {...form.getInputProps("endpointUrl")}
+            />
+            <AwsRegionsSelect
+              disabled={loading}
+              key={form.key("region")}
+              withAsterisk
+              {...form.getInputProps("region")}
+            />
             <Group grow>
-              <AwsRegionsSelect
-                disabled={loading}
-                key={createStorageProviderForm.key("region")}
-                withAsterisk
-                {...createStorageProviderForm.getInputProps("region")}
-              />
               <TextInput
+                autoComplete="off"
                 disabled={loading}
-                key={createStorageProviderForm.key("endpointUrl")}
-                label="Endpoint URL"
+                key={form.key("accessKeyId")}
+                label="Access Key ID"
+                placeholder="AKIAIOSFODNN7EXAMPLE"
+                styles={{ input: { fontFamily: "var(--font-mono)" } }}
                 withAsterisk
-                {...createStorageProviderForm.getInputProps("endpointUrl")}
-              />
-            </Group>
-
-            {/* TODO: Stack on sm */}
-            <Group grow>
-              <PasswordInput
-                disabled={loading}
-                key={createStorageProviderForm.key("accessKeyId")}
-                label="Access Key"
-                withAsterisk
-                {...createStorageProviderForm.getInputProps("accessKeyId")}
+                {...form.getInputProps("accessKeyId")}
               />
               <PasswordInput
+                autoComplete="new-password"
                 disabled={loading}
-                key={createStorageProviderForm.key("secretAccessKey")}
+                key={form.key("secretAccessKey")}
                 label="Secret Access Key"
                 withAsterisk
-                {...createStorageProviderForm.getInputProps("secretAccessKey")}
+                {...form.getInputProps("secretAccessKey")}
               />
             </Group>
+            <p
+              style={{
+                color: "var(--color-text-muted)",
+                fontSize: "var(--font-size-3xs)",
+                margin: 0,
+              }}
+            >
+              Your secret key is encrypted at rest and never displayed again after saving.
+            </p>
           </Stack>
-
-          <Flex align="center" justify="end" mt="xl">
-            <Button color="blue" loading={loading} radius="md" type="submit">
-              Submit
-            </Button>
-          </Flex>
+          <ModalFooter loading={loading} onCancel={close} submitLabel="Add provider" />
         </form>
       </Modal>
 
-      <Button fullWidth onClick={open}>
-        Add Storage Provider
+      <Button leftSection={<PlusIcon size={14} />} onClick={open} size="sm">
+        Add provider
       </Button>
     </>
   );

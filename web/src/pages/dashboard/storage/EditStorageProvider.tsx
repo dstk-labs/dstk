@@ -1,22 +1,16 @@
 import type { EditStorageProviderMutationVariables } from "@/graphql/types";
 import { useMutation } from "@apollo/client";
-import {
-  ActionIcon,
-  Button,
-  Flex,
-  PasswordInput,
-  Stack,
-  Tooltip,
-} from "@mantine/core";
+import { PasswordInput, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { EditIcon } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-
 import { z } from "zod/v4";
 
 import { Modal } from "@/components/modal/Modal";
+import { ModalFooter } from "@/components/modalFooter/ModalFooter";
+import { RowAction } from "@/components/rowActions/RowActions";
 import { gql } from "@/graphql";
 
 const EDIT_STORAGE_PROVIDER = gql(`
@@ -53,7 +47,7 @@ export function EditStorageProvider({
 
   const [opened, { close, open }] = useDisclosure(false);
 
-  const editProjectForm = useForm({
+  const form = useForm({
     initialValues: {
       accessKeyId: originalAccessKeyId,
       secretAccessKey: "",
@@ -66,9 +60,11 @@ export function EditStorageProvider({
     editStorageProvider({
       onCompleted: (data) => {
         notifications.show({
-          message: `Successfully edited ${data.editStorageProvider?.bucket}`,
-          title: "Success",
+          color: "green",
+          message: `Rotated credentials for ${data.editStorageProvider?.bucket}`,
+          title: "Credentials updated",
         });
+        form.reset();
         close();
       },
       refetchQueries: [
@@ -90,46 +86,39 @@ export function EditStorageProvider({
         disabled={loading}
         onClose={close}
         opened={opened}
-        size="lg"
-        title={`Edit ${bucket}`}
+        title={`Update credentials for ${bucket}`}
       >
-        <form onSubmit={editProjectForm.onSubmit(values => onSubmit(values))}>
-          <Stack gap="md">
-            <PasswordInput
+        <form onSubmit={form.onSubmit(values => onSubmit(values))}>
+          <Stack gap="lg">
+            <TextInput
+              autoComplete="off"
               disabled={loading}
-              key={editProjectForm.key("accessKeyId")}
-              label="Access Key"
+              key={form.key("accessKeyId")}
+              label="Access Key ID"
+              styles={{ input: { fontFamily: "var(--font-mono)" } }}
               withAsterisk
-              {...editProjectForm.getInputProps("accessKeyId")}
+              {...form.getInputProps("accessKeyId")}
             />
-
             <PasswordInput
+              autoComplete="new-password"
+              description="Enter the new secret. The current secret is never shown."
               disabled={loading}
-              key={editProjectForm.key("secretAccessKey")}
+              key={form.key("secretAccessKey")}
               label="Secret Access Key"
               withAsterisk
-              {...editProjectForm.getInputProps("secretAccessKey")}
+              {...form.getInputProps("secretAccessKey")}
             />
           </Stack>
-
-          <Flex align="center" justify="end" mt="xl">
-            <Button color="blue" loading={loading} radius="md" type="submit">
-              Submit
-            </Button>
-          </Flex>
+          <ModalFooter loading={loading} onCancel={close} submitLabel="Save credentials" />
         </form>
       </Modal>
 
-      <Tooltip disabled={isArchived} label="Edit">
-        <ActionIcon
-          color="blue"
-          disabled={isArchived}
-          onClick={open}
-          variant="subtle"
-        >
-          <EditIcon size={14} />
-        </ActionIcon>
-      </Tooltip>
+      <RowAction
+        disabled={isArchived}
+        icon={<PencilIcon size={14} />}
+        label="Update Credentials"
+        onClick={open}
+      />
     </>
   );
 }

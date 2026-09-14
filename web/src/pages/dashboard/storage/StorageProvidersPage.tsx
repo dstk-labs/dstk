@@ -1,33 +1,24 @@
 import type { StorageProvidersLoader } from "@/features/storage/loaders/storageProvidersLoader";
 import { Suspense } from "react";
-
 import { useLoaderData } from "react-router";
 
-import { IncludeArchivedSwitch } from "@/components/includeArchivedSwitch/IncludeArchivedSwitch";
-import { SearchParamTextInput } from "@/components/searchParamInput/SearchParamInput";
+import { PageHeader } from "@/components/pageHeader/PageHeader";
 
 import { AddStorageProvider } from "./AddStorageProvider";
-import styles from "./StorageProvidersPage.module.css";
-import { StorageProvidersTable } from "./StorageProvidersTable";
+import { StorageProvidersGrid } from "./StorageProvidersGrid";
 
 export function StorageProvidersPage() {
   const queryRef = useLoaderData() as StorageProvidersLoader;
 
   return (
     <>
-      <header className={styles.header}>
-        <div className={styles.searchContainer}>
-          <SearchParamTextInput param="bucket" />
-        </div>
-        <div className={styles.toolbar}>
-          <IncludeArchivedSwitch />
-          <div className={styles.buttonContainer}>
-            <AddStorageProvider />
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        actions={<AddStorageProvider />}
+        subtitle="S3-compatible storage backends for your model artifacts. Each model version is stored at a unique prefix."
+        title="Storage Providers"
+      />
       <Suspense>
-        <StorageProvidersTable queryRef={queryRef} />
+        <StorageProvidersGrid queryRef={queryRef} />
       </Suspense>
     </>
   );
