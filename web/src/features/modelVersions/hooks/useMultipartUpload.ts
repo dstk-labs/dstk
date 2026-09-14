@@ -24,7 +24,7 @@ export function useMultipartUpload(modelVersionId: string) {
 
   const executePresignedRequest = useCallback(
     async (
-      filename: string | undefined,
+      filename: string,
       method: MultipartUploadMethods,
       options?: {
         partNumber?: number;
@@ -72,7 +72,7 @@ export function useMultipartUpload(modelVersionId: string) {
   const getPresignedPartUrl = useCallback(
     async (uploadId: string, key: string, partNumber: number) => {
       const result = await executePresignedRequest(
-        key.split("/").pop(),
+        key.split("/").pop() ?? key,
         "uploadPart",
         { partNumber, uploadId },
       );
@@ -83,7 +83,7 @@ export function useMultipartUpload(modelVersionId: string) {
 
   const finalizeMultipartUpload = useCallback(
     (uploadId: string, key: string, parts: CompletedPartInput[]) =>
-      executePresignedRequest(key.split("/").pop(), "finalizeMultipartUpload", {
+      executePresignedRequest(key.split("/").pop() ?? key, "finalizeMultipartUpload", {
         parts,
         refetchQueries: ["ListObjectsForModelVersion"],
         uploadId,

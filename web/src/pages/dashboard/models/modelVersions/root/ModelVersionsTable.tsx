@@ -1,14 +1,21 @@
 import type { ModelVersionsLoader } from "@/features/modelVersions/loaders/modelVersionsLoader";
 import { useReadQuery } from "@apollo/client";
-import { Badge, Card, Flex, Table } from "@mantine/core";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-
+import { Table } from "@mantine/core";
+import { LayersIcon } from "lucide-react";
 import { useNavigate } from "react-router";
+
+import { DateCell } from "@/components/dateCell/DateCell";
+import { EmptyTableRow } from "@/components/emptyState/EmptyState";
+import { IncludeArchivedSwitch } from "@/components/includeArchivedSwitch/IncludeArchivedSwitch";
 import { LimitSelector } from "@/components/limitSelector/LimitSelector";
-import { NoResults } from "@/components/noResults/NoResults";
 import { Pagination } from "@/components/pagination/Pagination";
+import { RowActions } from "@/components/rowActions/RowActions";
+import { ModelVersionStatus } from "@/components/statusBadge/StatusBadge";
+import { TableCard } from "@/components/tableCard/TableCard";
+import { VersionTag } from "@/components/versionTag/VersionTag";
 import { paths } from "@/config/paths";
+import { useContinuationTokens } from "@/hooks/useContinuationTokens";
+import { truncate } from "@/utils/formatters";
 
 import { ArchiveModelVersion } from "./ArchiveModelVersion";
 import { EditModelVersion } from "./EditModelVersion";
@@ -20,113 +27,101 @@ type ModelVersionsTableProps = {
 
 export function ModelVersionsTable({ queryRef }: ModelVersionsTableProps) {
   const { data } = useReadQuery(queryRef);
-
   const navigate = useNavigate();
+  const pageInfo = data.listMLModelVersions?.pageInfo;
+  const continuationTokens = useContinuationTokens(pageInfo?.continuationToken);
 
-  const [continuationTokens, setContinuationTokens] = useState<
-    (null | string)[]
-  >([null]);
-
-  const continuationToken
-    = data.listMLModelVersions?.pageInfo?.continuationToken ?? null;
-
-  useEffect(() => {
-    if (continuationToken && !continuationTokens.includes(continuationToken)) {
-      setContinuationTokens(prev => [...prev, continuationToken]);
-    }
-  }, [continuationToken, continuationTokens]);
-
-  const rows
-    = data.listMLModelVersions?.edges?.map(mlModelVersion => (
-      <Table.Tr
-        className={styles.tableRow}
-        key={mlModelVersion.node?.modelVersionId}
-        onClick={() =>
-          navigate(
-            paths.dashboard.modelVersionCard.getPath(
-              mlModelVersion.node?.modelId?.modelId ?? "",
-              mlModelVersion.node?.modelVersionId ?? "",
-            ),
-          )}
-      >
-        <Table.Td>
-          v
-          {mlModelVersion.node?.numericVersion}
-        </Table.Td>
-        <Table.Td>
-          {mlModelVersion.node?.description
-            && mlModelVersion.node?.description.length > 50
-            ? `${mlModelVersion.node?.description.substring(0, 50)}...`
-            : mlModelVersion.node?.description}
-        </Table.Td>
-        <Table.Td>
-          <Badge
-            className={styles.badge}
-            color={
-              mlModelVersion.node?.isArchived
-                ? "red"
-                : mlModelVersion.node?.isFinalized
-                  ? "green"
-                  : "blue"
-            }
-          >
-            {mlModelVersion.node?.isArchived
-              ? "Archived"
-              : mlModelVersion.node?.isFinalized
-                ? "Deployed"
-                : "Pending"}
-          </Badge>
-        </Table.Td>
-        <Table.Td>
-          {dayjs(mlModelVersion.node?.dateCreated).format("YYYY-MM-DD")}
-        </Table.Td>
-        <Table.Td onClick={e => e.stopPropagation()}>
-          <Flex gap={2}>
-            <EditModelVersion
-              isArchived={!!mlModelVersion.node?.isArchived}
-              modelVersionId={mlModelVersion.node?.modelVersionId ?? ""}
-              numericVersion={mlModelVersion.node?.numericVersion ?? 0}
-              originalDescription={mlModelVersion.node?.description ?? ""}
-            />
-            <ArchiveModelVersion
-              isArchived={!!mlModelVersion.node?.isArchived}
-              modelVersionId={mlModelVersion.node?.modelVersionId ?? ""}
-              numericVersion={mlModelVersion.node?.numericVersion ?? 0}
-            />
-          </Flex>
-        </Table.Td>
-      </Table.Tr>
-    )) ?? [];
+  const versions = (data.listMLModelVersions?.edges ?? [])
+    .map(edge => edge.node)
+    .filter((version): version is NonNullable<typeof version> => Boolean(version));
 
   return (
-    <div className={styles.tableContainer}>
-      <Card bg="transparent" p={0} withBorder>
-        <Table.ScrollContainer minWidth={500} type="native">
-          <Table highlightOnHover>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Version Number</Table.Th>
-                <Table.Th>Description</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Date Created</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {rows.length > 0 ? rows : <NoResults colSpan={5} />}
-            </Table.Tbody>
-          </Table>
-        </Table.ScrollContainer>
-      </Card>
-      <div className={styles.tableFooter}>
-        <LimitSelector />
-        <Pagination
-          continuationTokens={continuationTokens}
-          hasNextPage={!!data.listMLModelVersions?.pageInfo?.hasNextPage}
-          hasPreviousPage={
-            !!data.listMLModelVersions?.pageInfo?.hasPreviousPage
-          }
-        />
-      </div>
-    </div>
+    <TableCard>
+      <TableCard.Toolbar
+        end={<IncludeArchivedSwitch />}
+        start={(
+          <span style={{ fontSize: "var(--font-size-sm)", fontWeight: "var(--font-regular)" }}>
+            Versions
+          </span>
+        )}
+      />
+      <TableCard.Table>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Version</Table.Th>
+            <Table.Th>Description</Table.Th>
+            <Table.Th>Status</Table.Th>
+            <Table.Th>Created By</Table.Th>
+            <Table.Th>Created</Table.Th>
+            <Table.Th aria-label="Actions" />
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {versions.length === 0 && (
+            <EmptyTableRow
+              colSpan={6}
+              description="Push a version to start uploading artifacts."
+              icon={<LayersIcon size={24} />}
+              title="No versions yet"
+            />
+          )}
+          {versions.map(version => (
+            <Table.Tr
+              className={styles.row}
+              key={version.modelVersionId}
+              onClick={() =>
+                navigate(
+                  paths.dashboard.modelVersionCard.getPath(
+                    version.modelId?.modelId ?? "",
+                    version.modelVersionId ?? "",
+                  ),
+                )}
+            >
+              <Table.Td>
+                <VersionTag version={version.numericVersion ?? 0} />
+              </Table.Td>
+              <Table.Td title={version.description ?? undefined}>
+                {truncate(version.description)}
+              </Table.Td>
+              <Table.Td>
+                <ModelVersionStatus
+                  isArchived={!!version.isArchived}
+                  isFinalized={!!version.isFinalized}
+                />
+              </Table.Td>
+              <Table.Td>{version.createdBy?.realName ?? "—"}</Table.Td>
+              <Table.Td>
+                <DateCell value={version.dateCreated} />
+              </Table.Td>
+              <Table.Td>
+                <RowActions>
+                  <EditModelVersion
+                    isArchived={!!version.isArchived}
+                    modelVersionId={version.modelVersionId ?? ""}
+                    numericVersion={version.numericVersion ?? 0}
+                    originalDescription={version.description ?? ""}
+                  />
+                  <ArchiveModelVersion
+                    isArchived={!!version.isArchived}
+                    modelVersionId={version.modelVersionId ?? ""}
+                    numericVersion={version.numericVersion ?? 0}
+                  />
+                </RowActions>
+              </Table.Td>
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </TableCard.Table>
+      <TableCard.Footer
+        end={(
+          <Pagination
+            continuationTokens={continuationTokens}
+            hasNextPage={!!pageInfo?.hasNextPage}
+            hasPreviousPage={!!pageInfo?.hasPreviousPage}
+          />
+        )}
+        start={<LimitSelector />}
+      />
+    </TableCard>
   );
 }

@@ -1,10 +1,9 @@
 import { useMutation } from "@apollo/client";
-import { Button, Stack, Text, TextInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { cloneElement, useState } from "react";
+import { cloneElement } from "react";
 
-import { Modal } from "@/components/modal/Modal";
+import { ArchiveConfirmModal } from "@/components/archiveConfirmModal/ArchiveConfirmModal";
 import { gql } from "@/graphql";
 
 import { GET_ML_MODEL } from "../loaders/modelLoader";
@@ -30,21 +29,19 @@ export function ArchiveModel({
   modelName,
   trigger,
 }: ArchiveModelProps) {
-  const [inputValue, setInputValue] = useState("");
-
   const [archiveModel, { loading }] = useMutation(ARCHIVE_MODEL);
 
   const [opened, { close, open }] = useDisclosure(false);
 
-  const onSubmit = () =>
+  const onConfirm = () =>
     archiveModel({
       onCompleted: (data) => {
         notifications.show({
-          message: `Successfully archived ${data.archiveModel?.modelName}`,
-          title: "Success",
+          color: "green",
+          message: `Archived ${data.archiveModel?.modelName}`,
+          title: "Model archived",
         });
         close();
-        setInputValue("");
       },
       refetchQueries: [
         "ListMLModels",
@@ -62,42 +59,16 @@ export function ArchiveModel({
 
   return (
     <>
-      <Modal
-        disabled={loading}
+      <ArchiveConfirmModal
+        confirmValue={modelName}
+        consequence="Archiving this model prevents further changes and new versions."
+        entityLabel="model"
+        loading={loading}
         onClose={close}
+        onConfirm={onConfirm}
         opened={opened}
-        size="lg"
         title={`Archive ${modelName}`}
-      >
-        <Stack gap="md">
-          <Text size="sm">
-            This action is
-            {" "}
-            <Text c="red" fw={500} span>
-              irreversible
-            </Text>
-            . Archiving this model will permanently prevent any further
-            modifications and deployments.
-          </Text>
-          <TextInput
-            label="Please type in the name of the model to continue"
-            onChange={e => setInputValue(e.target.value)}
-            placeholder={modelName}
-            value={inputValue}
-          />
-          <Button
-            color="red"
-            disabled={inputValue !== modelName || loading}
-            fullWidth
-            loading={loading}
-            mt="sm"
-            onClick={() => onSubmit()}
-            radius="md"
-          >
-            I understand, archive this model
-          </Button>
-        </Stack>
-      </Modal>
+      />
       {cloneElement(trigger, {
         disabled: isArchived || trigger.props.disabled,
         onClick: open,

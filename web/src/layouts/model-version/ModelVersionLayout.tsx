@@ -1,91 +1,86 @@
 import type { ModelVersionLoader } from "@/features/modelVersions/loaders/modelVersionLoader";
 import { useReadQuery } from "@apollo/client";
-import { Badge, Box, Tabs, Text, Title } from "@mantine/core";
+import { Tabs } from "@mantine/core";
+import { Outlet, useLoaderData, useLocation, useNavigate, useParams } from "react-router";
 
-import { Outlet, useLoaderData, useNavigate, useParams } from "react-router";
+import { MetaItem, MetaList, MetaStrong } from "@/components/metaList/MetaList";
+import { PageHeader } from "@/components/pageHeader/PageHeader";
+import { ModelVersionStatus } from "@/components/statusBadge/StatusBadge";
 import { paths } from "@/config/paths";
+import { formatDate } from "@/utils/formatters";
 
-import styles from "./ModelVersionLayout.module.css";
+type TabValue = "artifacts" | "card" | "logs";
 
-type TabValues = "artifacts" | "card" | "logs";
+const TABS: { label: string; value: TabValue }[] = [
+  { label: "Model Card", value: "card" },
+  { label: "Artifacts", value: "artifacts" },
+  { label: "Logs", value: "logs" },
+];
 
 export function ModelVersionLayout() {
   const queryRef = useLoaderData() as ModelVersionLoader;
   const { data } = useReadQuery(queryRef);
+  const version = data.getMLModelVersion;
 
   const navigate = useNavigate();
-  const { modelId, modelVersionId } = useParams();
+  const { pathname } = useLocation();
+  const { modelId = "", modelVersionId = "" } = useParams();
 
-  const handleTabNavigation = (value: TabValues) => {
-    if (value === "artifacts") {
-      navigate(
-        paths.dashboard.modelVersionArtifacts.getPath(
-          modelId!,
-          modelVersionId!,
-        ),
-      );
-    }
-
-    if (value === "card") {
-      navigate(
-        paths.dashboard.modelVersionCard.getPath(modelId!, modelVersionId!),
-      );
-    }
-
-    if (value === "logs") {
-      navigate(
-        paths.dashboard.modelVersionLogs.getPath(modelId!, modelVersionId!),
-      );
-    }
+  const tabPaths: Record<TabValue, string> = {
+    artifacts: paths.dashboard.modelVersionArtifacts.getPath(modelId, modelVersionId),
+    card: paths.dashboard.modelVersionCard.getPath(modelId, modelVersionId),
+    logs: paths.dashboard.modelVersionLogs.getPath(modelId, modelVersionId),
   };
+
+  const activeTab
+    = (Object.keys(tabPaths) as TabValue[]).find(tab => pathname.startsWith(tabPaths[tab]))
+      ?? "card";
 
   return (
     <>
-      <header className={styles.header}>
-        <div className={styles.attributes}>
-          <div className={styles.status}>
-            <Title order={4}>
-              Version
+      <PageHeader
+        badge={(
+          <ModelVersionStatus
+            isArchived={!!version?.isArchived}
+            isFinalized={!!version?.isFinalized}
+          />
+        )}
+        description={version?.description}
+        meta={(
+          <MetaList>
+            <MetaItem>
+              By
               {" "}
-              {data.getMLModelVersion?.numericVersion}
-            </Title>
-            <Badge
-              color={
-                data.getMLModelVersion?.isArchived
-                  ? "red"
-                  : data.getMLModelVersion?.isFinalized
-                    ? "green"
-                    : "blue"
-              }
-            >
-              {data.getMLModelVersion?.isArchived
-                ? "Archived"
-                : data.getMLModelVersion?.isFinalized
-                  ? "Deployed"
-                  : "Pending"}
-            </Badge>
-          </div>
-          <Text c="dimmed" fw={500} size="sm">
-            {data.getMLModelVersion?.description}
-          </Text>
-        </div>
-      </header>
+              <MetaStrong>{version?.createdBy?.realName ?? "—"}</MetaStrong>
+            </MetaItem>
+            <MetaItem>
+              Created
+              {" "}
+              {formatDate(version?.dateCreated)}
+            </MetaItem>
+          </MetaList>
+        )}
+        title={(
+          <span style={{ fontFamily: "var(--font-mono)" }}>
+            v
+            {version?.numericVersion}
+          </span>
+        )}
+      />
       <Tabs
-        defaultValue="card"
-        my="xl"
-        // @ts-expect-error this works fine, typescript is cranky about nulls
-        onChange={(value: TabValues) => handleTabNavigation(value)}
-        // value={tabValue}
+        mb="xl"
+        onChange={value => value && navigate(tabPaths[value as TabValue])}
+        value={activeTab}
       >
         <Tabs.List>
-          <Tabs.Tab value="card">Model Card</Tabs.Tab>
-          <Tabs.Tab value="artifacts">Artifacts</Tabs.Tab>
-          <Tabs.Tab value="logs">Logs</Tabs.Tab>
+          {TABS.map(tab => (
+            <Tabs.Tab key={tab.value} value={tab.value}>
+              {tab.label}
+            </Tabs.Tab>
+          ))}
         </Tabs.List>
-        <Box py="xl">
-          <Outlet />
-        </Box>
       </Tabs>
+      <Outlet />
     </>
   );
 }

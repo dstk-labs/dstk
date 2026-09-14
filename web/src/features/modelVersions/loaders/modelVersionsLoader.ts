@@ -40,6 +40,9 @@ export const LIST_MODEL_VERSIONS = gql(`
           isFinalized
           description
           dateCreated
+          createdBy {
+            realName
+          }
         }
       }
     }

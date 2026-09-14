@@ -1,13 +1,15 @@
 import type { CreateModelVersionMutationVariables } from "@/graphql/types";
 import { useMutation } from "@apollo/client";
-import { Button, Flex, Textarea } from "@mantine/core";
+import { Button, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
+import { ArrowUpIcon } from "lucide-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-
 import { z } from "zod/v4";
+
 import { Modal } from "@/components/modal/Modal";
+import { ModalFooter } from "@/components/modalFooter/ModalFooter";
 import { gql } from "@/graphql";
 
 const CREATE_MODEL_VERSION = gql(`
@@ -42,7 +44,7 @@ export function AddModelVersion({
 
   const [opened, { close, open }] = useDisclosure(false);
 
-  const createModelVersionForm = useForm({
+  const form = useForm({
     initialValues: {
       description: "",
     },
@@ -54,14 +56,14 @@ export function AddModelVersion({
     createModelVersion({
       onCompleted: (data) => {
         notifications.show({
-          message: `Successfully created version ${data.createModelVersion?.numericVersion} for model ${data.createModelVersion?.modelId?.modelName}`,
-          title: "Success",
+          color: "green",
+          message: `Created v${data.createModelVersion?.numericVersion} of ${data.createModelVersion?.modelId?.modelName}`,
+          title: "Version created",
         });
-        createModelVersionForm.reset();
+        form.reset();
         close();
       },
-      // TODO: Eventually GetModelVersionById
-      refetchQueries: ["ListMLModels", "ListMLModelVersions"],
+      refetchQueries: ["ListMLModels", "ListMLModelVersions", "GetMLModel"],
       variables: {
         data: {
           description: values.description,
@@ -73,37 +75,30 @@ export function AddModelVersion({
 
   return (
     <>
-      <Modal
-        disabled={loading}
-        onClose={close}
-        opened={opened}
-        size="lg"
-        title="Add Model Version"
-      >
-        <form
-          onSubmit={createModelVersionForm.onSubmit(values =>
-            onSubmit(values),
-          )}
-        >
+      <Modal disabled={loading} onClose={close} opened={opened} title="Push New Version">
+        <form onSubmit={form.onSubmit(values => onSubmit(values))}>
           <Textarea
+            autosize
+            data-autofocus
             disabled={loading}
-            key={createModelVersionForm.key("description")}
-            label="Description"
-            rows={4}
+            key={form.key("description")}
+            label="What changed?"
+            minRows={4}
+            placeholder="e.g. Retrained on Q4 data. AUC 0.94 → 0.97"
             withAsterisk
-            {...createModelVersionForm.getInputProps("description")}
+            {...form.getInputProps("description")}
           />
-
-          <Flex align="center" justify="end" mt="xl">
-            <Button color="blue" loading={loading} radius="md" type="submit">
-              Submit
-            </Button>
-          </Flex>
+          <ModalFooter loading={loading} onCancel={close} submitLabel="Create version" />
         </form>
       </Modal>
 
-      <Button disabled={disabled} fullWidth onClick={open}>
-        Add Model Version
+      <Button
+        disabled={disabled}
+        leftSection={<ArrowUpIcon size={14} />}
+        onClick={open}
+        size="sm"
+      >
+        Push version
       </Button>
     </>
   );

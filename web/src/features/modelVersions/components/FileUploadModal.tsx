@@ -1,11 +1,11 @@
 import type { FileWithPath } from "@mantine/dropzone";
-import type { RefObject } from "react";
 import type { FileProgress } from "../types";
-import { Button, Flex, Group, SimpleGrid, Text } from "@mantine/core";
-
 import { Dropzone } from "@mantine/dropzone";
+import { CloudUploadIcon } from "lucide-react";
 
 import { Modal } from "@/components/modal/Modal";
+import { ModalFooter } from "@/components/modalFooter/ModalFooter";
+import { formatFileSize } from "@/utils/formatters";
 import { FILE_UPLOAD_STATUS } from "../constants";
 import { FilePreview } from "./FilePreview";
 
@@ -18,7 +18,6 @@ type FileUploadModalProps = {
   onRetry: () => void;
   onUpload: () => void;
   opened: boolean;
-  openRef: RefObject<(() => void) | null>;
   uploading: boolean;
 };
 
@@ -31,78 +30,90 @@ export function FileUploadModal({
   onRetry,
   onUpload,
   opened,
-  openRef,
   uploading,
 }: FileUploadModalProps) {
   const hasErrors = files.some(
     file => fileProgress[file.name]?.status === FILE_UPLOAD_STATUS.ERROR,
   );
+  const totalSize = files.reduce((sum, file) => sum + file.size, 0);
 
   return (
-    <Modal
-      disabled={uploading}
-      onClose={onClose}
-      opened={opened}
-      size="lg"
-      title="Add Files"
-    >
+    <Modal disabled={uploading} onClose={onClose} opened={opened} size={540} title="Upload Files">
       <Dropzone
+        disabled={uploading}
         loading={uploading}
         multiple
-        onDrop={onFilesSelect}
-        openRef={openRef}
+        onDrop={dropped => onFilesSelect([...files, ...dropped])}
       >
-        <Group
-          gap="xl"
-          justify="center"
-          mih={110}
-          style={{ pointerEvents: "none" }}
-        >
-          <div>
-            <Text inline size="md">
-              Drag objects here or click to select files
-            </Text>
-            <Text c="dimmed" inline mt={7} size="sm">
-              We should probably check mime types
-            </Text>
+        <div style={{ pointerEvents: "none", textAlign: "center" }}>
+          <CloudUploadIcon
+            size={32}
+            style={{ color: "var(--color-text-muted)", marginBottom: "var(--space-2)" }}
+          />
+          <div
+            style={{
+              color: "var(--color-text-secondary)",
+              fontSize: "var(--font-size-xs)",
+              fontWeight: "var(--font-light)",
+              marginBottom: "var(--space-1)",
+            }}
+          >
+            <strong style={{ color: "var(--sky-300)", fontWeight: "var(--font-regular)" }}>
+              Click to browse
+            </strong>
+            {" "}
+            or drag and drop
           </div>
-        </Group>
+          <div
+            style={{
+              color: "var(--color-text-muted)",
+              fontSize: "var(--font-size-3xs)",
+              fontWeight: "var(--font-light)",
+            }}
+          >
+            Any file type · Large files upload in 64 MB parts
+          </div>
+        </div>
       </Dropzone>
 
       {files.length > 0 && (
-        <SimpleGrid mt="sm" w="100%">
-          {files.map(file => (
-            <FilePreview
-              file={file}
-              key={file.path}
-              onRemove={() => onFileRemove(file.path!)}
-              progress={fileProgress[file.name]}
-              uploading={uploading}
-            />
-          ))}
-        </SimpleGrid>
+        <div style={{ marginTop: "var(--space-4)" }}>
+          <div
+            style={{
+              color: "var(--color-text-muted)",
+              fontSize: "var(--font-size-2xs)",
+              fontWeight: "var(--font-light)",
+              marginBottom: "var(--space-2)",
+            }}
+          >
+            {files.length}
+            {" "}
+            {files.length === 1 ? "file" : "files"}
+            {" · "}
+            {formatFileSize(totalSize)}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", maxHeight: 260, overflowY: "auto" }}>
+            {files.map(file => (
+              <FilePreview
+                file={file}
+                key={file.path}
+                onRemove={() => onFileRemove(file.path!)}
+                progress={fileProgress[file.name]}
+                uploading={uploading}
+              />
+            ))}
+          </div>
+        </div>
       )}
 
-      <Flex align="center" justify="end" mt="xl">
-        {hasErrors
-          ? (
-              <Button color="red" loading={uploading} onClick={onRetry} radius="md">
-                Retry Failed Files
-              </Button>
-            )
-          : (
-              <Button
-                color="blue"
-                disabled={files.length === 0}
-                loading={uploading}
-                onClick={onUpload}
-                radius="md"
-                type="submit"
-              >
-                Submit
-              </Button>
-            )}
-      </Flex>
+      <ModalFooter
+        disabled={files.length === 0}
+        loading={uploading}
+        onCancel={onClose}
+        onSubmit={hasErrors ? onRetry : onUpload}
+        submitLabel={hasErrors ? "Retry failed files" : "Upload"}
+        tone={hasErrors ? "danger" : "primary"}
+      />
     </Modal>
   );
 }
