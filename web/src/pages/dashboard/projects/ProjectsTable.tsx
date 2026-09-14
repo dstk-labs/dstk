@@ -2,6 +2,7 @@ import type { ProjectsLoader } from "@/features/projects/loaders/projectsLoader"
 import { useReadQuery } from "@apollo/client";
 import { Table } from "@mantine/core";
 import { FolderIcon } from "lucide-react";
+import { useNavigate } from "react-router";
 
 import { DateCell } from "@/components/dateCell/DateCell";
 import { EmptyTableRow } from "@/components/emptyState/EmptyState";
@@ -12,11 +13,13 @@ import { RowActions } from "@/components/rowActions/RowActions";
 import { SearchParamTextInput } from "@/components/searchParamInput/SearchParamInput";
 import { ArchivableStatus } from "@/components/statusBadge/StatusBadge";
 import { TableCard } from "@/components/tableCard/TableCard";
+import { paths } from "@/config/paths";
 import { useContinuationTokens } from "@/hooks/useContinuationTokens";
 import { truncate } from "@/utils/formatters";
 
 import { ArchiveProject } from "./ArchiveProject";
 import { EditProject } from "./EditProject";
+import styles from "./ProjectsTable.module.css";
 
 type ProjectsTableProps = {
   queryRef: ProjectsLoader;
@@ -24,6 +27,7 @@ type ProjectsTableProps = {
 
 export function ProjectsTable({ queryRef }: ProjectsTableProps) {
   const { data } = useReadQuery(queryRef);
+  const navigate = useNavigate();
   const pageInfo = data.listProjects?.pageInfo;
   const continuationTokens = useContinuationTokens(pageInfo?.continuationToken);
 
@@ -58,7 +62,11 @@ export function ProjectsTable({ queryRef }: ProjectsTableProps) {
             />
           )}
           {projects.map(project => (
-            <Table.Tr key={project.projectId}>
+            <Table.Tr
+              className={styles.row}
+              key={project.projectId}
+              onClick={() => navigate(paths.dashboard.project.getPath(project.projectId ?? ""))}
+            >
               <Table.Td>{project.name}</Table.Td>
               <Table.Td title={project.description ?? undefined}>
                 {truncate(project.description)}

@@ -40,7 +40,7 @@ export function ArchiveProject({
         });
         close();
       },
-      refetchQueries: ["ListProjectsForTable", "ListProjectsForSelect"],
+      refetchQueries: ["GetProject", "ListProjectsForTable", "ListProjectsForSelect"],
       variables: {
         projectId,
       },

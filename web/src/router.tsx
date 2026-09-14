@@ -8,6 +8,7 @@ import { paths } from "./config/paths";
 import { userLoader } from "./features/auth/loaders/authLoader";
 import { GET_ML_MODEL } from "./features/models/loaders/modelLoader";
 import { GET_ML_MODEL_VERSION } from "./features/modelVersions/loaders/modelVersionLoader";
+import { GET_PROJECT } from "./features/projects/loaders/projectLoader";
 import { GET_TEAM } from "./features/teams/loaders/teamLoader";
 import { apolloClient } from "./lib/apollo";
 import { ErrorPage } from "./pages/errors/ErrorPage";
@@ -245,22 +246,59 @@ function createAppRouter() {
               path: paths.dashboard.overview.path,
             },
             {
+              children: [
+                {
+                  index: true,
+                  lazy: async () => {
+                    const { ProjectsPage } = await import(
+                      "./pages/dashboard/projects/ProjectsPage",
+                    );
+                    return { Component: ProjectsPage };
+                  },
+                  loader: async (params) => {
+                    const { projectsLoader } = await import(
+                      "./features/projects/loaders/projectsLoader",
+                    );
+
+                    const queryRef = await projectsLoader(params);
+                    return queryRef;
+                  },
+                },
+                {
+                  handle: {
+                    crumb: (params: Record<string, string | undefined>) => {
+                      const result = apolloClient.readQuery({
+                        query: GET_PROJECT,
+                        variables: { projectId: params.projectId ?? "" },
+                      });
+
+                      return result?.getProject?.name ?? "";
+                    },
+                  },
+                  lazy: async () => {
+                    const { ProjectPage } = await import(
+                      "./pages/dashboard/projects/project/ProjectPage",
+                    );
+                    return { Component: ProjectPage };
+                  },
+                  loader: async (params) => {
+                    const { projectLoader } = await import(
+                      "./features/projects/loaders/projectLoader",
+                    );
+                    const { modelsLoader } = await import(
+                      "./features/models/loaders/modelsLoader",
+                    );
+
+                    return Promise.all([
+                      projectLoader({ projectId: params.params.projectId! }),
+                      modelsLoader(params),
+                    ]);
+                  },
+                  path: paths.dashboard.project.path,
+                },
+              ],
               handle: {
                 crumb: () => "Projects",
-              },
-              lazy: async () => {
-                const { ProjectsPage } = await import(
-                  "./pages/dashboard/projects/ProjectsPage",
-                );
-                return { Component: ProjectsPage };
-              },
-              loader: async (params) => {
-                const { projectsLoader } = await import(
-                  "./features/projects/loaders/projectsLoader",
-                );
-
-                const queryRef = await projectsLoader(params);
-                return queryRef;
               },
               path: paths.dashboard.projects.path,
             },

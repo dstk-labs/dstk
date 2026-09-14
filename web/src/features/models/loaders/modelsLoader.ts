@@ -14,6 +14,7 @@ export const LIST_MODELS = gql(`
     $first: Limit!
     $modelName: String
     $includeArchived: Boolean!
+    $projectId: String
     $teamId: String!
   ) {
     listMLModels(
@@ -21,6 +22,7 @@ export const LIST_MODELS = gql(`
       first: $first
       modelName: $modelName
       includeArchived: $includeArchived
+      projectId: $projectId
       teamId: $teamId
     ) {
       pageInfo {
@@ -59,7 +61,7 @@ const modelsLoaderSchema = z.object({
   modelName: z.string().optional(),
 });
 
-export async function modelsLoader({ request }: LoaderFunctionArgs) {
+export async function modelsLoader({ params, request }: LoaderFunctionArgs) {
   const { limit } = useLimitStore.getState();
 
   ensureDefaultQueryParams(request, {
@@ -73,7 +75,7 @@ export async function modelsLoader({ request }: LoaderFunctionArgs) {
 
   return preloadQuery(LIST_MODELS, {
     fetchPolicy: "cache-and-network",
-    variables: { teamId, ...queryParams },
+    variables: { projectId: params.projectId, teamId, ...queryParams },
   }).toPromise();
 }
 
