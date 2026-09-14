@@ -127,7 +127,7 @@ builder.queryFields(t => ({
       loggedIn: true,
     },
     args: {
-      teamId: t.arg.string({ required: true }),
+      teamId: t.arg.string(),
       status: t.arg.string(),
       first: t.arg({
         type: "Limit",
@@ -137,19 +137,23 @@ builder.queryFields(t => ({
       after: t.arg.string(),
     },
     async resolve(_root, args, ctx) {
-      await db
-        .selectFrom("dstkUser.members")
-        .select("dstkUser.members.id")
-        .where("dstkUser.members.userId", "=", ctx.user.id)
-        .where("dstkUser.members.teamId", "=", args.teamId)
-        .executeTakeFirstOrThrow(
-          () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
-        );
+      let query = db.selectFrom("dstkUser.invitations").selectAll();
 
-      let query = db
-        .selectFrom("dstkUser.invitations")
-        .selectAll()
-        .where("dstkUser.invitations.teamId", "=", args.teamId);
+      if (args.teamId) {
+        await db
+          .selectFrom("dstkUser.members")
+          .select("dstkUser.members.id")
+          .where("dstkUser.members.userId", "=", ctx.user.id)
+          .where("dstkUser.members.teamId", "=", args.teamId)
+          .executeTakeFirstOrThrow(
+            () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
+          );
+
+        query = query.where("dstkUser.invitations.teamId", "=", args.teamId);
+      }
+      else {
+        query = query.where("dstkUser.invitations.email", "=", ctx.user.email);
+      }
 
       if (args.status) {
         query = query.where("dstkUser.invitations.status", "=", args.status);
