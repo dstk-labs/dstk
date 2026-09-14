@@ -78,12 +78,13 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url }) => {
+    sendVerificationEmail: async ({ user, token }) => {
+      const verifyLink = `${env.APP_URL}/auth/verify-email?token=${token}`;
       await transporter.sendMail({
         from: "no-reply@dstk.org",
         to: user.email,
         subject: "DSTK | Email Verification",
-        html: `Click the link to verify your email: ${env.APP_URL}/auth${url}`,
+        html: `Click the link to verify your email: ${verifyLink}`,
       });
     },
   },
