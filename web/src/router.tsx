@@ -3,14 +3,15 @@ import { useMemo } from "react";
 import { createBrowserRouter } from "react-router";
 
 import { RouterProvider } from "react-router/dom";
+import { SplashScreen } from "./components/splashScreen/SplashScreen";
 import { paths } from "./config/paths";
 import { userLoader } from "./features/auth/loaders/authLoader";
 import { GET_ML_MODEL } from "./features/models/loaders/modelLoader";
 import { GET_ML_MODEL_VERSION } from "./features/modelVersions/loaders/modelVersionLoader";
 import { apolloClient } from "./lib/apollo";
+import { ErrorPage } from "./pages/errors/ErrorPage";
 
 // TODO: This is getting hard to read. Need to refactor
-// TODO: 404 and Error Boundaries
 function createAppRouter() {
   return createBrowserRouter([
     {
@@ -233,6 +234,13 @@ function createAppRouter() {
                 );
                 return { Component: OverviewPage };
               },
+              loader: async () => {
+                const { overviewLoader } = await import(
+                  "./features/overview/loaders/overviewLoader",
+                );
+
+                return overviewLoader();
+              },
               path: paths.dashboard.overview.path,
             },
             {
@@ -313,8 +321,8 @@ function createAppRouter() {
           },
         },
       ],
-      // TODO: What is good UX for this?
-      hydrateFallbackElement: <div>Loading...</div>,
+      errorElement: <ErrorPage />,
+      hydrateFallbackElement: <SplashScreen />,
       id: "root",
       loader: async () => {
         const queryRef = await userLoader();
