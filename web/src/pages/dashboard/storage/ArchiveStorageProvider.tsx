@@ -43,6 +43,7 @@ export function ArchiveStorageProvider({
         close();
       },
       refetchQueries: [
+        "GetStorageProvider",
         "ListStorageProvidersForTable",
         "ListStorageProvidersForSelect",
       ],

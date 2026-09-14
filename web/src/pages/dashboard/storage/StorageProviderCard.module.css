@@ -1,4 +1,5 @@
 .card {
+  cursor: pointer;
   background: var(--color-bg-secondary);
   border: var(--border-width) solid var(--color-border-default);
   border-radius: var(--radius-lg);
