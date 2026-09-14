@@ -23,7 +23,7 @@ export type AuthOauthResponseType = "code";
 
 export type AuthOneTimeTokenType = "confirmation_token" | "email_change_token_current" | "email_change_token_new" | "phone_change_token" | "reauthentication_token" | "recovery_token";
 
-export type DstkRole = "admin" | "owner" | "viewer";
+export type DstkRole = "member" | "owner" | "viewer";
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
