@@ -1,4 +1,5 @@
-import { Group, Pagination as PaginationRoot } from "@mantine/core";
+import { Button } from "@mantine/core";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useSearchParams } from "react-router";
 
 type PaginationProps = {
@@ -28,25 +29,31 @@ export function Pagination({
   };
 
   return (
-    <PaginationRoot.Root total={0}>
-      <Group gap={5}>
-        <PaginationRoot.Previous
-          disabled={hasPreviousPage === false}
-          onClick={() => {
-            const prevToken = continuationTokens[currentIndex - 1] ?? null;
-            goToPage(prevToken);
-          }}
-        />
-        <PaginationRoot.Next
-          disabled={hasNextPage === false}
-          onClick={() => {
-            const nextToken = continuationTokens[currentIndex + 1];
-            if (nextToken) {
-              goToPage(nextToken);
-            }
-          }}
-        />
-      </Group>
-    </PaginationRoot.Root>
+    <>
+      <Button
+        disabled={!hasPreviousPage}
+        leftSection={<ChevronLeftIcon size={14} />}
+        onClick={() => goToPage(continuationTokens[currentIndex - 1] ?? null)}
+        radius="sm"
+        size="compact"
+        variant="default"
+      >
+        Prev
+      </Button>
+      <Button
+        disabled={!hasNextPage}
+        onClick={() => {
+          const nextToken = continuationTokens[currentIndex + 1];
+          if (nextToken)
+            goToPage(nextToken);
+        }}
+        radius="sm"
+        rightSection={<ChevronRightIcon size={14} />}
+        size="compact"
+        variant="default"
+      >
+        Next
+      </Button>
+    </>
   );
 }

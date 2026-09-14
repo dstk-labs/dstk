@@ -1,5 +1,5 @@
 import type { Limit } from "@/stores/limitStore";
-import { Select } from "@mantine/core";
+import { NativeSelect } from "@mantine/core";
 import { useEffect } from "react";
 
 import { useSearchParams } from "react-router";
@@ -23,29 +23,29 @@ export function LimitSelector() {
     }
   }, [limit, searchParams, setLimit, setSearchParams]);
 
-  const handleChange = (value: null | string) => {
-    if (!value)
-      return;
+  const handleChange = (value: string) => {
     const parsed = Number.parseInt(value, 10) as Limit;
 
     if (LIMIT.includes(parsed)) {
       setLimit(parsed);
       const next = new URLSearchParams(searchParams);
       next.set("first", value);
+      next.delete("after");
       setSearchParams(next, { replace: true });
     }
   };
 
   return (
-    <Select
-      checkIconPosition="right"
-      data={LIMIT.map(val => ({
-        label: `${val.toString()} results per page`,
-        value: val.toString(),
-      }))}
-      onChange={handleChange}
-      value={limit.toString()}
-      w={240}
-    />
+    <label style={{ alignItems: "center", display: "flex", gap: 6 }}>
+      Rows per Page:
+      <NativeSelect
+        data={LIMIT.map(val => val.toString())}
+        onChange={e => handleChange(e.currentTarget.value)}
+        radius="sm"
+        size="xs"
+        styles={{ input: { fontSize: "var(--font-size-2xs)", minHeight: 28, paddingBlock: 0 } }}
+        value={limit.toString()}
+      />
+    </label>
   );
 }

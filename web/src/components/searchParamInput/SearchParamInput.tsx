@@ -15,14 +15,19 @@ export function SearchParamTextInput({
 
   return (
     <TextInput
-      leftSection={<SearchIcon size={18} />}
+      defaultValue={searchParams.get(param) ?? ""}
+      leftSection={<SearchIcon size={14} style={{ opacity: 0.6 }} />}
       onChange={(e) => {
         const next = new URLSearchParams(searchParams);
-        next.set(param, e.target.value);
+        if (e.target.value)
+          next.set(param, e.target.value);
+        else
+          next.delete(param);
+        next.delete("after");
         setSearchParams(next, { replace: true });
       }}
       placeholder={placeholder}
-      rightSectionWidth={42}
+      style={{ flex: "1 1 240px", maxWidth: 360 }}
     />
   );
 }
