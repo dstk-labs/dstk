@@ -1,6 +1,7 @@
 {
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@10.13.1",
   "scripts": {
     "compile": "tsc && tsc-alias",
     "schemagen": "kysely-codegen --dialect postgres --camel-case --out-file ./src/db/db.d.ts",
@@ -24,8 +25,6 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
-    "argon2": "^0.41.1",
-    "aws-sdk": "^2.1692.0",
     "better-auth": "^1.4.15",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
