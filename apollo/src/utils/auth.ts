@@ -3,7 +3,7 @@ import { organization } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { defaultStatements, ownerAc } from "better-auth/plugins/organization/access";
 import { env } from "@/config/env.js";
-import { pool } from "@/db/kysely.js";
+import { db } from "@/db/kysely.js";
 import { transporter } from "./smtp.js";
 import { createTeam } from "./teamUtils.js";
 
@@ -51,7 +51,7 @@ export const auth = betterAuth({
   */
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
-  database: pool,
+  database: { db, type: "postgres" },
   socialProviders: {
     google: {
       clientId: env.GOOGLE_CLIENT_ID,
@@ -78,12 +78,13 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url }) => {
+    sendVerificationEmail: async ({ user, token }) => {
+      const verifyLink = `${env.APP_URL}/auth/verify-email?token=${token}`;
       await transporter.sendMail({
         from: "no-reply@dstk.org",
         to: user.email,
         subject: "DSTK | Email Verification",
-        html: `Click the link to verify your email: ${env.APP_URL}/auth${url}`,
+        html: `Click the link to verify your email: ${verifyLink}`,
       });
     },
   },
@@ -118,7 +119,7 @@ export const auth = betterAuth({
     modelName: "dstkUser.accounts",
     fields: {
       userId: "userId",
-      accountId: "accountId",
+      accountId: "betterAuthAccountId",
       providerId: "providerId",
       accessToken: "accessToken",
       refreshToken: "refreshToken",
@@ -146,6 +147,11 @@ export const auth = betterAuth({
         owner,
       },
       schema: {
+        session: {
+          fields: {
+            activeOrganizationId: "activeTeamId",
+          },
+        },
         organization: {
           modelName: "dstkUser.teams",
           fields: {
@@ -185,6 +191,9 @@ export const auth = betterAuth({
     }),
   ],
   advanced: {
+    database: {
+      generateId: false,
+    },
     defaultCookieAttributes: {
       sameSite: process.env.NODE_ENV === "dev" ? "none" : "Lax",
       secure: true,
