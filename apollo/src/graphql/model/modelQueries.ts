@@ -23,6 +23,7 @@ builder.queryFields(t => ({
       }),
       after: t.arg.string(),
       teamId: t.arg.string({ required: true }),
+      projectId: t.arg.string(),
     },
     async resolve(_root, args, ctx) {
       await db
@@ -40,6 +41,13 @@ builder.queryFields(t => ({
         .where("dstkUser.projects.teamId", "=", args.teamId)
         .execute();
 
+      if (userProjects.length === 0) {
+        return {
+          edges: [],
+          pageInfo: { hasPreviousPage: false, hasNextPage: false, continuationToken: undefined },
+        };
+      }
+
       let query = db
         .selectFrom("registry.models")
         .selectAll()
@@ -48,6 +56,10 @@ builder.queryFields(t => ({
           "in",
           userProjects.map(project => project.projectId),
         );
+
+      if (args.projectId) {
+        query = query.where("registry.models.projectId", "=", args.projectId);
+      }
 
       if (args.modelName) {
         query = query.where(
@@ -121,6 +133,10 @@ builder.queryFields(t => ({
         .where("dstkUser.members.userId", "=", ctx.user.id)
         .execute();
 
+      if (userTeams.length === 0) {
+        throw new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" });
+      }
+
       const userProjects = await db
         .selectFrom("dstkUser.projects")
         .select("dstkUser.projects.projectId")
@@ -130,6 +146,10 @@ builder.queryFields(t => ({
           userTeams.map(edge => edge.teamId),
         )
         .execute();
+
+      if (userProjects.length === 0) {
+        throw new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" });
+      }
 
       return db
         .selectFrom("registry.models")

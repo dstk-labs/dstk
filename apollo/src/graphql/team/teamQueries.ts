@@ -2,10 +2,10 @@ import type { Expression, SqlBool } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { InvitationConnection } from "@/graphql/invitation/invitationConnection.js";
-import { User } from "@/graphql/user/user.js";
 import { Encoder } from "@/utils/encoder.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { TeamConnection } from "./teamConnection.js";
+import { TeamMember } from "./teamMember.js";
 
 const encoder = new Encoder();
 
@@ -127,7 +127,7 @@ builder.queryFields(t => ({
       loggedIn: true,
     },
     args: {
-      teamId: t.arg.string({ required: true }),
+      teamId: t.arg.string(),
       status: t.arg.string(),
       first: t.arg({
         type: "Limit",
@@ -137,19 +137,23 @@ builder.queryFields(t => ({
       after: t.arg.string(),
     },
     async resolve(_root, args, ctx) {
-      await db
-        .selectFrom("dstkUser.members")
-        .select("dstkUser.members.id")
-        .where("dstkUser.members.userId", "=", ctx.user.id)
-        .where("dstkUser.members.teamId", "=", args.teamId)
-        .executeTakeFirstOrThrow(
-          () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
-        );
+      let query = db.selectFrom("dstkUser.invitations").selectAll();
 
-      let query = db
-        .selectFrom("dstkUser.invitations")
-        .selectAll()
-        .where("dstkUser.invitations.teamId", "=", args.teamId);
+      if (args.teamId) {
+        await db
+          .selectFrom("dstkUser.members")
+          .select("dstkUser.members.id")
+          .where("dstkUser.members.userId", "=", ctx.user.id)
+          .where("dstkUser.members.teamId", "=", args.teamId)
+          .executeTakeFirstOrThrow(
+            () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
+          );
+
+        query = query.where("dstkUser.invitations.teamId", "=", args.teamId);
+      }
+      else {
+        query = query.where("dstkUser.invitations.email", "=", ctx.user.email);
+      }
 
       if (args.status) {
         query = query.where("dstkUser.invitations.status", "=", args.status);
@@ -196,7 +200,7 @@ builder.queryFields(t => ({
     },
   }),
   listTeamMembers: t.field({
-    type: [User],
+    type: [TeamMember],
     authScopes: {
       loggedIn: true,
     },
@@ -213,16 +217,11 @@ builder.queryFields(t => ({
           () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
         );
 
-      const memberUserIds = await db
-        .selectFrom("dstkUser.members")
-        .select("dstkUser.members.userId")
-        .where("dstkUser.members.teamId", "=", args.teamId)
-        .execute();
-
       return db
-        .selectFrom("dstkUser.users")
+        .selectFrom("dstkUser.members")
         .selectAll()
-        .where("dstkUser.users.id", "in", memberUserIds.map(m => m.userId))
+        .where("dstkUser.members.teamId", "=", args.teamId)
+        .orderBy("dstkUser.members.dateCreated", "asc")
         .execute();
     },
   }),

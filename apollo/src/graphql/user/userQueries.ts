@@ -50,6 +50,13 @@ builder.queryFields(t => ({
         .where("dstkUser.members.userId", "=", ctx.user.id)
         .execute();
 
+      if (userTeams.length === 0) {
+        return {
+          edges: [],
+          pageInfo: { hasPreviousPage: false, hasNextPage: false, continuationToken: undefined },
+        };
+      }
+
       let query = db
         .selectFrom("dstkUser.users")
         .selectAll()
@@ -114,6 +121,9 @@ builder.queryFields(t => ({
     authScopes: {
       loggedIn: true,
     },
+    // Anonymous callers get null instead of a GraphQL error so the web root
+    // loader can render the logged-out state without treating it as a failure.
+    unauthorizedResolver: () => null,
     async resolve(_root, _args, ctx) {
       return db
         .selectFrom("dstkUser.users")
