@@ -6,14 +6,14 @@ import { Breadcrumbs } from "@/components/breadcrumbs/Breadcrumbs";
 export function DashboardBreadcrumbs() {
   const matches = useMatches() as UIMatch<
     unknown,
-    { crumb: (data?: unknown) => string }
+    { crumb: (params: Record<string, string | undefined>) => string }
   >[];
 
   const crumbs = matches
     .filter(match => Boolean(match.handle))
     .map(match => ({
       href: match.pathname,
-      label: match.handle.crumb(),
+      label: match.handle.crumb(match.params),
     }));
 
   return <Breadcrumbs crumbs={crumbs} />;
