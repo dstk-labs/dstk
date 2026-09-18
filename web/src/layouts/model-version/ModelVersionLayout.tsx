@@ -7,6 +7,7 @@ import { MetaItem, MetaList, MetaStrong } from "@/components/metaList/MetaList";
 import { PageHeader } from "@/components/pageHeader/PageHeader";
 import { ModelVersionStatus } from "@/components/statusBadge/StatusBadge";
 import { paths } from "@/config/paths";
+import { PublishModelVersion } from "@/features/modelVersions/components/PublishModelVersion";
 import { formatDate } from "@/utils/formatters";
 
 type TabValue = "artifacts" | "card" | "logs";
@@ -39,6 +40,14 @@ export function ModelVersionLayout() {
   return (
     <>
       <PageHeader
+        actions={(
+          <PublishModelVersion
+            isArchived={!!version?.isArchived}
+            isFinalized={!!version?.isFinalized}
+            modelVersionId={modelVersionId}
+            numericVersion={version?.numericVersion ?? 0}
+          />
+        )}
         badge={(
           <ModelVersionStatus
             isArchived={!!version?.isArchived}
