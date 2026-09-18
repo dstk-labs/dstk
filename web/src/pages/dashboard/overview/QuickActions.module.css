@@ -1,0 +1,19 @@
+.item {
+  align-items: center;
+  background: var(--color-bg-tertiary);
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  display: flex;
+  gap: 10px;
+  padding: var(--space-3) 14px;
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.item:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border-accent);
+}

@@ -1,14 +1,5 @@
-import type {
-  InputBaseProps,
-} from "@mantine/core";
-import {
-  Combobox,
-  Input,
-  InputBase,
-  Text,
-  useCombobox,
-} from "@mantine/core";
-import { useState } from "react";
+import type { SelectProps } from "@mantine/core";
+import { Select } from "@mantine/core";
 
 const AWS_REGIONS = [
   { description: "US East (N. Virginia)", value: "us-east-1" },
@@ -35,78 +26,33 @@ const AWS_REGIONS = [
   { description: "South America (São Paulo)", value: "sa-east-1" },
 ];
 
-function SelectOption({ description, value }: (typeof AWS_REGIONS)[number]) {
+const REGION_OPTIONS = AWS_REGIONS.map(region => ({
+  label: region.value,
+  value: region.value,
+}));
+
+const DESCRIPTIONS = new Map(AWS_REGIONS.map(r => [r.value, r.description]));
+
+type AwsRegionSelectProps = Omit<SelectProps, "data" | "label" | "renderOption">;
+
+export function AwsRegionsSelect(props: AwsRegionSelectProps) {
   return (
-    <div>
-      <Text fw={500} fz="sm">
-        {value}
-      </Text>
-      <Text fz="xs" opacity={0.6}>
-        {description}
-      </Text>
-    </div>
-  );
-}
-
-type AwsRegionSelectProps = {
-  disabled?: boolean;
-} & Omit<
-  InputBaseProps,
-  | "component"
-  | "label"
-  | "multiline"
-  | "onClick"
-  | "pointer"
-  | "rightSection"
-  | "rightSectionPointerEvents"
-  | "type"
->;
-
-export function AwsRegionsSelect({
-  disabled,
-  ...props
-}: AwsRegionSelectProps) {
-  const combobox = useCombobox({
-    onDropdownClose: () => combobox.resetSelectedOption(),
-  });
-
-  const [value, setValue] = useState<null | string>(null);
-  const selectedOption = AWS_REGIONS.find(region => region.value === value);
-
-  const options = AWS_REGIONS.map(region => (
-    <Combobox.Option key={region.value} value={region.value}>
-      <SelectOption {...region} />
-    </Combobox.Option>
-  ));
-
-  return (
-    <Combobox
-      disabled={disabled}
-      onOptionSubmit={(val) => {
-        setValue(val);
-        combobox.closeDropdown();
-      }}
-      store={combobox}
-    >
-      <Combobox.Target>
-        <InputBase
-          component="button"
-          label="Region"
-          multiline
-          onClick={() => combobox.toggleDropdown()}
-          pointer
-          rightSection={<Combobox.Chevron />}
-          rightSectionPointerEvents="none"
-          type="button"
-          {...props}
-        >
-          {selectedOption ? selectedOption.value : <Input.Placeholder />}
-        </InputBase>
-      </Combobox.Target>
-
-      <Combobox.Dropdown>
-        <Combobox.Options>{options}</Combobox.Options>
-      </Combobox.Dropdown>
-    </Combobox>
+    <Select
+      data={REGION_OPTIONS}
+      label="Region"
+      placeholder="Select a region"
+      renderOption={({ option }) => (
+        <div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "var(--font-size-2xs)" }}>
+            {option.value}
+          </div>
+          <div style={{ color: "var(--color-text-muted)", fontSize: "var(--font-size-3xs)" }}>
+            {DESCRIPTIONS.get(option.value)}
+          </div>
+        </div>
+      )}
+      searchable
+      {...props}
+    />
   );
 }

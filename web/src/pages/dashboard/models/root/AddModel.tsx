@@ -1,13 +1,15 @@
 import type { CreateModelMutationVariables } from "@/graphql/types";
 import { useMutation } from "@apollo/client";
-import { Button, Flex, Group, Stack, Textarea, TextInput } from "@mantine/core";
+import { Button, Group, Stack, Textarea, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
+import { PlusIcon } from "lucide-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-
 import { z } from "zod/v4";
+
 import { Modal } from "@/components/modal/Modal";
+import { ModalFooter } from "@/components/modalFooter/ModalFooter";
 import { ProjectsSelect } from "@/features/projects/components/ProjectsSelect";
 import { StorageProviderSelect } from "@/features/storage/components/StorageProviderSelect";
 import { gql } from "@/graphql";
@@ -49,77 +51,65 @@ export function AddModel() {
     createModel({
       onCompleted: (data) => {
         notifications.show({
-          message: `Successfully created ${data.createModel?.modelName}`,
-          title: "Success",
+          color: "green",
+          message: `Registered ${data.createModel?.modelName}`,
+          title: "Model registered",
         });
+        createModelForm.reset();
         close();
       },
       refetchQueries: ["ListMLModels"],
       variables: {
-        data: {
-          description: values.description,
-          modelName: values.modelName,
-          projectId: values.projectId,
-          storageProviderId: values.storageProviderId,
-        },
+        data: { ...values },
       },
     });
 
   return (
     <>
-      <Modal
-        disabled={loading}
-        onClose={close}
-        opened={opened}
-        size="lg"
-        title="Add Model"
-      >
+      <Modal disabled={loading} onClose={close} opened={opened} title="Register Model">
         <form onSubmit={createModelForm.onSubmit(values => onSubmit(values))}>
-          <Stack gap="md">
+          <Stack gap="lg">
             <TextInput
+              data-autofocus
               disabled={loading}
               key={createModelForm.key("modelName")}
               label="Model Name"
+              placeholder="e.g. fraud-classifier"
+              styles={{ input: { fontFamily: "var(--font-mono)" } }}
               withAsterisk
               {...createModelForm.getInputProps("modelName")}
             />
-
-            {/* TODO: Stack on sm */}
-            <Group grow>
-              <StorageProviderSelect
-                disabled={loading}
-                key={createModelForm.key("storageProviderId")}
-                withAsterisk
-                {...createModelForm.getInputProps("storageProviderId")}
-              />
+            <Group align="flex-start" grow>
               <ProjectsSelect
                 disabled={loading}
                 key={createModelForm.key("projectId")}
                 withAsterisk
                 {...createModelForm.getInputProps("projectId")}
               />
+              <StorageProviderSelect
+                disabled={loading}
+                key={createModelForm.key("storageProviderId")}
+                withAsterisk
+                {...createModelForm.getInputProps("storageProviderId")}
+              />
             </Group>
-
             <Textarea
+              autosize
               disabled={loading}
               key={createModelForm.key("description")}
               label="Description"
-              rows={4}
+              minRows={3}
+              placeholder="What does this model do?"
               withAsterisk
               {...createModelForm.getInputProps("description")}
             />
           </Stack>
-
-          <Flex align="center" justify="end" mt="xl">
-            <Button color="blue" radius="md" type="submit">
-              Submit
-            </Button>
-          </Flex>
+          <ModalFooter loading={loading} onCancel={close} submitLabel="Register model" />
         </form>
       </Modal>
 
-      <Button fullWidth onClick={open}>
-        Add Model
+      <Button leftSection={<PlusIcon size={14} />} onClick={open} size="sm">
+        Register model
       </Button>
     </>
   );

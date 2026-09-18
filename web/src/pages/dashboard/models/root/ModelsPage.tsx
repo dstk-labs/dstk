@@ -1,13 +1,10 @@
 import type { ModelsLoader } from "@/features/models/loaders/modelsLoader";
 import { Suspense } from "react";
-
 import { useRouteLoaderData } from "react-router";
 
-import { IncludeArchivedSwitch } from "@/components/includeArchivedSwitch/IncludeArchivedSwitch";
-import { SearchParamTextInput } from "@/components/searchParamInput/SearchParamInput";
+import { PageHeader } from "@/components/pageHeader/PageHeader";
 
 import { AddModel } from "./AddModel";
-import styles from "./ModelsPage.module.css";
 import { ModelsTable } from "./ModelsTable";
 
 export function ModelsPage() {
@@ -15,17 +12,11 @@ export function ModelsPage() {
 
   return (
     <>
-      <header className={styles.header}>
-        <div className={styles.searchContainer}>
-          <SearchParamTextInput param="modelName" />
-        </div>
-        <div className={styles.toolbar}>
-          <IncludeArchivedSwitch />
-          <div className={styles.buttonContainer}>
-            <AddModel />
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        actions={<AddModel />}
+        subtitle="Every model registered to this team, with its latest version and storage location."
+        title="Models"
+      />
       <Suspense>
         <ModelsTable queryRef={queryRef} />
       </Suspense>

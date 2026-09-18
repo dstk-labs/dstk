@@ -1,15 +1,16 @@
 import type { EditModelVersionMutationVariables } from "@/graphql/types";
 import { useMutation } from "@apollo/client";
-import { ActionIcon, Button, Flex, Textarea, Tooltip } from "@mantine/core";
+import { Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { EditIcon } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-
 import { z } from "zod/v4";
 
 import { Modal } from "@/components/modal/Modal";
+import { ModalFooter } from "@/components/modalFooter/ModalFooter";
+import { RowAction } from "@/components/rowActions/RowActions";
 import { gql } from "@/graphql";
 
 const EDIT_MODEL_VERSION = gql(`
@@ -51,7 +52,7 @@ export function EditModelVersion({
 
   const [opened, { close, open }] = useDisclosure(false);
 
-  const editModelVersionForm = useForm({
+  const form = useForm({
     initialValues: {
       description: originalDescription,
     },
@@ -61,15 +62,15 @@ export function EditModelVersion({
 
   const onSubmit = (values: EditModelVersionSchema) =>
     editModelVersion({
-      onCompleted: async (data) => {
+      onCompleted: (data) => {
         notifications.show({
-          message: `Successfully edited version ${data.editModelVersion?.numericVersion} for model ${data.editModelVersion?.modelId?.modelName}`,
-          title: "Success",
+          color: "green",
+          message: `Saved changes to v${data.editModelVersion?.numericVersion}`,
+          title: "Version updated",
         });
-        editModelVersionForm.reset();
         close();
       },
-      refetchQueries: ["ListMLModels", "ListMLModelVersions"],
+      refetchQueries: ["ListMLModels", "ListMLModelVersions", "GetMLModelVersion"],
       variables: {
         data: {
           description: values.description,
@@ -84,39 +85,28 @@ export function EditModelVersion({
         disabled={loading}
         onClose={close}
         opened={opened}
-        size="lg"
-        title={`Edit Version ${numericVersion}`}
+        title={`Edit v${numericVersion}`}
       >
-        <form
-          onSubmit={editModelVersionForm.onSubmit(values => onSubmit(values))}
-        >
+        <form onSubmit={form.onSubmit(values => onSubmit(values))}>
           <Textarea
+            autosize
             disabled={loading}
-            key={editModelVersionForm.key("description")}
+            key={form.key("description")}
             label="Description"
-            rows={4}
+            minRows={4}
             withAsterisk
-            {...editModelVersionForm.getInputProps("description")}
+            {...form.getInputProps("description")}
           />
-
-          <Flex align="center" justify="end" mt="xl">
-            <Button color="blue" loading={loading} radius="md" type="submit">
-              Submit
-            </Button>
-          </Flex>
+          <ModalFooter loading={loading} onCancel={close} submitLabel="Save changes" />
         </form>
       </Modal>
 
-      <Tooltip disabled={isArchived} label="Edit">
-        <ActionIcon
-          color="blue"
-          disabled={isArchived}
-          onClick={open}
-          variant="subtle"
-        >
-          <EditIcon size={14} />
-        </ActionIcon>
-      </Tooltip>
+      <RowAction
+        disabled={isArchived}
+        icon={<PencilIcon size={14} />}
+        label="Edit"
+        onClick={open}
+      />
     </>
   );
 }

@@ -1,23 +1,16 @@
 import type { EditTeamMutationVariables } from "@/graphql/types";
 import { useMutation } from "@apollo/client";
-import {
-  ActionIcon,
-  Button,
-  Flex,
-  Stack,
-  Textarea,
-  TextInput,
-  Tooltip,
-} from "@mantine/core";
+import { Stack, Textarea, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { EditIcon } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-
 import { z } from "zod/v4";
 
 import { Modal } from "@/components/modal/Modal";
+import { ModalFooter } from "@/components/modalFooter/ModalFooter";
+import { RowAction } from "@/components/rowActions/RowActions";
 import { gql } from "@/graphql";
 
 const EDIT_TEAM = gql(`
@@ -65,8 +58,9 @@ export function EditTeam({
     editTeam({
       onCompleted: (data) => {
         notifications.show({
-          message: `Successfully edited ${data.editTeam?.name}`,
-          title: "Success",
+          color: "green",
+          message: `Saved changes to ${data.editTeam?.name}`,
+          title: "Team updated",
         });
         close();
       },
@@ -86,11 +80,10 @@ export function EditTeam({
         disabled={loading}
         onClose={close}
         opened={opened}
-        size="lg"
         title={`Edit ${originalName}`}
       >
         <form onSubmit={editTeamForm.onSubmit(values => onSubmit(values))}>
-          <Stack gap="md">
+          <Stack gap="lg">
             <TextInput
               disabled={loading}
               key={editTeamForm.key("name")}
@@ -98,34 +91,26 @@ export function EditTeam({
               withAsterisk
               {...editTeamForm.getInputProps("name")}
             />
-
             <Textarea
+              autosize
               disabled={loading}
               key={editTeamForm.key("description")}
               label="Description"
+              minRows={3}
               withAsterisk
               {...editTeamForm.getInputProps("description")}
             />
           </Stack>
-
-          <Flex align="center" justify="end" mt="xl">
-            <Button color="blue" loading={loading} radius="md" type="submit">
-              Submit
-            </Button>
-          </Flex>
+          <ModalFooter loading={loading} onCancel={close} submitLabel="Save changes" />
         </form>
       </Modal>
 
-      <Tooltip disabled={isArchived} label="Edit">
-        <ActionIcon
-          color="blue"
-          disabled={isArchived}
-          onClick={open}
-          variant="subtle"
-        >
-          <EditIcon size={14} />
-        </ActionIcon>
-      </Tooltip>
+      <RowAction
+        disabled={isArchived}
+        icon={<PencilIcon size={14} />}
+        label="Edit"
+        onClick={open}
+      />
     </>
   );
 }

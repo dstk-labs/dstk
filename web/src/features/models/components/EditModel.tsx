@@ -1,16 +1,16 @@
 import type { EditModelMutationVariables } from "@/graphql/types";
 import { useMutation } from "@apollo/client";
-import { Button, Flex, Group, Stack, Textarea, TextInput } from "@mantine/core";
+import { Group, Stack, Textarea, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { zod4Resolver } from "mantine-form-zod-resolver";
 import { cloneElement } from "react";
 import { useNavigate } from "react-router";
-
 import { z } from "zod/v4";
 
 import { Modal } from "@/components/modal/Modal";
+import { ModalFooter } from "@/components/modalFooter/ModalFooter";
 import { GET_ML_MODEL } from "@/features/models/loaders/modelLoader";
 import { ProjectsSelect } from "@/features/projects/components/ProjectsSelect";
 import { StorageProviderSelect } from "@/features/storage/components/StorageProviderSelect";
@@ -77,29 +77,21 @@ export function EditModel({
       onCompleted: async (data) => {
         editModelForm.reset();
         notifications.show({
-          message: `Successfully edited ${data.editModel?.modelName}`,
-          title: "Success",
+          color: "green",
+          message: `Saved changes to ${data.editModel?.modelName}`,
+          title: "Model updated",
         });
         close();
 
-        // Need to force reload so the breadcrumb value updates appropriately.
-        // TODO: Investigate using the breadcrumbs in a react context (always get data from loader)
-        // 🔥 Force reload of route to trigger crumb update
-
-        // We have to refetch the queries here, so the navigation happens AFTER
-        // the refetch
+        // Breadcrumb labels read from the Apollo cache, so refetch before
+        // re-navigating to force the route handle to re-run.
         await apolloClient.refetchQueries({
           include: [LIST_MODELS, GET_ML_MODEL],
         });
         navigate(location.pathname, { replace: true });
       },
       variables: {
-        data: {
-          description: values.description,
-          modelName: values.modelName,
-          projectId: values.projectId,
-          storageProviderId: values.storageProviderId,
-        },
+        data: { ...values },
         modelId,
       },
     });
@@ -110,50 +102,43 @@ export function EditModel({
         disabled={loading}
         onClose={close}
         opened={opened}
-        size="lg"
         title={`Edit ${originalModelName}`}
       >
         <form onSubmit={editModelForm.onSubmit(values => onSubmit(values))}>
-          <Stack gap="md">
+          <Stack gap="lg">
             <TextInput
               disabled={loading}
               key={editModelForm.key("modelName")}
               label="Model Name"
+              styles={{ input: { fontFamily: "var(--font-mono)" } }}
               withAsterisk
               {...editModelForm.getInputProps("modelName")}
             />
-
-            {/* TODO: Stack on sm */}
-            <Group grow>
-              <StorageProviderSelect
-                disabled={loading}
-                key={editModelForm.key("storageProviderId")}
-                withAsterisk
-                {...editModelForm.getInputProps("storageProviderId")}
-              />
+            <Group align="flex-start" grow>
               <ProjectsSelect
                 disabled={loading}
                 key={editModelForm.key("projectId")}
                 withAsterisk
                 {...editModelForm.getInputProps("projectId")}
               />
+              <StorageProviderSelect
+                disabled={loading}
+                key={editModelForm.key("storageProviderId")}
+                withAsterisk
+                {...editModelForm.getInputProps("storageProviderId")}
+              />
             </Group>
-
             <Textarea
+              autosize
               disabled={loading}
               key={editModelForm.key("description")}
               label="Description"
-              rows={4}
+              minRows={3}
               withAsterisk
               {...editModelForm.getInputProps("description")}
             />
           </Stack>
-
-          <Flex align="center" justify="end" mt="xl">
-            <Button color="blue" loading={loading} radius="md" type="submit">
-              Submit
-            </Button>
-          </Flex>
+          <ModalFooter loading={loading} onCancel={close} submitLabel="Save changes" />
         </form>
       </Modal>
       {cloneElement(trigger, {

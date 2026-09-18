@@ -1,25 +1,14 @@
-.badge {
-  @mixin hover {
-    cursor: pointer;
-  }
+.row {
+  cursor: pointer;
 }
 
-.tableContainer {
-  margin-top: 2rem;
+.name {
+  color: var(--color-text-primary);
+  font-weight: var(--font-regular);
+  text-decoration: none;
+  transition: color var(--transition-fast);
 }
 
-.tableFooter {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  margin-top: 2rem;
-  width: 100%;
-}
-
-.tableRow {
-  white-space: nowrap;
-
-  @mixin hover {
-    cursor: pointer;
-  }
+.row:hover .name {
+  color: var(--sky-200);
 }

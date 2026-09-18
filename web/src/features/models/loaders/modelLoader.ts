@@ -9,10 +9,19 @@ export const GET_ML_MODEL = gql(`
       modelName
       isArchived
       description
+      dateCreated
+      createdBy {
+        realName
+      }
+      currentModelVersion {
+        numericVersion
+      }
       project {
+        name
         projectId
       }
       storageProvider {
+        bucket
         providerId
       }
     }

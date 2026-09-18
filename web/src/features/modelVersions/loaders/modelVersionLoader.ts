@@ -9,6 +9,10 @@ export const GET_ML_MODEL_VERSION = gql(`
       isArchived
       isFinalized
       description
+      dateCreated
+      createdBy {
+        realName
+      }
     }
   }
 `);

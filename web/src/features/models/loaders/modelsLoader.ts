@@ -1,12 +1,12 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { z } from "zod/v4";
 
+import { ensureSelectedTeam } from "@/features/teams/lib/ensureSelectedTeam";
 import { gql } from "@/graphql";
 import { preloadQuery } from "@/lib/apollo";
 import { ensureDefaultQueryParams } from "@/lib/ensureDefaultQueryParams";
 import { parseQueryParams } from "@/lib/parseQueryParams";
 import { limitSchema, useLimitStore } from "@/stores/limitStore";
-import { useTeamStore } from "@/stores/teamStore";
 
 export const LIST_MODELS = gql(`
   query ListMLModels(
@@ -39,9 +39,11 @@ export const LIST_MODELS = gql(`
           modelId
           modelName
           project {
+            name
             projectId
           }
           storageProvider {
+            bucket
             providerId
           }
         }
@@ -52,14 +54,12 @@ export const LIST_MODELS = gql(`
 
 const modelsLoaderSchema = z.object({
   after: z.string().optional(),
-  bucket: z.string().optional(),
   first: limitSchema,
   includeArchived: z.string().transform(val => val === "true"),
   modelName: z.string().optional(),
 });
 
 export async function modelsLoader({ request }: LoaderFunctionArgs) {
-  const { selectedTeam } = useTeamStore.getState();
   const { limit } = useLimitStore.getState();
 
   ensureDefaultQueryParams(request, {
@@ -67,11 +67,13 @@ export async function modelsLoader({ request }: LoaderFunctionArgs) {
     includeArchived: "false",
   });
 
-  const { ...params } = parseQueryParams(request, modelsLoaderSchema);
+  const queryParams = parseQueryParams(request, modelsLoaderSchema);
+
+  const teamId = (await ensureSelectedTeam()) ?? "";
 
   return preloadQuery(LIST_MODELS, {
     fetchPolicy: "cache-and-network",
-    variables: { teamId: selectedTeam!, ...params },
+    variables: { teamId, ...queryParams },
   }).toPromise();
 }
 

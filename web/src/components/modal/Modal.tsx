@@ -8,7 +8,7 @@ type ModalProps = {
   "fullScreen" | "transitionProps"
 >;
 
-export function Modal({ disabled = false, onClose, ...props }: ModalProps) {
+export function Modal({ disabled = false, onClose, size = 520, ...props }: ModalProps) {
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
 
   const handleClose = () => {
@@ -19,8 +19,11 @@ export function Modal({ disabled = false, onClose, ...props }: ModalProps) {
 
   return (
     <ModalPrimitive
+      closeOnClickOutside={!disabled}
+      closeOnEscape={!disabled}
       fullScreen={isSmallScreen}
       onClose={handleClose}
+      size={size}
       transitionProps={
         isSmallScreen ? { duration: 200, transition: "fade" } : {}
       }

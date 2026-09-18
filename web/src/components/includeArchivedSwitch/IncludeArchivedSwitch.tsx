@@ -8,6 +8,7 @@ export function IncludeArchivedSwitch() {
   const handleArchiveSwitch = () => {
     const next = new URLSearchParams(searchParams);
     next.set("includeArchived", String(!archived));
+    next.delete("after");
     setSearchParams(next, { replace: true });
   };
 

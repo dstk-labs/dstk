@@ -1,13 +1,10 @@
 import type { TeamsTableLoader } from "@/features/teams/loaders/teamsLoader";
 import { Suspense } from "react";
-
 import { useLoaderData } from "react-router";
 
-import { IncludeArchivedSwitch } from "@/components/includeArchivedSwitch/IncludeArchivedSwitch";
-import { SearchParamTextInput } from "@/components/searchParamInput/SearchParamInput";
+import { PageHeader } from "@/components/pageHeader/PageHeader";
 
 import { AddTeam } from "./AddTeam";
-import styles from "./TeamsPage.module.css";
 import { TeamsTable } from "./TeamsTable";
 
 export function TeamsPage() {
@@ -15,17 +12,11 @@ export function TeamsPage() {
 
   return (
     <>
-      <header className={styles.header}>
-        <div className={styles.searchContainer}>
-          <SearchParamTextInput param="teamName" />
-        </div>
-        <div className={styles.toolbar}>
-          <IncludeArchivedSwitch />
-          <div className={styles.buttonContainer}>
-            <AddTeam />
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        actions={<AddTeam />}
+        subtitle="Teams own projects, models, and storage providers. Switch teams from the sidebar."
+        title="Teams"
+      />
       <Suspense>
         <TeamsTable queryRef={queryRef} />
       </Suspense>

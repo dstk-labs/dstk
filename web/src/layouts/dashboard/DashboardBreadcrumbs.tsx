@@ -1,9 +1,7 @@
 import type { UIMatch } from "react-router";
-import { ActionIcon, Breadcrumbs, Menu } from "@mantine/core";
-import { ChevronRightIcon, EllipsisIcon } from "lucide-react";
-import { Link, useMatches } from "react-router";
+import { useMatches } from "react-router";
 
-import { Anchor } from "@/components/anchor/Anchor";
+import { Breadcrumbs } from "@/components/breadcrumbs/Breadcrumbs";
 
 export function DashboardBreadcrumbs() {
   const matches = useMatches() as UIMatch<
@@ -18,41 +16,5 @@ export function DashboardBreadcrumbs() {
       label: match.handle.crumb(),
     }));
 
-  return (
-    <>
-      <Breadcrumbs separator={<ChevronRightIcon size={14} />} visibleFrom="lg">
-        {crumbs.map(crumb => (
-          <Anchor key={crumb.href} to={crumb.href}>
-            {crumb.label}
-          </Anchor>
-        ))}
-      </Breadcrumbs>
-      <Menu
-        loop={false}
-        menuItemTabIndex={0}
-        position="right-start"
-        trapFocus={false}
-        trigger="click-hover"
-        withinPortal={false}
-      >
-        <Menu.Target>
-          <ActionIcon c="white" hiddenFrom="lg" size="lg" variant="transparent">
-            <EllipsisIcon />
-          </ActionIcon>
-        </Menu.Target>
-        <Menu.Dropdown>
-          {crumbs.map(crumb => (
-            <Menu.Item
-              component={Link}
-              fw="bold"
-              key={crumb.href}
-              to={crumb.href}
-            >
-              {crumb.label}
-            </Menu.Item>
-          ))}
-        </Menu.Dropdown>
-      </Menu>
-    </>
-  );
+  return <Breadcrumbs crumbs={crumbs} />;
 }
