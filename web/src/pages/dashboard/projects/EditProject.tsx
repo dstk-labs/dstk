@@ -64,7 +64,7 @@ export function EditProject({
         });
         close();
       },
-      refetchQueries: ["ListProjectsForTable", "ListProjectsForSelect"],
+      refetchQueries: ["GetProject", "ListProjectsForTable", "ListProjectsForSelect"],
       variables: {
         data: {
           description: values.description,
