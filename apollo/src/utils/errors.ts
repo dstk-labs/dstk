@@ -69,7 +69,12 @@ type AccountErrorName
     | "INVALID_REFRESH_TOKEN"
     | "EMAIL_VERIFICATION_SEND_ERROR"
     | "EMAIL_VERIFICATION_ERROR"
-    | "INVALID_SESSION_ERROR";
+    | "INVALID_SESSION_ERROR"
+    | "TWO_FACTOR_ENABLE_ERROR"
+    | "TWO_FACTOR_DISABLE_ERROR"
+    | "TWO_FACTOR_CODE_ERROR"
+    | "TWO_FACTOR_BACKUP_CODE_ERROR"
+    | "TWO_FACTOR_OTP_SEND_ERROR";
 
 const AccountErrorMessages = {
   ACCOUNT_REGISTRATION_ERROR: "Something went wrong and we were not able to complete this action",
@@ -81,6 +86,11 @@ const AccountErrorMessages = {
   EMAIL_VERIFICATION_SEND_ERROR: "Failed to send verification email. Please try again",
   EMAIL_VERIFICATION_ERROR: "Unable to verify email. The verification link may be invalid or expired",
   INVALID_SESSION_ERROR: "Your session is invalid or has expired. Please log in again",
+  TWO_FACTOR_ENABLE_ERROR: "We could not turn on two-factor authentication. Check your password and try again",
+  TWO_FACTOR_DISABLE_ERROR: "We could not turn off two-factor authentication. Check your password and try again",
+  TWO_FACTOR_CODE_ERROR: "That code is incorrect or has expired. Request a new one and try again",
+  TWO_FACTOR_BACKUP_CODE_ERROR: "That backup code is invalid or has already been used",
+  TWO_FACTOR_OTP_SEND_ERROR: "We could not send your sign-in code. Please try again",
 };
 
 export class AccountError extends Error {
