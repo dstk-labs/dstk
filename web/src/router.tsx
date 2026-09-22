@@ -9,6 +9,7 @@ import { userLoader } from "./features/auth/loaders/authLoader";
 import { GET_ML_MODEL } from "./features/models/loaders/modelLoader";
 import { GET_ML_MODEL_VERSION } from "./features/modelVersions/loaders/modelVersionLoader";
 import { GET_PROJECT } from "./features/projects/loaders/projectLoader";
+import { GET_STORAGE_PROVIDER } from "./features/storage/loaders/storageProviderLoader";
 import { GET_TEAM } from "./features/teams/loaders/teamLoader";
 import { apolloClient } from "./lib/apollo";
 import { ErrorPage } from "./pages/errors/ErrorPage";
@@ -322,22 +323,55 @@ function createAppRouter() {
               path: paths.dashboard.settings.path,
             },
             {
+              children: [
+                {
+                  index: true,
+                  lazy: async () => {
+                    const { StorageProvidersPage } = await import(
+                      "./pages/dashboard/storage/StorageProvidersPage",
+                    );
+                    return { Component: StorageProvidersPage };
+                  },
+                  loader: async (params) => {
+                    const { storageProvidersLoader } = await import(
+                      "./features/storage/loaders/storageProvidersLoader",
+                    );
+
+                    const queryRef = await storageProvidersLoader(params);
+                    return queryRef;
+                  },
+                },
+                {
+                  handle: {
+                    crumb: (params: Record<string, string | undefined>) => {
+                      const result = apolloClient.readQuery({
+                        query: GET_STORAGE_PROVIDER,
+                        variables: { storageProviderId: params.providerId ?? "" },
+                      });
+
+                      return result?.getStorageProvider?.bucket ?? "";
+                    },
+                  },
+                  lazy: async () => {
+                    const { StorageProviderPage } = await import(
+                      "./pages/dashboard/storage/provider/StorageProviderPage",
+                    );
+                    return { Component: StorageProviderPage };
+                  },
+                  loader: async (params) => {
+                    const { storageProviderLoader } = await import(
+                      "./features/storage/loaders/storageProviderLoader",
+                    );
+
+                    return storageProviderLoader({
+                      storageProviderId: params.params.providerId!,
+                    });
+                  },
+                  path: paths.dashboard.storageItem.path,
+                },
+              ],
               handle: {
                 crumb: () => "Storage",
-              },
-              lazy: async () => {
-                const { StorageProvidersPage } = await import(
-                  "./pages/dashboard/storage/StorageProvidersPage",
-                );
-                return { Component: StorageProvidersPage };
-              },
-              loader: async (params) => {
-                const { storageProvidersLoader } = await import(
-                  "./features/storage/loaders/storageProvidersLoader",
-                );
-
-                const queryRef = await storageProvidersLoader(params);
-                return queryRef;
               },
               path: paths.dashboard.storage.path,
             },

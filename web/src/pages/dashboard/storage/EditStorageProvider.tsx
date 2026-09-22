@@ -68,6 +68,7 @@ export function EditStorageProvider({
         close();
       },
       refetchQueries: [
+        "GetStorageProvider",
         "ListStorageProvidersForTable",
         "ListStorageProvidersForSelect",
       ],
