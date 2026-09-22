@@ -11,6 +11,7 @@ export * from "./model/index.js";
 export * from "./project/index.js";
 export * from "./storage-provider/index.js";
 export * from "./team/index.js";
+export * from "./two-factor/index.js";
 export * from "./user/index.js";
 
 export const schema = builder.toSchema();
