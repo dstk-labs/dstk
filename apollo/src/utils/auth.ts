@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { organization } from "better-auth/plugins";
+import { organization, twoFactor } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { defaultStatements, ownerAc } from "better-auth/plugins/organization/access";
 import { env } from "@/config/env.js";
@@ -18,6 +18,8 @@ const statement = {
 } as const;
 
 const ac = createAccessControl(statement);
+
+const TWO_FACTOR_OTP_MINUTES = 3;
 
 const viewer = ac.newRole({
   dstkTeam: [],
@@ -139,6 +141,31 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    twoFactor({
+      issuer: "DSTK",
+      otpOptions: {
+        storeOTP: "encrypted",
+        sendOTP: async ({ otp, user }) => {
+          await transporter.sendMail({
+            from: "no-reply@dstk.org",
+            to: user.email,
+            subject: "DSTK | Your sign-in code",
+            html: `Your sign-in code is ${otp}. It expires in ${TWO_FACTOR_OTP_MINUTES} minutes.`,
+          });
+        },
+        period: TWO_FACTOR_OTP_MINUTES,
+      },
+      schema: {
+        user: {
+          fields: {
+            twoFactorEnabled: "isTwoFactorEnabled",
+          },
+        },
+        twoFactor: {
+          modelName: "dstkUser.twoFactors",
+        },
+      },
+    }),
     organization({
       ac,
       roles: {
