@@ -7,8 +7,8 @@ type HandleAuthCookiesArgs = {
 };
 
 export async function handleAuthCookies({ headers, ctx }: HandleAuthCookiesArgs): Promise<void> {
-  const cookies = headers.get("set-cookie");
-  if (cookies === null) {
+  const cookies = headers.getSetCookie();
+  if (cookies.length === 0) {
     throw new AccountError({ name: "FAILED_TO_CREATE_SESSION" });
   }
 
