@@ -49,6 +49,15 @@ function createAppRouter() {
             },
             {
               lazy: async () => {
+                const { TwoFactorPage } = await import(
+                  "./pages/auth/twoFactor/TwoFactorPage",
+                );
+                return { Component: TwoFactorPage };
+              },
+              path: paths.auth.twoFactor.path,
+            },
+            {
+              lazy: async () => {
                 const { VerifyPage } = await import(
                   "./pages/auth/verify/VerifyPage",
                 );
