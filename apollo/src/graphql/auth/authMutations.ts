@@ -26,6 +26,20 @@ export const LoginInputType = builder.inputType("LoginInput", {
   }),
 });
 
+type LoginResultShape = {
+  token?: string;
+  isTwoFactorRequired: boolean;
+};
+
+export const LoginResult = builder.objectRef<LoginResultShape>("LoginResult");
+
+builder.objectType(LoginResult, {
+  fields: t => ({
+    token: t.exposeString("token"),
+    isTwoFactorRequired: t.exposeBoolean("isTwoFactorRequired"),
+  }),
+});
+
 export const VerifyEmailInputType = builder.inputType("VerifyEmailInput", {
   fields: t => ({
     token: t.string({ required: true }),
@@ -77,7 +91,7 @@ builder.mutationFields(t => ({
     },
   }),
   login: t.field({
-    type: "String",
+    type: LoginResult,
     authScopes: {
       anonymousRequest: true,
     },
@@ -95,13 +109,22 @@ builder.mutationFields(t => ({
       }
 
       const { headers, response } = await auth.api.signInEmail({
+        headers: ctx.headers,
         returnHeaders: true,
         body,
       });
 
       await handleAuthCookies({ headers, ctx });
 
-      return response.token;
+      /* When the user has two factor enabled, better-auth replaces the sign in
+         response with a redirect flag and issues a short lived two factor
+         cookie instead of a session.
+      */
+      if ("twoFactorRedirect" in response) {
+        return { isTwoFactorRequired: true };
+      }
+
+      return { token: response.token, isTwoFactorRequired: false };
     },
   }),
   generateOAuthUrl: t.field({
