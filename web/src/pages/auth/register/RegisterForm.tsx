@@ -1,4 +1,3 @@
-import type { PasswordRule } from "@/features/auth/components/PasswordStrength";
 import type { AccountInput } from "@/graphql/types";
 import { useMutation } from "@apollo/client";
 import {
@@ -18,6 +17,7 @@ import { OAuthButtons } from "@/features/auth/components/OAuthButtons";
 import { PasswordStrength } from "@/features/auth/components/PasswordStrength";
 import { useGithubOAuth, useGoogleOAuth } from "@/features/auth/hooks/oauthHooks";
 import { GET_USER } from "@/features/auth/loaders/authLoader";
+import { passwordRules, passwordSchema } from "@/features/auth/utils/passwordRules";
 import { LIST_TEAMS_FOR_DROPDOWN } from "@/features/teams/loaders/teamsLoader";
 import { gql } from "@/graphql";
 
@@ -29,34 +29,6 @@ const CREATE_ACCOUNT = gql(`
     }
 `);
 
-const passwordRules = [
-  {
-    message: "At least 12 characters",
-    name: "length",
-    test: (val: string) => val.length >= 12,
-  },
-  {
-    message: "One lowercase letter",
-    name: "lowercase",
-    test: (val: string) => /[a-z]/.test(val),
-  },
-  {
-    message: "One uppercase letter",
-    name: "uppercase",
-    test: (val: string) => /[A-Z]/.test(val),
-  },
-  {
-    message: "One number",
-    name: "number",
-    test: (val: string) => /\d/.test(val),
-  },
-  {
-    message: "One special character",
-    name: "symbol",
-    test: (val: string) => /[^A-Z0-9]/i.test(val),
-  },
-] as const satisfies readonly PasswordRule[];
-
 const registerSchema = z
   .object({
     confirmPassword: z.string().min(1, "Required"),
@@ -65,13 +37,7 @@ const registerSchema = z
         error: "Please enter a valid email",
       })
       .min(1, "Required"),
-    password: passwordRules.reduce(
-      (schema, rule) =>
-        schema.refine(rule.test, {
-          message: rule.message,
-        }),
-      z.string(),
-    ),
+    password: passwordSchema,
     realName: z.string().min(1, "Required"),
     userName: z.string().min(1, "Required"),
   })
