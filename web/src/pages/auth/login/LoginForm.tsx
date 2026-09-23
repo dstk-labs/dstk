@@ -23,7 +23,9 @@ import { gql } from "@/graphql";
 
 const LOGIN = gql(`
     mutation Login($data: LoginInput!) {
-        login(data: $data)
+        login(data: $data) {
+            isTwoFactorRequired
+        }
     }
 `);
 
@@ -64,7 +66,14 @@ export function LoginForm() {
       variables: {
         data: { ...values },
       },
-      onCompleted: () => navigate(paths.dashboard.overview.path),
+      onCompleted: (data) => {
+        if (data.login?.isTwoFactorRequired) {
+          navigate(paths.auth.twoFactor.path);
+          return;
+        }
+
+        navigate(paths.dashboard.overview.path);
+      },
     });
 
   return (

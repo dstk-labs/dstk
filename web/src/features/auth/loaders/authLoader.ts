@@ -8,6 +8,8 @@ export const GET_USER = gql(`
             image
             email
             isEmailVerified
+            isTwoFactorEnabled
+            hasPassword
             realName
             userName
         }

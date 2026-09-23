@@ -8,6 +8,10 @@ export const paths = {
       getPath: () => "/auth/register",
       path: "/auth/register",
     },
+    twoFactor: {
+      getPath: () => "/auth/two-factor",
+      path: "/auth/two-factor",
+    },
     verify: {
       getPath: () => "/auth/verify",
       path: "/auth/verify",

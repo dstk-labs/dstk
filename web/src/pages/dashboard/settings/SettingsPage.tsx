@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/pageHeader/PageHeader";
 
 import { ApiKeysTable } from "./ApiKeysTable";
 import { InvitationsTable } from "./InvitationsTable";
+import { TwoFactorPanel } from "./TwoFactorPanel";
 
 function SettingsContent({ queryRef }: { queryRef: SettingsLoader }) {
   const { data } = useReadQuery(queryRef);
@@ -21,6 +22,7 @@ function SettingsContent({ queryRef }: { queryRef: SettingsLoader }) {
   return (
     <Stack gap="xl">
       <InvitationsTable invitations={invitations} />
+      <TwoFactorPanel />
       <ApiKeysTable apiKeys={apiKeys} />
     </Stack>
   );
@@ -32,7 +34,7 @@ export function SettingsPage() {
   return (
     <>
       <PageHeader
-        subtitle="Manage your API keys and respond to team invitations."
+        subtitle="Manage your sign-in security, API keys, and team invitations."
         title="Settings"
       />
       <Suspense>
