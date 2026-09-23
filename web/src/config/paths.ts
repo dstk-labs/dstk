@@ -1,5 +1,9 @@
 export const paths = {
   auth: {
+    forgotPassword: {
+      getPath: () => "/auth/forgot-password",
+      path: "/auth/forgot-password",
+    },
     login: {
       getPath: () => "/auth/login",
       path: "/auth/login",
@@ -7,6 +11,10 @@ export const paths = {
     register: {
       getPath: () => "/auth/register",
       path: "/auth/register",
+    },
+    resetPassword: {
+      getPath: () => "/auth/reset-password",
+      path: "/auth/reset-password",
     },
     twoFactor: {
       getPath: () => "/auth/two-factor",

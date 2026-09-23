@@ -76,6 +76,16 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, token }) => {
+      const resetLink = `${env.APP_URL}/auth/reset-password?token=${token}`;
+      await transporter.sendMail({
+        from: "no-reply@dstk.org",
+        to: user.email,
+        subject: "DSTK | Password Reset",
+        html: `Click the link to reset your password: ${resetLink}`,
+      });
+    },
   },
   emailVerification: {
     sendOnSignUp: true,

@@ -31,6 +31,15 @@ function createAppRouter() {
           children: [
             {
               lazy: async () => {
+                const { ForgotPasswordPage } = await import(
+                  "./pages/auth/forgotPassword/ForgotPasswordPage",
+                );
+                return { Component: ForgotPasswordPage };
+              },
+              path: paths.auth.forgotPassword.path,
+            },
+            {
+              lazy: async () => {
                 const { LoginPage } = await import(
                   "./pages/auth/login/LoginPage",
                 );
@@ -46,6 +55,15 @@ function createAppRouter() {
                 return { Component: RegisterPage };
               },
               path: paths.auth.register.path,
+            },
+            {
+              lazy: async () => {
+                const { ResetPasswordPage } = await import(
+                  "./pages/auth/resetPassword/ResetPasswordPage",
+                );
+                return { Component: ResetPasswordPage };
+              },
+              path: paths.auth.resetPassword.path,
             },
             {
               lazy: async () => {
