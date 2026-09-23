@@ -74,7 +74,9 @@ type AccountErrorName
     | "TWO_FACTOR_DISABLE_ERROR"
     | "TWO_FACTOR_CODE_ERROR"
     | "TWO_FACTOR_BACKUP_CODE_ERROR"
-    | "TWO_FACTOR_OTP_SEND_ERROR";
+    | "TWO_FACTOR_OTP_SEND_ERROR"
+    | "PASSWORD_RESET_REQUEST_ERROR"
+    | "PASSWORD_RESET_ERROR";
 
 const AccountErrorMessages = {
   ACCOUNT_REGISTRATION_ERROR: "Something went wrong and we were not able to complete this action",
@@ -91,6 +93,8 @@ const AccountErrorMessages = {
   TWO_FACTOR_CODE_ERROR: "That code is incorrect or has expired. Request a new one and try again",
   TWO_FACTOR_BACKUP_CODE_ERROR: "That backup code is invalid or has already been used",
   TWO_FACTOR_OTP_SEND_ERROR: "We could not send your sign-in code. Please try again",
+  PASSWORD_RESET_REQUEST_ERROR: "We could not send your password reset email. Please try again",
+  PASSWORD_RESET_ERROR: "Unable to reset password. The reset link may be invalid or expired",
 };
 
 export class AccountError extends Error {

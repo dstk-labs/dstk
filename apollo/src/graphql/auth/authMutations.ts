@@ -46,6 +46,19 @@ export const VerifyEmailInputType = builder.inputType("VerifyEmailInput", {
   }),
 });
 
+export const RequestPasswordResetInputType = builder.inputType("RequestPasswordResetInput", {
+  fields: t => ({
+    email: t.string({ required: true }),
+  }),
+});
+
+export const ResetPasswordInputType = builder.inputType("ResetPasswordInput", {
+  fields: t => ({
+    token: t.string({ required: true }),
+    newPassword: t.string({ required: true }),
+  }),
+});
+
 builder.mutationFields(t => ({
   createAccount: t.field({
     type: User,
@@ -210,6 +223,55 @@ builder.mutationFields(t => ({
       }
       catch {
         throw new AccountError({ name: "EMAIL_VERIFICATION_ERROR" });
+      }
+    },
+  }),
+  requestPasswordReset: t.field({
+    type: "Boolean",
+    authScopes: {
+      anonymousRequest: true,
+    },
+    args: {
+      data: t.arg({ type: RequestPasswordResetInputType, required: true }),
+    },
+    async resolve(_root, args, ctx) {
+      try {
+        await auth.api.requestPasswordReset({
+          headers: ctx.headers,
+          body: {
+            email: args.data.email,
+          },
+        });
+
+        return true;
+      }
+      catch {
+        throw new AccountError({ name: "PASSWORD_RESET_REQUEST_ERROR" });
+      }
+    },
+  }),
+  resetPassword: t.field({
+    type: "Boolean",
+    authScopes: {
+      anonymousRequest: true,
+    },
+    args: {
+      data: t.arg({ type: ResetPasswordInputType, required: true }),
+    },
+    async resolve(_root, args, ctx) {
+      try {
+        await auth.api.resetPassword({
+          headers: ctx.headers,
+          body: {
+            token: args.data.token,
+            newPassword: args.data.newPassword,
+          },
+        });
+
+        return true;
+      }
+      catch {
+        throw new AccountError({ name: "PASSWORD_RESET_ERROR" });
       }
     },
   }),
