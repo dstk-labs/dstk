@@ -111,7 +111,7 @@ export function LoginForm() {
               label="Remember Me"
               {...loginForm.getInputProps("rememberMe", { type: "checkbox" })}
             />
-            <Anchor component="button" disabled={loading} size="xs" type="button">
+            <Anchor size="xs" to={paths.auth.forgotPassword.path}>
               Forgot password?
             </Anchor>
           </Group>
