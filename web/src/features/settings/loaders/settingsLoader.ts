@@ -5,7 +5,8 @@ export const SETTINGS_QUERY = gql(`
   query Settings {
     listApiKeys {
       apiKeyId
-      apiKey
+      name
+      start
       dateCreated
     }
     listInvitations(status: "pending", first: 50) {

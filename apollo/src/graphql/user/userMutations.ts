@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
+import type { KyselyApiKey } from "@/graphql/auth/auth.js";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { ApiKey } from "@/graphql/auth/auth.js";
@@ -6,21 +6,49 @@ import { Invitation } from "@/graphql/invitation/invitation.js";
 import { auth } from "@/utils/auth.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 
+type CreatedApiKeyResult = {
+  apiKey: KyselyApiKey;
+  key: string;
+};
+
+export const CreatedApiKey = builder.objectRef<CreatedApiKeyResult>("CreatedApiKey");
+
+builder.objectType(CreatedApiKey, {
+  fields: t => ({
+    apiKey: t.field({
+      type: ApiKey,
+      resolve(root: CreatedApiKeyResult, _args, _ctx) {
+        return root.apiKey;
+      },
+    }),
+    key: t.exposeString("key"),
+  }),
+});
+
 builder.mutationFields(t => ({
   createApiKey: t.field({
-    type: ApiKey,
+    type: CreatedApiKey,
     authScopes: {
       loggedIn: true,
     },
-    async resolve(_root, _args, ctx) {
-      return await db
-        .insertInto("dstkUser.apiKey")
-        .values({
-          userId: ctx.user.id,
-          apiKey: uuidv4().replace(/-/g, ""),
-        })
-        .returningAll()
-        .executeTakeFirst();
+    args: {
+      name: t.arg.string(),
+    },
+    async resolve(_root, args, ctx) {
+      const { id, key } = await auth.api.createApiKey({
+        headers: ctx.headers,
+        body: {
+          name: args.name || undefined,
+        },
+      });
+
+      const apiKey = await db
+        .selectFrom("dstkUser.apiKeys")
+        .selectAll()
+        .where("dstkUser.apiKeys.id", "=", id)
+        .executeTakeFirstOrThrow();
+
+      return { apiKey, key };
     },
   }),
   archiveApiKey: t.field({
@@ -32,24 +60,24 @@ builder.mutationFields(t => ({
       apiKeyId: t.arg.string({ required: true }),
     },
     async resolve(_root, args, ctx) {
-      const results = await db.transaction().execute(async (trx) => {
-        const userApiKey = await trx
-          .updateTable("dstkUser.apiKey")
-          .set({
-            isArchived: true,
-          })
-          .where(({ eb, and }) =>
-            and([
-              eb("dstkUser.apiKey.apiKeyId", "=", args.apiKeyId),
-              eb("dstkUser.apiKey.userId", "=", ctx.user.id),
-            ]),
-          )
-          .returningAll()
-          .executeTakeFirstOrThrow();
-
-        return userApiKey;
+      await auth.api.updateApiKey({
+        headers: ctx.headers,
+        body: {
+          keyId: args.apiKeyId,
+          enabled: false,
+        },
       });
-      return results;
+
+      return db
+        .selectFrom("dstkUser.apiKeys")
+        .selectAll()
+        .where(({ eb, and }) =>
+          and([
+            eb("dstkUser.apiKeys.id", "=", args.apiKeyId),
+            eb("dstkUser.apiKeys.userId", "=", ctx.user.id),
+          ]),
+        )
+        .executeTakeFirstOrThrow();
     },
   }),
   acceptInvitation: t.field({

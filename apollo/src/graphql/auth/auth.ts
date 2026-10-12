@@ -1,10 +1,10 @@
 import type { Selectable } from "kysely";
-import type { DstkUserApiKey } from "@/db/db.js";
+import type { DstkUserApiKeys } from "@/db/db.js";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { User } from "@/graphql/user/user.js";
 
-export type KyselyApiKey = Selectable<DstkUserApiKey>;
+export type KyselyApiKey = Selectable<DstkUserApiKeys>;
 
 export const ApiKey = builder.objectRef<KyselyApiKey>("ApiKey");
 
@@ -13,7 +13,7 @@ builder.objectType(ApiKey, {
     apiKeyId: t.field({
       type: "ID",
       resolve(root: KyselyApiKey, _args, _ctx) {
-        return root.apiKeyId;
+        return root.id;
       },
     }),
     userId: t.field({
@@ -28,8 +28,13 @@ builder.objectType(ApiKey, {
         return result;
       },
     }),
-    apiKey: t.exposeString("apiKey"),
-    isArchived: t.exposeBoolean("isArchived"),
+    name: t.exposeString("name"),
+    start: t.exposeString("start"),
+    isArchived: t.boolean({
+      resolve(root: KyselyApiKey, _args, _ctx) {
+        return !root.isEnabled;
+      },
+    }),
     dateCreated: t.field({
       type: "String",
       resolve(root: KyselyApiKey, _args, _ctx) {

@@ -400,12 +400,27 @@ export interface DstkUserAccounts {
   userId: string;
 }
 
-export interface DstkUserApiKey {
-  apiKey: string;
-  apiKeyId: Generated<string>;
+export interface DstkUserApiKeys {
   dateCreated: Generated<Timestamp>;
-  id: Generated<number>;
-  isArchived: Generated<boolean>;
+  dateModified: Generated<Timestamp>;
+  expiresAt: Timestamp | null;
+  id: Generated<string>;
+  isEnabled: Generated<boolean>;
+  isRateLimitEnabled: Generated<boolean>;
+  key: string;
+  lastRefillAt: Timestamp | null;
+  lastRequest: Timestamp | null;
+  metadata: string | null;
+  name: string | null;
+  permissions: string | null;
+  prefix: string | null;
+  rateLimitMax: number | null;
+  rateLimitTimeWindow: number | null;
+  refillAmount: number | null;
+  refillInterval: number | null;
+  remaining: number | null;
+  requestCount: Generated<number>;
+  start: string | null;
   userId: string;
 }
 
@@ -770,7 +785,7 @@ export interface DB {
   "auth.webauthnCredentials": AuthWebauthnCredentials;
   "dstkMetadata.patchStatus": DstkMetadataPatchStatus;
   "dstkUser.accounts": DstkUserAccounts;
-  "dstkUser.apiKey": DstkUserApiKey;
+  "dstkUser.apiKeys": DstkUserApiKeys;
   "dstkUser.invitations": DstkUserInvitations;
   "dstkUser.members": DstkUserMembers;
   "dstkUser.projects": DstkUserProjects;

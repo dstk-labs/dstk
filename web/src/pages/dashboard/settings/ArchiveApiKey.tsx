@@ -2,7 +2,7 @@ import { useMutation } from "@apollo/client";
 import { Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { Trash2Icon } from "lucide-react";
+import { ArchiveIcon } from "lucide-react";
 
 import { Modal } from "@/components/modal/Modal";
 import { ModalFooter } from "@/components/modalFooter/ModalFooter";
@@ -32,7 +32,7 @@ export function ArchiveApiKey({ apiKeyId }: ArchiveApiKeyProps) {
         notifications.show({
           color: "green",
           message: "Requests using this key will now fail.",
-          title: "API key revoked",
+          title: "API key archived",
         });
         close();
       },
@@ -42,7 +42,7 @@ export function ArchiveApiKey({ apiKeyId }: ArchiveApiKeyProps) {
 
   return (
     <>
-      <Modal disabled={loading} onClose={close} opened={opened} title="Revoke API Key">
+      <Modal disabled={loading} onClose={close} opened={opened} title="Archive API Key">
         <Text c="var(--color-text-secondary)" fw={300} size="sm">
           This action is
           {" "}
@@ -55,12 +55,12 @@ export function ArchiveApiKey({ apiKeyId }: ArchiveApiKeyProps) {
           loading={loading}
           onCancel={close}
           onSubmit={onConfirm}
-          submitLabel="Revoke key"
+          submitLabel="Archive key"
           tone="danger"
         />
       </Modal>
 
-      <RowAction danger icon={<Trash2Icon size={14} />} label="Revoke" onClick={open} />
+      <RowAction danger icon={<ArchiveIcon size={14} />} label="Archive" onClick={open} />
     </>
   );
 }

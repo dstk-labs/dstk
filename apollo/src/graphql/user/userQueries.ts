@@ -16,12 +16,12 @@ builder.queryFields(t => ({
     },
     async resolve(_root, _args, ctx) {
       const apiKeys = await db
-        .selectFrom("dstkUser.apiKey")
+        .selectFrom("dstkUser.apiKeys")
         .selectAll()
         .where(({ eb, and }) =>
           and([
-            eb("dstkUser.apiKey.userId", "=", ctx.user.id),
-            eb("dstkUser.apiKey.isArchived", "=", false),
+            eb("dstkUser.apiKeys.userId", "=", ctx.user.id),
+            eb("dstkUser.apiKeys.isEnabled", "=", true),
           ]),
         )
         .execute();
