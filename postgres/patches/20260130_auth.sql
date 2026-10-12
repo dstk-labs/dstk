@@ -118,15 +118,31 @@ CREATE TABLE dstk_user.invitations (
 CREATE INDEX idx_invitations_email ON dstk_user.invitations(email);
 CREATE INDEX idx_invitations_team_id ON dstk_user.invitations(team_id);
 
--- Not using the better auth version of this table
-CREATE TABLE dstk_user.api_key (
-    id           SERIAL      NOT NULL PRIMARY KEY,
-    api_key_id   UUID        NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
-    user_id      VARCHAR(16) NOT NULL REFERENCES dstk_user.users(id),
-    api_key      VARCHAR(32) NOT NULL UNIQUE,
-    is_archived  BOOLEAN     NOT NULL DEFAULT FALSE,
-    date_created TIMESTAMPTZ NOT NULL DEFAULT NOW()
+CREATE TABLE dstk_user.api_keys (
+    id                     UUID        NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+    name                   TEXT,
+    start                  TEXT,
+    prefix                 TEXT,
+    key                    TEXT        NOT NULL,
+    user_id                VARCHAR(16) NOT NULL REFERENCES dstk_user.users(id),
+    refill_interval        INTEGER,
+    refill_amount          INTEGER,
+    last_refill_at         TIMESTAMPTZ,
+    is_enabled             BOOLEAN     NOT NULL DEFAULT TRUE,
+    is_rate_limit_enabled  BOOLEAN     NOT NULL DEFAULT TRUE,
+    rate_limit_time_window INTEGER,
+    rate_limit_max         INTEGER,
+    request_count          INTEGER     NOT NULL DEFAULT 0,
+    remaining              INTEGER,
+    last_request           TIMESTAMPTZ,
+    expires_at             TIMESTAMPTZ,
+    permissions            TEXT,
+    metadata               TEXT,
+    date_created           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    date_modified          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+CREATE INDEX idx_api_keys_key ON dstk_user.api_keys(key);
+CREATE INDEX idx_api_keys_user_id ON dstk_user.api_keys(user_id);
 
 CREATE TABLE dstk_user.two_factors (
     id            UUID        NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,

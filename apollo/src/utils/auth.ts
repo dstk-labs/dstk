@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { organization, twoFactor } from "better-auth/plugins";
+import { apiKey, organization, twoFactor } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { defaultStatements, ownerAc } from "better-auth/plugins/organization/access";
 import { env } from "@/config/env.js";
@@ -151,6 +151,22 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    apiKey({
+      rateLimit: {
+        enabled: false,
+      },
+      schema: {
+        apikey: {
+          modelName: "dstkUser.apiKeys",
+          fields: {
+            enabled: "isEnabled",
+            rateLimitEnabled: "isRateLimitEnabled",
+            createdAt: "dateCreated",
+            updatedAt: "dateModified",
+          },
+        },
+      },
+    }),
     twoFactor({
       issuer: "DSTK",
       otpOptions: {

@@ -24,10 +24,10 @@ export function formatRelative(value: null | string | undefined) {
   return dayjs(value).fromNow();
 }
 
-export function maskSecret(value: null | string | undefined) {
-  if (!value)
+export function maskSecret(start: null | string | undefined) {
+  if (!start)
     return "—";
-  return `••••••••${value.slice(-4)}`;
+  return `${start}••••••••`;
 }
 
 export function truncate(value: null | string | undefined, max = 60) {
