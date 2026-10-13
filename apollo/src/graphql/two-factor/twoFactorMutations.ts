@@ -61,6 +61,10 @@ builder.mutationFields(t => ({
           },
         });
 
+        if (response.method !== "totp") {
+          throw new AccountError({ name: "TWO_FACTOR_ENABLE_ERROR" });
+        }
+
         return {
           totpUri: response.totpURI,
           backupCodes: response.backupCodes,
