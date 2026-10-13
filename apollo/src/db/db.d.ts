@@ -401,6 +401,7 @@ export interface DstkUserAccounts {
 }
 
 export interface DstkUserApiKeys {
+  configId: Generated<string>;
   dateCreated: Generated<Timestamp>;
   dateModified: Generated<Timestamp>;
   expiresAt: Timestamp | null;
@@ -486,7 +487,10 @@ export interface DstkUserTeams {
 
 export interface DstkUserTwoFactors {
   backupCodes: string | null;
+  failedVerificationCount: Generated<number>;
   id: Generated<string>;
+  isVerified: Generated<boolean>;
+  lockedUntil: Timestamp | null;
   secret: string | null;
   userId: string;
 }
