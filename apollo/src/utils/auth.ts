@@ -1,6 +1,6 @@
 import { apiKey } from "@better-auth/api-key";
 import { betterAuth } from "better-auth";
-import { organization, twoFactor } from "better-auth/plugins";
+import { bearer, deviceAuthorization, organization, twoFactor } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { defaultStatements, ownerAc } from "better-auth/plugins/organization/access";
 import { env } from "@/config/env.js";
@@ -21,6 +21,8 @@ const statement = {
 const ac = createAccessControl(statement);
 
 const TWO_FACTOR_OTP_MINUTES = 3;
+
+const PYDSTK_CLIENT_ID = "pydstk";
 
 const viewer = ac.newRole({
   dstkTeam: [],
@@ -152,7 +154,18 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    bearer(),
+    deviceAuthorization({
+      verificationUri: `${env.APP_URL}/device`,
+      validateClient: clientId => clientId === PYDSTK_CLIENT_ID,
+      schema: {
+        deviceCode: {
+          modelName: "dstkUser.deviceCodes",
+        },
+      },
+    }),
     apiKey({
+      enableSessionForAPIKeys: true,
       rateLimit: {
         enabled: false,
       },

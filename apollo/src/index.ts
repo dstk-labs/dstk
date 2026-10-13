@@ -30,6 +30,7 @@ await server.start();
 
 // Use better-auth rest API endpoints for OAuth callbacks
 app.all("/api/auth/callback/*", toNodeHandler(auth));
+app.post(["/api/auth/device/code", "/api/auth/device/token"], toNodeHandler(auth));
 
 app.use(
   "/graphql",
