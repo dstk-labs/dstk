@@ -3,6 +3,7 @@ import { Navigate, Outlet, useLocation } from "react-router";
 import { Anchor } from "@/components/anchor/Anchor";
 import { paths } from "@/config/paths";
 import { useUser } from "@/features/auth/hooks/authHooks";
+import { useRedirectTo } from "@/features/auth/hooks/redirectHooks";
 
 const footerLinks = [
   { label: `© ${new Date().getFullYear()} DSTK Labs`, link: paths.root.landing.path },
@@ -27,9 +28,10 @@ const UNVERIFIED_PATHS: string[] = [
 export function AuthLayout() {
   const { user } = useUser();
   const { pathname } = useLocation();
+  const { destination } = useRedirectTo();
 
   if (user?.isEmailVerified) {
-    return <Navigate to={paths.dashboard.overview.path} />;
+    return <Navigate to={destination} />;
   }
 
   if (user && !UNVERIFIED_PATHS.includes(pathname)) {

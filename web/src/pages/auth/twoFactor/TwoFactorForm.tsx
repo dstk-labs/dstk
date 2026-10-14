@@ -15,7 +15,7 @@ import { useNavigate } from "react-router";
 import { z } from "zod/v4";
 
 import { Anchor } from "@/components/anchor/Anchor";
-import { paths } from "@/config/paths";
+import { useRedirectTo } from "@/features/auth/hooks/redirectHooks";
 import { GET_USER } from "@/features/auth/loaders/authLoader";
 import { LIST_TEAMS_FOR_DROPDOWN } from "@/features/teams/loaders/teamsLoader";
 import { gql } from "@/graphql";
@@ -69,6 +69,7 @@ export function TwoFactorForm() {
   const [method, setMethod] = useState<Method>("totp");
   const [cooldown, setCooldown] = useState(0);
   const navigate = useNavigate();
+  const { destination } = useRedirectTo();
 
   const [verifyTotp, { loading: totpLoading }] = useMutation(VERIFY_TOTP);
   const [verifyOtp, { loading: otpLoading }] = useMutation(VERIFY_TWO_FACTOR_OTP);
@@ -102,7 +103,7 @@ export function TwoFactorForm() {
 
   const onSubmit = (values: typeof form.values) =>
     verify({
-      onCompleted: () => navigate(paths.dashboard.overview.path),
+      onCompleted: () => navigate(destination),
       onError: () => form.setFieldValue("code", ""),
       refetchQueries: [{ query: GET_USER }, { query: LIST_TEAMS_FOR_DROPDOWN }],
       variables: {

@@ -1,8 +1,9 @@
 import type { GenerateOAuthUrlMutationVariables } from "@/graphql/types";
 import { useMutation } from "@apollo/client";
 import { useState } from "react";
-import { paths } from "@/config/paths";
 import { gql } from "@/graphql";
+
+import { useRedirectTo } from "./redirectHooks";
 
 export const GENERATE_OAUTH_URL = gql(`
     mutation GenerateOAuthUrl($provider: OAuthProvider!, $callbackURL: String!) {
@@ -21,6 +22,7 @@ export function useOAuthRedirect({
     = useMutation<{ generateOAuthUrl: string }>(GENERATE_OAUTH_URL);
 
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const { destination } = useRedirectTo();
 
   const loading = mutationLoading || isRedirecting;
 
@@ -28,7 +30,7 @@ export function useOAuthRedirect({
     await executeMutation({
       variables: {
         provider,
-        callbackURL: `${window.location.origin}${paths.dashboard.overview.path}`,
+        callbackURL: `${window.location.origin}${destination}`,
       },
       onCompleted: (data) => {
         setIsRedirecting(true);
