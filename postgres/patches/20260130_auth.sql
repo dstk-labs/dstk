@@ -120,6 +120,7 @@ CREATE INDEX idx_invitations_team_id ON dstk_user.invitations(team_id);
 
 CREATE TABLE dstk_user.api_keys (
     id                     UUID        NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+    config_id              TEXT        NOT NULL DEFAULT 'default',
     name                   TEXT,
     start                  TEXT,
     prefix                 TEXT,
@@ -141,14 +142,18 @@ CREATE TABLE dstk_user.api_keys (
     date_created           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     date_modified          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+CREATE INDEX idx_api_keys_config_id ON dstk_user.api_keys(config_id);
 CREATE INDEX idx_api_keys_key ON dstk_user.api_keys(key);
 CREATE INDEX idx_api_keys_user_id ON dstk_user.api_keys(user_id);
 
 CREATE TABLE dstk_user.two_factors (
-    id            UUID        NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_id       VARCHAR(16) NOT NULL REFERENCES dstk_user.users(id),
-    secret        TEXT,
-    backup_codes  TEXT
+    id                        UUID        NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id                   VARCHAR(16) NOT NULL REFERENCES dstk_user.users(id),
+    secret                    TEXT,
+    backup_codes              TEXT,
+    is_verified               BOOLEAN     NOT NULL DEFAULT TRUE,
+    failed_verification_count INTEGER     NOT NULL DEFAULT 0,
+    locked_until              TIMESTAMPTZ
 );
 
 -- TODO: Device Authorization

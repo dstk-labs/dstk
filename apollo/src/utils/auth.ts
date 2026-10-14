@@ -1,5 +1,6 @@
+import { apiKey } from "@better-auth/api-key";
 import { betterAuth } from "better-auth";
-import { apiKey, organization, twoFactor } from "better-auth/plugins";
+import { organization, twoFactor } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { defaultStatements, ownerAc } from "better-auth/plugins/organization/access";
 import { env } from "@/config/env.js";
@@ -69,7 +70,7 @@ export const auth = betterAuth({
       clientSecret: env.GITHUB_CLIENT_SECRET,
       mapProfileToUser: (profile) => {
         return {
-          userName: profile.email.split("@")[0],
+          userName: profile.email?.split("@")[0] ?? profile.login,
         };
       },
     },
@@ -159,6 +160,7 @@ export const auth = betterAuth({
         apikey: {
           modelName: "dstkUser.apiKeys",
           fields: {
+            referenceId: "userId",
             enabled: "isEnabled",
             rateLimitEnabled: "isRateLimitEnabled",
             createdAt: "dateCreated",
@@ -189,6 +191,9 @@ export const auth = betterAuth({
         },
         twoFactor: {
           modelName: "dstkUser.twoFactors",
+          fields: {
+            verified: "isVerified",
+          },
         },
       },
     }),
@@ -210,6 +215,24 @@ export const auth = betterAuth({
           fields: {
             createdAt: "dateCreated",
             updatedAt: "dateModified",
+          },
+          additionalFields: {
+            isArchived: {
+              type: "boolean",
+              required: true,
+              defaultValue: false,
+              input: false,
+            },
+            createdById: {
+              type: "string",
+              required: true,
+              input: false,
+            },
+            modifiedById: {
+              type: "string",
+              required: true,
+              input: false,
+            },
           },
         },
         member: {
