@@ -101,6 +101,10 @@ export const paths = {
       getPath: () => "/careers",
       path: "/careers",
     },
+    device: {
+      getPath: () => "/device",
+      path: "/device",
+    },
     landing: {
       getPath: () => "/",
       path: "/",
