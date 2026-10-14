@@ -425,6 +425,20 @@ export interface DstkUserApiKeys {
   userId: string;
 }
 
+export interface DstkUserDeviceCodes {
+  clientId: string | null;
+  dateCreated: Generated<Timestamp>;
+  deviceCode: string;
+  expiresAt: Timestamp;
+  id: Generated<string>;
+  lastPolledAt: Timestamp | null;
+  pollingInterval: number | null;
+  scope: string | null;
+  status: string;
+  userCode: string;
+  userId: string | null;
+}
+
 export interface DstkUserInvitations {
   dateCreated: Generated<Timestamp>;
   dateModified: Generated<Timestamp>;
@@ -790,6 +804,7 @@ export interface DB {
   "dstkMetadata.patchStatus": DstkMetadataPatchStatus;
   "dstkUser.accounts": DstkUserAccounts;
   "dstkUser.apiKeys": DstkUserApiKeys;
+  "dstkUser.deviceCodes": DstkUserDeviceCodes;
   "dstkUser.invitations": DstkUserInvitations;
   "dstkUser.members": DstkUserMembers;
   "dstkUser.projects": DstkUserProjects;

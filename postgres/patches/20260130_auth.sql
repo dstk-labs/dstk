@@ -156,7 +156,20 @@ CREATE TABLE dstk_user.two_factors (
     locked_until              TIMESTAMPTZ
 );
 
--- TODO: Device Authorization
+CREATE TABLE dstk_user.device_codes (
+    id               UUID        NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+    device_code      TEXT        NOT NULL UNIQUE,
+    user_code        TEXT        NOT NULL UNIQUE,
+    user_id          VARCHAR(16) REFERENCES dstk_user.users(id),
+    status           TEXT        NOT NULL,
+    client_id        TEXT,
+    scope            TEXT,
+    polling_interval INTEGER,
+    last_polled_at   TIMESTAMPTZ,
+    expires_at       TIMESTAMPTZ NOT NULL,
+    date_created     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- TODO: Have I Been Pwned
 -- TODO: Last Login Method
 -- TODO: Polar / Stripe / Billing Engine Stuff

@@ -4,6 +4,7 @@ import { builder } from "@/builder.js";
 export * from "./auth/auth.js";
 export * from "./auth/authMutations.js";
 
+export * from "./device/index.js";
 export * from "./invitation/index.js";
 export * from "./misc/index.js";
 export * from "./model-version/index.js";
