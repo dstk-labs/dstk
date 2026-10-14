@@ -5,7 +5,8 @@ export const paths = {
       path: "/auth/forgot-password",
     },
     login: {
-      getPath: () => "/auth/login",
+      getPath: (redirectTo?: string) =>
+        redirectTo ? `/auth/login?redirectTo=${encodeURIComponent(redirectTo)}` : "/auth/login",
       path: "/auth/login",
     },
     register: {
@@ -17,7 +18,8 @@ export const paths = {
       path: "/auth/reset-password",
     },
     twoFactor: {
-      getPath: () => "/auth/two-factor",
+      getPath: (redirectTo?: string) =>
+        redirectTo ? `/auth/two-factor?redirectTo=${encodeURIComponent(redirectTo)}` : "/auth/two-factor",
       path: "/auth/two-factor",
     },
     verify: {
@@ -98,6 +100,10 @@ export const paths = {
     careers: {
       getPath: () => "/careers",
       path: "/careers",
+    },
+    device: {
+      getPath: () => "/device",
+      path: "/device",
     },
     landing: {
       getPath: () => "/",

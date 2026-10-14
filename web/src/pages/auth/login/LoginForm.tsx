@@ -17,6 +17,7 @@ import { Anchor } from "@/components/anchor/Anchor";
 import { paths } from "@/config/paths";
 import { OAuthButtons } from "@/features/auth/components/OAuthButtons";
 import { useGithubOAuth, useGoogleOAuth } from "@/features/auth/hooks/oauthHooks";
+import { useRedirectTo } from "@/features/auth/hooks/redirectHooks";
 import { GET_USER } from "@/features/auth/loaders/authLoader";
 import { LIST_TEAMS_FOR_DROPDOWN } from "@/features/teams/loaders/teamsLoader";
 import { gql } from "@/graphql";
@@ -49,6 +50,7 @@ export function LoginForm() {
 
   const loading = loginLoading || googleLoading || githubLoading;
   const navigate = useNavigate();
+  const { destination, redirectTo } = useRedirectTo();
 
   const loginForm = useForm({
     initialValues: {
@@ -68,11 +70,11 @@ export function LoginForm() {
       },
       onCompleted: (data) => {
         if (data.login?.isTwoFactorRequired) {
-          navigate(paths.auth.twoFactor.path);
+          navigate(paths.auth.twoFactor.getPath(redirectTo));
           return;
         }
 
-        navigate(paths.dashboard.overview.path);
+        navigate(destination);
       },
     });
 

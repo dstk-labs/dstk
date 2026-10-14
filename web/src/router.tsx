@@ -28,6 +28,13 @@ function createAppRouter() {
           path: paths.root.landing.path,
         },
         {
+          lazy: async () => {
+            const { DevicePage } = await import("./pages/device/DevicePage");
+            return { Component: DevicePage };
+          },
+          path: paths.root.device.path,
+        },
+        {
           children: [
             {
               lazy: async () => {
