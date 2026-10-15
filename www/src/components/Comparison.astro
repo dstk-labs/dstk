@@ -1,0 +1,158 @@
+---
+type Support = "yes" | "partial" | "no";
+
+type Row = {
+  capability: string;
+  dstk: Support;
+  mlflow: Support;
+  sagemaker: Support;
+  azure: Support;
+};
+
+const tools = [
+  { key: "mlflow", label: "MLflow" },
+  { key: "sagemaker", label: "SageMaker" },
+  { key: "azure", label: "Azure ML" },
+] as const;
+
+const rows: Row[] = [
+  { azure: "no", capability: "Open source", dstk: "yes", mlflow: "yes", sagemaker: "no" },
+  { azure: "yes", capability: "Immutable model registry", dstk: "yes", mlflow: "partial", sagemaker: "yes" },
+  { azure: "partial", capability: "One command deploy", dstk: "yes", mlflow: "no", sagemaker: "partial" },
+  { azure: "no", capability: "Hardware agnostic", dstk: "yes", mlflow: "yes", sagemaker: "no" },
+  { azure: "no", capability: "Minimal configuration", dstk: "yes", mlflow: "no", sagemaker: "no" },
+  { azure: "yes", capability: "Standard inference API", dstk: "yes", mlflow: "partial", sagemaker: "yes" },
+  { azure: "no", capability: "No vendor lock in", dstk: "yes", mlflow: "yes", sagemaker: "no" },
+  { azure: "partial", capability: "Doesn't suck", dstk: "yes", mlflow: "partial", sagemaker: "partial" },
+];
+
+const marks: Record<Support, { symbol: string; label: string }> = {
+  no: { label: "No", symbol: "✕" },
+  partial: { label: "Partial", symbol: "~" },
+  yes: { label: "Yes", symbol: "✓" },
+};
+---
+
+<section class="section" id="compare">
+  <p class="section-label">Comparisons</p>
+  <h2 class="section-headline">Why not just use MLflow?</h2>
+  <p class="section-sub">
+    Existing tools are either too bloated, too proprietary, or too painful. Here's how dstk stacks
+    up.
+  </p>
+
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Capability</th>
+          <th class="highlight" scope="col">dstk</th>
+          {tools.map(tool => <th scope="col">{tool.label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map(row => (
+            <tr>
+              <th scope="row">{row.capability}</th>
+              <td class="highlight">
+                <span aria-hidden="true" class:list={["mark", row.dstk]}>{marks[row.dstk].symbol}</span>
+                <span class="sr-only">{marks[row.dstk].label}</span>
+              </td>
+              {tools.map(tool => (
+                <td>
+                  <span aria-hidden="true" class:list={["mark", row[tool.key]]}>{marks[row[tool.key]].symbol}</span>
+                  <span class="sr-only">{marks[row[tool.key]].label}</span>
+                </td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .scroll {
+    border: var(--border-width) solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    overflow-x: auto;
+    position: relative;
+  }
+
+  table {
+    background: var(--color-bg-secondary);
+    border-collapse: collapse;
+    min-width: 36rem;
+    width: 100%;
+  }
+
+  thead th {
+    background: var(--color-bg-tertiary);
+    border-bottom: var(--border-width) solid var(--color-border-default);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-medium);
+    letter-spacing: 0.8px;
+    padding: 14px 20px;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  thead th:first-child {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-regular);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  thead th.highlight {
+    color: var(--sky-200);
+  }
+
+  tbody th,
+  tbody td {
+    border-bottom: var(--border-width) solid var(--color-border-muted);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-light);
+    padding: 14px 20px;
+    text-align: left;
+  }
+
+  tbody th {
+    color: var(--color-text-primary);
+    font-weight: var(--font-regular);
+  }
+
+  tbody tr:last-child th,
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: rgba(125, 200, 240, 0.02);
+  }
+
+  .highlight {
+    background: rgba(75, 168, 209, 0.03);
+  }
+
+  .mark.yes {
+    color: var(--color-success);
+    font-size: 16px;
+  }
+
+  .mark.partial {
+    color: var(--color-warning);
+    font-size: 14px;
+  }
+
+  .mark.no {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    opacity: 0.3;
+  }
+</style>

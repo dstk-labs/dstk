@@ -1,0 +1,60 @@
+---
+const stats = [
+  { label: "Lines to deploy a model", prefix: "", value: "3" },
+  { label: "Dockerfiles to write", prefix: "", value: "0" },
+  { label: "YAML files to maintain", prefix: "", value: "0" },
+  { label: "Open source, forever", prefix: "100", value: "%" },
+];
+---
+
+<ul class="stats">
+  {
+    stats.map(stat => (
+      <li class="stat">
+        <p class="value">{stat.prefix}<span>{stat.value}</span></p>
+        <p class="label">{stat.label}</p>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .stats {
+    border-bottom: var(--border-width) solid var(--color-border-default);
+    border-top: var(--border-width) solid var(--color-border-default);
+    display: grid;
+    gap: 32px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    list-style: none;
+    margin-inline: auto;
+    max-width: var(--content-width);
+    padding: 64px 32px;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .value {
+    font-size: 40px;
+    font-weight: var(--font-display);
+    letter-spacing: -1px;
+    margin-bottom: var(--space-1);
+  }
+
+  .value span {
+    color: var(--sky-200);
+  }
+
+  .label {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+  }
+
+  @media (max-width: 768px) {
+    .stats {
+      gap: 24px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

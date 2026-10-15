@@ -1,0 +1,42 @@
+---
+import { Image } from "astro:assets";
+
+import logo from "@/assets/dstkLogoInverted.png";
+
+type Props = {
+  size?: "sm" | "md";
+};
+
+const LOGO_WIDTH = { md: 20, sm: 17 };
+
+const { size = "md" } = Astro.props;
+---
+
+<span class:list={["brand", size]}>
+  <Image alt="dstk" densities={[1, 2, 3]} loading="eager" src={logo} width={LOGO_WIDTH[size]} />
+</span>
+
+<style>
+  .brand {
+    align-items: center;
+    background: var(--color-alpha-medium);
+    display: flex;
+    justify-content: center;
+  }
+
+  .brand img {
+    height: auto;
+  }
+
+  .md {
+    border-radius: var(--radius-md);
+    height: 32px;
+    width: 32px;
+  }
+
+  .sm {
+    border-radius: var(--radius-sm);
+    height: 28px;
+    width: 28px;
+  }
+</style>
