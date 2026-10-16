@@ -10,7 +10,7 @@ import { UserFooter } from "./UserFooter";
 
 type SidebarProps = {
   onNavigate: () => void;
-  user: NonNullable<GetUserQuery["getUser"]>;
+  user: NonNullable<GetUserQuery["user"]["get"]>;
 };
 
 export function Sidebar({ onNavigate, user }: SidebarProps) {

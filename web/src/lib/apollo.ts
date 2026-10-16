@@ -47,6 +47,7 @@ export const apolloClient = new ApolloClient({
       TeamQuery: { merge: true },
       InvitationQuery: { merge: true },
       ApiKeyQuery: { merge: true },
+      UserQuery: { merge: true },
     },
   }),
   link: from([errorLink, httpLink]),

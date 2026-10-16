@@ -16,7 +16,7 @@ const LOGOUT = gql(`
 `);
 
 type UserFooterProps = {
-  user: NonNullable<GetUserQuery["getUser"]>;
+  user: NonNullable<GetUserQuery["user"]["get"]>;
 };
 
 export function UserFooter({ user }: UserFooterProps) {

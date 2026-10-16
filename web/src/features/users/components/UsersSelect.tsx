@@ -7,13 +7,15 @@ import { gql } from "@/graphql";
 
 const LIST_USERS_FOR_SELECT = gql(`
   query ListUsersForSelect($userName: String) {
-    listUsers(userName: $userName, first: 25) {
-      edges {
-        node {
-          email
-          realName
-          userId
-          userName
+    user {
+      list(userName: $userName, first: 25) {
+        edges {
+          node {
+            email
+            realName
+            userId
+            userName
+          }
         }
       }
     }
@@ -33,7 +35,7 @@ export function UsersSelect({ disabled, ...props }: UsersSelectProps) {
     variables: { userName: debouncedSearch || null },
   });
 
-  const users = (data?.listUsers?.edges ?? [])
+  const users = (data?.user.list?.edges ?? [])
     .map(edge => edge.node)
     .filter((user): user is NonNullable<typeof user> => Boolean(user));
 

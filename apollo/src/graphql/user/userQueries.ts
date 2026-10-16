@@ -34,8 +34,10 @@ builder.objectFields(ApiKeyQuery, t => ({
   }),
 }));
 
-builder.queryFields(t => ({
-  listUsers: t.field({
+const UserQuery = queryNamespace("user", "UserQuery");
+
+builder.objectFields(UserQuery, t => ({
+  list: t.field({
     type: UserConnection,
     authScopes: {
       loggedIn: true,
@@ -122,7 +124,7 @@ builder.queryFields(t => ({
       };
     },
   }),
-  getUser: t.field({
+  get: t.field({
     type: User,
     authScopes: {
       loggedIn: true,
