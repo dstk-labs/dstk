@@ -6,29 +6,35 @@ import { gql } from "@/graphql";
 
 const DEVICE_VERIFY = gql(`
     query DeviceVerify($userCode: String!) {
-        deviceVerify(userCode: $userCode) {
-            id
-            userCode
-            clientId
-            status
+        device {
+          verify(userCode: $userCode) {
+              id
+              userCode
+              clientId
+              status
+          }
         }
     }
 `);
 
 const APPROVE_DEVICE = gql(`
     mutation ApproveDevice($userCode: String!) {
-        approveDevice(userCode: $userCode) {
-            id
-            status
+        device {
+          approve(userCode: $userCode) {
+              id
+              status
+          }
         }
     }
 `);
 
 const DENY_DEVICE = gql(`
     mutation DenyDevice($userCode: String!) {
-        denyDevice(userCode: $userCode) {
-            id
-            status
+        device {
+          deny(userCode: $userCode) {
+              id
+              status
+          }
         }
     }
 `);
@@ -64,7 +70,7 @@ export function DeviceRequest({ onReset, userCode }: DeviceRequestProps) {
 
   const requestError = error ?? approveError ?? denyError;
 
-  if (requestError || !data?.deviceVerify) {
+  if (requestError || !data?.device.verify) {
     return (
       <AuthStatus
         actions={(
@@ -79,7 +85,7 @@ export function DeviceRequest({ onReset, userCode }: DeviceRequestProps) {
     );
   }
 
-  const { clientId, status } = data.deviceVerify;
+  const { clientId, status } = data.device.verify;
 
   if (status === "approved") {
     return (
@@ -109,7 +115,7 @@ export function DeviceRequest({ onReset, userCode }: DeviceRequestProps) {
         wants to sign in to your account. Check that this code matches the one in your terminal.
       </Text>
       <Code block ta="center" fz="xl">
-        {formatUserCode(data.deviceVerify.userCode ?? userCode)}
+        {formatUserCode(data.device.verify.userCode ?? userCode)}
       </Code>
       <Stack gap="xs">
         <Button

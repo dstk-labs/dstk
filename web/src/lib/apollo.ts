@@ -48,6 +48,7 @@ export const apolloClient = new ApolloClient({
       InvitationQuery: { merge: true },
       ApiKeyQuery: { merge: true },
       UserQuery: { merge: true },
+      DeviceQuery: { merge: true },
     },
   }),
   link: from([errorLink, httpLink]),

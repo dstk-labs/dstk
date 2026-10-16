@@ -1,10 +1,13 @@
 import { builder } from "@/builder.js";
 import { DeviceCode, selectClaimedDeviceCode } from "@/graphql/device/device.js";
+import { mutationNamespace } from "@/graphql/misc/namespace.js";
 import { auth } from "@/utils/auth.js";
 import { AccountError } from "@/utils/errors.js";
 
-builder.mutationFields(t => ({
-  approveDevice: t.field({
+const DeviceMutation = mutationNamespace("device", "DeviceMutation");
+
+builder.objectFields(DeviceMutation, t => ({
+  approve: t.field({
     type: DeviceCode,
     authScopes: {
       loggedIn: true,
@@ -28,7 +31,7 @@ builder.mutationFields(t => ({
       return selectClaimedDeviceCode(args.userCode, ctx.user.id);
     },
   }),
-  denyDevice: t.field({
+  deny: t.field({
     type: DeviceCode,
     authScopes: {
       loggedIn: true,
