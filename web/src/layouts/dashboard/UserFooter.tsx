@@ -11,7 +11,9 @@ import styles from "./Sidebar.module.css";
 
 const LOGOUT = gql(`
   mutation Logout {
-    logout
+    auth {
+      logout
+    }
   }
 `);
 

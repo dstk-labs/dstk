@@ -13,7 +13,9 @@ import { gql } from "@/graphql";
 
 const RESET_PASSWORD = gql(`
     mutation ResetPassword($data: ResetPasswordInput!) {
-      resetPassword(data: $data)
+      auth {
+        resetPassword(data: $data)
+      }
     }
 `);
 

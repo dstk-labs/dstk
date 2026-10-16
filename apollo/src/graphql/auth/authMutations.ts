@@ -1,5 +1,6 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
+import { mutationNamespace } from "@/graphql/misc/namespace.js";
 import { User } from "@/graphql/user/user.js";
 import { auth } from "@/utils/auth.js";
 import { handleAuthCookies } from "@/utils/cookie-monster.js";
@@ -59,7 +60,9 @@ export const ResetPasswordInputType = builder.inputType("ResetPasswordInput", {
   }),
 });
 
-builder.mutationFields(t => ({
+const AuthMutation = mutationNamespace("auth", "AuthMutation");
+
+builder.objectFields(AuthMutation, t => ({
   createAccount: t.field({
     type: User,
     authScopes: {
