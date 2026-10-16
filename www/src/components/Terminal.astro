@@ -1,0 +1,98 @@
+---
+---
+
+<figure class="terminal">
+  <figcaption class="bar">
+    <span aria-hidden="true" class="dots"><span></span><span></span><span></span></span>
+    <span class="title">python3 deploy.py</span>
+  </figcaption>
+  <pre class="body"><code><span class="t-kw">from</span> <span class="t-fn">pydstk</span> <span class="t-kw">import</span> <span class="t-fn">ModelRegistry</span><span class="t-op">,</span> <span class="t-fn">Deployer</span>
+
+<span class="t-cm"># Register your model</span>
+<span class="t-fn">registry</span> <span class="t-op">=</span> <span class="t-fn">ModelRegistry</span><span class="t-op">()</span>
+<span class="t-fn">model</span> <span class="t-op">=</span> <span class="t-fn">registry</span><span class="t-op">.</span><span class="t-fn">register</span><span class="t-op">(</span>
+    <span class="t-fn">name</span><span class="t-op">=</span><span class="t-str">"fraud-detector"</span><span class="t-op">,</span>
+    <span class="t-fn">artifact</span><span class="t-op">=</span><span class="t-str">"./model.pkl"</span><span class="t-op">,</span>
+    <span class="t-fn">version</span><span class="t-op">=</span><span class="t-str">"1.2.0"</span>
+<span class="t-op">)</span>
+
+<span class="t-cm"># Deploy with one call</span>
+<span class="t-fn">Deployer</span><span class="t-op">().</span><span class="t-fn">deploy</span><span class="t-op">(</span><span class="t-fn">model</span><span class="t-op">)</span>
+
+<span class="t-out"><span class="t-success">✓</span> Registered fraud-detector v1.2.0</span>
+<span class="t-out"><span class="t-success">✓</span> Deployed to <span class="t-url">https://models.acme.io/fraud-detector</span></span>
+<span class="t-out"><span class="t-success">✓</span> Inference API live (200 OK)</span></code></pre>
+</figure>
+
+<style>
+  .terminal {
+    border: var(--border-width) solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      0 24px 80px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(125, 200, 240, 0.05);
+    margin: 0 auto;
+    max-width: 42.5rem;
+    overflow: hidden;
+    position: relative;
+    text-align: left;
+    width: 100%;
+  }
+
+  .terminal::before {
+    background: linear-gradient(180deg, var(--color-alpha-faint), transparent 50%);
+    border-radius: var(--radius-lg);
+    content: "";
+    inset: -1px;
+    pointer-events: none;
+    position: absolute;
+    z-index: -1;
+  }
+
+  .bar {
+    align-items: center;
+    background: var(--color-bg-secondary);
+    border-bottom: var(--border-width) solid var(--color-border-default);
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+  }
+
+  .dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .dots span {
+    background: var(--color-bg-elevated);
+    border: var(--border-width) solid var(--color-border-default);
+    border-radius: 50%;
+    height: 10px;
+    width: 10px;
+  }
+
+  .title {
+    color: var(--color-text-muted);
+    flex: 1;
+    font-size: var(--font-size-2xs);
+    text-align: center;
+  }
+
+  .body {
+    background: var(--color-bg-primary);
+    color: var(--color-text-secondary);
+    font-family: var(--font-code);
+    font-size: var(--font-size-xs);
+    line-height: 2;
+    min-height: 280px;
+    overflow-x: auto;
+    padding: 24px;
+  }
+
+  @media (max-width: 768px) {
+    .body {
+      font-size: var(--font-size-3xs);
+      padding: 18px;
+    }
+  }
+</style>

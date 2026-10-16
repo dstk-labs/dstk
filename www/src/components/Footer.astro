@@ -1,0 +1,55 @@
+---
+import BrandMark from "@/components/BrandMark.astro";
+import { links } from "@/config/site";
+
+const footerLinks = [
+  { href: links.docs, label: "Documentation" },
+  { href: links.repo, label: "GitHub" },
+  { href: links.issues, label: "Report a bug" },
+  { href: links.discussions, label: "Discussions" },
+];
+---
+
+<footer class="footer">
+  <BrandMark size="sm" />
+  <nav aria-label="Footer" class="links">
+    {footerLinks.map(link => <a href={link.href}>{link.label}</a>)}
+  </nav>
+</footer>
+
+<style>
+  .footer {
+    align-items: center;
+    border-top: var(--border-width) solid var(--color-border-default);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    justify-content: space-between;
+    margin-inline: auto;
+    max-width: var(--content-width);
+    padding: 48px 32px;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--font-size-xs);
+    gap: var(--space-6);
+  }
+
+  .links a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .links a:hover {
+    color: var(--sky-300);
+  }
+
+  @media (max-width: 768px) {
+    .footer {
+      padding-inline: 16px;
+    }
+  }
+</style>

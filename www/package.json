@@ -1,0 +1,27 @@
+{
+  "name": "www",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@dstk/design-tokens": "workspace:*",
+    "astro": "^7.3.4",
+    "sharp": "^0.35.4"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^7.1.0",
+    "astro-eslint-parser": "^3.1.0",
+    "eslint": "^9.39.2",
+    "eslint-plugin-astro": "^3.2.1",
+    "eslint-plugin-format": "^1.5.0",
+    "typescript": "~5.8.3"
+  }
+}

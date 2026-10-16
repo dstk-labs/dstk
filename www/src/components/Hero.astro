@@ -1,0 +1,208 @@
+---
+import Button from "@/components/Button.astro";
+import InstallSnippet from "@/components/InstallSnippet.astro";
+import Terminal from "@/components/Terminal.astro";
+import { links } from "@/config/site";
+---
+
+<section class="hero">
+  <div aria-hidden="true" class="background">
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="glow glow-3"></div>
+    <div class="grid"></div>
+    <div class="particles" data-particles></div>
+  </div>
+
+  <h1 class="headline fade" style="--delay: 0s">
+    From trained blob to <span>deployed model</span> in minutes
+  </h1>
+
+  <p class="sub fade" style="--delay: 0.1s">
+    <code>dstk</code> is a data science toolkit for model registries, deployment, and monitoring.
+    Infrastructure as Code for your ML models, in a way that mostly doesn't suck.
+  </p>
+
+  <div class="ctas fade" style="--delay: 0.2s">
+    <Button arrow href={links.repo}>Get started</Button>
+    <Button href={links.docs} variant="secondary">Read the docs</Button>
+  </div>
+
+  <div class="install fade" style="--delay: 0.3s">
+    <InstallSnippet />
+  </div>
+
+  <div class="fade terminal" style="--delay: 0.5s">
+    <Terminal />
+  </div>
+</section>
+
+<script>
+  const SPAWN_INTERVAL_MS = 600;
+  const PARTICLE_LIFETIME_MS = 7000;
+
+  const container = document.querySelector<HTMLElement>("[data-particles]");
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function randomBetween(min: number, max: number) {
+    return min + Math.random() * (max - min);
+  }
+
+  function spawnParticle(parent: HTMLElement) {
+    const particle = document.createElement("span");
+    const size = `${randomBetween(2, 5)}px`;
+    particle.className = "particle";
+    particle.style.width = size;
+    particle.style.height = size;
+    particle.style.left = `${randomBetween(10, 90)}%`;
+    particle.style.top = `${randomBetween(40, 90)}%`;
+    particle.style.animationDuration = `${randomBetween(3, 7)}s`;
+    parent.appendChild(particle);
+    setTimeout(() => particle.remove(), PARTICLE_LIFETIME_MS);
+  }
+
+  if (container && !prefersReducedMotion) {
+    setInterval(() => spawnParticle(container), SPAWN_INTERVAL_MS);
+  }
+</script>
+
+<style>
+  .hero {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 120px 32px 80px;
+    position: relative;
+    text-align: center;
+  }
+
+  .background {
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  .glow {
+    border-radius: 50%;
+    filter: blur(100px);
+    position: absolute;
+  }
+
+  .glow-1 {
+    background: var(--glow-sky);
+    height: 600px;
+    left: 50%;
+    top: -200px;
+    transform: translateX(-50%);
+    width: 600px;
+  }
+
+  .glow-2 {
+    background: rgba(107, 191, 223, 0.04);
+    bottom: 0;
+    height: 400px;
+    right: -100px;
+    width: 400px;
+  }
+
+  .glow-3 {
+    background: rgba(75, 168, 209, 0.03);
+    bottom: 100px;
+    height: 300px;
+    left: -50px;
+    width: 300px;
+  }
+
+  .grid {
+    background-image:
+      linear-gradient(rgba(48, 54, 61, 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(48, 54, 61, 0.3) 1px, transparent 1px);
+    background-size: 64px 64px;
+    inset: 0;
+    -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 40%, black 20%, transparent 70%);
+    mask-image: radial-gradient(ellipse 60% 50% at 50% 40%, black 20%, transparent 70%);
+    position: absolute;
+  }
+
+  .particles :global(.particle) {
+    animation: float-up ease-out forwards;
+    background: var(--sky-400);
+    border-radius: 50%;
+    opacity: 0;
+    position: absolute;
+  }
+
+  @keyframes float-up {
+    0% { opacity: 0; transform: translateY(0) scale(0.5); }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-200px) scale(0); }
+  }
+
+  .fade {
+    animation: fade-up 0.6s ease var(--delay) backwards;
+    position: relative;
+  }
+
+  .headline {
+    font-size: 60px;
+    font-weight: var(--font-display);
+    letter-spacing: -2px;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    max-width: 48.75rem;
+  }
+
+  .headline span {
+    color: var(--sky-200);
+  }
+
+  .sub {
+    color: var(--color-text-secondary);
+    font-size: 18px;
+    line-height: var(--leading-relaxed);
+    margin-bottom: 40px;
+    max-width: 35rem;
+  }
+
+  .sub code {
+    color: var(--sky-200);
+    font-family: var(--font-code);
+  }
+
+  .ctas {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .install {
+    margin-bottom: 48px;
+    max-width: 100%;
+  }
+
+  .terminal {
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .hero {
+      padding-inline: 16px;
+    }
+
+    .headline {
+      font-size: 36px;
+      letter-spacing: -1px;
+    }
+
+    .sub {
+      font-size: 16px;
+    }
+  }
+</style>

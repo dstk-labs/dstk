@@ -1,0 +1,151 @@
+---
+import BrandMark from "@/components/BrandMark.astro";
+import GithubIcon from "@/components/GithubIcon.astro";
+import { links } from "@/config/site";
+
+const navLinks = [
+  { href: "#how-it-works", label: "Features" },
+  { href: "#compare", label: "Comparisons" },
+];
+---
+
+<nav aria-label="Main" class="nav" data-nav>
+  <a aria-label="dstk home" class="brand" href="/"><BrandMark /></a>
+
+  <div class="links">
+    {navLinks.map(link => <a class="link" href={link.href}>{link.label}</a>)}
+  </div>
+
+  <div class="actions">
+    <a aria-label="dstk on GitHub" class="github" href={links.repo}>
+      <GithubIcon />
+    </a>
+    <a class="cta" href={links.repo}>Get started</a>
+  </div>
+</nav>
+
+<script>
+  const SCROLLED_OFFSET = 20;
+  const nav = document.querySelector<HTMLElement>("[data-nav]");
+
+  function syncScrolledState() {
+    nav?.classList.toggle("scrolled", window.scrollY > SCROLLED_OFFSET);
+  }
+
+  window.addEventListener("scroll", syncScrolledState, { passive: true });
+  syncScrolledState();
+</script>
+
+<style>
+  .nav {
+    align-items: center;
+    border-bottom: var(--border-width) solid transparent;
+    display: grid;
+    grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+    left: 0;
+    padding: 16px 32px;
+    position: fixed;
+    right: 0;
+    top: 0;
+    /* Keeps the blurred nav on its own GPU layer so content scrolling under it cannot paint through. */
+    transform: translateZ(0);
+    transition:
+      background var(--transition-slow),
+      border-color var(--transition-slow);
+    z-index: 100;
+  }
+
+  .nav:global(.scrolled) {
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    background: rgba(14, 17, 23, 0.85);
+    border-bottom-color: var(--color-border-default);
+  }
+
+  .brand {
+    color: var(--color-text-primary);
+    justify-self: start;
+    text-decoration: none;
+  }
+
+  .links {
+    align-items: center;
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .link {
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    padding: 7px 16px;
+    text-decoration: none;
+    transition:
+      color 0.15s,
+      background 0.15s;
+  }
+
+  .link:hover {
+    background: var(--color-alpha-subtle);
+    color: var(--color-text-primary);
+  }
+
+  .actions {
+    align-items: stretch;
+    display: flex;
+    gap: 10px;
+    grid-column: 3;
+    justify-self: end;
+  }
+
+  .github,
+  .cta {
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-regular);
+    padding: 8px 20px;
+    text-decoration: none;
+  }
+
+  .github {
+    align-items: center;
+    border: var(--border-width) solid var(--color-border-default);
+    color: var(--color-text-secondary);
+    display: flex;
+    transition:
+      border-color var(--transition-normal),
+      color var(--transition-normal);
+  }
+
+  .github :global(svg) {
+    opacity: 0.7;
+  }
+
+  .github:hover {
+    border-color: var(--sky-400);
+    color: var(--sky-200);
+  }
+
+  .cta {
+    background: var(--sky-400);
+    color: var(--color-text-inverse);
+    transition:
+      background var(--transition-normal),
+      box-shadow var(--transition-normal);
+  }
+
+  .cta:hover {
+    background: var(--sky-300);
+    box-shadow: 0 0 20px var(--color-alpha-bold);
+  }
+
+  @media (max-width: 768px) {
+    .nav {
+      padding-inline: 16px;
+    }
+
+    .links {
+      display: none;
+    }
+  }
+</style>

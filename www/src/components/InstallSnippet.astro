@@ -1,0 +1,96 @@
+---
+import { installCommand, installCommandText } from "@/config/site";
+---
+
+<div class="snippet">
+  <code>
+    <span aria-hidden="true" class="prompt">$</span>
+    <span class="program">{installCommand.program}</span>
+    <span>{installCommand.args}</span>
+    <span class="target">{installCommand.target}</span>
+  </code>
+  <button
+    aria-label="Copy install command"
+    class="copy"
+    data-copy={installCommandText}
+    title="Copy"
+    type="button"
+  >
+    ⎘
+  </button>
+</div>
+
+<script>
+  const COPIED_RESET_MS = 2000;
+
+  document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(button.dataset.copy ?? "");
+      button.textContent = "✓";
+      setTimeout(() => {
+        button.textContent = "⎘";
+      }, COPIED_RESET_MS);
+    });
+  });
+</script>
+
+<style>
+  .snippet {
+    align-items: center;
+    background: var(--color-bg-secondary);
+    border: var(--border-width) solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    display: inline-flex;
+    gap: var(--space-3);
+    max-width: 100%;
+    padding: 12px 20px;
+    transition: border-color var(--transition-normal);
+  }
+
+  .snippet:hover {
+    border-color: var(--sky-400);
+  }
+
+  code {
+    color: var(--color-text-secondary);
+    display: flex;
+    font-family: var(--font-code);
+    font-size: var(--font-size-sm);
+    gap: 0.6ch;
+    overflow-x: auto;
+    padding-block: 4px;
+    white-space: nowrap;
+  }
+
+  .prompt {
+    color: var(--color-text-muted);
+  }
+
+  .program {
+    color: var(--sky-200);
+  }
+
+  .target {
+    color: var(--color-success);
+  }
+
+  .copy {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    padding: 2px;
+    transition: color var(--transition-fast);
+  }
+
+  .copy:hover {
+    color: var(--sky-200);
+  }
+
+  @media (max-width: 768px) {
+    code {
+      font-size: var(--font-size-2xs);
+    }
+  }
+</style>

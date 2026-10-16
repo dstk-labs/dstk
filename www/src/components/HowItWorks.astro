@@ -1,0 +1,141 @@
+---
+---
+
+<section class="section how" id="how-it-works">
+  <p class="section-label">How it works</p>
+  <h2 class="section-headline">Register. Deploy. Monitor.</h2>
+  <p class="section-sub">
+    Three concepts, minimal configuration, and you pick the interface: Python, CLI, or Web UI.
+  </p>
+
+  <div class="grid">
+    <article class="card">
+      <p class="step">Step 1: Register</p>
+      <h3>Immutable model registry</h3>
+      <p class="body">
+        Point dstk at your trained artifact. It gets versioned and stored immutably. No more "which
+        pickle file was that?"
+      </p>
+      <pre class="code-block"><span class="t-fn">model</span> <span class="t-op">=</span> <span class="t-fn">registry</span><span class="t-op">.</span><span class="t-fn">register</span><span class="t-op">(</span>
+  <span class="t-fn">name</span><span class="t-op">=</span><span class="t-str">"churn-predictor"</span><span class="t-op">,</span>
+  <span class="t-fn">artifact</span><span class="t-op">=</span><span class="t-str">"./model.pkl"</span>
+<span class="t-op">)</span></pre>
+    </article>
+
+    <article class="card">
+      <p class="step">Step 2: Deploy</p>
+      <h3>Painless, hardware agnostic</h3>
+      <p class="body">
+        dstk wraps your model in a container with a standard inference API. No Dockerfiles, no
+        Kubernetes YAML, no tears.
+      </p>
+      <pre class="code-block"><span class="t-fn">Deployer</span><span class="t-op">().</span><span class="t-fn">deploy</span><span class="t-op">(</span><span class="t-fn">model</span><span class="t-op">)</span>
+
+<span class="t-cm"># That's literally it</span></pre>
+    </article>
+
+    <article class="card full">
+      <p class="step">Step 3: Monitor</p>
+      <h3>Full audit trail, zero config</h3>
+      <p class="body">
+        Every deployment is tracked. See what's running, when it shipped, which version, and roll
+        back if something goes wrong.
+      </p>
+      <div class="code-block split">
+        <pre><span class="t-cm"># From Python</span>
+<span class="t-fn">registry</span><span class="t-op">.</span><span class="t-fn">deployments</span><span class="t-op">(</span><span class="t-str">"churn-predictor"</span><span class="t-op">)</span>
+
+<span class="t-out">[</span>
+<span class="t-out">  {"{"} <span class="t-fn">version</span>: <span class="t-str">"1.2.0"</span>, <span class="t-fn">status</span>: <span class="t-str">"live"</span> {"}"},</span>
+<span class="t-out">  {"{"} <span class="t-fn">version</span>: <span class="t-str">"1.1.0"</span>, <span class="t-fn">status</span>: <span class="t-str">"retired"</span> {"}"}</span>
+<span class="t-out">]</span></pre>
+        <pre><span class="t-cm"># Or from the CLI</span>
+<span class="t-fn">$</span> <span class="t-fn">pydstk</span> deployments list churn-predictor
+
+<span class="t-out">VERSION  STATUS   DEPLOYED</span>
+<span class="t-out">1.2.0    <span class="t-success">live</span>     2 hours ago</span>
+<span class="t-out">1.1.0    retired  3 days ago</span>
+<span class="t-out">1.0.0    retired  2 weeks ago</span></pre>
+      </div>
+    </article>
+  </div>
+</section>
+
+<style>
+  .how {
+    padding-bottom: 80px;
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 48px;
+  }
+
+  .card {
+    background: var(--color-bg-secondary);
+    border: var(--border-width) solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    padding: 36px;
+    transition: border-color 0.25s;
+  }
+
+  .card:hover {
+    border-color: var(--color-border-accent);
+  }
+
+  .full {
+    grid-column: 1 / -1;
+  }
+
+  .step {
+    color: var(--sky-400);
+    font-size: var(--font-size-3xs);
+    font-weight: var(--font-medium);
+    letter-spacing: var(--tracking-caps-wide);
+    margin-bottom: var(--space-3);
+    text-transform: uppercase;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: var(--font-regular);
+    margin-bottom: var(--space-2);
+  }
+
+  .body {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: var(--leading-normal);
+    max-width: 26.25rem;
+  }
+
+  .code-block {
+    margin-top: 20px;
+  }
+
+  .split {
+    display: grid;
+    gap: var(--space-8);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    white-space: normal;
+  }
+
+  .split pre {
+    font: inherit;
+    overflow-x: auto;
+  }
+
+  @media (max-width: 768px) {
+    .grid,
+    .split {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .card {
+      padding: 24px;
+    }
+  }
+</style>

@@ -1,0 +1,110 @@
+---
+import Button from "@/components/Button.astro";
+import { installCommand, links } from "@/config/site";
+---
+
+<section class="banner">
+  <div class="card">
+    <h2>Ready to stop fighting your <span>infra</span>?</h2>
+    <p>
+      dstk is free and open source, built by a data scientist who wanted model deployment to be
+      boring.
+    </p>
+    <div class="buttons">
+      <Button arrow href={links.repo}>Get started</Button>
+      <Button href={links.docs} variant="secondary">Read the docs</Button>
+    </div>
+    <p class="install">
+      $ {installCommand.program} {installCommand.args} <span>{installCommand.target}</span>
+    </p>
+  </div>
+</section>
+
+<style>
+  .banner {
+    margin-inline: auto;
+    max-width: var(--content-width);
+    padding: 80px 32px;
+  }
+
+  .card {
+    background: var(--color-bg-secondary);
+    border: var(--border-width) solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    padding: 64px 48px;
+    position: relative;
+    text-align: center;
+  }
+
+  .card::before {
+    background: rgba(75, 168, 209, 0.06);
+    border-radius: 50%;
+    content: "";
+    filter: blur(80px);
+    height: 300px;
+    left: 50%;
+    pointer-events: none;
+    position: absolute;
+    top: -120px;
+    transform: translateX(-50%);
+    width: 500px;
+  }
+
+  h2 {
+    font-size: 32px;
+    font-weight: var(--font-display);
+    letter-spacing: -0.5px;
+    margin-bottom: var(--space-3);
+    position: relative;
+  }
+
+  h2 span {
+    color: var(--sky-200);
+  }
+
+  p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    line-height: var(--leading-normal);
+    margin: 0 auto 28px;
+    max-width: 28.75rem;
+    position: relative;
+  }
+
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .install {
+    color: var(--color-text-muted);
+    font-family: var(--font-code);
+    font-size: var(--font-size-sm);
+    margin-bottom: 0;
+    max-width: none;
+    overflow-wrap: anywhere;
+  }
+
+  .install span {
+    color: var(--sky-200);
+  }
+
+  @media (max-width: 768px) {
+    .banner {
+      padding-inline: 16px;
+    }
+
+    .card {
+      padding: 40px 24px;
+    }
+
+    .install {
+      font-size: var(--font-size-2xs);
+    }
+  }
+</style>
