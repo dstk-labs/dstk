@@ -6,11 +6,13 @@ import { useTeamStore } from "@/stores/teamStore";
 
 const LIST_STORAGE_PROVIDERS_FOR_SELECT = gql(`
   query ListStorageProvidersForSelect($teamId: String!) {
-    listStorageProviders(teamId: $teamId, first: 50) {
-      edges {
-        node {
-          bucket
-          providerId
+    storageProvider {
+      list(teamId: $teamId, first: 50) {
+        edges {
+          node {
+            bucket
+            providerId
+          }
         }
       }
     }
@@ -32,7 +34,7 @@ export function StorageProviderSelect({
     variables: { teamId: selectedTeam ?? "" },
   });
 
-  const providers = data?.listStorageProviders?.edges ?? [];
+  const providers = data?.storageProvider.list?.edges ?? [];
   const hasNoStorage = !loading && providers.length === 0;
 
   return (

@@ -15,8 +15,10 @@ import { gql } from "@/graphql";
 
 const EDIT_STORAGE_PROVIDER = gql(`
   mutation EditStorageProvider($data: EditStorageProviderInput!) {
-    editStorageProvider(data: $data) {
-        bucket
+    storageProvider {
+      edit(data: $data) {
+          bucket
+      }
     }
   }
 `);
@@ -61,7 +63,7 @@ export function EditStorageProvider({
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Rotated credentials for ${data.editStorageProvider?.bucket}`,
+          message: `Rotated credentials for ${data.storageProvider.edit?.bucket}`,
           title: "Credentials updated",
         });
         form.reset();

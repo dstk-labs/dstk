@@ -22,10 +22,10 @@ export function ModelVersionArtifactsTable({
   queryRef,
 }: ModelVersionArtifactsTableProps) {
   const { data } = useReadQuery(queryRef);
-  const pageInfo = data.listObjectsForModelVersion?.pageInfo;
+  const pageInfo = data.storageProvider.listObjects?.pageInfo;
   const continuationTokens = useContinuationTokens(pageInfo?.continuationToken);
 
-  const objects = (data.listObjectsForModelVersion?.edges ?? [])
+  const objects = (data.storageProvider.listObjects?.edges ?? [])
     .map(edge => edge.node)
     .filter((object): object is NonNullable<typeof object> => Boolean(object));
 

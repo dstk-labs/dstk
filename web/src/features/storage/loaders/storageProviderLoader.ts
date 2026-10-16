@@ -4,23 +4,25 @@ import { preloadQuery } from "@/lib/apollo";
 
 export const GET_STORAGE_PROVIDER = gql(`
   query GetStorageProvider($storageProviderId: String!) {
-    getStorageProvider(storageProviderId: $storageProviderId) {
-      accessKeyId
-      bucket
-      dateCreated
-      dateModified
-      endpointUrl
-      isArchived
-      providerId
-      region
-      createdBy {
-        realName
-      }
-      modifiedBy {
-        realName
-      }
-      owner {
-        realName
+    storageProvider {
+      get(storageProviderId: $storageProviderId) {
+        accessKeyId
+        bucket
+        dateCreated
+        dateModified
+        endpointUrl
+        isArchived
+        providerId
+        region
+        createdBy {
+          realName
+        }
+        modifiedBy {
+          realName
+        }
+        owner {
+          realName
+        }
       }
     }
   }

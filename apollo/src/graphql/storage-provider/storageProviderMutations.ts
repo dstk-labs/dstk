@@ -1,5 +1,6 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
+import { mutationNamespace } from "@/graphql/misc/namespace.js";
 import { auth } from "@/utils/auth.js";
 import { Security } from "@/utils/encryption.js";
 import { RegistryOperationError } from "@/utils/errors.js";
@@ -26,8 +27,10 @@ export const EditStorageProviderInputType = builder.inputType("EditStorageProvid
   }),
 });
 
-builder.mutationFields(t => ({
-  createStorageProvider: t.field({
+const StorageProviderMutation = mutationNamespace("storageProvider", "StorageProviderMutation");
+
+builder.objectFields(StorageProviderMutation, t => ({
+  create: t.field({
     type: StorageProvider,
     authScopes: {
       loggedIn: true,
@@ -88,7 +91,7 @@ builder.mutationFields(t => ({
       return results;
     },
   }),
-  editStorageProvider: t.field({
+  edit: t.field({
     type: StorageProvider,
     authScopes: {
       loggedIn: true,
@@ -141,7 +144,7 @@ builder.mutationFields(t => ({
       return results;
     },
   }),
-  archiveStorageProvider: t.field({
+  archive: t.field({
     type: StorageProvider,
     authScopes: {
       loggedIn: true,

@@ -383,7 +383,7 @@ function createAppRouter() {
                         variables: { storageProviderId: params.providerId ?? "" },
                       });
 
-                      return result?.getStorageProvider?.bucket ?? "";
+                      return result?.storageProvider.get?.bucket ?? "";
                     },
                   },
                   lazy: async () => {

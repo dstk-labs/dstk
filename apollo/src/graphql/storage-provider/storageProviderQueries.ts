@@ -1,6 +1,7 @@
 import type { Expression, SqlBool } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
+import { queryNamespace } from "@/graphql/misc/namespace.js";
 import { StorageProviderObjectConnection } from "@/graphql/storage-provider/storageProviderObjectConnection.js";
 import { Encoder } from "@/utils/encoder.js";
 import { RegistryOperationError } from "@/utils/errors.js";
@@ -10,8 +11,10 @@ import { StorageProviderConnection } from "./storageProviderConnection.js";
 
 const encoder = new Encoder();
 
-builder.queryFields(t => ({
-  listStorageProviders: t.field({
+const StorageProviderQuery = queryNamespace("storageProvider", "StorageProviderQuery");
+
+builder.objectFields(StorageProviderQuery, t => ({
+  list: t.field({
     type: StorageProviderConnection,
     authScopes: {
       loggedIn: true,
@@ -108,7 +111,7 @@ builder.queryFields(t => ({
       };
     },
   }),
-  getStorageProvider: t.field({
+  get: t.field({
     type: StorageProvider,
     authScopes: {
       loggedIn: true,
@@ -137,7 +140,7 @@ builder.queryFields(t => ({
       return storageProvider;
     },
   }),
-  listObjectsForModelVersion: t.field({
+  listObjects: t.field({
     type: StorageProviderObjectConnection,
     authScopes: {
       loggedIn: true,

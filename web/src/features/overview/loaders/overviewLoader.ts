@@ -40,10 +40,12 @@ export const OVERVIEW_QUERY = gql(`
         }
       }
     }
-    listStorageProviders(teamId: $teamId, first: 50, includeArchived: false) {
-      edges {
-        node {
-          providerId
+    storageProvider {
+      list(teamId: $teamId, first: 50, includeArchived: false) {
+        edges {
+          node {
+            providerId
+          }
         }
       }
     }

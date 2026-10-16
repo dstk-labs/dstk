@@ -16,28 +16,30 @@ export const LIST_STORAGE_PROVIDERS_FOR_TABLE = gql(`
     $includeArchived: Boolean!
     $teamId: String!
   ) {
-    listStorageProviders(
-      after: $after
-      bucket: $bucket
-      first: $first
-      includeArchived: $includeArchived
-      teamId: $teamId
-    ) {
-      pageInfo {
-        continuationToken
-        hasNextPage
-        hasPreviousPage
-      }
-      edges {
-        node {
-          accessKeyId
-          bucket
-          dateCreated
-          dateModified
-          endpointUrl
-          isArchived
-          providerId
-          region
+    storageProvider {
+      list(
+        after: $after
+        bucket: $bucket
+        first: $first
+        includeArchived: $includeArchived
+        teamId: $teamId
+      ) {
+        pageInfo {
+          continuationToken
+          hasNextPage
+          hasPreviousPage
+        }
+        edges {
+          node {
+            accessKeyId
+            bucket
+            dateCreated
+            dateModified
+            endpointUrl
+            isArchived
+            providerId
+            region
+          }
         }
       }
     }

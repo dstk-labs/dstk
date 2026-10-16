@@ -14,22 +14,24 @@ export const LIST_OBJECTS_FOR_MODEL_VERSION = gql(`
     $first: Limit!
     $prefix: String
   ) {
-    listObjectsForModelVersion(
-      modelVersionId: $modelVersionId
-      after: $after
-      first: $first
-      prefix: $prefix
-    ) {
-      pageInfo {
-        continuationToken
-        hasNextPage
-        hasPreviousPage
-      }
-      edges {
-        node {
-          lastModified
-          name
-          size
+    storageProvider {
+      listObjects(
+        modelVersionId: $modelVersionId
+        after: $after
+        first: $first
+        prefix: $prefix
+      ) {
+        pageInfo {
+          continuationToken
+          hasNextPage
+          hasPreviousPage
+        }
+        edges {
+          node {
+            lastModified
+            name
+            size
+          }
         }
       }
     }
