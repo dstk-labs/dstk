@@ -1,5 +1,6 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
+import { mutationNamespace } from "@/graphql/misc/namespace.js";
 import { auth } from "@/utils/auth.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { MLModel } from "./model.js";
@@ -13,8 +14,10 @@ export const ModelInputType = builder.inputType("ModelInput", {
   }),
 });
 
-builder.mutationFields(t => ({
-  createModel: t.field({
+const ModelMutation = mutationNamespace("model", "ModelMutation");
+
+builder.objectFields(ModelMutation, t => ({
+  create: t.field({
     type: MLModel,
     authScopes: {
       loggedIn: true,
@@ -90,7 +93,7 @@ builder.mutationFields(t => ({
       return results;
     },
   }),
-  editModel: t.field({
+  edit: t.field({
     type: MLModel,
     authScopes: {
       loggedIn: true,
@@ -178,7 +181,7 @@ builder.mutationFields(t => ({
       return results;
     },
   }),
-  archiveModel: t.field({
+  archive: t.field({
     type: MLModel,
     authScopes: {
       loggedIn: true,

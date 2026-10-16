@@ -4,27 +4,29 @@ import { preloadQuery } from "@/lib/apollo";
 
 export const OVERVIEW_QUERY = gql(`
   query Overview($teamId: String!) {
-    listMLModels(teamId: $teamId, first: 10, includeArchived: false) {
-      edges {
-        node {
-          modelId
-          modelName
-          description
-          dateModified
-          isArchived
-          currentModelVersion {
-            numericVersion
-            isFinalized
+    model {
+      list(teamId: $teamId, first: 10, includeArchived: false) {
+        edges {
+          node {
+            modelId
+            modelName
+            description
+            dateModified
             isArchived
-          }
-          project {
-            name
-          }
-          storageProvider {
-            bucket
-          }
-          modifiedBy {
-            realName
+            currentModelVersion {
+              numericVersion
+              isFinalized
+              isArchived
+            }
+            project {
+              name
+            }
+            storageProvider {
+              bucket
+            }
+            modifiedBy {
+              realName
+            }
           }
         }
       }

@@ -15,7 +15,7 @@ import { formatRelative, truncate } from "@/utils/formatters";
 import styles from "./RecentModels.module.css";
 
 type RecentModelsProps = {
-  models: NonNullable<NonNullable<OverviewQuery["listMLModels"]>["edges"]>;
+  models: NonNullable<NonNullable<OverviewQuery["model"]["list"]>["edges"]>;
 };
 
 export function RecentModels({ models }: RecentModelsProps) {

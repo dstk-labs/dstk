@@ -1,5 +1,6 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
+import { queryNamespace } from "@/graphql/misc/namespace.js";
 import { Encoder } from "@/utils/encoder.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { MLModel } from "./model.js";
@@ -7,8 +8,10 @@ import { MLModelConnection } from "./modelConnection.js";
 
 const encoder = new Encoder();
 
-builder.queryFields(t => ({
-  listMLModels: t.field({
+const ModelQuery = queryNamespace("model", "ModelQuery");
+
+builder.objectFields(ModelQuery, t => ({
+  list: t.field({
     type: MLModelConnection,
     authScopes: {
       loggedIn: true,
@@ -118,7 +121,7 @@ builder.queryFields(t => ({
       };
     },
   }),
-  getMLModel: t.field({
+  get: t.field({
     type: MLModel,
     authScopes: {
       loggedIn: true,

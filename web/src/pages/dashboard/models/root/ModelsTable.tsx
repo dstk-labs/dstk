@@ -29,10 +29,10 @@ type ModelsTableProps = {
 export function ModelsTable({ queryRef }: ModelsTableProps) {
   const { data } = useReadQuery(queryRef);
   const navigate = useNavigate();
-  const pageInfo = data.listMLModels?.pageInfo;
+  const pageInfo = data.model.list?.pageInfo;
   const continuationTokens = useContinuationTokens(pageInfo?.continuationToken);
 
-  const models = (data.listMLModels?.edges ?? [])
+  const models = (data.model.list?.edges ?? [])
     .map(edge => edge.node)
     .filter((model): model is NonNullable<typeof model> => Boolean(model));
 

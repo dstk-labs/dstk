@@ -230,7 +230,7 @@ function createAppRouter() {
                         },
                       }) as GetMlModelQuery;
 
-                      return result?.getMLModel?.modelName ?? "";
+                      return result?.model.get?.modelName ?? "";
                     },
                   },
                   id: "model",

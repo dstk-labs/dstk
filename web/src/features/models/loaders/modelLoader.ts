@@ -4,25 +4,27 @@ import { preloadQuery } from "@/lib/apollo";
 
 export const GET_ML_MODEL = gql(`
   query GetMLModel($modelId: String!) {
-    getMLModel(modelId: $modelId) {
-      modelId
-      modelName
-      isArchived
-      description
-      dateCreated
-      createdBy {
-        realName
-      }
-      currentModelVersion {
-        numericVersion
-      }
-      project {
-        name
-        projectId
-      }
-      storageProvider {
-        bucket
-        providerId
+    model {
+      get(modelId: $modelId) {
+        modelId
+        modelName
+        isArchived
+        description
+        dateCreated
+        createdBy {
+          realName
+        }
+        currentModelVersion {
+          numericVersion
+        }
+        project {
+          name
+          projectId
+        }
+        storageProvider {
+          bucket
+          providerId
+        }
       }
     }
   }

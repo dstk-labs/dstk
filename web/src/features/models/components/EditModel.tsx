@@ -21,9 +21,11 @@ import { LIST_MODELS } from "../loaders/modelsLoader";
 
 const EDIT_MODEL = gql(`
   mutation EditModel($data: ModelInput!, $modelId: String!) {
-    editModel(data: $data, modelId: $modelId) {
-      modelName
-  }
+    model {
+      edit(data: $data, modelId: $modelId) {
+        modelName
+    }
+    }
 }
 `);
 
@@ -78,7 +80,7 @@ export function EditModel({
         editModelForm.reset();
         notifications.show({
           color: "green",
-          message: `Saved changes to ${data.editModel?.modelName}`,
+          message: `Saved changes to ${data.model.edit?.modelName}`,
           title: "Model updated",
         });
         close();

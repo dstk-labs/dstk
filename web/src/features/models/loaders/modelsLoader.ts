@@ -17,36 +17,38 @@ export const LIST_MODELS = gql(`
     $projectId: String
     $teamId: String!
   ) {
-    listMLModels(
-      after: $after
-      first: $first
-      modelName: $modelName
-      includeArchived: $includeArchived
-      projectId: $projectId
-      teamId: $teamId
-    ) {
-      pageInfo {
-        continuationToken
-        hasNextPage
-        hasPreviousPage
-      }
-      edges {
-        node {
-          currentModelVersion {
-            numericVersion
-          }
-          dateModified
-          description
-          isArchived
-          modelId
-          modelName
-          project {
-            name
-            projectId
-          }
-          storageProvider {
-            bucket
-            providerId
+    model {
+      list(
+        after: $after
+        first: $first
+        modelName: $modelName
+        includeArchived: $includeArchived
+        projectId: $projectId
+        teamId: $teamId
+      ) {
+        pageInfo {
+          continuationToken
+          hasNextPage
+          hasPreviousPage
+        }
+        edges {
+          node {
+            currentModelVersion {
+              numericVersion
+            }
+            dateModified
+            description
+            isArchived
+            modelId
+            modelName
+            project {
+              name
+              projectId
+            }
+            storageProvider {
+              bucket
+              providerId
+            }
           }
         }
       }
