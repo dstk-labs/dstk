@@ -18,10 +18,12 @@ const EDIT_MODEL_VERSION = gql(`
     $data: EditModelVersion!
     $modelVersionId: String!
   ) {
-    editModelVersion(data: $data, modelVersionId: $modelVersionId) {
-      numericVersion
-      modelId {
-        modelName
+    modelVersion {
+      edit(data: $data, modelVersionId: $modelVersionId) {
+        numericVersion
+        modelId {
+          modelName
+        }
       }
     }
   }
@@ -65,7 +67,7 @@ export function EditModelVersion({
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Saved changes to v${data.editModelVersion?.numericVersion}`,
+          message: `Saved changes to v${data.modelVersion.edit?.numericVersion}`,
           title: "Version updated",
         });
         close();

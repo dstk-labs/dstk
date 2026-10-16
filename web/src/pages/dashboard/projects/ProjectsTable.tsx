@@ -28,10 +28,10 @@ type ProjectsTableProps = {
 export function ProjectsTable({ queryRef }: ProjectsTableProps) {
   const { data } = useReadQuery(queryRef);
   const navigate = useNavigate();
-  const pageInfo = data.listProjects?.pageInfo;
+  const pageInfo = data.project.list?.pageInfo;
   const continuationTokens = useContinuationTokens(pageInfo?.continuationToken);
 
-  const projects = (data.listProjects?.edges ?? [])
+  const projects = (data.project.list?.edges ?? [])
     .map(edge => edge.node)
     .filter((project): project is NonNullable<typeof project> => Boolean(project));
 

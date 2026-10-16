@@ -1,10 +1,13 @@
 import { builder } from "@/builder.js";
 import { DeviceCode, selectClaimedDeviceCode } from "@/graphql/device/device.js";
+import { queryNamespace } from "@/graphql/misc/namespace.js";
 import { auth } from "@/utils/auth.js";
 import { AccountError } from "@/utils/errors.js";
 
-builder.queryFields(t => ({
-  deviceVerify: t.field({
+const DeviceQuery = queryNamespace("device", "DeviceQuery");
+
+builder.objectFields(DeviceQuery, t => ({
+  verify: t.field({
     type: DeviceCode,
     authScopes: {
       loggedIn: true,

@@ -38,7 +38,19 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 });
 
 export const apolloClient = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      ModelQuery: { merge: true },
+      ModelVersionQuery: { merge: true },
+      StorageProviderQuery: { merge: true },
+      ProjectQuery: { merge: true },
+      TeamQuery: { merge: true },
+      InvitationQuery: { merge: true },
+      ApiKeyQuery: { merge: true },
+      UserQuery: { merge: true },
+      DeviceQuery: { merge: true },
+    },
+  }),
   link: from([errorLink, httpLink]),
 });
 

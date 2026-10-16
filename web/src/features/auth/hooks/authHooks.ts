@@ -13,6 +13,6 @@ export function useUser() {
   const { data } = useReadQuery(queryRef);
 
   return {
-    user: data.getUser,
+    user: data.user.get,
   };
 }

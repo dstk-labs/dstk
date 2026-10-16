@@ -10,7 +10,9 @@ import { gql } from "@/graphql";
 
 const SEND_VERIFICATION_EMAIL = gql(`
   mutation SendVerificationEmail {
-    sendVerificationEmail
+    auth {
+      sendVerificationEmail
+    }
   }
 `);
 
@@ -29,7 +31,7 @@ export function VerifyPage() {
   const handleResend = () => {
     sendVerificationEmail({
       onCompleted: (data) => {
-        if (data.sendVerificationEmail) {
+        if (data.auth.sendVerificationEmail) {
           notifications.show({
             color: "green",
             message: "Verification email has been sent.",

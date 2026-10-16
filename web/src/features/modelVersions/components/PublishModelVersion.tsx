@@ -12,9 +12,11 @@ import { GET_ML_MODEL_VERSION } from "../loaders/modelVersionLoader";
 
 const PUBLISH_MODEL_VERSION = gql(`
   mutation PublishModelVersion($modelVersionId: String!) {
-    publishModelVersion(modelVersionId: $modelVersionId) {
-      numericVersion
-      isFinalized
+    modelVersion {
+      publish(modelVersionId: $modelVersionId) {
+        numericVersion
+        isFinalized
+      }
     }
   }
 `);
@@ -41,7 +43,7 @@ export function PublishModelVersion({
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `v${data.publishModelVersion?.numericVersion} is now finalized`,
+          message: `v${data.modelVersion.publish?.numericVersion} is now finalized`,
           title: "Version finalized",
         });
         close();

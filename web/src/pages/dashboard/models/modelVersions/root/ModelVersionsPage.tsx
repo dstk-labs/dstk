@@ -22,7 +22,7 @@ export function ModelVersionsPage() {
   ) as [ModelVersionsLoader, ModelLoader];
 
   const { data } = useReadQuery(modelQueryRef);
-  const model = data.getMLModel;
+  const model = data.model.get;
   const isArchived = !!model?.isArchived;
 
   return (

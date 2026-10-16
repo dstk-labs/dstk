@@ -15,9 +15,11 @@ import { useTeamStore } from "@/stores/teamStore";
 
 const CREATE_TEAM = gql(`
   mutation CreateTeam($data: TeamInput!) {
-    createTeam(data: $data) {
-      name
-      teamId
+    team {
+      create(data: $data) {
+        name
+        teamId
+      }
     }
   }
 `);
@@ -48,12 +50,12 @@ export function AddTeam() {
   const onSubmit = (values: CreateTeamSchema) =>
     createTeam({
       onCompleted: (data) => {
-        if (data.createTeam?.teamId) {
-          setSelectedTeam(data.createTeam.teamId);
+        if (data.team.create?.teamId) {
+          setSelectedTeam(data.team.create.teamId);
         }
         notifications.show({
           color: "green",
-          message: `Created ${data.createTeam?.name} and switched to it`,
+          message: `Created ${data.team.create?.name} and switched to it`,
           title: "Team created",
         });
         createTeamForm.reset();

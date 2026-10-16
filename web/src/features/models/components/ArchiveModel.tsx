@@ -10,8 +10,10 @@ import { GET_ML_MODEL } from "../loaders/modelLoader";
 
 const ARCHIVE_MODEL = gql(`
   mutation ArchiveModel($modelId: String!) {
-    archiveModel(modelId: $modelId) {
-      modelName
+    model {
+      archive(modelId: $modelId) {
+        modelName
+      }
     }
   }
 `);
@@ -38,7 +40,7 @@ export function ArchiveModel({
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Archived ${data.archiveModel?.modelName}`,
+          message: `Archived ${data.model.archive?.modelName}`,
           title: "Model archived",
         });
         close();

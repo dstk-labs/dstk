@@ -16,7 +16,7 @@ import { EditProject } from "../EditProject";
 
 function ProjectHeader({ queryRef }: { queryRef: ProjectLoader }) {
   const { data } = useReadQuery(queryRef);
-  const project = data.getProject;
+  const project = data.project.get;
   const isArchived = !!project?.isArchived;
 
   return (

@@ -13,9 +13,9 @@ import { TwoFactorPanel } from "./TwoFactorPanel";
 function SettingsContent({ queryRef }: { queryRef: SettingsLoader }) {
   const { data } = useReadQuery(queryRef);
 
-  const apiKeys = (data.listApiKeys ?? [])
+  const apiKeys = (data.apiKey.list ?? [])
     .filter((key): key is NonNullable<typeof key> => Boolean(key));
-  const invitations = (data.listInvitations?.edges ?? [])
+  const invitations = (data.invitation.list?.edges ?? [])
     .map(edge => edge.node)
     .filter((invitation): invitation is NonNullable<typeof invitation> => Boolean(invitation));
 

@@ -8,7 +8,7 @@ export async function ensureSelectedTeam() {
   const { selectedTeam, setSelectedTeam } = useTeamStore.getState();
 
   const { data } = await apolloClient.query({ query: LIST_TEAMS_FOR_DROPDOWN });
-  const teams = (data.listTeams?.edges ?? [])
+  const teams = (data.team.list?.edges ?? [])
     .map(edge => edge.node)
     .filter((team): team is NonNullable<typeof team> => Boolean(team?.teamId));
 

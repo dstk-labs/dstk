@@ -22,25 +22,33 @@ import { gql } from "@/graphql";
 
 const VERIFY_TOTP = gql(`
   mutation VerifyTotp($data: TwoFactorCodeInput!) {
-    verifyTotp(data: $data)
+    twoFactor {
+      verifyTotp(data: $data)
+    }
   }
 `);
 
 const VERIFY_TWO_FACTOR_OTP = gql(`
   mutation VerifyTwoFactorOtp($data: TwoFactorCodeInput!) {
-    verifyTwoFactorOtp(data: $data)
+    twoFactor {
+      verifyOtp(data: $data)
+    }
   }
 `);
 
 const VERIFY_BACKUP_CODE = gql(`
   mutation VerifyBackupCode($data: TwoFactorCodeInput!) {
-    verifyBackupCode(data: $data)
+    twoFactor {
+      verifyBackupCode(data: $data)
+    }
   }
 `);
 
 const SEND_TWO_FACTOR_OTP = gql(`
   mutation SendTwoFactorOtp {
-    sendTwoFactorOtp
+    twoFactor {
+      sendOtp
+    }
   }
 `);
 

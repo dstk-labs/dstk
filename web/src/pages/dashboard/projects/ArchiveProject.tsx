@@ -9,8 +9,10 @@ import { gql } from "@/graphql";
 
 const ARCHIVE_PROJECT = gql(`
   mutation ArchiveProject($projectId: String!) {
-    archiveProject(projectId: $projectId) {
-      name
+    project {
+      archive(projectId: $projectId) {
+        name
+      }
     }
   }
 `);
@@ -35,7 +37,7 @@ export function ArchiveProject({
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Archived ${data.archiveProject?.name}`,
+          message: `Archived ${data.project.archive?.name}`,
           title: "Project archived",
         });
         close();

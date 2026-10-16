@@ -10,7 +10,9 @@ import { gql } from "@/graphql";
 
 const REGENERATE_BACKUP_CODES = gql(`
   mutation RegenerateBackupCodes($data: TwoFactorPasswordInput!) {
-    regenerateBackupCodes(data: $data)
+    twoFactor {
+      regenerateBackupCodes(data: $data)
+    }
   }
 `);
 
@@ -29,7 +31,7 @@ export function RegenerateBackupCodes() {
 
   const onConfirm = () =>
     regenerateBackupCodes({
-      onCompleted: data => setCodes(data.regenerateBackupCodes ?? []),
+      onCompleted: data => setCodes(data.twoFactor.regenerateBackupCodes ?? []),
       onError: () => setPassword(""),
       variables: { data: { password } },
     });

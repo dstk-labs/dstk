@@ -7,8 +7,10 @@ import { gql } from "@/graphql";
 
 const CANCEL_INVITATION = gql(`
   mutation CancelInvitation($invitationId: String!, $teamId: String!) {
-    cancelInvitation(invitationId: $invitationId, teamId: $teamId) {
-      id
+    invitation {
+      cancel(invitationId: $invitationId, teamId: $teamId) {
+        id
+      }
     }
   }
 `);

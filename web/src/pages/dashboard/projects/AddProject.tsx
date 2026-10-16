@@ -15,8 +15,10 @@ import { useTeamStore } from "@/stores/teamStore";
 
 const CREATE_PROJECT = gql(`
   mutation CreateProject($data: ProjectInput!) {
-    createProject(data: $data) {
-      name
+    project {
+      create(data: $data) {
+        name
+      }
     }
   }
 `);
@@ -49,7 +51,7 @@ export function AddProject() {
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Created ${data.createProject?.name}`,
+          message: `Created ${data.project.create?.name}`,
           title: "Project created",
         });
         createProjectForm.reset();

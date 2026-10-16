@@ -13,7 +13,7 @@ import styles from "./StorageProviderCard.module.css";
 
 type StorageProviderNode = NonNullable<
   NonNullable<
-    NonNullable<ListStorageProvidersForTableQuery["listStorageProviders"]>["edges"]
+    NonNullable<ListStorageProvidersForTableQuery["storageProvider"]["list"]>["edges"]
   >[number]["node"]
 >;
 

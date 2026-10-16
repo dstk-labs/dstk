@@ -11,12 +11,14 @@ import styles from "./Sidebar.module.css";
 
 const LOGOUT = gql(`
   mutation Logout {
-    logout
+    auth {
+      logout
+    }
   }
 `);
 
 type UserFooterProps = {
-  user: NonNullable<GetUserQuery["getUser"]>;
+  user: NonNullable<GetUserQuery["user"]["get"]>;
 };
 
 export function UserFooter({ user }: UserFooterProps) {

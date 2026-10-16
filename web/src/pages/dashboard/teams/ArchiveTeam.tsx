@@ -9,8 +9,10 @@ import { gql } from "@/graphql";
 
 const ARCHIVE_TEAM = gql(`
   mutation ArchiveTeam($teamId: String!) {
-    archiveTeam(teamId: $teamId) {
-      name
+    team {
+      archive(teamId: $teamId) {
+        name
+      }
     }
   }
 `);
@@ -35,7 +37,7 @@ export function ArchiveTeam({
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Archived ${data.archiveTeam?.name}`,
+          message: `Archived ${data.team.archive?.name}`,
           title: "Team archived",
         });
         close();

@@ -9,8 +9,10 @@ import { gql } from "@/graphql";
 
 const ARCHIVE_STORAGE_PROVIDER = gql(`
   mutation ArchiveStorageProvider($providerId: String!) {
-    archiveStorageProvider(providerId: $providerId) {
-      bucket
+    storageProvider {
+      archive(providerId: $providerId) {
+        bucket
+      }
     }
   }
 `);
@@ -37,7 +39,7 @@ export function ArchiveStorageProvider({
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Archived ${data.archiveStorageProvider?.bucket}`,
+          message: `Archived ${data.storageProvider.archive?.bucket}`,
           title: "Storage provider archived",
         });
         close();

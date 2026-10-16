@@ -22,8 +22,10 @@ import { useTeamStore } from "@/stores/teamStore";
 
 const CREATE_STORAGE_PROVIDER = gql(`
   mutation CreateStorageProvider($data: StorageProviderInput!) {
-    createStorageProvider(data: $data) {
-        bucket
+    storageProvider {
+      create(data: $data) {
+          bucket
+      }
     }
 }`);
 
@@ -65,7 +67,7 @@ export function AddStorageProvider() {
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Connected ${data.createStorageProvider?.bucket}`,
+          message: `Connected ${data.storageProvider.create?.bucket}`,
           title: "Storage provider added",
         });
         form.reset();

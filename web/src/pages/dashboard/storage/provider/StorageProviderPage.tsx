@@ -40,7 +40,7 @@ function Detail({ label, value }: DetailProps) {
 
 function StorageProviderContent({ queryRef }: { queryRef: StorageProviderLoader }) {
   const { data } = useReadQuery(queryRef);
-  const provider = data.getStorageProvider;
+  const provider = data.storageProvider.get;
   const isArchived = !!provider?.isArchived;
 
   return (

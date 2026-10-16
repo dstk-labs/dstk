@@ -28,10 +28,10 @@ type ModelVersionsTableProps = {
 export function ModelVersionsTable({ queryRef }: ModelVersionsTableProps) {
   const { data } = useReadQuery(queryRef);
   const navigate = useNavigate();
-  const pageInfo = data.listMLModelVersions?.pageInfo;
+  const pageInfo = data.modelVersion.list?.pageInfo;
   const continuationTokens = useContinuationTokens(pageInfo?.continuationToken);
 
-  const versions = (data.listMLModelVersions?.edges ?? [])
+  const versions = (data.modelVersion.list?.edges ?? [])
     .map(edge => edge.node)
     .filter((version): version is NonNullable<typeof version> => Boolean(version));
 

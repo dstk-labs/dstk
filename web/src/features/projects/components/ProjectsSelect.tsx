@@ -6,12 +6,14 @@ import { useTeamStore } from "@/stores/teamStore";
 
 const LIST_PROJECTS_FOR_SELECT = gql(`
   query ListProjectsForSelect($teamId: String!, $includeArchived: Boolean!) {
-    listProjects(teamId: $teamId, includeArchived: $includeArchived, first: 50) {
-      edges {
-        node {
-          isArchived
-          name
-          projectId
+    project {
+      list(teamId: $teamId, includeArchived: $includeArchived, first: 50) {
+        edges {
+          node {
+            isArchived
+            name
+            projectId
+          }
         }
       }
     }
@@ -33,7 +35,7 @@ export function ProjectsSelect({ disabled, ...props }: ProjectsSelectProps) {
     },
   });
 
-  const projects = data?.listProjects?.edges ?? [];
+  const projects = data?.project.list?.edges ?? [];
   const hasNoProjects = !loading && projects.length === 0;
 
   return (

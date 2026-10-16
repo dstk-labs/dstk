@@ -16,27 +16,29 @@ export const LIST_PROJECTS_FOR_TABLE = gql(`
     $projectName: String
     $teamId: String!
   ) {
-    listProjects(
-      after: $after
-      first: $first
-      includeArchived: $includeArchived
-      projectName: $projectName
-      teamId: $teamId
-    ) {
-      pageInfo {
-        continuationToken
-        hasNextPage
-        hasPreviousPage
-      }
-      edges {
-        node {
-          dateModified
-          description
-          isArchived
-          name
-          projectId
-          createdBy {
-            realName
+    project {
+      list(
+        after: $after
+        first: $first
+        includeArchived: $includeArchived
+        projectName: $projectName
+        teamId: $teamId
+      ) {
+        pageInfo {
+          continuationToken
+          hasNextPage
+          hasPreviousPage
+        }
+        edges {
+          node {
+            dateModified
+            description
+            isArchived
+            name
+            projectId
+            createdBy {
+              realName
+            }
           }
         }
       }

@@ -4,14 +4,16 @@ import { preloadQuery } from "@/lib/apollo";
 
 export const GET_ML_MODEL_VERSION = gql(`
   query GetMLModelVersion($modelVersionId: String!) {
-    getMLModelVersion(modelVersionId: $modelVersionId) {
-      numericVersion
-      isArchived
-      isFinalized
-      description
-      dateCreated
-      createdBy {
-        realName
+    modelVersion {
+      get(modelVersionId: $modelVersionId) {
+        numericVersion
+        isArchived
+        isFinalized
+        description
+        dateCreated
+        createdBy {
+          realName
+        }
       }
     }
   }

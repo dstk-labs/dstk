@@ -23,8 +23,10 @@ import { gql } from "@/graphql";
 
 const CREATE_ACCOUNT = gql(`
     mutation CreateAccount($data: AccountInput!) {
-      createAccount(data: $data) {
-        userId
+      auth {
+        createAccount(data: $data) {
+          userId
+        }
       }
     }
 `);

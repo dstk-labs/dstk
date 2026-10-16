@@ -192,7 +192,7 @@ function createAppRouter() {
                             },
                           });
 
-                          return `v${result?.getMLModelVersion?.numericVersion}`;
+                          return `v${result?.modelVersion.get?.numericVersion}`;
                         },
                       },
                       lazy: async () => {
@@ -230,7 +230,7 @@ function createAppRouter() {
                         },
                       }) as GetMlModelQuery;
 
-                      return result?.getMLModel?.modelName ?? "";
+                      return result?.model.get?.modelName ?? "";
                     },
                   },
                   id: "model",
@@ -307,7 +307,7 @@ function createAppRouter() {
                         variables: { projectId: params.projectId ?? "" },
                       });
 
-                      return result?.getProject?.name ?? "";
+                      return result?.project.get?.name ?? "";
                     },
                   },
                   lazy: async () => {
@@ -383,7 +383,7 @@ function createAppRouter() {
                         variables: { storageProviderId: params.providerId ?? "" },
                       });
 
-                      return result?.getStorageProvider?.bucket ?? "";
+                      return result?.storageProvider.get?.bucket ?? "";
                     },
                   },
                   lazy: async () => {
@@ -436,7 +436,7 @@ function createAppRouter() {
                         variables: { teamId: params.teamId ?? "" },
                       });
 
-                      return result?.listTeams?.edges?.[0]?.node?.name ?? "";
+                      return result?.team.list?.edges?.[0]?.node?.name ?? "";
                     },
                   },
                   lazy: async () => {

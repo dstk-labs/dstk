@@ -13,7 +13,9 @@ import { gql } from "@/graphql";
 
 const VERIFY_EMAIL = gql(`
     mutation VerifyEmail($data: VerifyEmailInput!) {
-      verifyEmail(data: $data)
+      auth {
+        verifyEmail(data: $data)
+      }
     }
 `);
 

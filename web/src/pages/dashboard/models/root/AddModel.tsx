@@ -16,8 +16,10 @@ import { gql } from "@/graphql";
 
 const CREATE_MODEL = gql(`
   mutation CreateModel($data: ModelInput!) {
-    createModel(data: $data) {
-      modelName
+    model {
+      create(data: $data) {
+        modelName
+      }
     }
   }
 `);
@@ -52,7 +54,7 @@ export function AddModel() {
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Registered ${data.createModel?.modelName}`,
+          message: `Registered ${data.model.create?.modelName}`,
           title: "Model registered",
         });
         createModelForm.reset();

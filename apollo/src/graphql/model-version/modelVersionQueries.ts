@@ -1,5 +1,6 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
+import { queryNamespace } from "@/graphql/misc/namespace.js";
 import { Encoder } from "@/utils/encoder.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { MLModelVersion } from "./modelVersion.js";
@@ -7,8 +8,10 @@ import { MLModelVersionConnection } from "./modelVersionConnection.js";
 
 const encoder = new Encoder();
 
-builder.queryFields(t => ({
-  listMLModelVersions: t.field({
+const ModelVersionQuery = queryNamespace("modelVersion", "ModelVersionQuery");
+
+builder.objectFields(ModelVersionQuery, t => ({
+  list: t.field({
     type: MLModelVersionConnection,
     authScopes: {
       loggedIn: true,
@@ -96,7 +99,7 @@ builder.queryFields(t => ({
       };
     },
   }),
-  getMLModelVersion: t.field({
+  get: t.field({
     type: MLModelVersion,
     authScopes: {
       loggedIn: true,

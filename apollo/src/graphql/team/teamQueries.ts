@@ -1,7 +1,9 @@
 import type { Expression, SqlBool } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
+import { InvitationQuery } from "@/graphql/invitation/invitation.js";
 import { InvitationConnection } from "@/graphql/invitation/invitationConnection.js";
+import { queryNamespace } from "@/graphql/misc/namespace.js";
 import { Encoder } from "@/utils/encoder.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { TeamConnection } from "./teamConnection.js";
@@ -9,8 +11,10 @@ import { TeamMember } from "./teamMember.js";
 
 const encoder = new Encoder();
 
-builder.queryFields(t => ({
-  listTeams: t.field({
+const TeamQuery = queryNamespace("team", "TeamQuery");
+
+builder.objectFields(TeamQuery, t => ({
+  list: t.field({
     type: TeamConnection,
     authScopes: {
       loggedIn: true,
@@ -121,7 +125,36 @@ builder.queryFields(t => ({
       };
     },
   }),
-  listInvitations: t.field({
+  listMembers: t.field({
+    type: [TeamMember],
+    authScopes: {
+      loggedIn: true,
+    },
+    args: {
+      teamId: t.arg.string({ required: true }),
+    },
+    async resolve(_root, args, ctx) {
+      await db
+        .selectFrom("dstkUser.members")
+        .select("dstkUser.members.id")
+        .where("dstkUser.members.userId", "=", ctx.user.id)
+        .where("dstkUser.members.teamId", "=", args.teamId)
+        .executeTakeFirstOrThrow(
+          () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
+        );
+
+      return db
+        .selectFrom("dstkUser.members")
+        .selectAll()
+        .where("dstkUser.members.teamId", "=", args.teamId)
+        .orderBy("dstkUser.members.dateCreated", "asc")
+        .execute();
+    },
+  }),
+}));
+
+builder.objectFields(InvitationQuery, t => ({
+  list: t.field({
     type: InvitationConnection,
     authScopes: {
       loggedIn: true,
@@ -197,32 +230,6 @@ builder.queryFields(t => ({
           continuationToken,
         },
       };
-    },
-  }),
-  listTeamMembers: t.field({
-    type: [TeamMember],
-    authScopes: {
-      loggedIn: true,
-    },
-    args: {
-      teamId: t.arg.string({ required: true }),
-    },
-    async resolve(_root, args, ctx) {
-      await db
-        .selectFrom("dstkUser.members")
-        .select("dstkUser.members.id")
-        .where("dstkUser.members.userId", "=", ctx.user.id)
-        .where("dstkUser.members.teamId", "=", args.teamId)
-        .executeTakeFirstOrThrow(
-          () => new RegistryOperationError({ name: "TEAM_PERMISSION_ERROR" }),
-        );
-
-      return db
-        .selectFrom("dstkUser.members")
-        .selectAll()
-        .where("dstkUser.members.teamId", "=", args.teamId)
-        .orderBy("dstkUser.members.dateCreated", "asc")
-        .execute();
     },
   }),
 }));

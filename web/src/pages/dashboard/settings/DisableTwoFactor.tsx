@@ -10,7 +10,9 @@ import { gql } from "@/graphql";
 
 const DISABLE_TWO_FACTOR = gql(`
   mutation DisableTwoFactor($data: TwoFactorPasswordInput!) {
-    disableTwoFactor(data: $data)
+    twoFactor {
+      disable(data: $data)
+    }
   }
 `);
 

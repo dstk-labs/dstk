@@ -19,10 +19,10 @@ type StorageProvidersGridProps = {
 
 export function StorageProvidersGrid({ queryRef }: StorageProvidersGridProps) {
   const { data } = useReadQuery(queryRef);
-  const pageInfo = data.listStorageProviders?.pageInfo;
+  const pageInfo = data.storageProvider.list?.pageInfo;
   const continuationTokens = useContinuationTokens(pageInfo?.continuationToken);
 
-  const providers = (data.listStorageProviders?.edges ?? [])
+  const providers = (data.storageProvider.list?.edges ?? [])
     .map(edge => edge.node)
     .filter((provider): provider is NonNullable<typeof provider> => Boolean(provider));
 

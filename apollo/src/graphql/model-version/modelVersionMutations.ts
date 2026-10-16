@@ -1,5 +1,6 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
+import { mutationNamespace } from "@/graphql/misc/namespace.js";
 import { auth } from "@/utils/auth.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import {
@@ -65,8 +66,10 @@ export const PresignedURLInputType = builder.inputType("PresignedURLInput", {
   }),
 });
 
-builder.mutationFields(t => ({
-  createModelVersion: t.field({
+const ModelVersionMutation = mutationNamespace("modelVersion", "ModelVersionMutation");
+
+builder.objectFields(ModelVersionMutation, t => ({
+  create: t.field({
     authScopes: {
       loggedIn: true,
     },
@@ -146,7 +149,7 @@ builder.mutationFields(t => ({
       return results;
     },
   }),
-  editModelVersion: t.field({
+  edit: t.field({
     type: MLModelVersion,
     authScopes: {
       loggedIn: true,
@@ -216,7 +219,7 @@ builder.mutationFields(t => ({
       return results;
     },
   }),
-  publishModelVersion: t.field({
+  publish: t.field({
     type: MLModelVersion,
     authScopes: {
       loggedIn: true,
@@ -295,7 +298,7 @@ builder.mutationFields(t => ({
       return results;
     },
   }),
-  archiveModelVersion: t.field({
+  archive: t.field({
     type: MLModelVersion,
     authScopes: {
       loggedIn: true,

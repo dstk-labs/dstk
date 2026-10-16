@@ -4,18 +4,20 @@ import { preloadQuery } from "@/lib/apollo";
 
 export const GET_PROJECT = gql(`
   query GetProject($projectId: String!) {
-    getProject(projectId: $projectId) {
-      dateCreated
-      dateModified
-      description
-      isArchived
-      name
-      projectId
-      createdBy {
-        realName
-      }
-      modifiedBy {
-        realName
+    project {
+      get(projectId: $projectId) {
+        dateCreated
+        dateModified
+        description
+        isArchived
+        name
+        projectId
+        createdBy {
+          realName
+        }
+        modifiedBy {
+          realName
+        }
       }
     }
   }

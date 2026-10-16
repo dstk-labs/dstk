@@ -15,8 +15,10 @@ import { gql } from "@/graphql";
 
 const EDIT_TEAM = gql(`
   mutation EditTeam($data: EditTeamInput!) {
-    editTeam(data: $data) {
-      name
+    team {
+      edit(data: $data) {
+        name
+      }
     }
   }
 `);
@@ -59,7 +61,7 @@ export function EditTeam({
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Saved changes to ${data.editTeam?.name}`,
+          message: `Saved changes to ${data.team.edit?.name}`,
           title: "Team updated",
         });
         close();

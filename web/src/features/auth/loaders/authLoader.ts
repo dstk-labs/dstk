@@ -3,15 +3,17 @@ import { preloadQuery } from "@/lib/apollo";
 
 export const GET_USER = gql(`
     query GetUser {
-        getUser {
-            userId
-            image
-            email
-            isEmailVerified
-            isTwoFactorEnabled
-            hasPassword
-            realName
-            userName
+        user {
+          get {
+              userId
+              image
+              email
+              isEmailVerified
+              isTwoFactorEnabled
+              hasPassword
+              realName
+              userName
+          }
         }
     }
 `);

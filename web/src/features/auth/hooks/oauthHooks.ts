@@ -7,7 +7,9 @@ import { useRedirectTo } from "./redirectHooks";
 
 export const GENERATE_OAUTH_URL = gql(`
     mutation GenerateOAuthUrl($provider: OAuthProvider!, $callbackURL: String!) {
-        generateOAuthUrl(provider: $provider, callbackURL: $callbackURL)
+        auth {
+          generateOAuthUrl(provider: $provider, callbackURL: $callbackURL)
+        }
     }
 `);
 
@@ -19,7 +21,7 @@ export function useOAuthRedirect({
   provider,
 }: UseOAuthRedirectOptions) {
   const [executeMutation, { loading: mutationLoading }]
-    = useMutation<{ generateOAuthUrl: string }>(GENERATE_OAUTH_URL);
+    = useMutation(GENERATE_OAUTH_URL);
 
   const [isRedirecting, setIsRedirecting] = useState(false);
   const { destination } = useRedirectTo();
@@ -33,8 +35,13 @@ export function useOAuthRedirect({
         callbackURL: `${window.location.origin}${destination}`,
       },
       onCompleted: (data) => {
+        const url = data.auth.generateOAuthUrl;
+        if (!url) {
+          return;
+        }
+
         setIsRedirecting(true);
-        window.location.href = data.generateOAuthUrl;
+        window.location.href = url;
       },
     });
   };

@@ -11,8 +11,10 @@ import { gql } from "@/graphql";
 
 const ARCHIVE_API_KEY = gql(`
   mutation ArchiveApiKey($apiKeyId: String!) {
-    archiveApiKey(apiKeyId: $apiKeyId) {
-      apiKeyId
+    apiKey {
+      archive(apiKeyId: $apiKeyId) {
+        apiKeyId
+      }
     }
   }
 `);

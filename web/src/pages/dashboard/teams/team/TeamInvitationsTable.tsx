@@ -11,7 +11,7 @@ import { TableCard } from "@/components/tableCard/TableCard";
 import { CancelInvitation } from "./CancelInvitation";
 
 type Invitation = NonNullable<
-  NonNullable<NonNullable<GetTeamQuery["listInvitations"]>["edges"]>[number]["node"]
+  NonNullable<NonNullable<GetTeamQuery["invitation"]["list"]>["edges"]>[number]["node"]
 >;
 
 type TeamInvitationsTableProps = {
