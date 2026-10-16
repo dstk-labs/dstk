@@ -40,8 +40,8 @@ const navLinks = [
   .nav {
     align-items: center;
     border-bottom: var(--border-width) solid transparent;
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
     left: 0;
     padding: 16px 32px;
     position: fixed;
@@ -64,6 +64,7 @@ const navLinks = [
 
   .brand {
     color: var(--color-text-primary);
+    justify-self: start;
     text-decoration: none;
   }
 
@@ -93,6 +94,8 @@ const navLinks = [
     align-items: stretch;
     display: flex;
     gap: 10px;
+    grid-column: 3;
+    justify-self: end;
   }
 
   .github,
