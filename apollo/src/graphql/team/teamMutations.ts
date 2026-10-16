@@ -1,6 +1,7 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { Invitation } from "@/graphql/invitation/invitation.js";
+import { mutationNamespace } from "@/graphql/misc/namespace.js";
 import { auth } from "@/utils/auth.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { createTeam } from "@/utils/teamUtils.js";
@@ -33,8 +34,10 @@ export const EditTeamInputType = builder.inputType("EditTeamInput", {
   }),
 });
 
-builder.mutationFields(t => ({
-  createTeam: t.field({
+const TeamMutation = mutationNamespace("team", "TeamMutation");
+
+builder.objectFields(TeamMutation, t => ({
+  create: t.field({
     type: Team,
     authScopes: {
       loggedIn: true,
@@ -52,7 +55,7 @@ builder.mutationFields(t => ({
       return team;
     },
   }),
-  archiveTeam: t.field({
+  archive: t.field({
     type: Team,
     authScopes: {
       loggedIn: true,
@@ -100,7 +103,7 @@ builder.mutationFields(t => ({
       return results;
     },
   }),
-  editTeam: t.field({
+  edit: t.field({
     type: Team,
     authScopes: {
       loggedIn: true,
@@ -154,6 +157,9 @@ builder.mutationFields(t => ({
       return results;
     },
   }),
+}));
+
+builder.mutationFields(t => ({
   inviteToTeam: t.field({
     type: Invitation,
     authScopes: {

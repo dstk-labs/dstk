@@ -8,7 +8,7 @@ import { InitialsAvatar } from "@/components/initialsAvatar/InitialsAvatar";
 import { StatusBadge } from "@/components/statusBadge/StatusBadge";
 import { TableCard } from "@/components/tableCard/TableCard";
 
-type Member = NonNullable<NonNullable<GetTeamQuery["listTeamMembers"]>[number]>;
+type Member = NonNullable<NonNullable<GetTeamQuery["team"]["listMembers"]>[number]>;
 
 type TeamMembersTableProps = {
   members: Member[];

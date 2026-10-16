@@ -30,10 +30,10 @@ export function TeamsTable({ queryRef }: TeamsTableProps) {
   const { data } = useReadQuery(queryRef);
   const navigate = useNavigate();
   const { selectedTeam } = useTeamStore();
-  const pageInfo = data.listTeams?.pageInfo;
+  const pageInfo = data.team.list?.pageInfo;
   const continuationTokens = useContinuationTokens(pageInfo?.continuationToken);
 
-  const teams = (data.listTeams?.edges ?? [])
+  const teams = (data.team.list?.edges ?? [])
     .map(edge => edge.node)
     .filter((team): team is NonNullable<typeof team> => Boolean(team));
 

@@ -18,10 +18,10 @@ function TeamContent({ queryRef }: { queryRef: TeamLoader }) {
   const { data } = useReadQuery(queryRef);
   const { selectedTeam } = useTeamStore();
 
-  const team = data.listTeams?.edges?.[0]?.node;
+  const team = data.team.list?.edges?.[0]?.node;
   const isArchived = !!team?.isArchived;
 
-  const members = (data.listTeamMembers ?? [])
+  const members = (data.team.listMembers ?? [])
     .filter((member): member is NonNullable<typeof member> => Boolean(member));
   const invitations = (data.listInvitations?.edges ?? [])
     .map(edge => edge.node)

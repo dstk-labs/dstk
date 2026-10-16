@@ -436,7 +436,7 @@ function createAppRouter() {
                         variables: { teamId: params.teamId ?? "" },
                       });
 
-                      return result?.listTeams?.edges?.[0]?.node?.name ?? "";
+                      return result?.team.list?.edges?.[0]?.node?.name ?? "";
                     },
                   },
                   lazy: async () => {

@@ -18,7 +18,7 @@ export function TeamSelect() {
 
   const { selectedTeam, setSelectedTeam } = useTeamStore();
 
-  const teams = (data.listTeams?.edges ?? [])
+  const teams = (data.team.list?.edges ?? [])
     .map(edge => edge.node)
     .filter((team): team is NonNullable<typeof team> => Boolean(team?.teamId));
 

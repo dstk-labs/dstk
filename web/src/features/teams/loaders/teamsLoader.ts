@@ -10,11 +10,13 @@ import { limitSchema, useLimitStore } from "@/stores/limitStore";
 
 export const LIST_TEAMS_FOR_DROPDOWN = gql(`
   query ListTeamsForDropdown {
-    listTeams(first: 50) {
-      edges {
-        node {
-          name
-          teamId
+    team {
+      list(first: 50) {
+        edges {
+          node {
+            name
+            teamId
+          }
         }
       }
     }
@@ -36,24 +38,26 @@ export const LIST_TEAMS_FOR_TABLE = gql(`
     $includeArchived: Boolean!
     $teamName: String
   ) {
-    listTeams(
-      after: $after
-      first: $first
-      includeArchived: $includeArchived
-      teamName: $teamName
-    ) {
-      pageInfo {
-        continuationToken
-        hasNextPage
-        hasPreviousPage
-      }
-      edges {
-        node {
-          dateModified
-          description
-          isArchived
-          name
-          teamId
+    team {
+      list(
+        after: $after
+        first: $first
+        includeArchived: $includeArchived
+        teamName: $teamName
+      ) {
+        pageInfo {
+          continuationToken
+          hasNextPage
+          hasPreviousPage
+        }
+        edges {
+          node {
+            dateModified
+            description
+            isArchived
+            name
+            teamId
+          }
         }
       }
     }

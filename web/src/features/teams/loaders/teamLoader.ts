@@ -4,25 +4,27 @@ import { preloadQuery } from "@/lib/apollo";
 
 export const GET_TEAM = gql(`
   query GetTeam($teamId: String!) {
-    listTeams(teamId: $teamId, first: 10, includeArchived: true) {
-      edges {
-        node {
-          dateCreated
-          description
-          isArchived
-          name
-          teamId
+    team {
+      list(teamId: $teamId, first: 10, includeArchived: true) {
+        edges {
+          node {
+            dateCreated
+            description
+            isArchived
+            name
+            teamId
+          }
         }
       }
-    }
-    listTeamMembers(teamId: $teamId) {
-      dateCreated
-      memberId
-      role
-      user {
-        email
-        realName
-        userName
+      listMembers(teamId: $teamId) {
+        dateCreated
+        memberId
+        role
+        user {
+          email
+          realName
+          userName
+        }
       }
     }
     listInvitations(teamId: $teamId, status: "pending", first: 50) {
