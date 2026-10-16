@@ -11,7 +11,7 @@ import { maskSecret } from "@/utils/formatters";
 import { ArchiveApiKey } from "./ArchiveApiKey";
 import { CreateApiKey } from "./CreateApiKey";
 
-type ApiKey = NonNullable<NonNullable<SettingsQuery["listApiKeys"]>[number]>;
+type ApiKey = NonNullable<NonNullable<SettingsQuery["apiKey"]["list"]>[number]>;
 
 type ApiKeysTableProps = {
   apiKeys: ApiKey[];

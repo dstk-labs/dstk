@@ -3,6 +3,7 @@ import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { ApiKey } from "@/graphql/auth/auth.js";
 import { Invitation, InvitationMutation } from "@/graphql/invitation/invitation.js";
+import { mutationNamespace } from "@/graphql/misc/namespace.js";
 import { auth } from "@/utils/auth.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 
@@ -25,8 +26,10 @@ builder.objectType(CreatedApiKey, {
   }),
 });
 
-builder.mutationFields(t => ({
-  createApiKey: t.field({
+const ApiKeyMutation = mutationNamespace("apiKey", "ApiKeyMutation");
+
+builder.objectFields(ApiKeyMutation, t => ({
+  create: t.field({
     type: CreatedApiKey,
     authScopes: {
       loggedIn: true,
@@ -51,7 +54,7 @@ builder.mutationFields(t => ({
       return { apiKey, key };
     },
   }),
-  archiveApiKey: t.field({
+  archive: t.field({
     type: ApiKey,
     authScopes: {
       loggedIn: true,

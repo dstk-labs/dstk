@@ -1,6 +1,7 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { ApiKey } from "@/graphql/auth/auth.js";
+import { queryNamespace } from "@/graphql/misc/namespace.js";
 import { Encoder } from "@/utils/encoder.js";
 import { AccountError } from "@/utils/errors.js";
 import { User } from "./user.js";
@@ -8,8 +9,10 @@ import { UserConnection } from "./userConnection.js";
 
 const encoder = new Encoder();
 
-builder.queryFields(t => ({
-  listApiKeys: t.field({
+const ApiKeyQuery = queryNamespace("apiKey", "ApiKeyQuery");
+
+builder.objectFields(ApiKeyQuery, t => ({
+  list: t.field({
     type: [ApiKey],
     authScopes: {
       loggedIn: true,
@@ -29,6 +32,9 @@ builder.queryFields(t => ({
       return apiKeys;
     },
   }),
+}));
+
+builder.queryFields(t => ({
   listUsers: t.field({
     type: UserConnection,
     authScopes: {

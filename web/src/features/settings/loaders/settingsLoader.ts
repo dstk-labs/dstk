@@ -3,11 +3,13 @@ import { preloadQuery } from "@/lib/apollo";
 
 export const SETTINGS_QUERY = gql(`
   query Settings {
-    listApiKeys {
-      apiKeyId
-      name
-      start
-      dateCreated
+    apiKey {
+      list {
+        apiKeyId
+        name
+        start
+        dateCreated
+      }
     }
     invitation {
       list(status: "pending", first: 50) {

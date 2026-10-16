@@ -13,8 +13,10 @@ import { gql } from "@/graphql";
 
 const CREATE_API_KEY = gql(`
   mutation CreateApiKey($name: String) {
-    createApiKey(name: $name) {
-      key
+    apiKey {
+      create(name: $name) {
+        key
+      }
     }
   }
 `);
@@ -46,7 +48,7 @@ export function CreateApiKey() {
 
   const onSubmit = (values: CreateApiKeySchema) =>
     createApiKey({
-      onCompleted: data => setNewKey(data.createApiKey?.key ?? ""),
+      onCompleted: data => setNewKey(data.apiKey.create?.key ?? ""),
       refetchQueries: ["Settings"],
       variables: { name: values.name.trim() },
     });
