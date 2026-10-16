@@ -1,6 +1,6 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
-import { Invitation } from "@/graphql/invitation/invitation.js";
+import { Invitation, InvitationMutation } from "@/graphql/invitation/invitation.js";
 import { mutationNamespace } from "@/graphql/misc/namespace.js";
 import { auth } from "@/utils/auth.js";
 import { RegistryOperationError } from "@/utils/errors.js";
@@ -159,8 +159,8 @@ builder.objectFields(TeamMutation, t => ({
   }),
 }));
 
-builder.mutationFields(t => ({
-  inviteToTeam: t.field({
+builder.objectFields(InvitationMutation, t => ({
+  create: t.field({
     type: Invitation,
     authScopes: {
       loggedIn: true,
@@ -211,7 +211,7 @@ builder.mutationFields(t => ({
         );
     },
   }),
-  cancelInvitation: t.field({
+  cancel: t.field({
     type: Invitation,
     authScopes: {
       loggedIn: true,

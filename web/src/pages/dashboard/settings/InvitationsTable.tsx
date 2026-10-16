@@ -10,7 +10,7 @@ import { TableCard } from "@/components/tableCard/TableCard";
 import { RespondToInvitation } from "./RespondToInvitation";
 
 type Invitation = NonNullable<
-  NonNullable<NonNullable<SettingsQuery["listInvitations"]>["edges"]>[number]["node"]
+  NonNullable<NonNullable<SettingsQuery["invitation"]["list"]>["edges"]>[number]["node"]
 >;
 
 type InvitationsTableProps = {

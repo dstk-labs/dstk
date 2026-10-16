@@ -9,19 +9,21 @@ export const SETTINGS_QUERY = gql(`
       start
       dateCreated
     }
-    listInvitations(status: "pending", first: 50) {
-      edges {
-        node {
-          id
-          role
-          expiresAt
-          dateCreated
-          teamId {
-            name
-            teamId
-          }
-          inviter {
-            realName
+    invitation {
+      list(status: "pending", first: 50) {
+        edges {
+          node {
+            id
+            role
+            expiresAt
+            dateCreated
+            teamId {
+              name
+              teamId
+            }
+            inviter {
+              realName
+            }
           }
         }
       }

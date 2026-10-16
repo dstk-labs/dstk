@@ -1,6 +1,7 @@
 import type { Expression, SqlBool } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
+import { InvitationQuery } from "@/graphql/invitation/invitation.js";
 import { InvitationConnection } from "@/graphql/invitation/invitationConnection.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
 import { Encoder } from "@/utils/encoder.js";
@@ -152,8 +153,8 @@ builder.objectFields(TeamQuery, t => ({
   }),
 }));
 
-builder.queryFields(t => ({
-  listInvitations: t.field({
+builder.objectFields(InvitationQuery, t => ({
+  list: t.field({
     type: InvitationConnection,
     authScopes: {
       loggedIn: true,

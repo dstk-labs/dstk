@@ -27,16 +27,18 @@ export const GET_TEAM = gql(`
         }
       }
     }
-    listInvitations(teamId: $teamId, status: "pending", first: 50) {
-      edges {
-        node {
-          dateCreated
-          email
-          expiresAt
-          id
-          role
-          inviter {
-            realName
+    invitation {
+      list(teamId: $teamId, status: "pending", first: 50) {
+        edges {
+          node {
+            dateCreated
+            email
+            expiresAt
+            id
+            role
+            inviter {
+              realName
+            }
           }
         }
       }

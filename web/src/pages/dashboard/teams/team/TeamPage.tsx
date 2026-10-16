@@ -23,7 +23,7 @@ function TeamContent({ queryRef }: { queryRef: TeamLoader }) {
 
   const members = (data.team.listMembers ?? [])
     .filter((member): member is NonNullable<typeof member> => Boolean(member));
-  const invitations = (data.listInvitations?.edges ?? [])
+  const invitations = (data.invitation.list?.edges ?? [])
     .map(edge => edge.node)
     .filter((invitation): invitation is NonNullable<typeof invitation> => Boolean(invitation));
 

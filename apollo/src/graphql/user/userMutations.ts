@@ -2,7 +2,7 @@ import type { KyselyApiKey } from "@/graphql/auth/auth.js";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { ApiKey } from "@/graphql/auth/auth.js";
-import { Invitation } from "@/graphql/invitation/invitation.js";
+import { Invitation, InvitationMutation } from "@/graphql/invitation/invitation.js";
 import { auth } from "@/utils/auth.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 
@@ -80,7 +80,10 @@ builder.mutationFields(t => ({
         .executeTakeFirstOrThrow();
     },
   }),
-  acceptInvitation: t.field({
+}));
+
+builder.objectFields(InvitationMutation, t => ({
+  accept: t.field({
     type: Invitation,
     authScopes: {
       loggedIn: true,
@@ -105,7 +108,7 @@ builder.mutationFields(t => ({
         );
     },
   }),
-  rejectInvitation: t.field({
+  reject: t.field({
     type: Invitation,
     authScopes: {
       loggedIn: true,

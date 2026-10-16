@@ -45,6 +45,7 @@ export const apolloClient = new ApolloClient({
       StorageProviderQuery: { merge: true },
       ProjectQuery: { merge: true },
       TeamQuery: { merge: true },
+      InvitationQuery: { merge: true },
     },
   }),
   link: from([errorLink, httpLink]),

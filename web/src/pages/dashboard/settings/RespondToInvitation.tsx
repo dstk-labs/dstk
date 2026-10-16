@@ -6,16 +6,20 @@ import { gql } from "@/graphql";
 
 const ACCEPT_INVITATION = gql(`
   mutation AcceptInvitation($invitationId: String!) {
-    acceptInvitation(invitationId: $invitationId) {
-      id
+    invitation {
+      accept(invitationId: $invitationId) {
+        id
+      }
     }
   }
 `);
 
 const REJECT_INVITATION = gql(`
   mutation RejectInvitation($invitationId: String!) {
-    rejectInvitation(invitationId: $invitationId) {
-      id
+    invitation {
+      reject(invitationId: $invitationId) {
+        id
+      }
     }
   }
 `);

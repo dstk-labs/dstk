@@ -15,7 +15,7 @@ function SettingsContent({ queryRef }: { queryRef: SettingsLoader }) {
 
   const apiKeys = (data.listApiKeys ?? [])
     .filter((key): key is NonNullable<typeof key> => Boolean(key));
-  const invitations = (data.listInvitations?.edges ?? [])
+  const invitations = (data.invitation.list?.edges ?? [])
     .map(edge => edge.node)
     .filter((invitation): invitation is NonNullable<typeof invitation> => Boolean(invitation));
 

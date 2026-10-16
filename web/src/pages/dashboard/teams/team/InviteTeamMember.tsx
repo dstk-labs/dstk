@@ -15,8 +15,10 @@ import { gql } from "@/graphql";
 
 const INVITE_TO_TEAM = gql(`
   mutation InviteToTeam($data: InviteTeamMemberInput!) {
-    inviteToTeam(data: $data) {
-      email
+    invitation {
+      create(data: $data) {
+        email
+      }
     }
   }
 `);
@@ -58,7 +60,7 @@ export function InviteTeamMember({ disabled, teamId }: InviteTeamMemberProps) {
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Invited ${data.inviteToTeam?.email}`,
+          message: `Invited ${data.invitation.create?.email}`,
           title: "Invitation sent",
         });
         form.reset();
