@@ -41,6 +41,7 @@ export const apolloClient = new ApolloClient({
   cache: new InMemoryCache({
     typePolicies: {
       ModelQuery: { merge: true },
+      ModelVersionQuery: { merge: true },
     },
   }),
   link: from([errorLink, httpLink]),

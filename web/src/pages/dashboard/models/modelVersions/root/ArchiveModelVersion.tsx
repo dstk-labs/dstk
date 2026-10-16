@@ -9,10 +9,12 @@ import { gql } from "@/graphql";
 
 const ARCHIVE_MODEL_VERSION = gql(`
   mutation ArchiveModelVersion($modelVersionId: String!) {
-    archiveModelVersion(modelVersionId: $modelVersionId) {
-      numericVersion
-      modelId {
-        modelName
+    modelVersion {
+      archive(modelVersionId: $modelVersionId) {
+        numericVersion
+        modelId {
+          modelName
+        }
       }
     }
   }
@@ -38,7 +40,7 @@ export function ArchiveModelVersion({
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Archived v${data.archiveModelVersion?.numericVersion} of ${data.archiveModelVersion?.modelId?.modelName}`,
+          message: `Archived v${data.modelVersion.archive?.numericVersion} of ${data.modelVersion.archive?.modelId?.modelName}`,
           title: "Version archived",
         });
         close();

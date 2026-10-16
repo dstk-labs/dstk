@@ -192,7 +192,7 @@ function createAppRouter() {
                             },
                           });
 
-                          return `v${result?.getMLModelVersion?.numericVersion}`;
+                          return `v${result?.modelVersion.get?.numericVersion}`;
                         },
                       },
                       lazy: async () => {

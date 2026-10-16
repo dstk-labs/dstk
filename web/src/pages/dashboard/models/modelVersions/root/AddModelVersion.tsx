@@ -14,10 +14,12 @@ import { gql } from "@/graphql";
 
 const CREATE_MODEL_VERSION = gql(`
   mutation CreateModelVersion($data: ModelVersionInput!) {
-    createModelVersion(data: $data) {
-      numericVersion
-      modelId {
-        modelName
+    modelVersion {
+      create(data: $data) {
+        numericVersion
+        modelId {
+          modelName
+        }
       }
     }
   }
@@ -57,7 +59,7 @@ export function AddModelVersion({
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Created v${data.createModelVersion?.numericVersion} of ${data.createModelVersion?.modelId?.modelName}`,
+          message: `Created v${data.modelVersion.create?.numericVersion} of ${data.modelVersion.create?.modelId?.modelName}`,
           title: "Version created",
         });
         form.reset();

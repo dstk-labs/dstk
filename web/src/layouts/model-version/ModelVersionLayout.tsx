@@ -21,7 +21,7 @@ const TABS: { label: string; value: TabValue }[] = [
 export function ModelVersionLayout() {
   const queryRef = useLoaderData() as ModelVersionLoader;
   const { data } = useReadQuery(queryRef);
-  const version = data.getMLModelVersion;
+  const version = data.modelVersion.get;
 
   const navigate = useNavigate();
   const { pathname } = useLocation();

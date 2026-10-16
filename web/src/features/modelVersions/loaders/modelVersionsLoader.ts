@@ -15,33 +15,35 @@ export const LIST_MODEL_VERSIONS = gql(`
     $first: Limit!
     $includeArchived: Boolean!
   ) {
-    listMLModelVersions(
-      modelId: $modelId
-      after: $after
-      first: $first
-      includeArchived: $includeArchived
-    ) {
-      pageInfo {
-        continuationToken
-        hasNextPage
-        hasPreviousPage
-      }
-      edges {
-        node {
-          modelVersionId
-          modelId {
-            description
+    modelVersion {
+      list(
+        modelId: $modelId
+        after: $after
+        first: $first
+        includeArchived: $includeArchived
+      ) {
+        pageInfo {
+          continuationToken
+          hasNextPage
+          hasPreviousPage
+        }
+        edges {
+          node {
+            modelVersionId
+            modelId {
+              description
+              isArchived
+              modelName
+              modelId
+            }
+            numericVersion
             isArchived
-            modelName
-            modelId
-          }
-          numericVersion
-          isArchived
-          isFinalized
-          description
-          dateCreated
-          createdBy {
-            realName
+            isFinalized
+            description
+            dateCreated
+            createdBy {
+              realName
+            }
           }
         }
       }

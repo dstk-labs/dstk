@@ -9,12 +9,14 @@ import { PART_SIZE } from "../constants";
 
 const PRESIGN_URL = gql(`
   mutation PresignURL($data: PresignedURLInput!) {
-    presignURL(data: $data) {
-      ETag
-      key
-      partNumber
-      uploadId
-      url
+    modelVersion {
+      presignURL(data: $data) {
+        ETag
+        key
+        partNumber
+        uploadId
+        url
+      }
     }
   }
 `);
@@ -52,7 +54,7 @@ export function useMultipartUpload(modelVersionId: string) {
           },
         },
       });
-      return data?.presignURL;
+      return data?.modelVersion.presignURL;
     },
     [presignURL, modelVersionId],
   );
