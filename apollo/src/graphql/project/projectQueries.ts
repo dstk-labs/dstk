@@ -1,6 +1,7 @@
 import type { Expression, SqlBool } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
+import { queryNamespace } from "@/graphql/misc/namespace.js";
 import { Encoder } from "@/utils/encoder.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { Project } from "./project.js";
@@ -8,8 +9,10 @@ import { ProjectConnection } from "./projectConnection.js";
 
 const encoder = new Encoder();
 
-builder.queryFields(t => ({
-  listProjects: t.field({
+const ProjectQuery = queryNamespace("project", "ProjectQuery");
+
+builder.objectFields(ProjectQuery, t => ({
+  list: t.field({
     type: ProjectConnection,
     authScopes: {
       loggedIn: true,
@@ -106,7 +109,7 @@ builder.queryFields(t => ({
       };
     },
   }),
-  getProject: t.field({
+  get: t.field({
     type: Project,
     authScopes: {
       loggedIn: true,

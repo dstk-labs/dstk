@@ -1,5 +1,6 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
+import { mutationNamespace } from "@/graphql/misc/namespace.js";
 import { auth } from "@/utils/auth.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { Project } from "./project.js";
@@ -20,8 +21,10 @@ export const EditProjectInputType = builder.inputType("EditProjectInput", {
   }),
 });
 
-builder.mutationFields(t => ({
-  createProject: t.field({
+const ProjectMutation = mutationNamespace("project", "ProjectMutation");
+
+builder.objectFields(ProjectMutation, t => ({
+  create: t.field({
     type: Project,
     authScopes: {
       loggedIn: true,
@@ -74,7 +77,7 @@ builder.mutationFields(t => ({
       return results;
     },
   }),
-  archiveProject: t.field({
+  archive: t.field({
     type: Project,
     authScopes: {
       loggedIn: true,
@@ -122,7 +125,7 @@ builder.mutationFields(t => ({
       return results;
     },
   }),
-  editProject: t.field({
+  edit: t.field({
     type: Project,
     authScopes: {
       loggedIn: true,

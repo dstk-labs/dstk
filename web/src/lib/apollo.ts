@@ -43,6 +43,7 @@ export const apolloClient = new ApolloClient({
       ModelQuery: { merge: true },
       ModelVersionQuery: { merge: true },
       StorageProviderQuery: { merge: true },
+      ProjectQuery: { merge: true },
     },
   }),
   link: from([errorLink, httpLink]),

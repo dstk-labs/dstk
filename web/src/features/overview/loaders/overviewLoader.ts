@@ -31,12 +31,14 @@ export const OVERVIEW_QUERY = gql(`
         }
       }
     }
-    listProjects(teamId: $teamId, first: 50, includeArchived: false) {
-      edges {
-        node {
-          projectId
-          name
-          dateModified
+    project {
+      list(teamId: $teamId, first: 50, includeArchived: false) {
+        edges {
+          node {
+            projectId
+            name
+            dateModified
+          }
         }
       }
     }

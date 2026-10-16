@@ -15,8 +15,10 @@ import { gql } from "@/graphql";
 
 const EDIT_PROJECT = gql(`
   mutation EditProject($data: EditProjectInput!) {
-    editProject(data: $data) {
-        name
+    project {
+      edit(data: $data) {
+          name
+      }
     }
   }
 `);
@@ -59,7 +61,7 @@ export function EditProject({
       onCompleted: (data) => {
         notifications.show({
           color: "green",
-          message: `Saved changes to ${data.editProject?.name}`,
+          message: `Saved changes to ${data.project.edit?.name}`,
           title: "Project updated",
         });
         close();

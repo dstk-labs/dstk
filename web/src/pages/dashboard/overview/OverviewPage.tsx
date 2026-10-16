@@ -24,7 +24,7 @@ function OverviewContent({ queryRef }: { queryRef: OverviewLoader }) {
   const { data } = useReadQuery(queryRef);
 
   const models = data.model.list?.edges ?? [];
-  const projects = data.listProjects?.edges ?? [];
+  const projects = data.project.list?.edges ?? [];
   const providers = data.storageProvider.list?.edges ?? [];
   const finalized = models.filter(edge => edge.node?.currentModelVersion?.isFinalized).length;
 

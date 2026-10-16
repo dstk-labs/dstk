@@ -307,7 +307,7 @@ function createAppRouter() {
                         variables: { projectId: params.projectId ?? "" },
                       });
 
-                      return result?.getProject?.name ?? "";
+                      return result?.project.get?.name ?? "";
                     },
                   },
                   lazy: async () => {
