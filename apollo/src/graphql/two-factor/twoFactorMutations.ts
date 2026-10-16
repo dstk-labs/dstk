@@ -1,5 +1,6 @@
 import type { Context } from "@/builder.js";
 import { builder } from "@/builder.js";
+import { mutationNamespace } from "@/graphql/misc/namespace.js";
 import { auth } from "@/utils/auth.js";
 import { handleAuthCookies } from "@/utils/cookie-monster.js";
 import { AccountError } from "@/utils/errors.js";
@@ -43,8 +44,10 @@ async function verifyCode(
   return true;
 }
 
-builder.mutationFields(t => ({
-  enableTwoFactor: t.field({
+const TwoFactorMutation = mutationNamespace("twoFactor", "TwoFactorMutation");
+
+builder.objectFields(TwoFactorMutation, t => ({
+  enable: t.field({
     type: TwoFactorEnrollment,
     authScopes: {
       loggedIn: true,
@@ -75,7 +78,7 @@ builder.mutationFields(t => ({
       }
     },
   }),
-  disableTwoFactor: t.field({
+  disable: t.field({
     type: "Boolean",
     authScopes: {
       loggedIn: true,
@@ -125,7 +128,7 @@ builder.mutationFields(t => ({
       }
     },
   }),
-  sendTwoFactorOtp: t.field({
+  sendOtp: t.field({
     type: "Boolean",
     authScopes: {
       $any: {
@@ -176,7 +179,7 @@ builder.mutationFields(t => ({
       });
     },
   }),
-  verifyTwoFactorOtp: t.field({
+  verifyOtp: t.field({
     type: "Boolean",
     authScopes: {
       $any: {

@@ -23,16 +23,20 @@ import { gql } from "@/graphql";
 
 const ENABLE_TWO_FACTOR = gql(`
   mutation EnableTwoFactor($data: TwoFactorPasswordInput!) {
-    enableTwoFactor(data: $data) {
-      totpUri
-      backupCodes
+    twoFactor {
+      enable(data: $data) {
+        totpUri
+        backupCodes
+      }
     }
   }
 `);
 
 const VERIFY_TOTP = gql(`
   mutation ConfirmTotpEnrollment($data: TwoFactorCodeInput!) {
-    verifyTotp(data: $data)
+    twoFactor {
+      verifyTotp(data: $data)
+    }
   }
 `);
 
@@ -68,10 +72,10 @@ export function EnableTwoFactor() {
   const onStart = () =>
     enableTwoFactor({
       onCompleted: (data) => {
-        if (data.enableTwoFactor) {
+        if (data.twoFactor.enable) {
           setEnrollment({
-            backupCodes: data.enableTwoFactor.backupCodes?.filter(Boolean) ?? [],
-            totpUri: data.enableTwoFactor.totpUri ?? "",
+            backupCodes: data.twoFactor.enable.backupCodes?.filter(Boolean) ?? [],
+            totpUri: data.twoFactor.enable.totpUri ?? "",
           });
         }
       },
