@@ -1,4 +1,5 @@
 import type { Expression, SqlBool } from "kysely";
+import { sql } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { InvitationQuery } from "@/graphql/invitation/invitation.js";
@@ -57,6 +58,7 @@ builder.objectFields(TeamQuery, t => ({
       let query = db
         .selectFrom("dstkUser.teams")
         .selectAll()
+        .select(sql<string>`${sql.ref("dstkUser.teams.dateCreated")}::text`.as("cursorDateCreated"))
         .where((eb) => {
           const statements: Expression<SqlBool>[] = [];
 
@@ -90,9 +92,9 @@ builder.objectFields(TeamQuery, t => ({
 
         query = query.where(({ eb, and, or }) =>
           or([
-            eb("dstkUser.teams.dateCreated", ">", new Date(dateCreated)),
+            eb("dstkUser.teams.dateCreated", ">", sql<Date>`${dateCreated}`),
             and([
-              eb("dstkUser.teams.dateCreated", "=", new Date(dateCreated)),
+              eb("dstkUser.teams.dateCreated", "=", sql<Date>`${dateCreated}`),
               eb("dstkUser.teams.id", ">", id),
             ]),
           ]),
@@ -109,7 +111,7 @@ builder.objectFields(TeamQuery, t => ({
 
       const lastResult = teams[teams.length - 2];
       const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id, lastResult.dateCreated.toISOString())
+        ? encoder.encode(lastResult.id, lastResult.cursorDateCreated)
         : undefined;
 
       return {
@@ -170,7 +172,10 @@ builder.objectFields(InvitationQuery, t => ({
       after: t.arg.string(),
     },
     async resolve(_root, args, ctx) {
-      let query = db.selectFrom("dstkUser.invitations").selectAll();
+      let query = db
+        .selectFrom("dstkUser.invitations")
+        .selectAll()
+        .select(sql<string>`${sql.ref("dstkUser.invitations.dateCreated")}::text`.as("cursorDateCreated"));
 
       if (args.teamId) {
         await db
@@ -197,9 +202,9 @@ builder.objectFields(InvitationQuery, t => ({
 
         query = query.where(({ eb, and, or }) =>
           or([
-            eb("dstkUser.invitations.dateCreated", ">", new Date(dateCreated)),
+            eb("dstkUser.invitations.dateCreated", ">", sql<Date>`${dateCreated}`),
             and([
-              eb("dstkUser.invitations.dateCreated", "=", new Date(dateCreated)),
+              eb("dstkUser.invitations.dateCreated", "=", sql<Date>`${dateCreated}`),
               eb("dstkUser.invitations.id", ">", id),
             ]),
           ]),
@@ -216,7 +221,7 @@ builder.objectFields(InvitationQuery, t => ({
 
       const lastResult = invitations[invitations.length - 2];
       const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id, lastResult.dateCreated.toISOString())
+        ? encoder.encode(lastResult.id, lastResult.cursorDateCreated)
         : undefined;
 
       return {

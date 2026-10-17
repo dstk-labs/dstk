@@ -1,4 +1,5 @@
 import type { Expression, SqlBool } from "kysely";
+import { sql } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
@@ -41,6 +42,7 @@ builder.objectFields(ProjectQuery, t => ({
       let query = db
         .selectFrom("dstkUser.projects")
         .selectAll()
+        .select(sql<string>`${sql.ref("dstkUser.projects.dateCreated")}::text`.as("cursorDateCreated"))
         .where((eb) => {
           const statements: Expression<SqlBool>[] = [];
 
@@ -74,9 +76,9 @@ builder.objectFields(ProjectQuery, t => ({
 
         query = query.where(({ eb, and, or }) =>
           or([
-            eb("dstkUser.projects.dateCreated", ">", new Date(dateCreated)),
+            eb("dstkUser.projects.dateCreated", ">", sql<Date>`${dateCreated}`),
             and([
-              eb("dstkUser.projects.dateCreated", "=", new Date(dateCreated)),
+              eb("dstkUser.projects.dateCreated", "=", sql<Date>`${dateCreated}`),
               eb("dstkUser.projects.id", ">", Number.parseInt(id)),
             ]),
           ]),
@@ -93,7 +95,7 @@ builder.objectFields(ProjectQuery, t => ({
 
       const lastResult = projects[projects.length - 2];
       const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id.toString(), lastResult.dateCreated.toISOString())
+        ? encoder.encode(lastResult.id.toString(), lastResult.cursorDateCreated)
         : undefined;
 
       return {

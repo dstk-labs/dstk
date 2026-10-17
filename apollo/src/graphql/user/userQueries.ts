@@ -1,3 +1,4 @@
+import { sql } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { ApiKey } from "@/graphql/auth/auth.js";
@@ -68,6 +69,7 @@ builder.objectFields(UserQuery, t => ({
       let query = db
         .selectFrom("dstkUser.users")
         .selectAll()
+        .select(sql<string>`${sql.ref("dstkUser.users.dateCreated")}::text`.as("cursorDateCreated"))
         .where(
           "dstkUser.users.id",
           "in",
@@ -89,9 +91,9 @@ builder.objectFields(UserQuery, t => ({
 
         query = query.where(({ eb, and, or }) =>
           or([
-            eb("dstkUser.users.dateCreated", ">", new Date(dateCreated)),
+            eb("dstkUser.users.dateCreated", ">", sql<Date>`${dateCreated}`),
             and([
-              eb("dstkUser.users.dateCreated", "=", new Date(dateCreated)),
+              eb("dstkUser.users.dateCreated", "=", sql<Date>`${dateCreated}`),
               eb("dstkUser.users.id", ">", id),
             ]),
           ]),
@@ -108,7 +110,7 @@ builder.objectFields(UserQuery, t => ({
 
       const lastResult = users[users.length - 2];
       const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id, lastResult.dateCreated.toISOString())
+        ? encoder.encode(lastResult.id, lastResult.cursorDateCreated)
         : undefined;
 
       return {

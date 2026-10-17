@@ -1,4 +1,5 @@
 import type { Expression, SqlBool } from "kysely";
+import { sql } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
@@ -43,6 +44,7 @@ builder.objectFields(StorageProviderQuery, t => ({
       let query = db
         .selectFrom("registry.storageProviders")
         .selectAll()
+        .select(sql<string>`${sql.ref("registry.storageProviders.dateCreated")}::text`.as("cursorDateCreated"))
         .where((eb) => {
           const statements: Expression<SqlBool>[] = [];
 
@@ -76,9 +78,9 @@ builder.objectFields(StorageProviderQuery, t => ({
 
         query = query.where(({ eb, and, or }) =>
           or([
-            eb("registry.storageProviders.dateCreated", ">", new Date(dateCreated)),
+            eb("registry.storageProviders.dateCreated", ">", sql<Date>`${dateCreated}`),
             and([
-              eb("registry.storageProviders.dateCreated", "=", new Date(dateCreated)),
+              eb("registry.storageProviders.dateCreated", "=", sql<Date>`${dateCreated}`),
               eb("registry.storageProviders.id", ">", Number.parseInt(id)),
             ]),
           ]),
@@ -95,7 +97,7 @@ builder.objectFields(StorageProviderQuery, t => ({
 
       const lastResult = storageProviders[storageProviders.length - 2];
       const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id.toString(), lastResult.dateCreated.toISOString())
+        ? encoder.encode(lastResult.id.toString(), lastResult.cursorDateCreated)
         : undefined;
 
       return {

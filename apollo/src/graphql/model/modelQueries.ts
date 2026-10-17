@@ -1,3 +1,4 @@
+import { sql } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
@@ -54,6 +55,7 @@ builder.objectFields(ModelQuery, t => ({
       let query = db
         .selectFrom("registry.models")
         .selectAll()
+        .select(sql<string>`${sql.ref("registry.models.dateCreated")}::text`.as("cursorDateCreated"))
         .where(
           "registry.models.projectId",
           "in",
@@ -85,9 +87,9 @@ builder.objectFields(ModelQuery, t => ({
 
         query = query.where(({ eb, and, or }) =>
           or([
-            eb("registry.models.dateCreated", ">", new Date(dateCreated)),
+            eb("registry.models.dateCreated", ">", sql<Date>`${dateCreated}`),
             and([
-              eb("registry.models.dateCreated", "=", new Date(dateCreated)),
+              eb("registry.models.dateCreated", "=", sql<Date>`${dateCreated}`),
               eb("registry.models.id", ">", Number.parseInt(id)),
             ]),
           ]),
@@ -105,7 +107,7 @@ builder.objectFields(ModelQuery, t => ({
 
       const lastResult = mlModels[mlModels.length - 2];
       const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id.toString(), lastResult.dateCreated.toISOString())
+        ? encoder.encode(lastResult.id.toString(), lastResult.cursorDateCreated)
         : undefined;
 
       return {
