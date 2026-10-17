@@ -4,12 +4,10 @@ import { db } from "@/db/kysely.js";
 import { InvitationQuery } from "@/graphql/invitation/invitation.js";
 import { InvitationConnection } from "@/graphql/invitation/invitationConnection.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
-import { Encoder } from "@/utils/encoder.js";
+import { EMPTY_PAGE, paginate } from "@/graphql/misc/pagination.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { TeamConnection } from "./teamConnection.js";
 import { TeamMember } from "./teamMember.js";
-
-const encoder = new Encoder();
 
 const TeamQuery = queryNamespace("team", "TeamQuery");
 
@@ -48,13 +46,10 @@ builder.objectFields(TeamQuery, t => ({
         .execute();
 
       if (userMemberships.length === 0) {
-        return {
-          edges: [],
-          pageInfo: { hasPreviousPage: false, hasNextPage: false, continuationToken: undefined },
-        };
+        return EMPTY_PAGE;
       }
 
-      let query = db
+      const query = db
         .selectFrom("dstkUser.teams")
         .selectAll()
         .where((eb) => {
@@ -85,44 +80,7 @@ builder.objectFields(TeamQuery, t => ({
           return eb.and(statements);
         });
 
-      if (args.after) {
-        const [id, dateCreated] = encoder.decode(args.after);
-
-        query = query.where(({ eb, and, or }) =>
-          or([
-            eb("dstkUser.teams.dateCreated", ">", new Date(dateCreated)),
-            and([
-              eb("dstkUser.teams.dateCreated", "=", new Date(dateCreated)),
-              eb("dstkUser.teams.id", ">", id),
-            ]),
-          ]),
-        );
-      }
-
-      const teams = await query
-        .limit(args.first + 1)
-        .orderBy("dstkUser.teams.dateCreated", "asc")
-        .orderBy("dstkUser.teams.id", "asc")
-        .execute();
-
-      const hasNextPage = teams.length > args.first;
-
-      const lastResult = teams[teams.length - 2];
-      const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id, lastResult.dateCreated.toISOString())
-        : undefined;
-
-      return {
-        edges: teams.slice(0, args.first).map(team => ({
-          cursor: continuationToken,
-          node: team,
-        })),
-        pageInfo: {
-          hasPreviousPage: !!args.after,
-          hasNextPage,
-          continuationToken,
-        },
-      };
+      return paginate(query, ["dstkUser.teams.dateCreated", "dstkUser.teams.id"], args);
     },
   }),
   listMembers: t.field({
@@ -170,7 +128,9 @@ builder.objectFields(InvitationQuery, t => ({
       after: t.arg.string(),
     },
     async resolve(_root, args, ctx) {
-      let query = db.selectFrom("dstkUser.invitations").selectAll();
+      let query = db
+        .selectFrom("dstkUser.invitations")
+        .selectAll();
 
       if (args.teamId) {
         await db
@@ -192,44 +152,7 @@ builder.objectFields(InvitationQuery, t => ({
         query = query.where("dstkUser.invitations.status", "=", args.status);
       }
 
-      if (args.after) {
-        const [id, dateCreated] = encoder.decode(args.after);
-
-        query = query.where(({ eb, and, or }) =>
-          or([
-            eb("dstkUser.invitations.dateCreated", ">", new Date(dateCreated)),
-            and([
-              eb("dstkUser.invitations.dateCreated", "=", new Date(dateCreated)),
-              eb("dstkUser.invitations.id", ">", id),
-            ]),
-          ]),
-        );
-      }
-
-      const invitations = await query
-        .limit(args.first + 1)
-        .orderBy("dstkUser.invitations.dateCreated", "asc")
-        .orderBy("dstkUser.invitations.id", "asc")
-        .execute();
-
-      const hasNextPage = invitations.length > args.first;
-
-      const lastResult = invitations[invitations.length - 2];
-      const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id, lastResult.dateCreated.toISOString())
-        : undefined;
-
-      return {
-        edges: invitations.slice(0, args.first).map(invitation => ({
-          cursor: continuationToken,
-          node: invitation,
-        })),
-        pageInfo: {
-          hasPreviousPage: !!args.after,
-          hasNextPage,
-          continuationToken,
-        },
-      };
+      return paginate(query, ["dstkUser.invitations.dateCreated", "dstkUser.invitations.id"], args);
     },
   }),
 }));

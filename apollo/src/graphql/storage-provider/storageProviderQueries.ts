@@ -2,14 +2,12 @@ import type { Expression, SqlBool } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
+import { paginate } from "@/graphql/misc/pagination.js";
 import { StorageProviderObjectConnection } from "@/graphql/storage-provider/storageProviderObjectConnection.js";
-import { Encoder } from "@/utils/encoder.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { ListObjects } from "@/utils/s3-api.js";
 import { StorageProvider } from "./storageProvider.js";
 import { StorageProviderConnection } from "./storageProviderConnection.js";
-
-const encoder = new Encoder();
 
 const StorageProviderQuery = queryNamespace("storageProvider", "StorageProviderQuery");
 
@@ -40,7 +38,7 @@ builder.objectFields(StorageProviderQuery, t => ({
           () => new RegistryOperationError({ name: "PROVIDER_PERMISSION_ERROR" }),
         );
 
-      let query = db
+      const query = db
         .selectFrom("registry.storageProviders")
         .selectAll()
         .where((eb) => {
@@ -71,44 +69,7 @@ builder.objectFields(StorageProviderQuery, t => ({
           return eb.and(statements);
         });
 
-      if (args.after) {
-        const [id, dateCreated] = encoder.decode(args.after);
-
-        query = query.where(({ eb, and, or }) =>
-          or([
-            eb("registry.storageProviders.dateCreated", ">", new Date(dateCreated)),
-            and([
-              eb("registry.storageProviders.dateCreated", "=", new Date(dateCreated)),
-              eb("registry.storageProviders.id", ">", Number.parseInt(id)),
-            ]),
-          ]),
-        );
-      }
-
-      const storageProviders = await query
-        .limit(args.first + 1)
-        .orderBy("registry.storageProviders.dateCreated", "asc")
-        .orderBy("registry.storageProviders.id", "asc")
-        .execute();
-
-      const hasNextPage = storageProviders.length > args.first;
-
-      const lastResult = storageProviders[storageProviders.length - 2];
-      const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id.toString(), lastResult.dateCreated.toISOString())
-        : undefined;
-
-      return {
-        edges: storageProviders.slice(0, args.first).map(storageProvider => ({
-          cursor: continuationToken,
-          node: storageProvider,
-        })),
-        pageInfo: {
-          hasPreviousPage: !!args.after,
-          hasNextPage,
-          continuationToken,
-        },
-      };
+      return paginate(query, ["registry.storageProviders.dateCreated", "registry.storageProviders.id"], args);
     },
   }),
   get: t.field({

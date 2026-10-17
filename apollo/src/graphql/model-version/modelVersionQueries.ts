@@ -1,12 +1,10 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
-import { Encoder } from "@/utils/encoder.js";
+import { paginate } from "@/graphql/misc/pagination.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { MLModelVersion } from "./modelVersion.js";
 import { MLModelVersionConnection } from "./modelVersionConnection.js";
-
-const encoder = new Encoder();
 
 const ModelVersionQuery = queryNamespace("modelVersion", "ModelVersionQuery");
 
@@ -66,37 +64,7 @@ builder.objectFields(ModelVersionQuery, t => ({
         );
       }
 
-      if (args.after) {
-        const [numericVersion] = encoder.decode(args.after);
-        query = query.where(
-          "registry.modelVersions.numericVersion",
-          ">",
-          Number.parseInt(numericVersion),
-        );
-      }
-
-      const mlModelVersions = await query
-        .limit(args.first + 1)
-        .orderBy("registry.modelVersions.numericVersion", "asc")
-        .execute();
-
-      const hasPreviousPage = !!args.after;
-      const hasNextPage = mlModelVersions.length > args.first;
-
-      const lastResult = mlModelVersions[mlModelVersions.length - 2];
-      const continuationToken = hasNextPage ? encoder.encode(lastResult.numericVersion) : undefined;
-
-      return {
-        edges: mlModelVersions.slice(0, args.first).map(mlModelVersion => ({
-          cursor: continuationToken,
-          node: mlModelVersion,
-        })),
-        pageInfo: {
-          hasPreviousPage,
-          hasNextPage,
-          continuationToken,
-        },
-      };
+      return paginate(query, ["registry.modelVersions.numericVersion"], args);
     },
   }),
   get: t.field({
