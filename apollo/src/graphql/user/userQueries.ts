@@ -1,14 +1,11 @@
-import { sql } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { ApiKey } from "@/graphql/auth/auth.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
-import { Encoder } from "@/utils/encoder.js";
+import { EMPTY_PAGE, paginate } from "@/graphql/misc/pagination.js";
 import { AccountError } from "@/utils/errors.js";
 import { User } from "./user.js";
 import { UserConnection } from "./userConnection.js";
-
-const encoder = new Encoder();
 
 const ApiKeyQuery = queryNamespace("apiKey", "ApiKeyQuery");
 
@@ -60,16 +57,12 @@ builder.objectFields(UserQuery, t => ({
         .execute();
 
       if (userTeams.length === 0) {
-        return {
-          edges: [],
-          pageInfo: { hasPreviousPage: false, hasNextPage: false, continuationToken: undefined },
-        };
+        return EMPTY_PAGE;
       }
 
       let query = db
         .selectFrom("dstkUser.users")
         .selectAll()
-        .select(sql<string>`${sql.ref("dstkUser.users.dateCreated")}::text`.as("cursorDateCreated"))
         .where(
           "dstkUser.users.id",
           "in",
@@ -86,44 +79,7 @@ builder.objectFields(UserQuery, t => ({
         );
       }
 
-      if (args.after) {
-        const [id, dateCreated] = encoder.decode(args.after);
-
-        query = query.where(({ eb, and, or }) =>
-          or([
-            eb("dstkUser.users.dateCreated", ">", sql<Date>`${dateCreated}`),
-            and([
-              eb("dstkUser.users.dateCreated", "=", sql<Date>`${dateCreated}`),
-              eb("dstkUser.users.id", ">", id),
-            ]),
-          ]),
-        );
-      }
-
-      const users = await query
-        .limit(args.first + 1)
-        .orderBy("dstkUser.users.dateCreated", "asc")
-        .orderBy("dstkUser.users.id", "asc")
-        .execute();
-
-      const hasNextPage = users.length > args.first;
-
-      const lastResult = users[users.length - 2];
-      const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id, lastResult.cursorDateCreated)
-        : undefined;
-
-      return {
-        edges: users.slice(0, args.first).map(user => ({
-          cursor: continuationToken,
-          node: user,
-        })),
-        pageInfo: {
-          hasPreviousPage: !!args.after,
-          hasNextPage,
-          continuationToken,
-        },
-      };
+      return paginate(query, ["dstkUser.users.dateCreated", "dstkUser.users.id"], args);
     },
   }),
   get: t.field({

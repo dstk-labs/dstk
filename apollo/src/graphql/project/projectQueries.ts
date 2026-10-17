@@ -1,14 +1,11 @@
 import type { Expression, SqlBool } from "kysely";
-import { sql } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
-import { Encoder } from "@/utils/encoder.js";
+import { paginate } from "@/graphql/misc/pagination.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { Project } from "./project.js";
 import { ProjectConnection } from "./projectConnection.js";
-
-const encoder = new Encoder();
 
 const ProjectQuery = queryNamespace("project", "ProjectQuery");
 
@@ -39,10 +36,9 @@ builder.objectFields(ProjectQuery, t => ({
           () => new RegistryOperationError({ name: "PROJECT_PERMISSION_ERROR" }),
         );
 
-      let query = db
+      const query = db
         .selectFrom("dstkUser.projects")
         .selectAll()
-        .select(sql<string>`${sql.ref("dstkUser.projects.dateCreated")}::text`.as("cursorDateCreated"))
         .where((eb) => {
           const statements: Expression<SqlBool>[] = [];
 
@@ -71,44 +67,7 @@ builder.objectFields(ProjectQuery, t => ({
           return eb.and(statements);
         });
 
-      if (args.after) {
-        const [id, dateCreated] = encoder.decode(args.after);
-
-        query = query.where(({ eb, and, or }) =>
-          or([
-            eb("dstkUser.projects.dateCreated", ">", sql<Date>`${dateCreated}`),
-            and([
-              eb("dstkUser.projects.dateCreated", "=", sql<Date>`${dateCreated}`),
-              eb("dstkUser.projects.id", ">", Number.parseInt(id)),
-            ]),
-          ]),
-        );
-      }
-
-      const projects = await query
-        .limit(args.first + 1)
-        .orderBy("dstkUser.projects.dateCreated", "asc")
-        .orderBy("dstkUser.projects.id", "asc")
-        .execute();
-
-      const hasNextPage = projects.length > args.first;
-
-      const lastResult = projects[projects.length - 2];
-      const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id.toString(), lastResult.cursorDateCreated)
-        : undefined;
-
-      return {
-        edges: projects.slice(0, args.first).map(project => ({
-          cursor: continuationToken,
-          node: project,
-        })),
-        pageInfo: {
-          hasPreviousPage: !!args.after,
-          hasNextPage,
-          continuationToken,
-        },
-      };
+      return paginate(query, ["dstkUser.projects.dateCreated", "dstkUser.projects.id"], args);
     },
   }),
   get: t.field({

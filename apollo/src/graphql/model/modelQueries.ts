@@ -1,13 +1,10 @@
-import { sql } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
-import { Encoder } from "@/utils/encoder.js";
+import { EMPTY_PAGE, paginate } from "@/graphql/misc/pagination.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { MLModel } from "./model.js";
 import { MLModelConnection } from "./modelConnection.js";
-
-const encoder = new Encoder();
 
 const ModelQuery = queryNamespace("model", "ModelQuery");
 
@@ -46,16 +43,12 @@ builder.objectFields(ModelQuery, t => ({
         .execute();
 
       if (userProjects.length === 0) {
-        return {
-          edges: [],
-          pageInfo: { hasPreviousPage: false, hasNextPage: false, continuationToken: undefined },
-        };
+        return EMPTY_PAGE;
       }
 
       let query = db
         .selectFrom("registry.models")
         .selectAll()
-        .select(sql<string>`${sql.ref("registry.models.dateCreated")}::text`.as("cursorDateCreated"))
         .where(
           "registry.models.projectId",
           "in",
@@ -82,45 +75,7 @@ builder.objectFields(ModelQuery, t => ({
         );
       }
 
-      if (args.after) {
-        const [id, dateCreated] = encoder.decode(args.after);
-
-        query = query.where(({ eb, and, or }) =>
-          or([
-            eb("registry.models.dateCreated", ">", sql<Date>`${dateCreated}`),
-            and([
-              eb("registry.models.dateCreated", "=", sql<Date>`${dateCreated}`),
-              eb("registry.models.id", ">", Number.parseInt(id)),
-            ]),
-          ]),
-        );
-      }
-
-      const mlModels = await query
-        .limit(args.first + 1)
-        .orderBy("registry.models.dateCreated", "asc")
-        .orderBy("registry.models.id", "asc")
-        .execute();
-
-      const hasPreviousPage = !!args.after;
-      const hasNextPage = mlModels.length > args.first;
-
-      const lastResult = mlModels[mlModels.length - 2];
-      const continuationToken = hasNextPage
-        ? encoder.encode(lastResult.id.toString(), lastResult.cursorDateCreated)
-        : undefined;
-
-      return {
-        edges: mlModels.slice(0, args.first).map(mlModel => ({
-          cursor: continuationToken,
-          node: mlModel,
-        })),
-        pageInfo: {
-          hasPreviousPage,
-          hasNextPage,
-          continuationToken,
-        },
-      };
+      return paginate(query, ["registry.models.dateCreated", "registry.models.id"], args);
     },
   }),
   get: t.field({

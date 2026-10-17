@@ -17,7 +17,8 @@ type RegistryErrorName
     | "PROJECT_PERMISSION_ERROR"
     | "VERSION_PERMISSION_ERROR"
     | "MODEL_WRITE_ERROR"
-    | "MODEL_VERSION_WRITE_ERROR";
+    | "MODEL_VERSION_WRITE_ERROR"
+    | "INVALID_CURSOR_ERROR";
 
 const RegistryErrorMessages = {
   ARCHIVED_PROJECT_ERROR: "Projects cannot be modified once archived",
@@ -47,6 +48,7 @@ const RegistryErrorMessages = {
         "Either this model version doesn't exist or you don't have permission to take that action",
   MODEL_WRITE_ERROR: "Something went wrong and we were not able to save this model",
   MODEL_VERSION_WRITE_ERROR: "Something went wrong and we were not able to save this model version",
+  INVALID_CURSOR_ERROR: "The pagination cursor is invalid",
 };
 
 export class RegistryOperationError extends Error {
