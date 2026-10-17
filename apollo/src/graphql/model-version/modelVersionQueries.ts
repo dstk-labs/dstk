@@ -1,7 +1,7 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
-import { paginate } from "@/graphql/misc/pagination.js";
+import { pageArgs, paginate } from "@/graphql/misc/pagination.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { MLModelVersion } from "./modelVersion.js";
 import { MLModelVersionConnection } from "./modelVersionConnection.js";
@@ -17,13 +17,7 @@ builder.objectFields(ModelVersionQuery, t => ({
     args: {
       modelId: t.arg.string({ required: true }),
       includeArchived: t.arg.boolean({ required: true, defaultValue: false }),
-      // TODO: Putting defaultValue & required overrides defaultValue
-      first: t.arg({
-        type: "Limit",
-        defaultValue: 10,
-        required: true,
-      }),
-      after: t.arg.string(),
+      ...pageArgs,
     },
     async resolve(_root, args, ctx) {
       const parentModel = await db

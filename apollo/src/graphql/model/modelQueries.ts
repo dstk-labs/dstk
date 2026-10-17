@@ -1,7 +1,7 @@
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
-import { EMPTY_PAGE, paginate } from "@/graphql/misc/pagination.js";
+import { EMPTY_PAGE, pageArgs, paginate } from "@/graphql/misc/pagination.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { MLModel } from "./model.js";
 import { MLModelConnection } from "./modelConnection.js";
@@ -17,12 +17,7 @@ builder.objectFields(ModelQuery, t => ({
     args: {
       includeArchived: t.arg.boolean({ required: true, defaultValue: false }),
       modelName: t.arg.string(),
-      first: t.arg({
-        type: "Limit",
-        defaultValue: 10,
-        required: true,
-      }),
-      after: t.arg.string(),
+      ...pageArgs,
       teamId: t.arg.string({ required: true }),
       projectId: t.arg.string(),
     },

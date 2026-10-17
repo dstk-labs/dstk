@@ -2,7 +2,7 @@ import type { Expression, SqlBool } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
-import { paginate } from "@/graphql/misc/pagination.js";
+import { pageArgs, paginate } from "@/graphql/misc/pagination.js";
 import { StorageProviderObjectConnection } from "@/graphql/storage-provider/storageProviderObjectConnection.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { ListObjects } from "@/utils/s3-api.js";
@@ -21,12 +21,7 @@ builder.objectFields(StorageProviderQuery, t => ({
       includeArchived: t.arg.boolean({ required: true, defaultValue: false }),
       bucket: t.arg.string(),
       teamId: t.arg.string({ required: true }),
-      first: t.arg({
-        type: "Limit",
-        defaultValue: 10,
-        required: true,
-      }),
-      after: t.arg.string(),
+      ...pageArgs,
     },
     async resolve(_root, args, ctx) {
       await db
@@ -108,13 +103,7 @@ builder.objectFields(StorageProviderQuery, t => ({
     },
     args: {
       modelVersionId: t.arg.string({ required: true }),
-      // TODO: Putting defaultValue & required overrides defaultValue
-      first: t.arg({
-        type: "Limit",
-        defaultValue: 10,
-        required: true,
-      }),
-      after: t.arg.string(),
+      ...pageArgs,
       prefix: t.arg.string(),
     },
     async resolve(_root, args, ctx) {
