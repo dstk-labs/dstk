@@ -105,6 +105,10 @@ export const paths = {
       getPath: () => "/device",
       path: "/device",
     },
+    invitation: {
+      getPath: (invitationId: string) => `/invitations/${invitationId}`,
+      path: "/invitations/:invitationId",
+    },
     landing: {
       getPath: () => "/",
       path: "/",

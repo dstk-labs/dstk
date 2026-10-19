@@ -35,6 +35,13 @@ function createAppRouter() {
           path: paths.root.device.path,
         },
         {
+          lazy: async () => {
+            const { InvitationPage } = await import("./pages/invitation/InvitationPage");
+            return { Component: InvitationPage };
+          },
+          path: paths.root.invitation.path,
+        },
+        {
           children: [
             {
               lazy: async () => {
