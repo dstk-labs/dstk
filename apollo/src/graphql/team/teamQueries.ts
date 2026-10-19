@@ -4,7 +4,7 @@ import { db } from "@/db/kysely.js";
 import { InvitationQuery } from "@/graphql/invitation/invitation.js";
 import { InvitationConnection } from "@/graphql/invitation/invitationConnection.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
-import { EMPTY_PAGE, paginate } from "@/graphql/misc/pagination.js";
+import { EMPTY_PAGE, pageArgs, paginate } from "@/graphql/misc/pagination.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { TeamConnection } from "./teamConnection.js";
 import { TeamMember } from "./teamMember.js";
@@ -21,12 +21,7 @@ builder.objectFields(TeamQuery, t => ({
       includeArchived: t.arg.boolean({ required: true, defaultValue: false }),
       teamName: t.arg.string(),
       teamId: t.arg.string(),
-      first: t.arg({
-        type: "Limit",
-        defaultValue: 10,
-        required: true,
-      }),
-      after: t.arg.string(),
+      ...pageArgs,
     },
     async resolve(_root, args, ctx) {
       const userMemberships = await db
@@ -120,12 +115,7 @@ builder.objectFields(InvitationQuery, t => ({
     args: {
       teamId: t.arg.string(),
       status: t.arg.string(),
-      first: t.arg({
-        type: "Limit",
-        defaultValue: 10,
-        required: true,
-      }),
-      after: t.arg.string(),
+      ...pageArgs,
     },
     async resolve(_root, args, ctx) {
       let query = db

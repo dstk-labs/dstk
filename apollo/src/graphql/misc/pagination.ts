@@ -1,6 +1,7 @@
 import type { SelectQueryBuilder, StringReference } from "kysely";
 import type { PageInfoClass } from "./pageInfo.js";
 import { sql } from "kysely";
+import { builder } from "@/builder.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 
 type Page<Row> = {
@@ -12,6 +13,11 @@ type PageArgs = {
   first: number;
   after?: string | null;
 };
+
+export const pageArgs = builder.args(t => ({
+  first: t.field({ type: "Limit", defaultValue: 10, required: true }),
+  after: t.string(),
+}));
 
 export const EMPTY_PAGE: Page<never> = {
   edges: [],

@@ -2,7 +2,7 @@ import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { ApiKey } from "@/graphql/auth/auth.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
-import { EMPTY_PAGE, paginate } from "@/graphql/misc/pagination.js";
+import { EMPTY_PAGE, pageArgs, paginate } from "@/graphql/misc/pagination.js";
 import { AccountError } from "@/utils/errors.js";
 import { User } from "./user.js";
 import { UserConnection } from "./userConnection.js";
@@ -41,12 +41,7 @@ builder.objectFields(UserQuery, t => ({
       loggedIn: true,
     },
     args: {
-      first: t.arg({
-        type: "Limit",
-        defaultValue: 10,
-        required: true,
-      }),
-      after: t.arg.string(),
+      ...pageArgs,
       userName: t.arg.string(),
     },
     async resolve(_root, args, ctx) {

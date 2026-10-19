@@ -2,7 +2,7 @@ import type { Expression, SqlBool } from "kysely";
 import { builder } from "@/builder.js";
 import { db } from "@/db/kysely.js";
 import { queryNamespace } from "@/graphql/misc/namespace.js";
-import { paginate } from "@/graphql/misc/pagination.js";
+import { pageArgs, paginate } from "@/graphql/misc/pagination.js";
 import { RegistryOperationError } from "@/utils/errors.js";
 import { Project } from "./project.js";
 import { ProjectConnection } from "./projectConnection.js";
@@ -19,12 +19,7 @@ builder.objectFields(ProjectQuery, t => ({
       includeArchived: t.arg.boolean({ required: true, defaultValue: false }),
       projectName: t.arg.string(),
       teamId: t.arg.string({ required: true }),
-      first: t.arg({
-        type: "Limit",
-        defaultValue: 10,
-        required: true,
-      }),
-      after: t.arg.string(),
+      ...pageArgs,
     },
     async resolve(_root, args, ctx) {
       await db
