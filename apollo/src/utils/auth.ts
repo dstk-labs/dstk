@@ -5,7 +5,8 @@ import { createAccessControl } from "better-auth/plugins/access";
 import { defaultStatements, ownerAc } from "better-auth/plugins/organization/access";
 import { env } from "@/config/env.js";
 import { db } from "@/db/kysely.js";
-import { transporter } from "./smtp.js";
+import { invitationEmail, passwordResetEmail, signInCodeEmail, verificationEmail } from "./emails.js";
+import { sendEmail } from "./smtp.js";
 import { createTeam } from "./teamUtils.js";
 
 const statement = {
@@ -82,12 +83,7 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, token }) => {
       const resetLink = `${env.APP_URL}/auth/reset-password?token=${token}`;
-      await transporter.sendMail({
-        from: "no-reply@dstk.org",
-        to: user.email,
-        subject: "DSTK | Password Reset",
-        html: `Click the link to reset your password: ${resetLink}`,
-      });
+      await sendEmail(user.email, passwordResetEmail(resetLink));
     },
   },
   emailVerification: {
@@ -95,12 +91,7 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, token }) => {
       const verifyLink = `${env.APP_URL}/auth/verify-email?token=${token}`;
-      await transporter.sendMail({
-        from: "no-reply@dstk.org",
-        to: user.email,
-        subject: "DSTK | Email Verification",
-        html: `Click the link to verify your email: ${verifyLink}`,
-      });
+      await sendEmail(user.email, verificationEmail(verifyLink));
     },
   },
   appName: "dstk",
@@ -187,12 +178,7 @@ export const auth = betterAuth({
       otpOptions: {
         storeOTP: "encrypted",
         sendOTP: async ({ otp, user }) => {
-          await transporter.sendMail({
-            from: "no-reply@dstk.org",
-            to: user.email,
-            subject: "DSTK | Your sign-in code",
-            html: `Your sign-in code is ${otp}. It expires in ${TWO_FACTOR_OTP_MINUTES} minutes.`,
-          });
+          await sendEmail(user.email, signInCodeEmail(otp, TWO_FACTOR_OTP_MINUTES));
         },
         period: TWO_FACTOR_OTP_MINUTES,
       },
@@ -268,14 +254,13 @@ export const auth = betterAuth({
         },
       },
       async sendInvitationEmail(data) {
-        const inviteLink = `${env.APP_URL}/auth/accept-invitation/${data.id}`;
-        await transporter.sendMail({
-          from: "no-reply@dstk.org",
-          to: data.email,
-          // TODO: Fill this out more properly w/ team name, inviter name, etc.
-          subject: "DSTK | You've been invited to a team",
-          html: `Click the link to accept your invitation: ${inviteLink}`,
-        });
+        const inviteLink = `${env.APP_URL}/invitations/${data.id}`;
+        await sendEmail(data.email, invitationEmail({
+          inviterName: data.inviter.user.name,
+          link: inviteLink,
+          role: data.role,
+          teamName: data.organization.name,
+        }));
       },
     }),
   ],
