@@ -369,8 +369,6 @@ builder.objectFields(ModelVersionMutation, t => ({
       return results;
     },
   }),
-  // TODO: Users must setup appropriate CORS permissions for these operations to work
-  // they must also expose the ETag header
   presignURL: t.field({
     type: PresignedURL,
     authScopes: {

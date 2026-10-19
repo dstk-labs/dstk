@@ -2,6 +2,7 @@ import type { CreateStorageProviderMutationVariables } from "@/graphql/types";
 import { useMutation } from "@apollo/client";
 import {
   Button,
+  Code,
   Group,
   PasswordInput,
   Stack,
@@ -28,6 +29,17 @@ const CREATE_STORAGE_PROVIDER = gql(`
       }
     }
 }`);
+
+function corsRule(origin: string) {
+  return `[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["PUT"],
+    "AllowedOrigins": [${JSON.stringify(origin)}],
+    "ExposeHeaders": ["ETag"]
+  }
+]`;
+}
 
 const createStorageProviderSchema = z.object({
   accessKeyId: z.string().min(1, "Required"),
@@ -150,6 +162,19 @@ export function AddStorageProvider() {
             >
               Your secret key is encrypted at rest and never displayed again after saving.
             </p>
+            <Stack gap="xs">
+              <p
+                style={{
+                  color: "var(--color-text-muted)",
+                  fontSize: "var(--font-size-3xs)",
+                  margin: 0,
+                }}
+              >
+                Uploads go straight from your browser to the bucket. Add a CORS rule to the bucket
+                that allows PUT from this site and exposes the ETag header:
+              </p>
+              <Code block fz="var(--font-size-3xs)">{corsRule(window.location.origin)}</Code>
+            </Stack>
           </Stack>
           <ModalFooter loading={loading} onCancel={close} submitLabel="Add provider" />
         </form>
