@@ -8,6 +8,7 @@ import { z } from "zod/v4";
 
 import { paths } from "@/config/paths";
 import { PasswordStrength } from "@/features/auth/components/PasswordStrength";
+import { GET_USER } from "@/features/auth/loaders/authLoader";
 import { passwordRules, passwordSchema } from "@/features/auth/utils/passwordRules";
 import { gql } from "@/graphql";
 
@@ -62,6 +63,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           token,
         },
       },
+      awaitRefetchQueries: true,
       onCompleted: () => {
         notifications.show({
           color: "green",
@@ -70,6 +72,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
         });
         navigate(paths.auth.login.path);
       },
+      refetchQueries: [{ query: GET_USER }],
     });
 
   return (

@@ -257,6 +257,7 @@ builder.objectFields(AuthMutation, t => ({
     type: "Boolean",
     authScopes: {
       anonymousRequest: true,
+      loggedIn: true,
     },
     args: {
       data: t.arg({ type: ResetPasswordInputType, required: true }),
