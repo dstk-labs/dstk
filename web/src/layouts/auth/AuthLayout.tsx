@@ -15,12 +15,13 @@ export function AuthLayout() {
   const { user } = useUser();
   const { pathname } = useLocation();
   const { destination } = useRedirectTo();
+  const isPasswordReset = pathname === paths.auth.resetPassword.path;
 
-  if (user?.isEmailVerified) {
+  if (user?.isEmailVerified && !isPasswordReset) {
     return <Navigate to={destination} />;
   }
 
-  if (user && !UNVERIFIED_PATHS.includes(pathname)) {
+  if (user && !isPasswordReset && !UNVERIFIED_PATHS.includes(pathname)) {
     return <Navigate to={paths.auth.verify.path} />;
   }
 

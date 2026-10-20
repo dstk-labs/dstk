@@ -4,18 +4,10 @@ import { Menu } from "@mantine/core";
 import { EllipsisIcon, LogOutIcon } from "lucide-react";
 
 import { InitialsAvatar } from "@/components/initialsAvatar/InitialsAvatar";
+import { LOGOUT } from "@/features/auth/api/logout";
 import { GET_USER } from "@/features/auth/loaders/authLoader";
-import { gql } from "@/graphql";
 
 import styles from "./Sidebar.module.css";
-
-const LOGOUT = gql(`
-  mutation Logout {
-    auth {
-      logout
-    }
-  }
-`);
 
 type UserFooterProps = {
   user: NonNullable<GetUserQuery["user"]["get"]>;

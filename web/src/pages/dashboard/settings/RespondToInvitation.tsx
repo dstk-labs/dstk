@@ -2,27 +2,7 @@ import { useMutation } from "@apollo/client";
 import { Button } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 
-import { gql } from "@/graphql";
-
-const ACCEPT_INVITATION = gql(`
-  mutation AcceptInvitation($invitationId: String!) {
-    invitation {
-      accept(invitationId: $invitationId) {
-        id
-      }
-    }
-  }
-`);
-
-const REJECT_INVITATION = gql(`
-  mutation RejectInvitation($invitationId: String!) {
-    invitation {
-      reject(invitationId: $invitationId) {
-        id
-      }
-    }
-  }
-`);
+import { ACCEPT_INVITATION, REJECT_INVITATION } from "@/features/teams/api/respondToInvitation";
 
 const REFETCH_QUERIES = ["Settings", "ListTeamsForDropdown", "ListTeamsForTable"];
 

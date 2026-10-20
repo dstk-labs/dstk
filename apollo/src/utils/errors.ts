@@ -14,6 +14,7 @@ type RegistryErrorName
     | "ROLE_NOT_FOUND_ERROR"
     | "PROVIDER_PERMISSION_ERROR"
     | "TEAM_PERMISSION_ERROR"
+    | "INVITATION_PERMISSION_ERROR"
     | "PROJECT_PERMISSION_ERROR"
     | "VERSION_PERMISSION_ERROR"
     | "MODEL_WRITE_ERROR"
@@ -42,6 +43,8 @@ const RegistryErrorMessages = {
         "Either this storage provider doesn't exist or you don't have permission to take that action",
   TEAM_PERMISSION_ERROR:
         "Either this team doesn't exist or you don't have permission to take that action",
+  INVITATION_PERMISSION_ERROR:
+        "Either this invitation doesn't exist or it was sent to a different email address",
   PROJECT_PERMISSION_ERROR:
         "Either this project doesn't exist or you don't have permission to take that action",
   VERSION_PERMISSION_ERROR:
