@@ -1,4 +1,5 @@
 import type { Response } from "express";
+import type { Json, JsonObject } from "./db/db.js";
 import type { Limit } from "./types/limit.js";
 import type { auth } from "./utils/auth.js";
 import SchemaBuilder from "@pothos/core";
@@ -22,6 +23,10 @@ export const builder = new SchemaBuilder<{
   Context: Context;
   DefaultFieldNullability: true;
   Scalars: {
+    JSONObject: {
+      Input: JsonObject;
+      Output: Json;
+    };
     Limit: {
       Input: number;
       Output: Limit;

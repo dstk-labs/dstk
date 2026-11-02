@@ -117,10 +117,11 @@ export class AccountError extends Error {
   }
 }
 
-type InputErrorName = "INVALID_LIMIT_ERROR";
+type InputErrorName = "INVALID_LIMIT_ERROR" | "INVALID_JSON_OBJECT_ERROR";
 
 const InputErrorMessages = {
   INVALID_LIMIT_ERROR: "Limit argument must be 10, 25, or 50",
+  INVALID_JSON_OBJECT_ERROR: "Expected a JSON object",
 };
 
 export class InputError extends Error {

@@ -16,5 +16,6 @@ const dialect = new PostgresDialect({ pool });
 
 export const db = new Kysely<DB>({
   dialect,
-  plugins: [new CamelCasePlugin()],
+  // Keys inside JSON columns, like model version metadata, are user data and stay as stored
+  plugins: [new CamelCasePlugin({ maintainNestedObjectKeys: true })],
 });
