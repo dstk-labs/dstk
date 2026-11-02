@@ -3,6 +3,7 @@ import {
   AbortMultipartUploadCommand,
   CompleteMultipartUploadCommand,
   CreateMultipartUploadCommand,
+  GetObjectCommand,
   ListObjectsV2Command,
   S3Client,
   UploadPartCommand,
@@ -68,6 +69,19 @@ export async function CreatePresignedURLForPart(
     Key: key,
     UploadId: uploadId,
     PartNumber: partNumber,
+  });
+  return await getSignedUrl(client, command, { expiresIn: 3600 });
+}
+
+export async function CreatePresignedURLForDownload(
+  storageProvider: KyselyStorageProvider,
+  key: string,
+) {
+  const client = createS3Client(storageProvider);
+
+  const command = new GetObjectCommand({
+    Bucket: storageProvider.bucket,
+    Key: key,
   });
   return await getSignedUrl(client, command, { expiresIn: 3600 });
 }
