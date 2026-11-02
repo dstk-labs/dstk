@@ -9,6 +9,7 @@ import { StatCard } from "@/components/statCard/StatCard";
 import { useUser } from "@/features/auth/hooks/authHooks";
 
 import { QuickActions } from "./QuickActions";
+import { RecentActivity } from "./RecentActivity";
 import { RecentModels } from "./RecentModels";
 
 function greeting() {
@@ -26,6 +27,7 @@ function OverviewContent({ queryRef }: { queryRef: OverviewLoader }) {
   const models = data.model.list?.edges ?? [];
   const projects = data.project.list?.edges ?? [];
   const providers = data.storageProvider.list?.edges ?? [];
+  const logs = data.auditLog.list?.edges ?? [];
   const finalized = models.filter(edge => edge.node?.currentModelVersion?.isFinalized).length;
 
   return (
@@ -39,7 +41,10 @@ function OverviewContent({ queryRef }: { queryRef: OverviewLoader }) {
       <div style={{ marginBottom: "var(--space-6)" }}>
         <QuickActions />
       </div>
-      <RecentModels models={models} />
+      <div style={{ marginBottom: "var(--space-6)" }}>
+        <RecentModels models={models} />
+      </div>
+      <RecentActivity logs={logs} />
     </>
   );
 }

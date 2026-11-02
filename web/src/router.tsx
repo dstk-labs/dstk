@@ -280,6 +280,25 @@ function createAppRouter() {
             },
             {
               handle: {
+                crumb: () => "Logs",
+              },
+              lazy: async () => {
+                const { LogsPage } = await import(
+                  "./pages/dashboard/logs/LogsPage",
+                );
+                return { Component: LogsPage };
+              },
+              loader: async (params) => {
+                const { auditLogsLoader } = await import(
+                  "./features/auditLogs/loaders/auditLogsLoader",
+                );
+
+                return auditLogsLoader(params);
+              },
+              path: paths.dashboard.logs.path,
+            },
+            {
+              handle: {
                 crumb: () => "Overview",
               },
               lazy: async () => {

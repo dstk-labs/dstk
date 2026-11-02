@@ -4,6 +4,7 @@ import {
   CloudIcon,
   FolderIcon,
   LayoutDashboardIcon,
+  ScrollTextIcon,
   SettingsIcon,
   UsersRoundIcon,
 } from "lucide-react";
@@ -37,6 +38,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     items: [
       { icon: UsersRoundIcon, label: "Teams", to: paths.dashboard.teams.path },
+      { icon: ScrollTextIcon, label: "Logs", to: paths.dashboard.logs.path },
     ],
     label: "Team",
   },

@@ -4,6 +4,23 @@ import { preloadQuery } from "@/lib/apollo";
 
 export const OVERVIEW_QUERY = gql(`
   query Overview($teamId: String!) {
+    auditLog {
+      list(teamId: $teamId, first: 10) {
+        edges {
+          node {
+            auditLogId
+            action
+            resourceType
+            resourceName
+            details
+            dateCreated
+            actor {
+              realName
+            }
+          }
+        }
+      }
+    }
     model {
       list(teamId: $teamId, first: 10, includeArchived: false) {
         edges {
