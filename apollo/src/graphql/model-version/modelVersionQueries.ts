@@ -60,7 +60,7 @@ builder.objectFields(ModelVersionQuery, t => ({
         );
       }
 
-      return paginate(query, ["registry.modelVersions.numericVersion"], args);
+      return paginate(query, ["registry.modelVersions.numericVersion"], args, "desc");
     },
   }),
   get: t.field({
