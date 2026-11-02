@@ -3,20 +3,35 @@ import { useReadQuery } from "@apollo/client";
 import { Menu, UnstyledButton } from "@mantine/core";
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
 import { useEffect } from "react";
-import { useRouteLoaderData } from "react-router";
+import { useLocation, useNavigate, useRouteLoaderData } from "react-router";
 
 import { InitialsAvatar } from "@/components/initialsAvatar/InitialsAvatar";
+import { paths } from "@/config/paths";
 import { useTeamStore } from "@/stores/teamStore";
 
 import styles from "./Sidebar.module.css";
 
 const PERSONAL_TEAM_NAME = "Personal Team";
 
+const TEAM_SECTIONS = [
+  paths.dashboard.models,
+  paths.dashboard.projects,
+  paths.dashboard.storage,
+  paths.dashboard.teams,
+];
+
+function teamSwitchPath(pathname: string) {
+  const section = TEAM_SECTIONS.find(section => pathname.startsWith(section.path));
+  return section?.getPath() ?? pathname;
+}
+
 export function TeamSelect() {
   const queryRef = useRouteLoaderData("dashboard") as TeamsDropdownLoader;
   const { data } = useReadQuery(queryRef);
 
   const { selectedTeam, setSelectedTeam } = useTeamStore();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const teams = (data.team.list?.edges ?? [])
     .map(edge => edge.node)
@@ -31,6 +46,11 @@ export function TeamSelect() {
       = teams.find(team => team.name === PERSONAL_TEAM_NAME) ?? teams[0];
     setSelectedTeam(fallback.teamId!);
   }, [teams, selectedTeam, setSelectedTeam]);
+
+  const switchTeam = (teamId: string) => {
+    setSelectedTeam(teamId);
+    navigate(teamSwitchPath(location.pathname));
+  };
 
   const activeTeam = teams.find(team => team.teamId === selectedTeam);
   const activeName = activeTeam?.name ?? "Select a team";
@@ -62,7 +82,7 @@ export function TeamSelect() {
           <Menu.Item
             key={team.teamId}
             leftSection={<InitialsAvatar name={team.name ?? ""} radius="sm" size={20} />}
-            onClick={() => setSelectedTeam(team.teamId!)}
+            onClick={() => switchTeam(team.teamId!)}
             rightSection={
               team.teamId === selectedTeam
                 ? <CheckIcon size={12} style={{ color: "var(--sky-300)" }} />
