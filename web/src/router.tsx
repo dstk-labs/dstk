@@ -172,6 +172,16 @@ function createAppRouter() {
                             );
                             return { Component: ModelVersionCardPage };
                           },
+                          loader: async (params) => {
+                            const { modelVersionLoader } = await import(
+                              "./features/modelVersions/loaders/modelVersionLoader",
+                            );
+
+                            const queryRef = await modelVersionLoader({
+                              modelVersionId: params.params.modelVersionId!,
+                            });
+                            return queryRef;
+                          },
                           path: paths.dashboard.modelVersionCard.path,
                         },
                         {
