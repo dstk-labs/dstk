@@ -88,6 +88,18 @@ builder.objectFields(ModelMutation, t => ({
             () => new RegistryOperationError({ name: "MODEL_WRITE_ERROR" }),
           );
 
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: project.teamId,
+            actorId: ctx.user.id,
+            action: "created",
+            resourceType: "model",
+            resourceId: mlModel.modelId,
+            resourceName: mlModel.modelName,
+          })
+          .execute();
+
         return mlModel;
       });
       return results;
@@ -175,6 +187,18 @@ builder.objectFields(ModelMutation, t => ({
             () => new RegistryOperationError({ name: "MODEL_WRITE_ERROR" }),
           );
 
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: project.teamId,
+            actorId: ctx.user.id,
+            action: "edited",
+            resourceType: "model",
+            resourceId: result.modelId,
+            resourceName: result.modelName,
+          })
+          .execute();
+
         return result;
       });
 
@@ -236,6 +260,18 @@ builder.objectFields(ModelMutation, t => ({
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_WRITE_ERROR" }),
           );
+
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: project.teamId,
+            actorId: ctx.user.id,
+            action: result.isArchived ? "archived" : "unarchived",
+            resourceType: "model",
+            resourceId: result.modelId,
+            resourceName: result.modelName,
+          })
+          .execute();
 
         return result;
       });
