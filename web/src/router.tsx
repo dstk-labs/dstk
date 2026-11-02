@@ -184,15 +184,6 @@ function createAppRouter() {
                           },
                           path: paths.dashboard.modelVersionCard.path,
                         },
-                        {
-                          lazy: async () => {
-                            const { ModelVersionLogsPage } = await import(
-                              "./pages/dashboard/models/modelVersions/modelVersion/logs/ModelVersionLogsPage",
-                            );
-                            return { Component: ModelVersionLogsPage };
-                          },
-                          path: paths.dashboard.modelVersionLogs.path,
-                        },
                       ],
                       handle: {
                         crumb: () => {

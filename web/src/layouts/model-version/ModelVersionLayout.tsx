@@ -10,12 +10,11 @@ import { paths } from "@/config/paths";
 import { PublishModelVersion } from "@/features/modelVersions/components/PublishModelVersion";
 import { formatDate } from "@/utils/formatters";
 
-type TabValue = "artifacts" | "card" | "logs";
+type TabValue = "artifacts" | "card";
 
 const TABS: { label: string; value: TabValue }[] = [
   { label: "Model Card", value: "card" },
   { label: "Artifacts", value: "artifacts" },
-  { label: "Logs", value: "logs" },
 ];
 
 export function ModelVersionLayout() {
@@ -30,7 +29,6 @@ export function ModelVersionLayout() {
   const tabPaths: Record<TabValue, string> = {
     artifacts: paths.dashboard.modelVersionArtifacts.getPath(modelId, modelVersionId),
     card: paths.dashboard.modelVersionCard.getPath(modelId, modelVersionId),
-    logs: paths.dashboard.modelVersionLogs.getPath(modelId, modelVersionId),
   };
 
   const activeTab
