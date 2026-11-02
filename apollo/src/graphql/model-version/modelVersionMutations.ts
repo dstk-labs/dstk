@@ -16,12 +16,14 @@ export const ModelVersionInputType = builder.inputType("ModelVersionInput", {
   fields: t => ({
     modelId: t.string({ required: true }),
     description: t.string(),
+    metadata: t.field({ type: "JSONObject" }),
   }),
 });
 
 export const EditModelVersionInputType = builder.inputType("EditModelVersion", {
   fields: t => ({
     description: t.string(),
+    metadata: t.field({ type: "JSONObject" }),
   }),
 });
 
@@ -128,6 +130,7 @@ builder.objectFields(ModelVersionMutation, t => ({
           .values({
             modelId: args.data.modelId,
             description: args.data.description,
+            metadata: args.data.metadata,
             numericVersion: incrementedVersion,
             s3Prefix,
             createdById: ctx.user.id,
@@ -162,7 +165,11 @@ builder.objectFields(ModelVersionMutation, t => ({
       const results = await db.transaction().execute(async (trx) => {
         const mlModelVersion = await trx
           .selectFrom("registry.modelVersions")
-          .select(["registry.modelVersions.isArchived", "registry.modelVersions.modelId"])
+          .select([
+            "registry.modelVersions.isArchived",
+            "registry.modelVersions.isFinalized",
+            "registry.modelVersions.modelId",
+          ])
           .where("registry.modelVersions.modelVersionId", "=", args.modelVersionId)
           .executeTakeFirstOrThrow(() => new RegistryOperationError({ name: "VERSION_PERMISSION_ERROR" }));
 
@@ -200,10 +207,15 @@ builder.objectFields(ModelVersionMutation, t => ({
           throw new RegistryOperationError({ name: "ARCHIVED_MODEL_VERSION_ERROR" });
         }
 
+        if (args.data.metadata !== undefined && mlModelVersion.isFinalized === true) {
+          throw new RegistryOperationError({ name: "PUBLISHED_MODEL_VERSION_ERROR" });
+        }
+
         const result = await trx
           .updateTable("registry.modelVersions")
           .set({
             description: args.data.description,
+            metadata: args.data.metadata,
             dateModified: new Date(),
             modifiedById: ctx.user.id,
           })

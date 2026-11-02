@@ -10,6 +10,7 @@ const config: CodegenConfig = {
       // to generate enums as string literal union types.
       config: {
         enumsAsTypes: true,
+        scalars: { JSONObject: "unknown" },
       },
       preset: "client",
       presetConfig: {
@@ -20,6 +21,7 @@ const config: CodegenConfig = {
       // Also apply the same config here for consistency
       config: {
         enumsAsTypes: true,
+        scalars: { JSONObject: "unknown" },
       },
       plugins: ["typescript", "typescript-operations"],
     },

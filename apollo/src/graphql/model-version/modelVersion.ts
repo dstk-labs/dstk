@@ -31,6 +31,12 @@ builder.objectType(MLModelVersion, {
     isFinalized: t.exposeBoolean("isFinalized"),
     numericVersion: t.exposeInt("numericVersion"),
     description: t.exposeString("description"),
+    metadata: t.field({
+      type: "JSONObject",
+      resolve(root: KyselyMLModelVersion, _args, _ctx) {
+        return root.metadata;
+      },
+    }),
     dateCreated: t.field({
       type: "String",
       resolve(root: KyselyMLModelVersion, _args, _ctx) {
