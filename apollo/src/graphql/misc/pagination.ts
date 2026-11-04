@@ -56,6 +56,7 @@ export async function paginate<DB, TB extends keyof DB & string, Row>(
   query: SelectQueryBuilder<DB, TB, Row>,
   keys: NoInfer<StringReference<DB, TB>>[],
   { first, after }: PageArgs,
+  order: "asc" | "desc" = "asc",
 ): Promise<Page<Row>> {
   const keyRefs = keys.map(key => sql.ref(key));
 
@@ -66,11 +67,12 @@ export async function paginate<DB, TB extends keyof DB & string, Row>(
 
   if (after) {
     const values = decodeCursor(after, keys.length);
-    pageQuery = pageQuery.where(sql<boolean>`(${sql.join(keyRefs)}) > (${sql.join(values)})`);
+    const comparison = order === "asc" ? sql`>` : sql`<`;
+    pageQuery = pageQuery.where(sql<boolean>`(${sql.join(keyRefs)}) ${comparison} (${sql.join(values)})`);
   }
 
   for (const ref of keyRefs) {
-    pageQuery = pageQuery.orderBy(ref, "asc");
+    pageQuery = pageQuery.orderBy(ref, order);
   }
 
   const rows = await pageQuery.limit(first + 1).execute();
