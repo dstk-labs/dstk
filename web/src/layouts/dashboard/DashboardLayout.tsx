@@ -37,7 +37,7 @@ export function DashboardLayout() {
         <Topbar onToggleSidebar={toggle} sidebarOpened={opened} />
       </AppShell.Header>
       <AppShell.Navbar className={styles.navbar}>
-        <Sidebar onNavigate={close} user={user} />
+        <Sidebar onClose={close} user={user} />
       </AppShell.Navbar>
       <AppShell.Main className={styles.main}>
         <DashboardBreadcrumbs />
