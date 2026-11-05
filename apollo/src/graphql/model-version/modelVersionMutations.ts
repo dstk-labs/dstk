@@ -83,7 +83,11 @@ builder.objectFields(ModelVersionMutation, t => ({
       const results = await db.transaction().execute(async (trx) => {
         const parentModel = await trx
           .selectFrom("registry.models")
-          .select(["registry.models.isArchived", "registry.models.projectId"])
+          .select([
+            "registry.models.isArchived",
+            "registry.models.modelName",
+            "registry.models.projectId",
+          ])
           .where("registry.models.modelId", "=", args.data.modelId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
@@ -146,6 +150,18 @@ builder.objectFields(ModelVersionMutation, t => ({
           .where("registry.models.modelId", "=", args.data.modelId)
           .execute();
 
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: project.teamId,
+            actorId: ctx.user.id,
+            action: "created",
+            resourceType: "model_version",
+            resourceId: mlModelVersion.modelVersionId,
+            resourceName: `${parentModel.modelName} v${mlModelVersion.numericVersion}`,
+          })
+          .execute();
+
         return mlModelVersion;
       });
 
@@ -175,7 +191,7 @@ builder.objectFields(ModelVersionMutation, t => ({
 
         const parentModel = await trx
           .selectFrom("registry.models")
-          .select(["registry.models.projectId"])
+          .select(["registry.models.modelName", "registry.models.projectId"])
           .where("registry.models.modelId", "=", mlModelVersion.modelId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
@@ -225,6 +241,18 @@ builder.objectFields(ModelVersionMutation, t => ({
             () => new RegistryOperationError({ name: "MODEL_VERSION_WRITE_ERROR" }),
           );
 
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: project.teamId,
+            actorId: ctx.user.id,
+            action: "edited",
+            resourceType: "model_version",
+            resourceId: result.modelVersionId,
+            resourceName: `${parentModel.modelName} v${result.numericVersion}`,
+          })
+          .execute();
+
         return result;
       });
 
@@ -256,6 +284,7 @@ builder.objectFields(ModelVersionMutation, t => ({
           .selectFrom("registry.models")
           .select([
             "registry.models.modelId",
+            "registry.models.modelName",
             "registry.models.projectId",
             "registry.models.isArchived",
           ])
@@ -304,6 +333,18 @@ builder.objectFields(ModelVersionMutation, t => ({
           .returningAll()
           .executeTakeFirstOrThrow();
 
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: project.teamId,
+            actorId: ctx.user.id,
+            action: "published",
+            resourceType: "model_version",
+            resourceId: publishedMlModelVersion.modelVersionId,
+            resourceName: `${parentModel.modelName} v${publishedMlModelVersion.numericVersion}`,
+          })
+          .execute();
+
         return publishedMlModelVersion;
       });
 
@@ -336,7 +377,7 @@ builder.objectFields(ModelVersionMutation, t => ({
 
         const parentModel = await trx
           .selectFrom("registry.models")
-          .select("registry.models.projectId")
+          .select(["registry.models.modelName", "registry.models.projectId"])
           .where("registry.models.modelId", "=", mlModelVersion.modelId)
           .executeTakeFirstOrThrow(
             () => new RegistryOperationError({ name: "MODEL_PERMISSION_ERROR" }),
@@ -375,6 +416,18 @@ builder.objectFields(ModelVersionMutation, t => ({
           .returningAll()
           .executeTakeFirstOrThrow();
 
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: project.teamId,
+            actorId: ctx.user.id,
+            action: archivedModelVersion.isArchived ? "archived" : "unarchived",
+            resourceType: "model_version",
+            resourceId: archivedModelVersion.modelVersionId,
+            resourceName: `${parentModel.modelName} v${archivedModelVersion.numericVersion}`,
+          })
+          .execute();
+
         return archivedModelVersion;
       });
 
@@ -396,6 +449,7 @@ builder.objectFields(ModelVersionMutation, t => ({
           "registry.modelVersions.modelId",
           "registry.modelVersions.isArchived",
           "registry.modelVersions.isFinalized",
+          "registry.modelVersions.numericVersion",
           "registry.modelVersions.s3Prefix",
         ])
         .where("registry.modelVersions.modelVersionId", "=", args.data.modelVersionId)
@@ -415,6 +469,7 @@ builder.objectFields(ModelVersionMutation, t => ({
         .selectFrom("registry.models")
         .select([
           "registry.models.storageProviderId",
+          "registry.models.modelName",
           "registry.models.projectId",
           "registry.models.isArchived",
         ])
@@ -516,6 +571,20 @@ builder.objectFields(ModelVersionMutation, t => ({
           args.data.uploadId,
           args.data.multipartUpload,
         );
+
+        await db
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: project.teamId,
+            actorId: ctx.user.id,
+            action: "file_uploaded",
+            resourceType: "model_version",
+            resourceId: args.data.modelVersionId,
+            resourceName: `${parentModel.modelName} v${mlModelVersion.numericVersion}`,
+            details: { filename: args.data.filename },
+          })
+          .execute();
+
         return {
           uploadId: args.data.uploadId,
           key,

@@ -184,15 +184,6 @@ function createAppRouter() {
                           },
                           path: paths.dashboard.modelVersionCard.path,
                         },
-                        {
-                          lazy: async () => {
-                            const { ModelVersionLogsPage } = await import(
-                              "./pages/dashboard/models/modelVersions/modelVersion/logs/ModelVersionLogsPage",
-                            );
-                            return { Component: ModelVersionLogsPage };
-                          },
-                          path: paths.dashboard.modelVersionLogs.path,
-                        },
                       ],
                       handle: {
                         crumb: () => {
@@ -277,6 +268,25 @@ function createAppRouter() {
                 crumb: () => "Models",
               },
               path: paths.dashboard.models.path,
+            },
+            {
+              handle: {
+                crumb: () => "Logs",
+              },
+              lazy: async () => {
+                const { LogsPage } = await import(
+                  "./pages/dashboard/logs/LogsPage",
+                );
+                return { Component: LogsPage };
+              },
+              loader: async (params) => {
+                const { auditLogsLoader } = await import(
+                  "./features/auditLogs/loaders/auditLogsLoader",
+                );
+
+                return auditLogsLoader(params);
+              },
+              path: paths.dashboard.logs.path,
             },
             {
               handle: {

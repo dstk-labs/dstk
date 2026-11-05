@@ -1,6 +1,7 @@
 // Alphabetize plz
 import { builder } from "@/builder.js";
 
+export * from "./audit-log/index.js";
 export * from "./auth/auth.js";
 export * from "./auth/authMutations.js";
 
