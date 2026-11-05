@@ -38,7 +38,7 @@ builder.objectType(MLModel, {
         const currentModelVersion = await db
           .selectFrom("registry.modelVersions")
           .selectAll()
-          .where("registry.modelVersions.modelId", "=", root.currentModelVersionId)
+          .where("registry.modelVersions.modelVersionId", "=", root.currentModelVersionId)
           .executeTakeFirst();
         return currentModelVersion;
       },
