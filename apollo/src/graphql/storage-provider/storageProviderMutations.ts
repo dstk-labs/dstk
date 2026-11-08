@@ -85,6 +85,18 @@ builder.objectFields(StorageProviderMutation, t => ({
           .returningAll()
           .executeTakeFirstOrThrow();
 
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: storageProvider.teamId,
+            actorId: ctx.user.id,
+            action: "created",
+            resourceType: "storage_provider",
+            resourceId: storageProvider.providerId,
+            resourceName: storageProvider.bucket,
+          })
+          .execute();
+
         return storageProvider;
       });
 
@@ -137,6 +149,18 @@ builder.objectFields(StorageProviderMutation, t => ({
           .where("registry.storageProviders.providerId", "=", args.data.providerId)
           .returningAll()
           .executeTakeFirstOrThrow();
+
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: result.teamId,
+            actorId: ctx.user.id,
+            action: "edited",
+            resourceType: "storage_provider",
+            resourceId: result.providerId,
+            resourceName: result.bucket,
+          })
+          .execute();
 
         return result;
       });
@@ -191,6 +215,18 @@ builder.objectFields(StorageProviderMutation, t => ({
           .where("registry.storageProviders.providerId", "=", args.providerId)
           .returningAll()
           .executeTakeFirstOrThrow();
+
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: result.teamId,
+            actorId: ctx.user.id,
+            action: result.isArchived ? "archived" : "unarchived",
+            resourceType: "storage_provider",
+            resourceId: result.providerId,
+            resourceName: result.bucket,
+          })
+          .execute();
 
         return result;
       });

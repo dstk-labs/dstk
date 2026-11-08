@@ -72,6 +72,18 @@ builder.objectFields(ProjectMutation, t => ({
           .returningAll()
           .executeTakeFirstOrThrow();
 
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: project.teamId,
+            actorId: ctx.user.id,
+            action: "created",
+            resourceType: "project",
+            resourceId: project.projectId,
+            resourceName: project.name,
+          })
+          .execute();
+
         return project;
       });
       return results;
@@ -119,6 +131,18 @@ builder.objectFields(ProjectMutation, t => ({
           .where("dstkUser.projects.projectId", "=", args.projectId)
           .returningAll()
           .executeTakeFirstOrThrow();
+
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: result.teamId,
+            actorId: ctx.user.id,
+            action: result.isArchived ? "archived" : "unarchived",
+            resourceType: "project",
+            resourceId: result.projectId,
+            resourceName: result.name,
+          })
+          .execute();
 
         return result;
       });
@@ -172,6 +196,18 @@ builder.objectFields(ProjectMutation, t => ({
           .where("dstkUser.projects.projectId", "=", args.data.projectId)
           .returningAll()
           .executeTakeFirstOrThrow();
+
+        await trx
+          .insertInto("dstkUser.auditLogs")
+          .values({
+            teamId: result.teamId,
+            actorId: ctx.user.id,
+            action: "edited",
+            resourceType: "project",
+            resourceId: result.projectId,
+            resourceName: result.name,
+          })
+          .execute();
 
         return result;
       });

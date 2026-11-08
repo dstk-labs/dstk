@@ -5,6 +5,10 @@
 
 import type { ColumnType } from "kysely";
 
+export type AuditAction = "archived" | "created" | "edited" | "file_uploaded" | "published" | "unarchived";
+
+export type AuditResourceType = "model" | "model_version" | "project" | "storage_provider";
+
 export type AuthAalLevel = "aal1" | "aal2" | "aal3";
 
 export type AuthCodeChallengeMethod = "plain" | "s256";
@@ -425,6 +429,18 @@ export interface DstkUserApiKeys {
   userId: string;
 }
 
+export interface DstkUserAuditLogs {
+  action: AuditAction;
+  actorId: string | null;
+  dateCreated: Generated<Timestamp>;
+  details: Json | null;
+  id: Generated<number>;
+  resourceId: string;
+  resourceName: string;
+  resourceType: AuditResourceType;
+  teamId: string;
+}
+
 export interface DstkUserDeviceCodes {
   clientId: string | null;
   dateCreated: Generated<Timestamp>;
@@ -804,6 +820,7 @@ export interface DB {
   "dstkMetadata.patchStatus": DstkMetadataPatchStatus;
   "dstkUser.accounts": DstkUserAccounts;
   "dstkUser.apiKeys": DstkUserApiKeys;
+  "dstkUser.auditLogs": DstkUserAuditLogs;
   "dstkUser.deviceCodes": DstkUserDeviceCodes;
   "dstkUser.invitations": DstkUserInvitations;
   "dstkUser.members": DstkUserMembers;
